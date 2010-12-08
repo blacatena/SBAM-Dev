@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.bytecode.use_reflection_optimizer">false</property>
+        <property name="hibernate.c3p0.max_size">50</property>
+        <property name="hibernate.c3p0.min_size">3</property>
+        <property name="hibernate.c3p0.timeout">1800</property>
+        <property name="hibernate.cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+        <property name="hibernate.cache.use_minimal_puts">false</property>
+        <property name="hibernate.cache.use_query_cache">false</property>
+        <property name="hibernate.connection.autocommit">true</property>
+        <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="hibernate.connection.password">sbam0</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost/sbam</property>
+        <property name="hibernate.connection.username">sbam</property>
+        <property name="hibernate.current_session_context_class">thread</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+        <property name="hibernate.max_fetch_depth">3</property>
+        <property name="hibernate.show_sql">false</property>
+        <mapping resource="com/scholastic/sbam/server/database/codegen/User.hbm.xml" />
+        <mapping resource="com/scholastic/sbam/server/database/codegen/WelcomeMessage.hbm.xml" />
+        <mapping resource="com/scholastic/sbam/server/database/codegen/Product.hbm.xml" />
+        <mapping resource="com/scholastic/sbam/server/database/codegen/UserRole.hbm.xml" />
+    </session-factory>
+</hibernate-configuration>

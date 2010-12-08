@@ -1,0 +1,91 @@
+/** Add css rules here for your application. */
+
+
+/** Example rules used by the template application (remove for your app) */
+h1 {
+  font-size: 1.5em;
+  font-weight: bold;
+  font-style: italic;
+  color: #6c5f4a;
+  margin: 40px 0px 70px;
+}
+h2 {
+  font-size: 1em;
+  font-weight: bold;
+  font-style: italic;
+  color: #5e5c55;
+  margin: 5px 20px 10px 20px;
+}
+hr {
+	color: #6c5f4a;
+	margin: 10px 10px 10px 10px;
+}
+
+.unused-sendButton {
+  display: block;
+  font-size: 16pt;
+}
+
+.x-status-fail {
+background-image:url(resources/themes/xtheme-wheat/images/wheat/shared/warning.gif);
+}
+
+.sbamAppLoading {
+	position: absolute; 
+	top: 50%; 
+	left: 50%; 
+	font-family: Arial; 
+	font-style: italic; 
+	font-size: 9pt;
+	background-image: url('resources/images/loading.gif');
+	background-repeat: no-repeat;
+	background-position: 5px 5px;
+	border: 1px solid gray;
+	padding-top: 15px;
+	padding-left: 50px;
+	padding-bottom: 15px;
+	padding-right: 5px;
+}
+
+.sbamMsg {
+/*	border: 1px solid gray; */
+	padding-top: 0px;
+}
+
+.sbamMsg .sbamMsgHeader {
+	padding: 10px;
+}
+
+.sbamMsg .sbamMsgHeader .sbamMsgTitle {
+	display: inline;
+	font-weight: bold;
+}
+
+.sbamMsg .sbamMsgHeader .sbamMsgPostDate {
+	display: inline;
+	font-style: italic;
+	color: gray;
+	padding-right: 100px;
+}
+
+.sbamMsg .sbamMsgContent {
+	padding: 10px;
+	padding-left: 50px;
+}
+
+/* override modal behavior to be darker */
+*.x-modal {
+  filter: alpha(opacity =                         60);
+  opacity: .6;
+}
+
+/* These are necessary, because the theme doesn't "take" -- change these if the theme changes */
+/* Managed now by adding the style "x-panel" wherever needed
+.x-border {
+  border-color: #6C5F4A;
+}
+
+.x-border-top {
+  border-color: #6C5F4A;
+}
+*/
