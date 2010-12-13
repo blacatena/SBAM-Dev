@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Dec 13, 2010 4:13:43 PM by Hibernate Tools 3.2.4.GA
+// Generated Dec 13, 2010 5:22:16 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -14,6 +14,7 @@ public class UserMessage implements java.io.Serializable {
 	private String locationTag;
 	private int windowPosX;
 	private int windowPosY;
+	private int windowPosZ;
 	private String text;
 	private Date createDate;
 	private char status;
@@ -22,11 +23,13 @@ public class UserMessage implements java.io.Serializable {
 	}
 
 	public UserMessage(String userName, String locationTag, int windowPosX,
-			int windowPosY, String text, Date createDate, char status) {
+			int windowPosY, int windowPosZ, String text, Date createDate,
+			char status) {
 		this.userName = userName;
 		this.locationTag = locationTag;
 		this.windowPosX = windowPosX;
 		this.windowPosY = windowPosY;
+		this.windowPosZ = windowPosZ;
 		this.text = text;
 		this.createDate = createDate;
 		this.status = status;
@@ -70,6 +73,14 @@ public class UserMessage implements java.io.Serializable {
 
 	public void setWindowPosY(int windowPosY) {
 		this.windowPosY = windowPosY;
+	}
+
+	public int getWindowPosZ() {
+		return this.windowPosZ;
+	}
+
+	public void setWindowPosZ(int windowPosZ) {
+		this.windowPosZ = windowPosZ;
 	}
 
 	public String getText() {
