@@ -99,8 +99,7 @@ public class AppHolder extends Composite {
 		buttonBar.add(btnNewNote);
 		btnNewNote.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				System.out.println("Create a note.");
-				StickyNote note = new StickyNote();
+				StickyNoteWindow note = new StickyNoteWindow();
 				note.show();
 			}
 		});
