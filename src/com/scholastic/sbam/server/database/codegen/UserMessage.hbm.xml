@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Dec 13, 2010 4:13:44 PM by Hibernate Tools 3.2.4.GA -->
+<hibernate-mapping>
+    <class name="com.scholastic.sbam.server.database.codegen.UserMessage" table="user_message" catalog="sbam">
+        <id name="id" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <property name="userName" type="string">
+            <column name="user_name" length="32" not-null="true" />
+        </property>
+        <property name="locationTag" type="string">
+            <column name="location_tag" length="32" not-null="true" />
+        </property>
+        <property name="windowPosX" type="int">
+            <column name="window_pos_x" not-null="true" />
+        </property>
+        <property name="windowPosY" type="int">
+            <column name="window_pos_y" not-null="true" />
+        </property>
+        <property name="text" type="string">
+            <column name="text" length="65535" not-null="true" />
+        </property>
+        <property name="createDate" type="timestamp">
+            <column name="create_date" length="19" not-null="true" />
+        </property>
+        <property name="status" type="char">
+            <column name="status" length="1" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>
