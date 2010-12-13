@@ -50,7 +50,8 @@ public class WelcomeMessageServiceImpl extends RemoteServiceServlet implements W
 			}
 		} catch (Exception exc) {
 			exc.printStackTrace();
-			return "Internal error getting Welcome Messages:<br/><br/>" + WebUtilities.getAsHtml(exc.toString());
+			sb.append("Internal error getting Welcome Messages:<br/><br/>");
+			sb.append(WebUtilities.getAsHtml(exc.toString()));
 		}
 		
 		HibernateUtil.endTransaction();
