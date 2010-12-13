@@ -22,6 +22,11 @@
     <servlet-class>com.scholastic.sbam.server.servlets.WelcomeMessageServiceImpl</servlet-class>
   </servlet>
   
+  <servlet>
+    <servlet-name>userMessageServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UserMessageServiceImpl</servlet-class>
+  </servlet>
+  
   <servlet-mapping>
     <servlet-name>authenticateServlet</servlet-name>
     <url-pattern>/sbam/authenticate</url-pattern>
@@ -36,6 +41,12 @@
     <servlet-name>welcomeMessageServlet</servlet-name>
     <url-pattern>/sbam/getWelcomeMessages</url-pattern>
   </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>userMessageServlet</servlet-name>
+    <url-pattern>/sbam/getUserMessages</url-pattern>
+  </servlet-mapping>
+  
 
   <resource-ref>
      <description>SBAM DataSource Reference</description>
