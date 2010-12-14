@@ -20,6 +20,7 @@ public class LoginUiManager {
 	private static final String	DISPLAY_NOT_LOGGED_IN = "<B><I>Please log in.</I></B>";
 
 	private boolean			loggedIn = false;
+	private String			loggedInUserName;
 	
 	//	The Application (to apply security changes on login)
 	private AppNav			theApp;
@@ -111,6 +112,8 @@ public class LoginUiManager {
 				public void onSuccess(Authentication auth) {
 					loggedIn = auth.isAuthenticated();
 					if (loggedIn) {
+						loggedInUserName = auth.getUserName();
+						System.out.println("logge in user is " + loggedInUserName);
 						//	Blank out the previous password, so it can't be stolen
 						loginBox.getPassword().setValue("");
 						loginBox.status.clearStatus("");
@@ -122,6 +125,7 @@ public class LoginUiManager {
 						//	Hide the login dialog
 						loginBox.hide();
 					} else {
+						loggedInUserName = null;
 						noRoles();
 						loginBox.getUserName().forceInvalid(auth.getMessage());
 						loginBox.status.setStatus("Failed.", "x-status-fail");
@@ -159,6 +163,7 @@ public class LoginUiManager {
 	}
 	
 	public void setLoggedOut() {
+		loggedInUserName = null;
 		if (displayName != null)
 			displayName.setHtml(DISPLAY_NOT_LOGGED_IN);
 		if (logoutButton != null)
@@ -170,6 +175,14 @@ public class LoginUiManager {
 			displayName.setHtml(loggedInName);
 		if (logoutButton != null)
 			logoutButton.setVisible(true);
+	}
+
+	public String getLoggedInUserName() {
+		return loggedInUserName;
+	}
+
+	public void setLoggedInUserName(String loggedInUserName) {
+		this.loggedInUserName = loggedInUserName;
 	}
 
 	public LoggedInPanel getLoggedInPanel() {

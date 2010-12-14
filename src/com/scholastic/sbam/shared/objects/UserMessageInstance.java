@@ -9,6 +9,8 @@ public class UserMessageInstance implements IsSerializable {
 	private int		x;
 	private int		y;
 	private int		z;
+	private int		width;
+	private int		height;
 	private String	text;
 	private String	created;
 	private String	deleted;
@@ -48,6 +50,18 @@ public class UserMessageInstance implements IsSerializable {
 	}
 	public void setZ(int z) {
 		this.z = z;
+	}
+	public int getWidth() {
+		return width;
+	}
+	public void setWidth(int width) {
+		this.width = width;
+	}
+	public int getHeight() {
+		return height;
+	}
+	public void setHeight(int height) {
+		this.height = height;
 	}
 	public String getText() {
 		return text;

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Dec 14, 2010 10:14:29 AM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Dec 14, 2010 11:47:19 AM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.UserMessage" table="user_message" catalog="sbam">
         <id name="id" type="java.lang.Integer">
@@ -22,6 +22,12 @@
         </property>
         <property name="windowPosZ" type="int">
             <column name="window_pos_z" not-null="true" />
+        </property>
+        <property name="windowWidth" type="int">
+            <column name="window_width" not-null="true" />
+        </property>
+        <property name="windowHeight" type="int">
+            <column name="window_height" not-null="true" />
         </property>
         <property name="text" type="string">
             <column name="text" length="65535" not-null="true" />

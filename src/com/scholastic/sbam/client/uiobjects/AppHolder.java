@@ -19,24 +19,25 @@ public class AppHolder extends Composite {
 	private LayoutContainer headerContainer;
 	private LayoutContainer centerContainer;
 	private LayoutContainer footerContainer;
-	private Html htmlHeader;
+	private Html 			htmlHeader;
 	private LayoutContainer contentContainer;
-	private Html htmlsbamrocks;
+	private Html 			htmlsbamrocks;
 	private LayoutContainer titleContainer;
 	private LayoutContainer toolbarContainer;
-	private ButtonBar buttonBar;
+	private ButtonBar 		buttonBar;
 
 	public AppHolder() {
-		initAppHolder(null, null, null);
+		initAppHolder(null, null, null, null);
 	}
 	/**
 	 * @wbp.parser.constructor
 	 */
-	public AppHolder(Widget headerWidget, Widget contentWidget, Widget footerWidget) {
-		initAppHolder(headerWidget, contentWidget, footerWidget);
+	public AppHolder(Widget headerWidget, Widget contentWidget, Widget footerWidget, LoginUiManager	loginUiManager) {
+		initAppHolder(headerWidget, contentWidget, footerWidget, loginUiManager);
 	}
 	
-	public void initAppHolder(Widget headerWidget, Widget contentWidget, Widget footerWidget) {
+	public void initAppHolder(Widget headerWidget, Widget contentWidget, Widget footerWidget, LoginUiManager	loginUiManager) {
+		final LoginUiManager thisLoginUiManager = loginUiManager;
 		
 		LayoutContainer anchorContainer = new LayoutContainer();
 		anchorContainer.setLayout(new AnchorLayout());
@@ -99,7 +100,8 @@ public class AppHolder extends Composite {
 		buttonBar.add(btnNewNote);
 		btnNewNote.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				StickyNoteWindow note = new StickyNoteWindow();
+				System.out.println("New note for " + thisLoginUiManager.getLoggedInUserName());
+				StickyNoteWindow note = new StickyNoteWindow(thisLoginUiManager.getLoggedInUserName(), "");
 				note.show();
 			}
 		});
@@ -139,5 +141,6 @@ public class AppHolder extends Composite {
 	public void setFooterContainer(LayoutContainer footerContainer) {
 		this.footerContainer = footerContainer;
 	}
+	
 
 }

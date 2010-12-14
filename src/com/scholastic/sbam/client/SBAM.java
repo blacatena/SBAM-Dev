@@ -40,7 +40,7 @@ public class SBAM implements EntryPoint {
 		viewport.setLayout(new FitLayout());  
 
 		//	Use an AppHolder to manage the header, footer and content areas
-		AppHolder app = new AppHolder(loginUiManager.getLoggedInPanel(), loginUiManager.getTheApp(), null);
+		AppHolder app = new AppHolder(loginUiManager.getLoggedInPanel(), loginUiManager.getTheApp(), null, loginUiManager);
 		viewport.add(app);
 		
 		rootPanel.add(viewport);

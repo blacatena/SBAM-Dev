@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Dec 14, 2010 10:14:29 AM by Hibernate Tools 3.2.4.GA
+// Generated Dec 14, 2010 11:47:18 AM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -15,6 +15,8 @@ public class UserMessage implements java.io.Serializable {
 	private int windowPosX;
 	private int windowPosY;
 	private int windowPosZ;
+	private int windowWidth;
+	private int windowHeight;
 	private String text;
 	private Date createDate;
 	private char status;
@@ -23,13 +25,15 @@ public class UserMessage implements java.io.Serializable {
 	}
 
 	public UserMessage(String userName, String locationTag, int windowPosX,
-			int windowPosY, int windowPosZ, String text, Date createDate,
-			char status) {
+			int windowPosY, int windowPosZ, int windowWidth, int windowHeight,
+			String text, Date createDate, char status) {
 		this.userName = userName;
 		this.locationTag = locationTag;
 		this.windowPosX = windowPosX;
 		this.windowPosY = windowPosY;
 		this.windowPosZ = windowPosZ;
+		this.windowWidth = windowWidth;
+		this.windowHeight = windowHeight;
 		this.text = text;
 		this.createDate = createDate;
 		this.status = status;
@@ -81,6 +85,22 @@ public class UserMessage implements java.io.Serializable {
 
 	public void setWindowPosZ(int windowPosZ) {
 		this.windowPosZ = windowPosZ;
+	}
+
+	public int getWindowWidth() {
+		return this.windowWidth;
+	}
+
+	public void setWindowWidth(int windowWidth) {
+		this.windowWidth = windowWidth;
+	}
+
+	public int getWindowHeight() {
+		return this.windowHeight;
+	}
+
+	public void setWindowHeight(int windowHeight) {
+		this.windowHeight = windowHeight;
 	}
 
 	public String getText() {

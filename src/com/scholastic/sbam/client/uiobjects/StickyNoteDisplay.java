@@ -24,11 +24,19 @@ public class StickyNoteDisplay extends Composite {
 	private StickyNoteEditor stickyNoteEditor;
 
 	public StickyNoteDisplay() {
-		
+		init("Put your <b>thoughts</b> <em>here</em>.");
+	}
+
+
+	public StickyNoteDisplay(String msg) {
+		init(msg);
+	}
+	
+	private void init(String msg) {
 		LayoutContainer editorContainer = new LayoutContainer();
 		editorContainer.setLayout(new BorderLayout());
 		
-		htmlNote = new Html("Place your thoughts <em>here</em>.");
+		htmlNote = new Html(msg);
 		editorContainer.add(htmlNote, new BorderLayoutData(LayoutRegion.CENTER));
 		
 		LayoutContainer toolsContainer = new LayoutContainer();
