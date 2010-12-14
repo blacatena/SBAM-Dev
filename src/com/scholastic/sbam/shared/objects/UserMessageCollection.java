@@ -29,4 +29,12 @@ public class UserMessageCollection implements IsSerializable {
 	public void add(UserMessageInstance userMessage) {
 		userMessages.add(userMessage);
 	}
+	
+	public void remove(UserMessageInstance userMessage) {
+		userMessages.remove(userMessage);
+	}
+	
+	public void remove(int index) {
+		userMessages.remove(index);
+	}
 }

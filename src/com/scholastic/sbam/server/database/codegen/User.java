@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Dec 13, 2010 5:22:16 PM by Hibernate Tools 3.2.4.GA
+// Generated Dec 14, 2010 10:14:29 AM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -14,6 +14,7 @@ public class User implements java.io.Serializable {
 	private String password;
 	private String firstName;
 	private String lastName;
+	private String email;
 	private int loginCount;
 	private int sessionId;
 	private Date sessionStartTime;
@@ -22,20 +23,23 @@ public class User implements java.io.Serializable {
 	public User() {
 	}
 
-	public User(String userName, String password, int loginCount, int sessionId) {
+	public User(String userName, String password, String email, int loginCount,
+			int sessionId) {
 		this.userName = userName;
 		this.password = password;
+		this.email = email;
 		this.loginCount = loginCount;
 		this.sessionId = sessionId;
 	}
 
 	public User(String userName, String password, String firstName,
-			String lastName, int loginCount, int sessionId,
+			String lastName, String email, int loginCount, int sessionId,
 			Date sessionStartTime, Date sessionExpireTime) {
 		this.userName = userName;
 		this.password = password;
 		this.firstName = firstName;
 		this.lastName = lastName;
+		this.email = email;
 		this.loginCount = loginCount;
 		this.sessionId = sessionId;
 		this.sessionStartTime = sessionStartTime;
@@ -80,6 +84,14 @@ public class User implements java.io.Serializable {
 
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
+	}
+
+	public String getEmail() {
+		return this.email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	public int getLoginCount() {
