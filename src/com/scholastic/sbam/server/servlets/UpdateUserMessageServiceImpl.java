@@ -34,7 +34,6 @@ public class UpdateUserMessageServiceImpl extends RemoteServiceServlet implement
 			String userName = auth.getUserName();
 			UserMessage dbInstance = null;
 			
-			System.out.println("Update id " + instance.getId());
 			returnId = instance.getId();
 			
 			if (instance.getId() >= 0) {

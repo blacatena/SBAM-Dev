@@ -38,6 +38,7 @@ public class UserMessageServiceImpl extends RemoteServiceServlet implements User
 				instance.setId(msg.getId());
 				instance.setUserName(msg.getUserName());
 				instance.setLocationTag(msg.getLocationTag());
+				instance.setCreated(msg.getCreateDate() + "");
 				instance.setStatus(msg.getStatus());
 				instance.setText(msg.getText());
 				instance.setX(msg.getWindowPosX());

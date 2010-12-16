@@ -47,7 +47,7 @@ public class StickyNoteEditor extends Composite {
 		
 		htmlEditor = new HtmlEditor();
 		editorContainer.add(htmlEditor, new BorderLayoutData(LayoutRegion.CENTER));
-		htmlEditor.setFieldLabel("New HtmlEditor");
+		htmlEditor.setFieldLabel("Note Editor");
 		
 		LayoutContainer toolsContainer = new LayoutContainer();
 		toolsContainer.setHeight(25);
@@ -91,7 +91,7 @@ public class StickyNoteEditor extends Composite {
 
 					public void onSuccess(Integer id) {
 						if (msg.getId() != id.intValue()) {
-							System.out.println("Added as id " + id + " [" + msg.getId() + "]");
+//							System.out.println("Added as id " + id + " [" + msg.getId() + "]");
 							msg.setId(id);
 						}
 					}

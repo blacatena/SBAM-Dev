@@ -1,5 +1,7 @@
 package com.scholastic.sbam.client.uiobjects;
 
+import java.util.Date;
+
 import com.extjs.gxt.ui.client.event.ResizeEvent;
 import com.extjs.gxt.ui.client.event.WindowEvent;
 import com.extjs.gxt.ui.client.event.WindowListener;
@@ -38,12 +40,8 @@ public class StickyNoteWindow extends Window {
 	public StickyNoteWindow(UserMessageInstance msg) {
 		this.msg = msg;
 
-//		title = msg.getText();
-//		if (title.length() > 20) 
-//			title = title.substring(1,20) + "É";
-
 		init();
-		System.out.println("Now set size to " + msg.getWidth() + " / " + msg.getHeight());
+		setTitle();
 		setSize(msg.getWidth(), msg.getHeight());
 	}
 	
@@ -53,7 +51,7 @@ public class StickyNoteWindow extends Window {
 		msg.setLocationTag(location);
 		msg.setUserName(userName);
 		msg.setStatus('A');
-		msg.setCreated("");
+		msg.setCreated(new Date() + "");
 		msg.setText(DEFAULT_TEXT);
 		msg.setX(-1);
 		msg.setY(-1);
@@ -67,7 +65,6 @@ public class StickyNoteWindow extends Window {
 		msg.setMinimized(false);
 		msg.setMaximized(false);
 		msg.setCollapsed(false);
-//		title = "Note";
 	}
 	
 	private void init() {
@@ -106,7 +103,6 @@ public class StickyNoteWindow extends Window {
 
 		addWindowListener(new WindowListener() {
 			public void windowActivate(WindowEvent we) {
-				System.out.println("Window activated.");
 				if (isRendered()) {
 					UserMessageInstance clone = msg.clone();
 					msg.setZ(getPositionEl().getZIndex());
@@ -114,7 +110,6 @@ public class StickyNoteWindow extends Window {
 				}
 			}
 			public void windowDeactivate(WindowEvent we) {
-				System.out.println("Window deactivated.");
 				if (isRendered()) {
 					UserMessageInstance clone = msg.clone();
 					msg.setZ(getPositionEl().getZIndex());
@@ -122,23 +117,20 @@ public class StickyNoteWindow extends Window {
 				}
 			}
 			public void windowMinimize(WindowEvent we) {
-				System.out.println("Window minimized");
 				UserMessageInstance clone = msg.clone();
-				if (isCollapsed() && getPosition(false).y == 0 && msg.getRestoreY() > 0 && msg.isMinimized()) {
-					System.out.println("Minimized: expand");
+				if (isCollapsed() && getPosition(false).y == 0 && msg.isMinimized()) {
 					setPosition(msg.getRestoreX(), msg.getRestoreY());
 					expand();
 					msg.setMinimized(false);
 					msg.setCollapsed(false);
-					msg.setRestoreX(0);
+//					msg.setRestoreX(0);
 					msg.setRestoreY(0);
 				} else {
-					System.out.println("Expanded: minimize");
 					msg.setMinimized(true);
 					msg.setCollapsed(true);
-					msg.setRestoreX(getPosition(false).x);
-					msg.setRestoreY(getPosition(false).y);
-					setPosition(getPosition(false).x, 0);
+					msg.setRestoreX(msg.getX());	//	should be getPosition(false).x, but it isn't properly set yet in onRender when loading windows from the database
+					msg.setRestoreY(msg.getY());	//	should be getPosition(false).y, but it isn't properly set yet in onRender when loading windows from the database
+					setPosition(msg.getX(), 0);
 					collapse();
 				}
 				updateUserMessage(clone);
@@ -147,10 +139,13 @@ public class StickyNoteWindow extends Window {
 				System.out.println("Window maximized");
 				UserMessageInstance clone = msg.clone();
 				msg.setMaximized(true);
+				msg.setCollapsed(false);
+				msg.setMinimized(false);
+				msg.setRestoreX(msg.getX());
+				msg.setRestoreY(msg.getY());
 				updateUserMessage(clone);
 			}
 			public void windowHide(WindowEvent we) {
-				System.out.println("Window hide");
 				UserMessageInstance clone = msg.clone();
 				msg.setStatus('X');
 				updateUserMessage(clone);
@@ -159,6 +154,8 @@ public class StickyNoteWindow extends Window {
 				System.out.println("Window restore");
 				UserMessageInstance clone = msg.clone();
 				msg.setMaximized(false);
+				msg.setCollapsed(false);
+				msg.setMinimized(false);
 				updateUserMessage(clone);
 			}
 		});
@@ -167,44 +164,38 @@ public class StickyNoteWindow extends Window {
 	protected void onRender(Element parent, int pos) {
 		super.onRender(parent, pos);
 		//	On render, reposition the message if necessary
-		if (msg.getX() >= 0 && msg.getY() >= 0)
-			setPosition(msg.getX(), msg.getY());
 		if (msg.getZ() >= 0)
 			setZIndex(msg.getZ());
 		
-		if (msg.isMinimized())
+		if (msg.isMinimized()) {
+			msg.setY(msg.getRestoreY());	//	For a moment, make the window think it's at the old Y, so it will restore back there
 			minimize();
-		else if (msg.isCollapsed())
+		} else if (msg.isCollapsed())
 			collapse();
 		else if (msg.isMaximized())
 			maximize();
+		else if (msg.getX() >= 0 && msg.getY() >= 0)
+			setPosition(msg.getX(), msg.getY());
 	}
-	
+	 
 	protected void onPosition(int x, int y) {
 		super.onPosition(x, y);
 		UserMessageInstance clone = msg.clone();
 		msg.setX(x);
 		msg.setY(y);
-		System.out.println("Update position to " + x + " , " + y);
 		updateUserMessage(clone);
 	}
-	
-//	protected void onResize(int width, int height) {
-//		
-//	}
 	
 	protected void onEndResize(ResizeEvent re) {
 		super.onEndResize(re);
 		UserMessageInstance clone = msg.clone();
 		msg.setWidth(getWidth());
 		msg.setHeight(getHeight());
-		System.out.println("Update width " + getWidth() + ", height" + getHeight());
 		updateUserMessage(clone);
 	}
 	
 	protected void onCollapse() {
 		super.onCollapse();
-		System.out.println("Collapse");
 		UserMessageInstance clone = msg.clone();
 		msg.setCollapsed(true);
 		updateUserMessage(clone);
@@ -212,18 +203,36 @@ public class StickyNoteWindow extends Window {
 	
 	protected void onExpand() {
 		super.onExpand();
-		System.out.println("Expand");
 		UserMessageInstance clone = msg.clone();
 		msg.setCollapsed(false);
+		msg.setMinimized(false);
 		updateUserMessage(clone);
 	}
 
 	private void updateUserMessage(UserMessageInstance prevMsg) {
 		if (!msg.windowEqual(prevMsg)) {
-			System.out.println("Update");
 			updateUserMessage();
-		} else
-			System.out.println("No update");
+		}
+	}
+	
+	public void setTitle() {
+		String date = msg.getCreated();
+		
+		//	Strip the seconds... it's too busy that way
+		if (date.matches("^.*[0-9]+:[0-9]+:[0-9]+\\.[0-9]+$")) {
+			date = date.replaceFirst(":[0-9]+\\.[0-9]+$", "");
+		}
+		
+		setTitle("Note: " + date);
+//		setTitle(msg.getText());
+	}
+	
+	public void setTitle(String title) {
+		if (title == null)
+			setHeading("New Note");
+		if (title.length() > 30) // Don't let note titles be too long
+			title = title.substring(0,29) + "...";
+		setHeading(title);
 	}
 	
 	private void updateUserMessage() {
@@ -236,13 +245,9 @@ public class StickyNoteWindow extends Window {
 
 					public void onSuccess(Integer id) {
 						if (msg.getId() != id.intValue()) {
-							System.out.println("Added as id " + id + " [" + msg.getId() + "]");
 							msg.setId(id);
 						}
-//						String title = msg.getText();
-//						if (title.length() > 20) 
-//							title = title.substring(1,20) + "É";
-//						setTitle(title);
+						setTitle();
 					}
 			});
 	}
