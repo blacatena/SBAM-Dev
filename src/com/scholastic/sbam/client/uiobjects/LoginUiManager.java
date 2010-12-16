@@ -6,6 +6,7 @@ import java.util.Set;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+//import com.extjs.gxt.ui.client.fx.FxConfig;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -76,6 +77,7 @@ public class LoginUiManager {
 	
 	public void show() {
 	//	loginBox.center();
+	//	loginBox.el().fadeToggle(FxConfig.NONE);
 		loginBox.show();
 	}
 	
@@ -135,6 +137,7 @@ public class LoginUiManager {
 						//	Show who's logged on, and show the logout button
 						setLoggedIn(auth.getDisplayName());
 						//	Hide the login dialog
+					//	loginBox.el().fadeOut(FxConfig.NONE);
 						loginBox.hide();
 						loadUserMessages();
 					} else {
@@ -160,6 +163,7 @@ public class LoginUiManager {
 				public void onSuccess(String result) {
 					setLoggedOut();
 					loginBox.status.clearStatus("");
+				//	loginBox.el().fadeIn(FxConfig.NONE);
 					loginBox.show();
 				}
 			});
@@ -210,17 +214,22 @@ public class LoginUiManager {
 	public void createStickyNote(UserMessageInstance message) {
 		StickyNoteWindow window = new StickyNoteWindow(message);
 		stickyNotes.add(window);
+//		window.layout(true);
+//		window.el().fadeIn(FxConfig.NONE);
 		window.show();
 	}
 	
 	public void createStickyNote(String locationTag) {
 		StickyNoteWindow window = new StickyNoteWindow(loggedInUserName, locationTag);
 		stickyNotes.add(window);
+//		window.layout(true);
+//		window.el().fadeIn(FxConfig.NONE);
 		window.show();
 	}
 	
 	public void destroyStickyNotes() {
 		for (StickyNoteWindow window : stickyNotes) {
+		//	window.el().fadeOut(FxConfig.NONE);
 			window.removeFromParent();
 		}
 	}

@@ -10,6 +10,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -97,6 +98,13 @@ public class AppHolder extends Composite {
 		buttonBar.setWidth(100);
 		
 		Button btnNewNote = new Button("Note");
+		ToolTipConfig config = new ToolTipConfig();
+//		config.setTitle("What's This?");  
+		config.setText("Use this to create an editable sticky note (private to your user name) that will be retained from one session to the next.");  
+		config.setMouseOffset(new int[] {0, -10});
+		config.setTrackMouse(true);
+		config.setAnchor("left");  
+		btnNewNote.setToolTip(config);
 		buttonBar.add(btnNewNote);
 		btnNewNote.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {

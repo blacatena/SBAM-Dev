@@ -5,6 +5,7 @@ import java.util.Date;
 import com.extjs.gxt.ui.client.event.ResizeEvent;
 import com.extjs.gxt.ui.client.event.WindowEvent;
 import com.extjs.gxt.ui.client.event.WindowListener;
+//import com.extjs.gxt.ui.client.fx.FxConfig;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
@@ -160,6 +161,12 @@ public class StickyNoteWindow extends Window {
 			}
 		});
 	}
+	
+//	protected void onHide() {
+//		System.out.println("onHide");
+//		el().fadeToggle(FxConfig.NONE);
+//		super.onHide();
+//	}
 
 	protected void onRender(Element parent, int pos) {
 		super.onRender(parent, pos);

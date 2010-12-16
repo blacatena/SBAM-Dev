@@ -5,6 +5,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+//import com.extjs.gxt.ui.client.fx.FxConfig;
 import com.extjs.gxt.ui.client.util.IconHelper;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Status;
@@ -12,6 +13,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+//import com.google.gwt.user.client.Element;
 
 public class LoginDialog extends Dialog {
 
@@ -106,16 +108,16 @@ public class LoginDialog extends Dialog {
 	        && password.getValue().length() > 3);
 	  }
 
-	public TextField<String> getUserName() {
-		return userName;
-	}
-
-	public TextField<String> getPassword() {
-		return password;
-	}
-
-	public Button getLogin() {
-		return login;
-	}
+		public TextField<String> getUserName() {
+			return userName;
+		}
+	
+		public TextField<String> getPassword() {
+			return password;
+		}
+	
+		public Button getLogin() {
+			return login;
+		}
 
 	}
