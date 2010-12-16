@@ -40,7 +40,7 @@ background-image:url(resources/themes/xtheme-wheat/images/wheat/shared/warning.g
 	background-image: url('resources/images/loading.gif');
 	background-repeat: no-repeat;
 	background-position: 5px 5px;
-	border: 1px solid gray;
+	border: 1px solid lightgray;
 	padding-top: 15px;
 	padding-left: 50px;
 	padding-bottom: 15px;

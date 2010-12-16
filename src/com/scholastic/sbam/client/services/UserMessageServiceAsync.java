@@ -5,6 +5,6 @@ import com.scholastic.sbam.shared.objects.UserMessageCollection;
 
 public interface UserMessageServiceAsync {
 
-	void getUserMessages(String userName, String locationTag, AsyncCallback<UserMessageCollection> callback);
+	void getUserMessages(String locationTag, AsyncCallback<UserMessageCollection> callback);
 
 }

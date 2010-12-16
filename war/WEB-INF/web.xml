@@ -27,6 +27,11 @@
     <servlet-class>com.scholastic.sbam.server.servlets.UserMessageServiceImpl</servlet-class>
   </servlet>
   
+  <servlet>
+    <servlet-name>updateUserMessageServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateUserMessageServiceImpl</servlet-class>
+  </servlet>
+  
   <servlet-mapping>
     <servlet-name>authenticateServlet</servlet-name>
     <url-pattern>/sbam/authenticate</url-pattern>
@@ -45,6 +50,11 @@
   <servlet-mapping>
     <servlet-name>userMessageServlet</servlet-name>
     <url-pattern>/sbam/getUserMessages</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateUserMessageServlet</servlet-name>
+    <url-pattern>/sbam/updateUserMessage</url-pattern>
   </servlet-mapping>
   
 

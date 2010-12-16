@@ -100,9 +100,9 @@ public class AppHolder extends Composite {
 		buttonBar.add(btnNewNote);
 		btnNewNote.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				System.out.println("New note for " + thisLoginUiManager.getLoggedInUserName());
-				StickyNoteWindow note = new StickyNoteWindow(thisLoginUiManager.getLoggedInUserName(), "");
-				note.show();
+				thisLoginUiManager.createStickyNote("");
+			//	StickyNoteWindow note = new StickyNoteWindow(thisLoginUiManager.getLoggedInUserName(), "");
+			//	note.show();
 			}
 		});
 		toolbarContainer.add(buttonBar);

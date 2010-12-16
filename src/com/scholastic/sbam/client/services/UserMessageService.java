@@ -9,5 +9,5 @@ import com.scholastic.sbam.shared.objects.UserMessageCollection;
  */
 @RemoteServiceRelativePath("getUserMessages")
 public interface UserMessageService extends RemoteService {
-	UserMessageCollection getUserMessages(String userName, String locationTag) throws IllegalArgumentException;
+	UserMessageCollection getUserMessages(String locationTag) throws IllegalArgumentException;
 }

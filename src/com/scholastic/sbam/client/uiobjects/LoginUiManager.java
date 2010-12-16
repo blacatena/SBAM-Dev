@@ -1,9 +1,13 @@
 package com.scholastic.sbam.client.uiobjects;
 
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.core.client.GWT;
@@ -12,7 +16,11 @@ import com.scholastic.sbam.client.services.AuthenticateService;
 import com.scholastic.sbam.client.services.AuthenticateServiceAsync;
 import com.scholastic.sbam.client.services.DeauthenticateService;
 import com.scholastic.sbam.client.services.DeauthenticateServiceAsync;
+import com.scholastic.sbam.client.services.UserMessageService;
+import com.scholastic.sbam.client.services.UserMessageServiceAsync;
 import com.scholastic.sbam.shared.objects.Authentication;
+import com.scholastic.sbam.shared.objects.UserMessageCollection;
+import com.scholastic.sbam.shared.objects.UserMessageInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
 
 public class LoginUiManager {
@@ -35,7 +43,12 @@ public class LoginUiManager {
 	private Html			displayName		= loggedInPanel.getDisplayName();
 	private Button			logoutButton	= loggedInPanel.getButtonLogOut();
 	
+	//	Registry of sticky note windows
+	Set<StickyNoteWindow> stickyNotes = new HashSet<StickyNoteWindow>();
+	
 	private final DeauthenticateServiceAsync deauthenticateService = GWT.create(DeauthenticateService.class);
+	
+	private final UserMessageServiceAsync userMessageService = GWT.create(UserMessageService.class);
 	
 	public LoginUiManager() {
 		init();
@@ -113,7 +126,6 @@ public class LoginUiManager {
 					loggedIn = auth.isAuthenticated();
 					if (loggedIn) {
 						loggedInUserName = auth.getUserName();
-						System.out.println("logge in user is " + loggedInUserName);
 						//	Blank out the previous password, so it can't be stolen
 						loginBox.getPassword().setValue("");
 						loginBox.status.clearStatus("");
@@ -124,6 +136,7 @@ public class LoginUiManager {
 						setLoggedIn(auth.getDisplayName());
 						//	Hide the login dialog
 						loginBox.hide();
+						loadUserMessages();
 					} else {
 						loggedInUserName = null;
 						noRoles();
@@ -151,6 +164,22 @@ public class LoginUiManager {
 				}
 			});
 	}
+
+	private void loadUserMessages() {
+		userMessageService.getUserMessages("", 
+				new AsyncCallback<UserMessageCollection>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						MessageBox.alert("Alert", "Notes load failed unexpectedly.", null);
+					}
+		
+					public void onSuccess(UserMessageCollection messages) {
+						for (UserMessageInstance message : messages.getUserMessages()) {
+							createStickyNote(message);
+						}
+					}
+		});
+	}
 	
 	public void noRoles() {
 		if (theApp != null)
@@ -163,6 +192,7 @@ public class LoginUiManager {
 	}
 	
 	public void setLoggedOut() {
+		destroyStickyNotes();
 		loggedInUserName = null;
 		if (displayName != null)
 			displayName.setHtml(DISPLAY_NOT_LOGGED_IN);
@@ -175,6 +205,24 @@ public class LoginUiManager {
 			displayName.setHtml(loggedInName);
 		if (logoutButton != null)
 			logoutButton.setVisible(true);
+	}
+	
+	public void createStickyNote(UserMessageInstance message) {
+		StickyNoteWindow window = new StickyNoteWindow(message);
+		stickyNotes.add(window);
+		window.show();
+	}
+	
+	public void createStickyNote(String locationTag) {
+		StickyNoteWindow window = new StickyNoteWindow(loggedInUserName, locationTag);
+		stickyNotes.add(window);
+		window.show();
+	}
+	
+	public void destroyStickyNotes() {
+		for (StickyNoteWindow window : stickyNotes) {
+			window.removeFromParent();
+		}
 	}
 
 	public String getLoggedInUserName() {

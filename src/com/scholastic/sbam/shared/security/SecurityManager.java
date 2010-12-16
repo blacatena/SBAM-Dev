@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SecurityManager {
+	public static final String AUTHENTICATION_ATTRIBUTE = "Auth";
+	
 	public static final String ROLE_ADMIN = "admin";
 	public static final String ROLE_QUERY = "query";
 	public static final String ROLE_MAINT = "maint";

@@ -3,6 +3,7 @@ package com.scholastic.sbam.client.uiobjects;
 import com.extjs.gxt.ui.client.widget.CardPanel;
 import com.extjs.gxt.ui.client.widget.Composite;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 import com.extjs.gxt.ui.client.widget.form.HtmlEditor;
@@ -15,6 +16,11 @@ import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.scholastic.sbam.client.services.UpdateUserMessageService;
+import com.scholastic.sbam.client.services.UpdateUserMessageServiceAsync;
+import com.scholastic.sbam.shared.objects.UserMessageInstance;
 
 public class StickyNoteEditor extends Composite {
 	private CardLayout noteLayout;
@@ -22,8 +28,19 @@ public class StickyNoteEditor extends Composite {
 	private Button btnDone;
 	private HtmlEditor htmlEditor;
 	StickyNoteDisplay stickyNoteDisplay;
+	private UserMessageInstance msg;
+	
+	private final UpdateUserMessageServiceAsync updateUserMessageService = GWT.create(UpdateUserMessageService.class);
 
 	public StickyNoteEditor() {
+	}
+	
+	public StickyNoteEditor(UserMessageInstance msg) {
+		this.msg = msg;
+		init();
+	}
+	
+	private void init() {
 		
 		LayoutContainer editorContainer = new LayoutContainer();
 		editorContainer.setLayout(new BorderLayout());
@@ -54,12 +71,31 @@ public class StickyNoteEditor extends Composite {
 					stickyNoteDisplay.setText(getText());
 				if (displayPanel != null && noteLayout != null)
 					noteLayout.setActiveItem(displayPanel);
+				updateUserMessage();
 			}
 		});
 		toolBar.add(btnDone);
 		toolsContainer.add(toolBar);
 		editorContainer.add(toolsContainer, bld_toolsContainer);
 		initComponent(editorContainer);
+	}
+	
+	private void updateUserMessage() {
+		msg.setText(getText());
+		updateUserMessageService.updateUserMessage(msg,
+				new AsyncCallback<Integer>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						MessageBox.alert("Alert", "Note update failed unexpectedly.", null);
+					}
+
+					public void onSuccess(Integer id) {
+						if (msg.getId() != id.intValue()) {
+							System.out.println("Added as id " + id + " [" + msg.getId() + "]");
+							msg.setId(id);
+						}
+					}
+			});
 	}
 
 	public CardLayout getNoteLayout() {

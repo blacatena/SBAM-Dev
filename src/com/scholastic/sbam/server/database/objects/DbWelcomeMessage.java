@@ -28,7 +28,7 @@ public class DbWelcomeMessage extends HibernateAccessor {
             Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
             crit.add(Restrictions.gt("expireDate", new Date()));
             crit.add(Restrictions.ne("deleted", "Y"));
-            crit.addOrder(Order.asc("postDate"));
+            crit.addOrder(Order.desc("postDate"));
             List<WelcomeMessage> objects = crit.list();
             return objects;
 //            List<WelcomeMessage> welcomeMessages = new ArrayList<WelcomeMessage>();

@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Dec 14, 2010 11:47:18 AM by Hibernate Tools 3.2.4.GA
+// Generated Dec 15, 2010 3:01:55 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -12,31 +12,47 @@ public class UserMessage implements java.io.Serializable {
 	private Integer id;
 	private String userName;
 	private String locationTag;
+	private String text;
+	private Date createDate;
+	private char status;
 	private int windowPosX;
 	private int windowPosY;
 	private int windowPosZ;
 	private int windowWidth;
 	private int windowHeight;
-	private String text;
-	private Date createDate;
-	private char status;
+	private int restorePosX;
+	private int restorePosY;
+	private int restoreWidth;
+	private int restoreHeight;
+	private char minimized;
+	private char maximized;
+	private char collapsed;
 
 	public UserMessage() {
 	}
 
-	public UserMessage(String userName, String locationTag, int windowPosX,
-			int windowPosY, int windowPosZ, int windowWidth, int windowHeight,
-			String text, Date createDate, char status) {
+	public UserMessage(String userName, String locationTag, String text,
+			Date createDate, char status, int windowPosX, int windowPosY,
+			int windowPosZ, int windowWidth, int windowHeight, int restorePosX,
+			int restorePosY, int restoreWidth, int restoreHeight,
+			char minimized, char maximized, char collapsed) {
 		this.userName = userName;
 		this.locationTag = locationTag;
+		this.text = text;
+		this.createDate = createDate;
+		this.status = status;
 		this.windowPosX = windowPosX;
 		this.windowPosY = windowPosY;
 		this.windowPosZ = windowPosZ;
 		this.windowWidth = windowWidth;
 		this.windowHeight = windowHeight;
-		this.text = text;
-		this.createDate = createDate;
-		this.status = status;
+		this.restorePosX = restorePosX;
+		this.restorePosY = restorePosY;
+		this.restoreWidth = restoreWidth;
+		this.restoreHeight = restoreHeight;
+		this.minimized = minimized;
+		this.maximized = maximized;
+		this.collapsed = collapsed;
 	}
 
 	public Integer getId() {
@@ -61,6 +77,30 @@ public class UserMessage implements java.io.Serializable {
 
 	public void setLocationTag(String locationTag) {
 		this.locationTag = locationTag;
+	}
+
+	public String getText() {
+		return this.text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+
+	public Date getCreateDate() {
+		return this.createDate;
+	}
+
+	public void setCreateDate(Date createDate) {
+		this.createDate = createDate;
+	}
+
+	public char getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(char status) {
+		this.status = status;
 	}
 
 	public int getWindowPosX() {
@@ -103,28 +143,60 @@ public class UserMessage implements java.io.Serializable {
 		this.windowHeight = windowHeight;
 	}
 
-	public String getText() {
-		return this.text;
+	public int getRestorePosX() {
+		return this.restorePosX;
 	}
 
-	public void setText(String text) {
-		this.text = text;
+	public void setRestorePosX(int restorePosX) {
+		this.restorePosX = restorePosX;
 	}
 
-	public Date getCreateDate() {
-		return this.createDate;
+	public int getRestorePosY() {
+		return this.restorePosY;
 	}
 
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
+	public void setRestorePosY(int restorePosY) {
+		this.restorePosY = restorePosY;
 	}
 
-	public char getStatus() {
-		return this.status;
+	public int getRestoreWidth() {
+		return this.restoreWidth;
 	}
 
-	public void setStatus(char status) {
-		this.status = status;
+	public void setRestoreWidth(int restoreWidth) {
+		this.restoreWidth = restoreWidth;
+	}
+
+	public int getRestoreHeight() {
+		return this.restoreHeight;
+	}
+
+	public void setRestoreHeight(int restoreHeight) {
+		this.restoreHeight = restoreHeight;
+	}
+
+	public char getMinimized() {
+		return this.minimized;
+	}
+
+	public void setMinimized(char minimized) {
+		this.minimized = minimized;
+	}
+
+	public char getMaximized() {
+		return this.maximized;
+	}
+
+	public void setMaximized(char maximized) {
+		this.maximized = maximized;
+	}
+
+	public char getCollapsed() {
+		return this.collapsed;
+	}
+
+	public void setCollapsed(char collapsed) {
+		this.collapsed = collapsed;
 	}
 
 }

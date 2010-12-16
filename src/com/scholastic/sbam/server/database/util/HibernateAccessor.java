@@ -72,6 +72,8 @@ public class HibernateAccessor
         catch(RuntimeException re)
         {
             log.error("persist failed", re);
+            System.out.println(re);
+            re.printStackTrace();
             throw re;
         }
     }

@@ -10,6 +10,7 @@ import com.scholastic.sbam.server.database.objects.DbUser;
 import com.scholastic.sbam.server.database.objects.DbUserRole;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.objects.Authentication;
+import com.scholastic.sbam.shared.security.SecurityManager;
 
 /**
  * The server side implementation of the RPC service.
@@ -27,7 +28,7 @@ public class AuthenticateServiceImpl extends RemoteServiceServlet implements Aut
 		if (user == null || !user.getPassword().equals(password)) {
 			auth.setMessage("Invalid user name or password.");
 			auth.setAuthenticated(false);
-			this.getServletContext().setAttribute("Auth", null);
+			this.getServletContext().setAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE, null);
 		} else {
 			auth.setUserName(userName);
 			auth.setFirstName(user.getFirstName());
@@ -36,7 +37,7 @@ public class AuthenticateServiceImpl extends RemoteServiceServlet implements Aut
 			auth.setMessage("");
 			loadRoles(auth);
 			
-			this.getServletContext().setAttribute("Auth", auth);
+			this.getServletContext().setAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE, auth);
 			
 			user.setLoginCount(user.getLoginCount() + 1);
 			DbUser.persist(user);	//	DbUserHelper.persist(user);

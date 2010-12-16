@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Dec 14, 2010 11:47:19 AM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Dec 15, 2010 3:01:55 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.UserMessage" table="user_message" catalog="sbam">
         <id name="id" type="java.lang.Integer">
@@ -13,6 +13,15 @@
         </property>
         <property name="locationTag" type="string">
             <column name="location_tag" length="32" not-null="true" />
+        </property>
+        <property name="text" type="string">
+            <column name="text" length="65535" not-null="true" />
+        </property>
+        <property name="createDate" type="timestamp">
+            <column name="create_date" length="19" not-null="true" />
+        </property>
+        <property name="status" type="char">
+            <column name="status" length="1" not-null="true" />
         </property>
         <property name="windowPosX" type="int">
             <column name="window_pos_x" not-null="true" />
@@ -29,14 +38,26 @@
         <property name="windowHeight" type="int">
             <column name="window_height" not-null="true" />
         </property>
-        <property name="text" type="string">
-            <column name="text" length="65535" not-null="true" />
+        <property name="restorePosX" type="int">
+            <column name="restore_pos_x" not-null="true" />
         </property>
-        <property name="createDate" type="timestamp">
-            <column name="create_date" length="19" not-null="true" />
+        <property name="restorePosY" type="int">
+            <column name="restore_pos_y" not-null="true" />
         </property>
-        <property name="status" type="char">
-            <column name="status" length="1" not-null="true" />
+        <property name="restoreWidth" type="int">
+            <column name="restore_width" not-null="true" />
+        </property>
+        <property name="restoreHeight" type="int">
+            <column name="restore_height" not-null="true" />
+        </property>
+        <property name="minimized" type="char">
+            <column name="minimized" length="1" not-null="true" />
+        </property>
+        <property name="maximized" type="char">
+            <column name="maximized" length="1" not-null="true" />
+        </property>
+        <property name="collapsed" type="char">
+            <column name="collapsed" length="1" not-null="true" />
         </property>
     </class>
 </hibernate-mapping>

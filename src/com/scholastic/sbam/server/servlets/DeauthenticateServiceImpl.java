@@ -2,6 +2,7 @@ package com.scholastic.sbam.server.servlets;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.scholastic.sbam.client.services.DeauthenticateService;
+import com.scholastic.sbam.shared.security.SecurityManager;
 
 /**
  * The server side implementation of the RPC service.
@@ -11,7 +12,7 @@ public class DeauthenticateServiceImpl extends RemoteServiceServlet implements D
 
 	@Override
 	public String deauthenticate() throws IllegalArgumentException {
-		this.getServletContext().setAttribute("Auth", null);
+		this.getServletContext().setAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE, null);
 		return "";
 	}
 }

@@ -26,8 +26,8 @@ public class DbUserMessage extends HibernateAccessor {
         {
             Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
             crit.add(Restrictions.eq("userName", userName));
-            crit.add(Restrictions.eq("locationTab", locationTag));
-            crit.add(Restrictions.ne("deleted", "Y"));
+            crit.add(Restrictions.eq("locationTag", locationTag));
+            crit.add(Restrictions.ne("status", "X"));
             crit.addOrder(Order.asc("windowPosZ"));
             List<UserMessage> objects = crit.list();
             return objects;
@@ -45,5 +45,13 @@ public class DbUserMessage extends HibernateAccessor {
 		for (int i = 0; i < results.size(); i++)
 			welcomeMessages.add((UserMessage) results.get(i));
 		return welcomeMessages;
+	}
+	
+	public static UserMessage getById(int id) {
+		return (UserMessage) getById(objectName, id);
+	}
+	
+	public static UserMessage getById(String id) {
+		return (UserMessage) getById(objectName, id);
 	}
 }
