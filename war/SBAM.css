@@ -50,6 +50,9 @@ background-image:url(resources/themes/xtheme-wheat/images/wheat/shared/warning.g
 .sbamMsg {
 /*	border: 1px solid gray; */
 	padding-top: 0px;
+	background: white;
+	margin: 20px;
+	border: 2px inset lightgray;
 }
 
 .sbamMsg .sbamMsgHeader {

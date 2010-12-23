@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Dec 22, 2010 4:10:33 PM by Hibernate Tools 3.2.4.GA -->
+<hibernate-mapping>
+    <class name="com.scholastic.sbam.server.database.codegen.AgreementTerm" table="agreement_term" catalog="sbam">
+        <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.AgreementTermId">
+            <key-property name="agreementId" type="int">
+                <column name="agreement_id" />
+            </key-property>
+            <key-property name="id" type="int">
+                <column name="id" />
+            </key-property>
+        </composite-id>
+        <property name="productCode" type="string">
+            <column name="product_code" length="32" not-null="true" />
+        </property>
+        <property name="startDate" type="date">
+            <column name="start_date" length="10" not-null="true" />
+        </property>
+        <property name="endDate" type="date">
+            <column name="end_date" length="10" not-null="true" />
+        </property>
+        <property name="terminateDate" type="date">
+            <column name="terminate_date" length="10" not-null="true" />
+        </property>
+        <property name="termType" type="string">
+            <column name="term_type" length="32" not-null="true" />
+        </property>
+        <property name="cancelReasonCode" type="string">
+            <column name="cancel_reason_code" length="32" />
+        </property>
+        <property name="cancelDate" type="date">
+            <column name="cancel_date" length="10" />
+        </property>
+        <property name="dollarValue" type="big_decimal">
+            <column name="dollar_value" precision="12" />
+        </property>
+        <property name="workstations" type="java.lang.Integer">
+            <column name="workstations" />
+        </property>
+        <property name="buildings" type="java.lang.Integer">
+            <column name="buildings" />
+        </property>
+        <property name="population" type="java.lang.Integer">
+            <column name="population" />
+        </property>
+        <property name="enrollment" type="java.lang.Integer">
+            <column name="enrollment" />
+        </property>
+        <property name="poNumber" type="string">
+            <column name="po_number" />
+        </property>
+        <property name="contractGroup" type="java.lang.Integer">
+            <column name="contract_group" />
+        </property>
+        <property name="referenceSaId" type="java.lang.Integer">
+            <column name="reference_sa_id" />
+        </property>
+        <property name="createdDatetime" type="timestamp">
+            <column name="created_datetime" length="19" not-null="true" />
+        </property>
+        <property name="status" type="char">
+            <column name="status" length="1" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

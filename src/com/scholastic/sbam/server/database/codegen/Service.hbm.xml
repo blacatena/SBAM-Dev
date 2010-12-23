@@ -3,16 +3,24 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated Dec 22, 2010 4:10:33 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
-    <class name="com.scholastic.sbam.server.database.codegen.Product" table="product" catalog="sbam">
-        <id name="productCode" type="string">
-            <column name="product_code" length="32" />
+    <class name="com.scholastic.sbam.server.database.codegen.Service" table="service" catalog="sbam">
+        <id name="serviceCode" type="string">
+            <column name="service_code" length="32" />
             <generator class="assigned" />
         </id>
         <property name="description" type="string">
             <column name="description" not-null="true" />
         </property>
-        <property name="shortName" type="string">
-            <column name="short_name" length="32" not-null="true" />
+        <property name="serviceType" type="char">
+            <column name="service_type" length="1" not-null="true">
+                <comment>P=primary, S=secondary/addon</comment>
+            </column>
+        </property>
+        <property name="exportValue" type="string">
+            <column name="export_value" length="32" not-null="true" />
+        </property>
+        <property name="exportFile" type="string">
+            <column name="export_file" not-null="true" />
         </property>
         <property name="createdDatetime" type="timestamp">
             <column name="created_datetime" length="19" not-null="true" />

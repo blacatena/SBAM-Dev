@@ -164,8 +164,8 @@ public class StickyNoteWindow extends Window {
 	
 //	protected void onHide() {
 //		System.out.println("onHide");
-//		el().fadeToggle(FxConfig.NONE);
-//		super.onHide();
+//		el().fadeOut(FxConfig.NONE);
+////		super.onHide();	// Don't do this, the fadeOut will take care of it
 //	}
 
 	protected void onRender(Element parent, int pos) {

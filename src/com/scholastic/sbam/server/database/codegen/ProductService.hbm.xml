@@ -3,17 +3,15 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated Dec 22, 2010 4:10:33 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
-    <class name="com.scholastic.sbam.server.database.codegen.Product" table="product" catalog="sbam">
-        <id name="productCode" type="string">
-            <column name="product_code" length="32" />
-            <generator class="assigned" />
-        </id>
-        <property name="description" type="string">
-            <column name="description" not-null="true" />
-        </property>
-        <property name="shortName" type="string">
-            <column name="short_name" length="32" not-null="true" />
-        </property>
+    <class name="com.scholastic.sbam.server.database.codegen.ProductService" table="product_service" catalog="sbam">
+        <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.ProductServiceId">
+            <key-property name="productCode" type="string">
+                <column name="product_code" length="32" />
+            </key-property>
+            <key-property name="serviceCode" type="string">
+                <column name="service_code" length="32" />
+            </key-property>
+        </composite-id>
         <property name="createdDatetime" type="timestamp">
             <column name="created_datetime" length="19" not-null="true" />
         </property>

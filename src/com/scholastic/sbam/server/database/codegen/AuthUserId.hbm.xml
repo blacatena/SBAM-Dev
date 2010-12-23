@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Dec 22, 2010 4:10:33 PM by Hibernate Tools 3.2.4.GA -->
+<hibernate-mapping>
+    <class name="com.scholastic.sbam.server.database.codegen.AuthUserId" table="auth_user_id" catalog="sbam">
+        <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.AuthUserIdId">
+            <key-property name="agreementId" type="int">
+                <column name="agreement_id" />
+            </key-property>
+            <key-property name="ucn" type="int">
+                <column name="ucn" />
+            </key-property>
+            <key-property name="siteLocCode" type="string">
+                <column name="site_loc_code" length="32" />
+            </key-property>
+            <key-property name="userId" type="string">
+                <column name="user_id" />
+            </key-property>
+        </composite-id>
+        <property name="password" type="string">
+            <column name="password" not-null="true" />
+        </property>
+        <property name="proxyId" type="int">
+            <column name="proxy_id" not-null="true" />
+        </property>
+        <property name="userType" type="char">
+            <column name="user_type" length="1" not-null="true" />
+        </property>
+        <property name="remote" type="char">
+            <column name="remote" length="1" not-null="true" />
+        </property>
+        <property name="approved" type="char">
+            <column name="approved" length="1" not-null="true" />
+        </property>
+        <property name="activated" type="char">
+            <column name="activated" length="1" not-null="true" />
+        </property>
+        <property name="note" type="string">
+            <column name="note" length="4000" not-null="true" />
+        </property>
+        <property name="createdDatetime" type="timestamp">
+            <column name="created_datetime" length="19" not-null="true" />
+        </property>
+        <property name="updatedDatetime" type="timestamp">
+            <column name="updated_datetime" length="19" not-null="true" />
+        </property>
+        <property name="activatedDatetime" type="timestamp">
+            <column name="activated_datetime" length="19" not-null="true" />
+        </property>
+        <property name="deactivatedDatetime" type="timestamp">
+            <column name="deactivated_datetime" length="19" not-null="true" />
+        </property>
+        <property name="reactivatedDatetime" type="timestamp">
+            <column name="reactivated_datetime" length="19" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>
