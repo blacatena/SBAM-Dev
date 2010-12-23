@@ -20,6 +20,10 @@ public class DbUser extends HibernateAccessor {
 	
 	static String objectName = User.class.getSimpleName();
 	
+	public static User getById(Integer id) {
+		return (User) getById(objectName, id);
+	}
+	
 	public static User getByUserName(String userName) {
 		return (User) getByField(objectName, "userName", userName, "lastName");
 	}

@@ -4,7 +4,7 @@ import java.util.Date;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-public class UserInstance implements IsSerializable {
+public class UserInstance extends BetterRowEditInstance implements IsSerializable {
 	private Integer id;
 	private String userName;
 	private String password;
@@ -93,5 +93,29 @@ public class UserInstance implements IsSerializable {
 	public void setStatus(char status) {
 		this.status = status + "";
 	}
-	
+	@Override
+	public void markForDeletion() {
+		System.out.println(this.getClass().getName() + " markForDeletion()");
+		setStatus('X');
+	}
+	@Override
+	public boolean thisIsDeleted() {
+		return "X".equals(status);
+	}
+	@Override
+	public boolean thisIsNewRecord() {
+		return id == null;
+	}
+	@Override
+	public boolean thisIsValid() {
+		return true;
+	}
+	@Override
+	public String returnTriggerProperty() {
+		return "junk";
+	}
+	@Override
+	public String returnTriggerValue() {
+		return "junk";
+	}
 }

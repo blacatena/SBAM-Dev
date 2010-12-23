@@ -12,6 +12,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.user.client.Element;
+import com.scholastic.sbam.shared.objects.BetterRowEditInstance;
 
 /**
  * This extension of the GXT RowEditor adds functionality for a Delete button, as well as automatic Store reject/commit changes
@@ -34,13 +35,6 @@ import com.google.gwt.user.client.Element;
  * @param <M>
  */
 public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
-	private static final String		DEFAULT_DELETE_PROPERTY = "status";	
-	private static final String 	DEFAULT_DELETE_VALUE	= "X";
-	private static final String []	DEFAULT_KEY_PROPERTIES	= { "id" };
-	
-	private String			deleteProperty	=	DEFAULT_DELETE_PROPERTY;
-	private String 			deleteValue		=	DEFAULT_DELETE_VALUE;
-	private String []		keyProperties	=	DEFAULT_KEY_PROPERTIES;
 	
 	private Button delButton;
 	private ListStore<BeanModel>	store;
@@ -58,23 +52,6 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 		this.store = store;
 	}
 	
-	public BetterRowEditor(ListStore<BeanModel> store, String [] keyProperties) {
-		super();
-		this.store = store;
-		if (keyProperties != null && keyProperties.length > 0)
-			setKeyProperties(keyProperties);
-	}
-	
-	public BetterRowEditor(ListStore<BeanModel> store, String [] keyProperties, String deleteProperty, String deleteValue) {
-		super();
-		this.store = store;
-		if (keyProperties != null && keyProperties.length > 0)
-			setKeyProperties(keyProperties);
-		if (deleteProperty != null && deleteProperty.length() > 0)
-			this.deleteProperty = deleteProperty;
-		if (deleteValue != null && deleteValue.length() > 0)
-			this.deleteValue    = deleteValue;
-	}
 	/**
 	 * Overridden to expand the buttons layout container to include the Delete button.
 	 */
@@ -128,7 +105,13 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 	 * Delete a record by setting its delete property to the delete value, and then doing a stopEditing(false).
 	 */
 	protected void doDelete() {
-		store.getAt(rowIndex).set(deleteProperty, deleteValue);
+		
+		//	Let the instance mark itself as deleted
+		BetterRowEditInstance instance = (BetterRowEditInstance) store.getAt(rowIndex).getBean();
+		store.getRecord(store.getAt(rowIndex)).set(instance.returnTriggerProperty(), instance.returnTriggerValue());	// Just to make the store fire an update event
+		instance.markForDeletion();
+		
+		//	Stop editing and make the updates
 		stopEditing(true);
 	}
 	
@@ -171,6 +154,10 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 		if (isDeleted(store.getAt(rowIndex)))
 			return true;
 		boolean fieldsAreValid = super.isValid();
+		if (fieldsAreValid) {
+			BetterRowEditInstance instance = (BetterRowEditInstance) store.getAt(rowIndex).getBean();
+			fieldsAreValid = instance.thisIsValid();
+		}
 		//	Now do a higher level of validation, e.g. multiple field relationships -- warning, THIS GETS CALLED REPEATEDLY during editing!!!!
 		return fieldsAreValid;
 	}
@@ -197,7 +184,8 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 	 * @return
 	 */
 	protected boolean isDeleted(BeanModel data) {
-		return (data.get(deleteProperty) != null && deleteValue.equals(data.get(deleteProperty)));
+		BetterRowEditInstance instance = (BetterRowEditInstance) data.getBean();
+		return instance.thisIsDeleted();
 	}
 	
 	/**
@@ -220,46 +208,14 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 	 * @return
 	 */
 	protected boolean isNewRecord(BeanModel data) {
-		for (String property : keyProperties) {
-			if (data.get(property) != null && !"".equals(data.get(property)))
-				return false;
-		}
-		return true;
+		BetterRowEditInstance instance = (BetterRowEditInstance) data.getBean();
+		return instance.thisIsNewRecord();
 	}
-	
-	/**
-	 * Get the key properties names for this data.
-	 * @return
-	 */
-	protected String [] getKeyProperties() {
-		return keyProperties;
-	}
-	
-	/**
-	 * Set the key property names for this data.
-	 * @param keyProperties
-	 */
-	protected void setKeyProperties(String [] keyProperties) {
-		this.keyProperties = new String [keyProperties.length];
-		for (int i = 0; i < keyProperties.length; i++) {
-			this.keyProperties [i] = keyProperties [i];
-		}
-	}
-	public String getDeleteProperty() {
-		return deleteProperty;
-	}
-	public void setDeleteProperty(String deleteProperty) {
-		this.deleteProperty = deleteProperty;
-	}
-	public String getDeleteValue() {
-		return deleteValue;
-	}
-	public void setDeleteValue(String deleteValue) {
-		this.deleteValue = deleteValue;
-	}
+
 	public ListStore<BeanModel> getStore() {
 		return store;
 	}
+	
 	public void setStore(ListStore<BeanModel> store) {
 		this.store = store;
 	}

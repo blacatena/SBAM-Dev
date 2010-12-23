@@ -17,10 +17,12 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreEvent;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
@@ -32,6 +34,8 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.scholastic.sbam.client.services.UpdateUserService;
+import com.scholastic.sbam.client.services.UpdateUserServiceAsync;
 import com.scholastic.sbam.client.services.UserListService;
 import com.scholastic.sbam.client.services.UserListServiceAsync;
 import com.scholastic.sbam.shared.objects.UserInstance;
@@ -43,6 +47,7 @@ public class UserEditGrid extends LayoutContainer {
 	private ContentPanel 			panel;
 	
 	private final UserListServiceAsync userListService = GWT.create(UserListService.class);
+	private final UpdateUserServiceAsync updateUserService = GWT.create(UpdateUserService.class);
 
 	public UserEditGrid() {
 	}
@@ -69,74 +74,16 @@ public class UserEditGrid extends LayoutContainer {
 		
 		store.addListener(Store.Update, new Listener<StoreEvent<BeanModel>>() {
             public void handleEvent(final StoreEvent<BeanModel> se) {
-                System.out.println("StoreEvent - After store Update " + se);
                 if (se.getRecord() != null && se.getRecord().getModel() != null) {
                 	System.out.println(se.getRecord().getModel().getProperties());
-                	System.out.println(se.getModel().getProperties());
             	} else System.out.println("No model data");
-                if (se.getOperation() != null) System.out.println(se.getOperation().name());
-                else System.out.println("No operation");
-                if (se.getModels() != null)
-                	for (BeanModel model : se.getModels())
-                		System.out.println(model.getProperties());
-                if (se.getStore().getModels() != null)
-                	for (BeanModel model : se.getStore().getModels())
-                		System.out.println("store " + model.getProperties());
-                System.out.println("Do updates if COMMIT");
-            }
-        });  
-		
-//		store.addListener(Store.DataChanged, new Listener<StoreEvent<BeanModel>>() {
-//            public void handleEvent(final StoreEvent<BeanModel> se) {
-//                System.out.println("StoreEvent - After store data DataChanged " + se);
-//                if (se.getRecord() != null && se.getRecord().getModel() != null) {
-//                	System.out.println(se.getRecord().getModel().getProperties());
-//                	System.out.println(se.getModel().getProperties());
-//            	} else System.out.println("No model data");
-//                if (se.getOperation() != null) System.out.println(se.getOperation().name());
-//                else System.out.println("No operation");
-//            }
-//        });
-		
-		store.addListener(Store.BeforeRemove, new Listener<StoreEvent<BeanModel>>() {
-            public void handleEvent(final StoreEvent<BeanModel> se) {
-                System.out.println("StoreEvent - Before store Remove " + se);
-                if (se.getRecord() != null && se.getRecord().getModel() != null) {
-                	System.out.println(se.getRecord().getModel().getProperties());
-            	} else System.out.println("No record data");
-                    if (se.getRecord() != null && se.getModel() != null) {
-                	System.out.println(se.getModel().getProperties());
-            	} else System.out.println("No model data");
-                if (se.getOperation() != null) System.out.println(se.getOperation().name());
-                else System.out.println("No operation");
-                if (se.getModels() != null)
-                	for (BeanModel model : se.getModels())
-                		System.out.println(model.getProperties());
-                if (se.getStore().getModels() != null)
-                	for (BeanModel model : se.getStore().getModels())
-                		System.out.println("store " + model.getProperties());
-                System.out.println("Do deletes");
+                
+                if (se.getOperation() == Record.RecordUpdate.COMMIT && se.getModel() != null) {
+                	updateUser(se.getModel());
+                }
+                
             }
         });
-		
-//		store.addListener(Store.Remove, new Listener<StoreEvent<BeanModel>>() {
-//            public void handleEvent(final StoreEvent<BeanModel> se) {
-//                System.out.println("StoreEvent - After store Remove " + se);
-//                if (se.getRecord() != null && se.getRecord().getModel() != null) {
-//                	System.out.println(se.getRecord().getModel().getProperties());
-//                	System.out.println(se.getModel().getProperties());
-//            	} else System.out.println("No model data");
-//                if (se.getOperation() != null) System.out.println(se.getOperation().name());
-//                else System.out.println("No operation");
-//                if (se.getModels() != null)
-//                	for (BeanModel model : se.getModels())
-//                		System.out.println(model.getProperties());
-//                if (se.getStore().getModels() != null)
-//                	for (BeanModel model : se.getStore().getModels())
-//                		System.out.println("store " + model.getProperties());
-//                System.out.println("Do deletes");
-//            }
-//        });
 		
 		loader.load();  
 		
@@ -170,124 +117,9 @@ public class UserEditGrid extends LayoutContainer {
 	
 	protected void makeRowEditor() {
 
-		final RowEditor<ModelData> re = new BetterRowEditor<ModelData>(store, new String [] {"id", "userName"});
-//		final RowEditor<ModelData> re = new RowEditor<ModelData>() {
-//			
-//			private static final String DELETE_PROPERTY = "__deleted";
-//			private Button delButton;
-//			
-//			@Override
-//			protected void onRender(Element target, int index) {
-//					super.onRender(target, index);
-//					//	Add a Delete button if the id is not null, i.e. a record exists
-//					if (btns != null) {
-//						btns.setLayout(new TableLayout(3));
-//						delButton = new Button("Delete");      
-//						delButton.addListener(Events.Select, new Listener<ButtonEvent>() {
-//							public void handleEvent(ButtonEvent be) {
-//								final Listener<MessageBoxEvent> confirmDelete = new Listener<MessageBoxEvent>() {  
-//									public void handleEvent(MessageBoxEvent ce) {  
-//										Button btn = ce.getButtonClicked();
-//										if ("Yes".equals(btn.getText()))
-//											doDelete();
-//									}  
-//								};
-//								MessageBox.confirm("Confirm Delete", "Are you sure you want to delete this entry?", confirmDelete);
-//							}
-//						});
-//						delButton.setMinWidth(getMinButtonWidth());
-//						btns.add(delButton);
-//						btns.layout(true);
-//					}
-//			}
-//			@Override
-//			protected void afterRender() {
-//				super.afterRender();
-//				if (renderButtons) {
-//					btns.setWidth((getMinButtonWidth() * 3) + (5 * 3) + (3 * 4));
-//				}
-//			} 
-//			
-//			protected void doDelete() {
-//				store.getAt(rowIndex).set(DELETE_PROPERTY, DELETE_PROPERTY);
-//				stopEditing(false);
-//			}
-//			
-//			@Override
-//			public void startEditing(int rowIndex, boolean doFocus) {
-//				super.startEditing(rowIndex, doFocus);
-//				if (store.getAt(rowIndex).getProperties().get("id") != null && !store.getAt(rowIndex).getProperties().containsKey(DELETE_PROPERTY))
-//					delButton.enable();
-//				else
-//					delButton.disable();
-//			}
-//			
-//			@Override
-//			public void stopEditing(boolean saveChanges) {
-//				boolean validChanges = isValid();
-//				super.stopEditing(saveChanges);
-//				if (!saveChanges) {
-//					store.rejectChanges();
-//					removeEmptyRows();
-//				} else if (validChanges) {
-//					System.out.println("Before store commit");
-//					store.commitChanges();
-//					System.out.println("After store commit");
-//				}
-//			}
-//			
-//			@Override
-//			public boolean isValid() {
-//				boolean fieldsAreValid = super.isValid();
-//				//	Now do a higher level of validation, e.g. multiple field relationships -- warning, THIS GETS CALLED REPEATEDLY during editing!!!!
-//				return fieldsAreValid;
-//			}
-//			
-//			private void removeEmptyRows() {
-//				for (BeanModel data : store.getModels()) {
-//					System.out.println(data.getProperties());
-//					//	Rows with no id and no user name are considered "empty"
-//					if (data.get("id") == null && (data.get("userName") == null || data.get("userName").toString().length() == 0)) {
-//						store.remove(data);
-//					} else if (data.get(DELETE_PROPERTY) != null) {
-//						store.remove(data);
-//					}
-//				}
-//			}
-//			
-//		};
+		final RowEditor<ModelData> re = new BetterRowEditor<ModelData>(store);
 
 		grid.addPlugin(re);
-		
-//		re.addListener(Events.AfterEdit, new Listener<RowEditorEvent>() {
-//            public void handleEvent(final RowEditorEvent be) {
-//                System.out.println("RowEditorEvent - After edit " + be);
-//                System.out.println(be.getRowIndex() + " / " + be.getChanges());
-//                System.out.println(be.getRecord().getPropertyNames());
-//                System.out.println(be.getRecord().getModel().getProperties());
-//                System.out.println(be.getRecord().getChanges());
-//            }
-//        });
-//		
-//		re.addListener(Events.BeforeEdit, new Listener<RowEditorEvent>() {
-//            public void handleEvent(final RowEditorEvent be) {
-//                System.out.println("RowEditorEvent - Before edit " + be);
-//                System.out.println(be.getRowIndex() + " / " + be.getChanges());
-//                System.out.println(be.getRecord().getPropertyNames());
-//                System.out.println(be.getRecord().getModel().getProperties());
-//                System.out.println(be.getRecord().getChanges());
-//            }
-//        });
-//		
-//		re.addListener(Events.ValidateEdit, new Listener<RowEditorEvent>() {
-//            public void handleEvent(final RowEditorEvent be) {
-//                System.out.println("RowEditorEvent - Validate edit " + be);
-//                System.out.println(be.getRowIndex() + " / " + be.getChanges());
-//                System.out.println(be.getRecord().getPropertyNames());
-//                System.out.println(be.getRecord().getModel().getProperties());
-//                System.out.println(be.getRecord().getChanges());
-//            }
-//        });
 		
 		Button newUser = new Button("New User");
 		newUser.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -313,29 +145,6 @@ public class UserEditGrid extends LayoutContainer {
 		panel.setButtonAlign(HorizontalAlignment.CENTER);
 		
 		panel.addButton(newUser);
-
-//		ToolBar toolBar = new ToolBar();
-//		toolBar.add(newUser);  
-//		panel.add(toolBar);
-//		panel.setTopComponent(toolBar);  
-		 
-//		panel.addButton(new Button("Reset", new SelectionListener<ButtonEvent>() {  
-//		 
-//			@Override  
-//			public void componentSelected(ButtonEvent ce) {  
-//				store.rejectChanges();  
-//			}
-//			
-//		}));  
-//
-//		panel.addButton(new Button("Save", new SelectionListener<ButtonEvent>() {  
-//	 
-//			@Override  
-//			public void componentSelected(ButtonEvent ce) {  
-//				grid.getStore().commitChanges();  
-//			}
-//			
-//		}));  
 	}
 	
 	private BeanModel getModel(UserInstance user) {
@@ -379,6 +188,28 @@ public class UserEditGrid extends LayoutContainer {
 		}
 		column.setEditor(new CellEditor(text));
 		return column;
+	}
+	
+	private void updateUser(BeanModel beanModel) {
+		final BeanModel targetBeanModel = beanModel;
+		System.out.println("Before update: " + targetBeanModel.getProperties());
+		updateUserService.updateUser((UserInstance) beanModel.getBean(),
+				new AsyncCallback<UserInstance>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						System.out.println(caught);
+						MessageBox.alert("Alert", "User update failed unexpectedly.", null);
+					}
+
+					public void onSuccess(UserInstance updatedUser) {
+						System.out.println("UPDATE SUCCESSFUL");
+						// If this user is newly created, back-populate the id
+						if (targetBeanModel.get("id") == null) {
+							targetBeanModel.set("id",updatedUser.getId());
+						System.out.println("After update " + targetBeanModel.getProperties());
+					}
+				}
+			});
 	}
 
 }
