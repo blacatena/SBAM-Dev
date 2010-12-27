@@ -30,7 +30,8 @@ public class UserListServiceImpl extends RemoteServiceServlet implements UserLis
 			if (authUserName == null || authUserName.length() == 0)
 				throw new Exception("No logged in user for whom to users.");
 			
-			List<User> users = DbUser.findFiltered(userName, firstName, lastName, email);
+			//	Find only undeleted users
+			List<User> users = DbUser.findFiltered(userName, firstName, lastName, email, 'X');
 
 			for (User user : users) {
 				UserInstance instance = new UserInstance();
@@ -39,7 +40,7 @@ public class UserListServiceImpl extends RemoteServiceServlet implements UserLis
 				instance.setPassword(user.getPassword());
 				instance.setFirstName(user.getFirstName());
 				instance.setLastName(user.getLastName());
-				instance.setId(user.getId());
+				instance.setEmail(user.getEmail());
 				instance.setStatus(user.getStatus());
 				instance.setCreatedDatetime(user.getCreatedDatetime());
 				list.add(instance);

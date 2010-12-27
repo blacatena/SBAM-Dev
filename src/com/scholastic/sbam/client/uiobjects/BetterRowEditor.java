@@ -21,10 +21,10 @@ import com.scholastic.sbam.shared.objects.BetterRowEditInstance;
  * Implementations can customize the setting of the key properties (which identify a new record), delete property (i.e. the property which will denote a record as deleted)
  * and the delete value (i.e. the value of the delete property which means the record is deleted).
  * 
- * Implementations can also override the deletePressed(), doDelete(), isDeleted(), canDelete(), isNewRecord() methods to customize those behaviors.
+ * Implementations can also override the deletePressed(), doDelete(), isDeleted(), canDelete(), isNewRecord() methods to customize those behaviors, but generally customization can be done
+ * by implementing the proper methods in the data instance, which should extend BetterRowEditInstance.
  * 
- * The Store (ListStore) must have listeners which call the necessary backend services on either the Update/COMMIT (for updates) or Before Remove (for deletes) events.
- * For updates, the record being updated will be present.  For deletes, the listener must scan through the store looking for those with the delete property set to the delete value.
+ * The Store (ListStore) must have a listener which calls the necessary backend service on an Update/COMMIT event.
  * 
  * ALTERNATE STRATEGY: Have the BetterRowEditor cancel changes and send the asynch event, which on return must remove the deleted row from the store.  This way the row isn't removed from the grid until it's
  * successfully removed from the database, and there's no disconnect between the RowEditor removing the row from the grid and store, versus the store removing the correct row from the database.  Either
@@ -108,7 +108,7 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 		
 		//	Let the instance mark itself as deleted
 		BetterRowEditInstance instance = (BetterRowEditInstance) store.getAt(rowIndex).getBean();
-		store.getRecord(store.getAt(rowIndex)).set(instance.returnTriggerProperty(), instance.returnTriggerValue());	// Just to make the store fire an update event
+		store.getRecord(store.getAt(rowIndex)).set(instance.returnTriggerProperty(), instance.returnTriggerValue());	// Just to make the store fires an update event
 		instance.markForDeletion();
 		
 		//	Stop editing and make the updates
@@ -139,10 +139,10 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 		super.stopEditing(saveChanges);
 		if (!saveChanges) {
 			store.rejectChanges();
-			removeEmptyRows();
+			removeEmptyRows(saveChanges);
 		} else if (validChanges) {
 			store.commitChanges();
-			removeEmptyRows();
+			removeEmptyRows(saveChanges);
 		}
 	}
 	
@@ -165,11 +165,12 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 	/**
 	 * Remove any rows in the database which are either deleted or new but incomplete (i.e. do not contain any key values).
 	 */
-	protected void removeEmptyRows() {
+	protected void removeEmptyRows(boolean saveChanges) {
 		for (BeanModel data : store.getModels()) {
 			//	Rows with no id and no user name are considered "empty"
 			if (isNewRecord(data)) {
-				store.remove(data);
+				if (!saveChanges)
+					store.remove(data);
 			} else if (isDeleted(data)) {
 				store.remove(data);
 			}

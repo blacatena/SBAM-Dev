@@ -16,7 +16,7 @@ public class UserInstance extends BetterRowEditInstance implements IsSerializabl
 	private Date sessionStartTime;
 	private Date sessionExpireTime;
 	private Date createdDatetime;
-	private String status;
+	private char status;
 	
 	public Integer getId() {
 		return id;
@@ -84,23 +84,19 @@ public class UserInstance extends BetterRowEditInstance implements IsSerializabl
 	public void setCreatedDatetime(Date createdDatetime) {
 		this.createdDatetime = createdDatetime;
 	}
-	public String getStatus() {
+	public char getStatus() {
 		return status;
 	}
-	public void setStatus(String status) {
-		this.status = status;
-	}
 	public void setStatus(char status) {
-		this.status = status + "";
+		this.status = status;
 	}
 	@Override
 	public void markForDeletion() {
-		System.out.println(this.getClass().getName() + " markForDeletion()");
 		setStatus('X');
 	}
 	@Override
 	public boolean thisIsDeleted() {
-		return "X".equals(status);
+		return status == 'X';
 	}
 	@Override
 	public boolean thisIsNewRecord() {

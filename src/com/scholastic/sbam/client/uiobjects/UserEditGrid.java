@@ -74,9 +74,9 @@ public class UserEditGrid extends LayoutContainer {
 		
 		store.addListener(Store.Update, new Listener<StoreEvent<BeanModel>>() {
             public void handleEvent(final StoreEvent<BeanModel> se) {
-                if (se.getRecord() != null && se.getRecord().getModel() != null) {
-                	System.out.println(se.getRecord().getModel().getProperties());
-            	} else System.out.println("No model data");
+//                if (se.getRecord() != null && se.getRecord().getModel() != null) {
+//                	System.out.println(se.getRecord().getModel().getProperties());
+//            	} else System.out.println("No model data");
                 
                 if (se.getOperation() == Record.RecordUpdate.COMMIT && se.getModel() != null) {
                 	updateUser(se.getModel());
@@ -179,6 +179,11 @@ public class UserEditGrid extends LayoutContainer {
 		return getEditColumn(name, header, width, toolTip, true);
 	}
 	
+	protected ColumnConfig getEditReadOnlyColumn(String name, String header, int width, String toolTip) {
+		ColumnConfig column = getColumn(name, header, width, toolTip);
+		return column;
+	}
+	
 	protected ColumnConfig getEditColumn(String name, String header, int width, String toolTip, boolean password) {
 		ColumnConfig column = getColumn(name, header, width, toolTip);
 		TextField<String> text = new TextField<String>();  
@@ -192,7 +197,7 @@ public class UserEditGrid extends LayoutContainer {
 	
 	private void updateUser(BeanModel beanModel) {
 		final BeanModel targetBeanModel = beanModel;
-		System.out.println("Before update: " + targetBeanModel.getProperties());
+	//	System.out.println("Before update: " + targetBeanModel.getProperties());
 		updateUserService.updateUser((UserInstance) beanModel.getBean(),
 				new AsyncCallback<UserInstance>() {
 					public void onFailure(Throwable caught) {
@@ -202,11 +207,11 @@ public class UserEditGrid extends LayoutContainer {
 					}
 
 					public void onSuccess(UserInstance updatedUser) {
-						System.out.println("UPDATE SUCCESSFUL");
+					//	System.out.println("UPDATE SUCCESSFUL");
 						// If this user is newly created, back-populate the id
 						if (targetBeanModel.get("id") == null) {
 							targetBeanModel.set("id",updatedUser.getId());
-						System.out.println("After update " + targetBeanModel.getProperties());
+					//	System.out.println("After update " + targetBeanModel.getProperties());
 					}
 				}
 			});

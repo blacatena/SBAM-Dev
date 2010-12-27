@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Dec 22, 2010 4:10:32 PM by Hibernate Tools 3.2.4.GA
+// Generated Dec 23, 2010 5:12:22 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -26,13 +26,12 @@ public class User implements java.io.Serializable {
 	}
 
 	public User(String userName, String password, String email, int loginCount,
-			int sessionId, Date createdDatetime, char status) {
+			int sessionId, char status) {
 		this.userName = userName;
 		this.password = password;
 		this.email = email;
 		this.loginCount = loginCount;
 		this.sessionId = sessionId;
-		this.createdDatetime = createdDatetime;
 		this.status = status;
 	}
 
