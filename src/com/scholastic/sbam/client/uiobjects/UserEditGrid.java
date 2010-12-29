@@ -175,21 +175,27 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 	}
 	
 	public void awaken() {
+		System.out.println("Awaken UserEditGrid");
 		reload();
 	}
 	
 	public void sleep() {
+		System.out.println("Sleep UserEditGrid");
 		clear();
 	}
 	
 	protected void reload() {
-		store.getLoader().load();
-		grid.getSelectionModel().setSelection(selection);
+		if (store != null)
+			store.getLoader().load();
+		if (grid != null && grid.getSelectionModel() != null&& selection != null)
+			grid.getSelectionModel().setSelection(selection);
 	}
 	
 	protected void clear() {
-		selection = grid.getSelectionModel().getSelection();
-		store.removeAll();
+		if (grid != null && grid.getSelectionModel() != null)
+			selection = grid.getSelectionModel().getSelection();
+		if (store != null)
+			store.removeAll();
 	}
 	
 	protected ColumnConfig getColumn(String name, String header, int width) {

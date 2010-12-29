@@ -46,7 +46,7 @@ public class WelcomeMessageServiceImpl extends RemoteServiceServlet implements W
 			
 			if (msgs.size() == 0) {
 				sb.append("<hr/>");
-				sb.append("<i>No messages today.</i>");
+				sb.append("<div style=\"padding: 10px; font-style: italic\">No messages today.</div>");
 			}
 		} catch (Exception exc) {
 			exc.printStackTrace();

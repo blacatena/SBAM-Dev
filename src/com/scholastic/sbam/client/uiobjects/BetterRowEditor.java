@@ -155,8 +155,11 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 			return true;
 		boolean fieldsAreValid = super.isValid();
 		if (fieldsAreValid) {
-			BetterRowEditInstance instance = (BetterRowEditInstance) store.getAt(rowIndex).getBean();
-			fieldsAreValid = instance.thisIsValid();
+			if (store.getAt(rowIndex) != null) {
+				BetterRowEditInstance instance = (BetterRowEditInstance) store.getAt(rowIndex).getBean();
+				if (instance != null)
+					fieldsAreValid = instance.thisIsValid();
+			}
 		}
 		//	Now do a higher level of validation, e.g. multiple field relationships -- warning, THIS GETS CALLED REPEATEDLY during editing!!!!
 		return fieldsAreValid;
@@ -166,6 +169,9 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 	 * Remove any rows in the database which are either deleted or new but incomplete (i.e. do not contain any key values).
 	 */
 	protected void removeEmptyRows(boolean saveChanges) {
+		if (store.getModels() == null)
+			return;
+		
 		for (BeanModel data : store.getModels()) {
 			//	Rows with no id and no user name are considered "empty"
 			if (isNewRecord(data)) {
@@ -185,7 +191,13 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 	 * @return
 	 */
 	protected boolean isDeleted(BeanModel data) {
+		if (data == null)
+			return false;
+		
 		BetterRowEditInstance instance = (BetterRowEditInstance) data.getBean();
+		if (instance == null)
+			return false;
+		
 		return instance.thisIsDeleted();
 	}
 	
@@ -209,7 +221,13 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 	 * @return
 	 */
 	protected boolean isNewRecord(BeanModel data) {
+		if (data == null)
+			return false;
+		
 		BetterRowEditInstance instance = (BetterRowEditInstance) data.getBean();
+		if (instance == null)
+			return false;
+		
 		return instance.thisIsNewRecord();
 	}
 
