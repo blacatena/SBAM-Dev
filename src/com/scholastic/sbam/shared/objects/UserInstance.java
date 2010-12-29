@@ -17,6 +17,7 @@ public class UserInstance extends BetterRowEditInstance implements IsSerializabl
 	private Date sessionExpireTime;
 	private Date createdDatetime;
 	private char status;
+	private String roleGroupTitle;
 	
 	public Integer getId() {
 		return id;
@@ -113,5 +114,14 @@ public class UserInstance extends BetterRowEditInstance implements IsSerializabl
 	@Override
 	public String returnTriggerValue() {
 		return "junk";
+	}
+	public String getRoleGroupTitle() {
+		return roleGroupTitle;
+	}
+	public void setRoleGroupTitle(String roleGroupTitle) {
+		this.roleGroupTitle = roleGroupTitle;
+	}
+	public String toString() {
+		return id +"/"+userName+"/"+firstName+"/"+lastName+"/"+createdDatetime+"/"+status+"/"+roleGroupTitle;
 	}
 }

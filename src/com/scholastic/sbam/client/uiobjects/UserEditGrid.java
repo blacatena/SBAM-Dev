@@ -10,10 +10,12 @@ import com.extjs.gxt.ui.client.data.BeanModelFactory;
 import com.extjs.gxt.ui.client.data.BeanModelLookup;
 import com.extjs.gxt.ui.client.data.BeanModelReader;
 import com.extjs.gxt.ui.client.data.ListLoadResult;
-import com.extjs.gxt.ui.client.data.ListLoader;  
+import com.extjs.gxt.ui.client.data.ListLoader;
 import com.extjs.gxt.ui.client.data.ModelData; 
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -24,6 +26,8 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
@@ -39,12 +43,15 @@ import com.scholastic.sbam.client.services.UpdateUserServiceAsync;
 import com.scholastic.sbam.client.services.UserListService;
 import com.scholastic.sbam.client.services.UserListServiceAsync;
 import com.scholastic.sbam.shared.objects.UserInstance;
+import com.scholastic.sbam.shared.security.SecurityManager;
 
-public class UserEditGrid extends LayoutContainer {
+public class UserEditGrid extends LayoutContainer implements AppSleeper {
 	
 	private ListStore<BeanModel>	store;
 	private Grid<BeanModel>			grid;
 	private ContentPanel 			panel;
+	
+	private List<BeanModel> selection;
 	
 	private final UserListServiceAsync userListService = GWT.create(UserListService.class);
 	private final UpdateUserServiceAsync updateUserService = GWT.create(UpdateUserService.class);
@@ -54,10 +61,22 @@ public class UserEditGrid extends LayoutContainer {
 	
 	@Override  
 	protected void onRender(Element parent, int index) {  
-		super.onRender(parent, index);  
+		super.onRender(parent, index);
 		setStyleAttribute("padding", "20px");
 		
 		panel = new ContentPanel(); 
+		
+		panel.addListener(Events.Refresh, new Listener<ComponentEvent>() {  
+			public void handleEvent(ComponentEvent be) {  
+				System.out.println("UserEditGrid Refresh");  
+			}  
+		});   
+		
+		panel.addListener(Events.Restore, new Listener<ComponentEvent>() {  
+			public void handleEvent(ComponentEvent be) {  
+				System.out.println("UserEditGrid Restore");  
+			}  
+		});
 		
 		// proxy and reader  
 		RpcProxy<List<UserInstance>> proxy = new RpcProxy<List<UserInstance>>() {  
@@ -65,12 +84,12 @@ public class UserEditGrid extends LayoutContainer {
 			public void load(Object loadConfig, AsyncCallback<List<UserInstance>> callback) {
 		    	userListService.getUsers(null, null, null, null, callback);
 		    }  
-		};  
-		BeanModelReader reader = new BeanModelReader();  
+		};
+		BeanModelReader reader = new BeanModelReader();
 		
 		// loader and store  
-		ListLoader<ListLoadResult<ModelData>> loader = new BaseListLoader<ListLoadResult<ModelData>>(proxy, reader);  
-		store = new ListStore<BeanModel>(loader);  
+		ListLoader<ListLoadResult<ModelData>> loader = new BaseListLoader<ListLoadResult<ModelData>>(proxy, reader);
+		store = new ListStore<BeanModel>(loader);
 		
 		store.addListener(Store.Update, new Listener<StoreEvent<BeanModel>>() {
             public void handleEvent(final StoreEvent<BeanModel> se) {
@@ -85,21 +104,22 @@ public class UserEditGrid extends LayoutContainer {
             }
         });
 		
-		loader.load();  
+		loader.load();
 		
 		// column model  
-		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();  
+		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
 		columns.add(getEditColumn(			"userName", 	"User", 		60));
 		columns.add(getEditPasswordColumn(	"password", 	"Password", 	60, 	null));
 		columns.add(getEditColumn(			"firstName", 	"First Name", 	100));
 		columns.add(getEditColumn(			"lastName", 	"Last Name", 	100));
 		columns.add(getEditColumn(			"email", 		"Email", 		200));
-		ColumnModel cm = new ColumnModel(columns);  
+		columns.add(getRoleGroupColumn(						"Role",			130));
+		ColumnModel cm = new ColumnModel(columns);
 		
 		grid = new Grid<BeanModel>(store, cm);
-		grid.setBorders(true);  
-		grid.setStripeRows(true);  
-		grid.setColumnLines(true);  
+		grid.setBorders(true);
+		grid.setStripeRows(true);
+		grid.setColumnLines(true);
 		grid.setColumnReordering(true);
 		grid.setAutoExpandColumn("userName");
 		grid.getAriaSupport().setLabelledBy(panel.getHeader().getId() + "-label"); // access for people with disabilities -- ARIA
@@ -108,11 +128,11 @@ public class UserEditGrid extends LayoutContainer {
 		
 		panel.setHeading("Users");
 		panel.setFrame(true);
-		panel.setSize(600, 600);  
-		//panel.setIcon(Resources.ICONS.table());  
-		panel.setLayout(new FitLayout()); 
+		panel.setSize(730, 600);
+		//panel.setIcon(Resources.ICONS.table());
+		panel.setLayout(new FitLayout());
 		
-		add(panel);  
+		add(panel);
 	}
 	
 	protected void makeRowEditor() {
@@ -131,11 +151,12 @@ public class UserEditGrid extends LayoutContainer {
 				user.setFirstName("");
 				user.setLastName("");
 				user.setEmail("");
+				user.setRoleGroupTitle("None");
 				 
 				re.stopEditing(false);
 				BeanModel userModel = getModel(user);
-				store.insert(userModel, 0);  
-				re.startEditing(store.indexOf(userModel), true);  
+				store.insert(userModel, 0);
+				re.startEditing(store.indexOf(userModel), true);
 			 
 			}  
 		 
@@ -153,14 +174,32 @@ public class UserEditGrid extends LayoutContainer {
 		return model;
 	}
 	
+	public void awaken() {
+		reload();
+	}
+	
+	public void sleep() {
+		clear();
+	}
+	
+	protected void reload() {
+		store.getLoader().load();
+		grid.getSelectionModel().setSelection(selection);
+	}
+	
+	protected void clear() {
+		selection = grid.getSelectionModel().getSelection();
+		store.removeAll();
+	}
+	
 	protected ColumnConfig getColumn(String name, String header, int width) {
 		return getColumn(name, header, width, null);
 	}
 	
 	protected ColumnConfig getColumn(String name, String header, int width, String toolTip) {
-		ColumnConfig column = new ColumnConfig();  
-		column.setId(name);  
-		column.setHeader(header);  
+		ColumnConfig column = new ColumnConfig();
+		column.setId(name);
+		column.setHeader(header);
 		column.setWidth(width);
 		if (toolTip != null && toolTip.length() > 0)
 			column.setToolTip(toolTip);
@@ -186,13 +225,50 @@ public class UserEditGrid extends LayoutContainer {
 	
 	protected ColumnConfig getEditColumn(String name, String header, int width, String toolTip, boolean password) {
 		ColumnConfig column = getColumn(name, header, width, toolTip);
-		TextField<String> text = new TextField<String>();  
+		TextField<String> text = new TextField<String>();
 		text.setAllowBlank(false);
 		if (password) {
 			text.setPassword(password);
 		}
 		column.setEditor(new CellEditor(text));
 		return column;
+	}
+	
+	protected ColumnConfig getRoleGroupColumn(String header, int width) {
+		
+		final SimpleComboBox<String> combo = new SimpleComboBox<String>();
+		combo.setForceSelection(true);
+		combo.setTriggerAction(TriggerAction.ALL);
+		
+		for (int i = 0; i < SecurityManager.ROLE_GROUPS.length; i++) {
+			combo.add(SecurityManager.ROLE_GROUPS [i].getGroupTitle());
+		}
+		
+		CellEditor editor = new CellEditor(combo) {  
+		  @Override  
+		  public Object preProcessValue(Object value) {  
+		    if (value == null) {  
+		      return value;
+		    }  
+		    return combo.findModel(value.toString());
+		  }  
+ 
+		  @Override  
+		  public Object postProcessValue(Object value) {  
+		    if (value == null) {  
+		      return value;
+		    }  
+		    return ((ModelData) value).get("value");
+		  }  
+		};
+
+		ColumnConfig column = new ColumnConfig();
+		column.setId("roleGroupTitle");
+		column.setHeader(header);
+		column.setWidth(width);
+		column.setEditor(editor); 
+	
+		return column; 
 	}
 	
 	private void updateUser(BeanModel beanModel) {

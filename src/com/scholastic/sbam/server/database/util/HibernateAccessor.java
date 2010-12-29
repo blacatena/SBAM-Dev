@@ -78,6 +78,55 @@ public class HibernateAccessor
         }
     }
 
+    public static void saveOrUpdate(Object transientInstance)
+    {
+        log.debug("save or update Object instance");
+        try
+        {
+            sessionFactory.getCurrentSession().saveOrUpdate(transientInstance);
+            log.debug("saveOrUpdate successful");
+        }
+        catch(RuntimeException re)
+        {
+            log.error("saveOrUpdate failed", re);
+            System.out.println(re);
+            re.printStackTrace();
+            throw re;
+        }
+    }
+
+    public static void save(Object transientInstance)
+    {
+        log.debug("save Object instance");
+        try
+        {
+            sessionFactory.getCurrentSession().save(transientInstance);
+            log.debug("save successful");
+        }
+        catch(RuntimeException re)
+        {
+            log.error("save failed", re);
+            System.out.println(re);
+            re.printStackTrace();
+            throw re;
+        }
+    }
+
+    public static void commit()
+    {
+        log.debug("refreshing Object instance");
+        try
+        {
+            sessionFactory.getCurrentSession().getTransaction().commit();
+            log.debug("commit successful");
+        }
+        catch(RuntimeException re)
+        {
+            log.error("commit failed", re);
+            throw re;
+        }
+    }
+
     public static void attachDirty(Object instance)
     {
         log.debug("attaching dirty Object instance");

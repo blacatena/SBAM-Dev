@@ -6,7 +6,9 @@ import java.util.List;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.scholastic.sbam.client.services.UserListService;
 import com.scholastic.sbam.server.database.codegen.User;
+import com.scholastic.sbam.server.database.codegen.UserRole;
 import com.scholastic.sbam.server.database.objects.DbUser;
+import com.scholastic.sbam.server.database.objects.DbUserRole;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.objects.Authentication;
 import com.scholastic.sbam.shared.objects.UserInstance;
@@ -26,9 +28,14 @@ public class UserListServiceImpl extends RemoteServiceServlet implements UserLis
 
 		List<UserInstance> list = new ArrayList<UserInstance>();
 		try {
-			String authUserName = ((Authentication) getServletContext().getAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE)).getUserName();
-			if (authUserName == null || authUserName.length() == 0)
-				throw new Exception("No logged in user for whom to users.");
+			String authUserName = null;
+			Authentication auth = ((Authentication) getServletContext().getAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE));
+			if (auth != null)
+				authUserName = auth.getUserName();
+			if (auth == null || authUserName == null || authUserName.length() == 0)
+				throw new Exception("No logged in user for whom to list users.");
+			if (!auth.hasRoleName(SecurityManager.ROLE_ADMIN))
+				throw new Exception("User is not privileged to list users.");
 			
 			//	Find only undeleted users
 			List<User> users = DbUser.findFiltered(userName, firstName, lastName, email, 'X');
@@ -44,6 +51,10 @@ public class UserListServiceImpl extends RemoteServiceServlet implements UserLis
 				instance.setStatus(user.getStatus());
 				instance.setCreatedDatetime(user.getCreatedDatetime());
 				list.add(instance);
+				
+				//	Set the title for their collection of roles
+				List<UserRole> roles = DbUserRole.findByUserName(user.getUserName());
+				instance.setRoleGroupTitle(SecurityManager.getRoleGroupTitle(getRoleNames(roles)));
 			}
 
 		} catch (Exception exc) {
@@ -54,5 +65,12 @@ public class UserListServiceImpl extends RemoteServiceServlet implements UserLis
 		HibernateUtil.closeSession();
 		
 		return list;
+	}
+	
+	private String [] getRoleNames(List<UserRole> roles) {
+		String [] roleNames = new String [roles.size()];
+		for (int i = 0; i < roles.size(); i++)
+			roleNames [i] = roles.get(i).getId().getRoleName();
+		return roleNames;
 	}
 }

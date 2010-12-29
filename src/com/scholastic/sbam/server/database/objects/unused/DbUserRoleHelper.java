@@ -265,7 +265,7 @@ public class DbUserRoleHelper
     {
         System.out.println(userRole.getId().getUserName());
         System.out.println(userRole.getId().getRoleName());
-        System.out.println(userRole.getReadWrite());
+        System.out.println(userRole.getReadOrWrite());
     }
 
 }

@@ -2,6 +2,9 @@ package com.scholastic.sbam.client.uiobjects;
 
 import java.util.List;
 
+//import com.extjs.gxt.ui.client.event.ComponentEvent;
+//import com.extjs.gxt.ui.client.event.Events;
+//import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Composite;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.TabItem;
@@ -14,6 +17,7 @@ import com.scholastic.sbam.client.services.WelcomeMessageServiceAsync;
 import com.scholastic.sbam.shared.security.SecurityManager;
 
 public class AppNav extends Composite implements AppSecurityManager {
+	private TabPanel tabPanel;
 	private TabItem tbtmAdministration;
 	private TabItem tbtmWelcome;
 	private Html htmlWelcome;
@@ -25,12 +29,18 @@ public class AppNav extends Composite implements AppSecurityManager {
 
 	public AppNav() {
 		
-		TabPanel tabPanel = new TabPanel();
+		tabPanel = new TabPanel();
 		
 		tbtmWelcome = new TabItem("Welcome");
 		
 		htmlWelcome = new Html("<h2><i><b>Welcome</b></i> to the Scholastic Site Based Authentication Management System (SBAM).</h2><hr/>");
 		tbtmWelcome.add(htmlWelcome);
+		
+//		tbtmWelcome.addListener(Events.Select, new Listener<ComponentEvent>() {  
+//			public void handleEvent(ComponentEvent be) {
+//				System.out.println("Welcome Tab Selected");  
+//			}  
+//		}); 
 		
 		htmlMessages = new Html("");
 		tbtmWelcome.add(htmlMessages);
@@ -53,6 +63,7 @@ public class AppNav extends Composite implements AppSecurityManager {
 		adminUi = new AdminUi();
 		tbtmAdministration.add(adminUi);
 		tabPanel.add(tbtmAdministration);
+		
 		initComponent(tabPanel);
 		
 		applyRoles(SecurityManager.NO_ROLES);
@@ -78,6 +89,11 @@ public class AppNav extends Composite implements AppSecurityManager {
 				}
 			});
 		
+	}
+	
+	public void setLoggedOut() {
+		tabPanel.setSelection(tbtmWelcome);
+		applyRoles(SecurityManager.NO_ROLES);
 	}
 
 	public void applyRoles(List<String> roleNames) {

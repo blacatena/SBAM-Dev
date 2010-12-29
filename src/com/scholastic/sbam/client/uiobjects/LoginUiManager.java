@@ -162,6 +162,8 @@ public class LoginUiManager {
 
 				public void onSuccess(String result) {
 					setLoggedOut();
+					if (theApp != null)
+						theApp.setLoggedOut();
 					loginBox.status.clearStatus("");
 				//	loginBox.el().fadeIn(FxConfig.NONE);
 					loginBox.show();

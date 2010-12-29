@@ -2,6 +2,8 @@ package com.scholastic.sbam.server.servlets;
 
 import java.util.List;
 
+import javax.servlet.ServletContext;
+
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.scholastic.sbam.client.services.AuthenticateService;
 import com.scholastic.sbam.server.database.codegen.User;
@@ -20,15 +22,39 @@ public class AuthenticateServiceImpl extends RemoteServiceServlet implements Aut
 
 	@Override
 	public Authentication authenticate(String userName, String password) throws IllegalArgumentException {
-		Authentication auth = new Authentication();
 		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();
+		
+		Authentication auth =  doAuthentication(userName, password, this.getServletContext());
+		
+		HibernateUtil.endTransaction();
+		HibernateUtil.closeSession();
+		
+		return auth;
+	}
+	
+	/**
+	 * This method performs authentication within an existing database transaction.
+	 * 
+	 * It may be used by other classes when authentication must be refreshed as part of a separate transaction.
+	 * 
+	 * @param userName
+	 * @param password
+	 * @param context
+	 * @return
+	 */
+	public static Authentication doAuthentication(String userName, String password, ServletContext context) {
+		//	Removing any ' characters prevents anyone from hacking into the database through SQL Injection attacks
+		userName = userName.replace("'","");
+		
+		Authentication auth = new Authentication();
+		
 		User user = DbUser.getByUserName(userName);	//	DbUserHelper.findByUserName(userName);
 		if (user == null || !user.getPassword().equals(password)) {
 			auth.setMessage("Invalid user name or password.");
 			auth.setAuthenticated(false);
-			this.getServletContext().setAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE, null);
+			context.setAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE, null);
 		} else {
 			auth.setUserName(userName);
 			auth.setFirstName(user.getFirstName());
@@ -37,18 +63,16 @@ public class AuthenticateServiceImpl extends RemoteServiceServlet implements Aut
 			auth.setMessage("");
 			loadRoles(auth);
 			
-			this.getServletContext().setAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE, auth);
+			context.setAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE, auth);
 			
 			user.setLoginCount(user.getLoginCount() + 1);
 			DbUser.persist(user);	//	DbUserHelper.persist(user);
 		}
-		HibernateUtil.endTransaction();
-		HibernateUtil.closeSession();
 		
 		return auth;
 	}
 	
-	private void loadRoles(Authentication auth) {
+	private static void loadRoles(Authentication auth) {
 		List<UserRole> roles = DbUserRole.findByUserName(auth.getUserName());
 		for (UserRole role: roles) {
 			auth.addRoleName(role.getId().getRoleName());

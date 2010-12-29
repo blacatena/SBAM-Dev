@@ -38,6 +38,10 @@ public class Authentication implements IsSerializable {
 		roleNames.clear();
 	}
 	
+	public boolean hasRoleName(String roleName) {
+		return roleNames.contains(roleName);
+	}
+	
 	public String getDisplayName() {
 		if (firstName != null)
 			if (lastName != null)
@@ -48,6 +52,10 @@ public class Authentication implements IsSerializable {
 			return lastName;
 		else
 			return "Unknown.";
+	}
+	
+	public String toString() {
+		return userName + "/" + firstName + "/" + lastName + "/" + authenticated + "/" + roleNames;
 	}
 	
 	public boolean isAuthenticated() {

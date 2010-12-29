@@ -20,5 +20,6 @@
   <source path='client'/>
   <source path='shared'/>
   <inherits name="com.extjs.gxt.ui.GXT"/>
+  <inherits name="com.scholastic.sbam.SBAM"/>
 
 </module>

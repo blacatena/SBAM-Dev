@@ -2,6 +2,9 @@ package com.scholastic.sbam.client.uiobjects;
 
 import java.util.List;
 
+//import com.extjs.gxt.ui.client.event.ComponentEvent;
+//import com.extjs.gxt.ui.client.event.Events;
+//import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Composite;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
@@ -22,6 +25,17 @@ public class AdminUi extends Composite implements AppSecurityManager {
 		cntntpnlUsers = new ContentPanel();
 		cntntpnlUsers.setHeading("Users");
 		cntntpnlUsers.setCollapsible(true);
+		
+//		cntntpnlUsers.addListener(Events.Collapse, new Listener<ComponentEvent>() {  
+//			public void handleEvent(ComponentEvent be) {
+//				System.out.println("Users Collapse");  
+//			}  
+//		});  
+//		cntntpnlUsers.addListener(Events.Expand, new Listener<ComponentEvent>() {  
+//			public void handleEvent(ComponentEvent be) {
+//				System.out.println("Users Expand");  
+//			}  
+//		});
 		
 		userEditGrid = new UserEditGrid();
 		cntntpnlUsers.add(userEditGrid);
