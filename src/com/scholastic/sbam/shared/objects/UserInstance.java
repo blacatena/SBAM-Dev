@@ -18,6 +18,7 @@ public class UserInstance extends BetterRowEditInstance implements IsSerializabl
 	private Date createdDatetime;
 	private char status;
 	private String roleGroupTitle;
+	private boolean resetPassword	= false;
 	
 	public Integer getId() {
 		return id;
@@ -120,6 +121,12 @@ public class UserInstance extends BetterRowEditInstance implements IsSerializabl
 	}
 	public void setRoleGroupTitle(String roleGroupTitle) {
 		this.roleGroupTitle = roleGroupTitle;
+	}
+	public boolean isResetPassword() {
+		return resetPassword;
+	}
+	public void setResetPassword(boolean resetPassword) {
+		this.resetPassword = resetPassword;
 	}
 	public String toString() {
 		return id +"/"+userName+"/"+firstName+"/"+lastName+"/"+createdDatetime+"/"+status+"/"+roleGroupTitle;

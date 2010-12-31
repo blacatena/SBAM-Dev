@@ -1,5 +1,6 @@
 package com.scholastic.sbam.server.servlets;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -12,6 +13,7 @@ import com.scholastic.sbam.server.database.objects.DbUser;
 import com.scholastic.sbam.server.database.objects.DbUserRole;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.objects.Authentication;
+import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.objects.UserInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
 
@@ -22,24 +24,30 @@ import com.scholastic.sbam.shared.security.SecurityManager;
 public class UpdateUserServiceImpl extends RemoteServiceServlet implements UpdateUserService {
 
 	@Override
-	public UserInstance updateUser(UserInstance instance) throws IllegalArgumentException {
+	public UpdateResponse<UserInstance> updateUser(UserInstance instance) throws IllegalArgumentException {
+		
+		boolean newCreated				= false;
+		boolean passwordReset			= false;
+		
+		String	messages				= null;
+		
+		User dbInstance = null;
+		
+		Authentication auth = (Authentication) getServletContext().getAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE);
+		//	If user is no longer logged in, just skip this update
+		if (auth == null)
+			throw new IllegalArgumentException("Requesting user is not authenticated.");
+		if (!auth.hasRoleName(SecurityManager.ROLE_ADMIN))
+			throw new IllegalArgumentException("Requesting user is not authenticated for this task.");
+		if (instance.getUserName() == null)
+			throw new IllegalArgumentException("A user name is required.");
 		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();
 
 		try {
-			Authentication auth = (Authentication) getServletContext().getAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE);
-			//	If user is no longer logged in, just skip this update
-			if (auth == null)
-				throw new IllegalArgumentException("Requesting user is not authenticated.");
-			if (!auth.hasRoleName(SecurityManager.ROLE_ADMIN))
-				throw new IllegalArgumentException("Requesting user is not authenticated for this task.");
 			
 			//	Pre-edit/fix values
-			if (instance.getUserName() == null)
-				instance.setUserName("error");
-			
-			User dbInstance = null;
 			
 			//	Get existing, or create new
 			if (instance.getId() != null) {
@@ -48,15 +56,24 @@ public class UpdateUserServiceImpl extends RemoteServiceServlet implements Updat
 
 			//	If none found, create new
 			if (dbInstance == null) {
+				newCreated = true;
 				dbInstance = new User();
+				//	Set the create date/time
 				dbInstance.setCreatedDatetime(new Date());
+				//	Set a random password
+				SimpleDateFormat fmt = new SimpleDateFormat("mmss");
+				dbInstance.setPassword(instance.getUserName() + fmt.format(new Date()));
 			}
 
 			//	Update values
 			if (instance.getUserName() != null)
 				dbInstance.setUserName(instance.getUserName());
-			if (instance.getPassword() != null)
-				dbInstance.setPassword(instance.getPassword());
+			if (instance.isResetPassword()) {
+				passwordReset = true;
+				messages = "The user's password has been reset, and an e-mail has been sent to " + instance.getEmail() + ".";
+				SimpleDateFormat fmt = new SimpleDateFormat("mmss");
+				dbInstance.setPassword(instance.getUserName() + fmt.format(new Date()));
+			}
 			if (instance.getFirstName() != null)
 				dbInstance.setFirstName(instance.getFirstName());
 			if (instance.getLastName() != null)
@@ -78,26 +95,51 @@ public class UpdateUserServiceImpl extends RemoteServiceServlet implements Updat
 				instance.setId(dbInstance.getId());
 			}
 			
+			//	If the user changed his own capabilities, make them take effect for this session
 			if (instance.getUserName().equals(auth.getUserName())) {
 				System.out.println("Refresh authentication");
 				System.out.println(auth);
 				AuthenticateServiceImpl.doAuthentication(instance.getUserName(), instance.getPassword(), this.getServletContext());
 				System.out.println(getServletContext().getAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE));
 			}
+			
+		} catch (IllegalArgumentException exc) {
+			silentRollback();
+			throw exc;
 		} catch (Exception exc) {
+			silentRollback();
 			exc.printStackTrace();
+			throw new IllegalArgumentException("The update failed unexpectedly.");
+		} finally {
+			if (HibernateUtil.isTransactionInProgress())
+				HibernateUtil.endTransaction();
+			HibernateUtil.closeSession();
 		}
 		
-		HibernateUtil.endTransaction();
-		HibernateUtil.closeSession();
+		if (newCreated) {
+			//	Send new e-mail
+		} else if (passwordReset) {
+			///	Send password reset e-mail
+		}
 		
-		return instance;
+		return new UpdateResponse<UserInstance>(instance, messages);
+	}
+	
+	private void silentRollback() {
+		try {
+			if (HibernateUtil.isTransactionInProgress())
+				HibernateUtil.getSession().getTransaction().rollback();	
+		} catch (Exception exc) { }
 	}
 	
 	private void setRoles(UserInstance instance) throws Exception {
+		//	If instance is deleted, don't bother with this... leave their roles as is
+		if (instance.getStatus() == 'X')
+			return;
+		
 		String [] roleNames = SecurityManager.getRoleNames(instance.getRoleGroupTitle());
 		if (roleNames.length == 0)
-			throw new Exception("Invalid role group name " + instance.getRoleGroupTitle());
+			throw new IllegalArgumentException("Invalid role group '" + instance.getRoleGroupTitle() + "'.");
 		
 		List<UserRole> oldRoles = DbUserRole.findByUserName(instance.getUserName());
 		for (UserRole role : oldRoles) {

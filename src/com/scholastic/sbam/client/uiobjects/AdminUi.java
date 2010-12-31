@@ -62,14 +62,11 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 	}
 	
 	public void sleep() {
-		System.out.println("Sleeping adminUi");
 		userEditGrid.sleep();
 	}
 	
 	public void awaken() {
-		System.out.println("Awaken userEditGrid?");
 		if (!cntntpnlUsers.isCollapsed()) {
-			System.out.println("AdminUi awakens userEditGrid");
 			userEditGrid.awaken();
 		}
 	}

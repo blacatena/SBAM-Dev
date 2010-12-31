@@ -1,5 +1,7 @@
 package com.scholastic.sbam.client.uiobjects;
 
+import java.util.List;
+
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -37,6 +39,7 @@ import com.scholastic.sbam.shared.objects.BetterRowEditInstance;
 public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 	
 	private Button delButton;
+	private List<Button> customButtons;
 	private ListStore<BeanModel>	store;
 	
 	/**
@@ -48,8 +51,45 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 	}
 	
 	public BetterRowEditor(ListStore<BeanModel> store) {
+		this(store, true);
+	}
+	
+	/**
+	 * Constructor to allow the user to exclude the delete button.
+	 * 
+	 * @param store
+	 * @param needsDeleteButton
+	 */
+	public BetterRowEditor(ListStore<BeanModel> store, boolean needsDeleteButton) {
 		super();
 		this.store = store;
+		if (needsDeleteButton)
+			createDeleteButton();
+	}
+	
+	/**
+	 * Constructor to allow the user to exclude the delete button and/or add custom buttons.
+	 * 
+	 * @param store
+	 * @param needsDeleteButton
+	 */
+	public BetterRowEditor(ListStore<BeanModel> store, boolean needsDeleteButton, List<Button> customButtons) {
+		this(store, needsDeleteButton);
+		setCustomButtons(customButtons);
+	}
+
+	public BetterRowEditor(ListStore<BeanModel> store, List<Button> customButtons) {
+		this(store, true, customButtons);
+	}
+	
+	private void createDeleteButton() {
+		delButton = new Button("Delete");      
+		delButton.addListener(Events.Select, new Listener<ButtonEvent>() {
+			public void handleEvent(ButtonEvent be) {
+				deletePressed(be);
+			}
+		});
+		delButton.setMinWidth(getMinButtonWidth());
 	}
 	
 	/**
@@ -60,27 +100,35 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 			super.onRender(target, index);
 			//	Add a Delete button if the id is not null, i.e. a record exists
 			if (btns != null) {
-				btns.setLayout(new TableLayout(3));
-				delButton = new Button("Delete");      
-				delButton.addListener(Events.Select, new Listener<ButtonEvent>() {
-					public void handleEvent(ButtonEvent be) {
-						deletePressed(be);
+				if (customButtons == null && hasDeleteButton()) {
+					btns.setLayout(new TableLayout(3));
+					btns.add(delButton);
+					btns.layout(true);
+				} else if (customButtons != null) {
+					btns.setLayout(new TableLayout(customButtons.size() + 2));
+					for (Button customButton : customButtons) {
+						customButton.setMinWidth(getMinButtonWidth());
+						btns.add(customButton);
 					}
-				});
-				delButton.setMinWidth(getMinButtonWidth());
-				btns.add(delButton);
-				btns.layout(true);
+					btns.layout(true);
+				}
 			}
 	}
 	
 	/**
-	 * Overridden to expand the buttons layout width to accommodate three buttons (Cancel, Save, Delete).
+	 * Overridden to expand the buttons layout width to accommodate three or more buttons (Cancel, Save, Delete).
 	 */
 	@Override
 	protected void afterRender() {
 		super.afterRender();
 		if (renderButtons) {
-			btns.setWidth((getMinButtonWidth() * 3) + (5 * 3) + (3 * 4));
+			if (customButtons != null) {
+				int buttonCount = customButtons.size() + 2;
+				// 3 for each side of each button, plus the width of the button, plus 5 for each side of the entire panel
+				btns.setWidth((getMinButtonWidth() * buttonCount) + (6 * buttonCount) + 10);
+			} else if (hasDeleteButton()) {
+				btns.setWidth((getMinButtonWidth() * 3) + (5 * 3) + (3 * 4));
+			}
 		}
 	}
 	
@@ -123,10 +171,12 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 	@Override
 	public void startEditing(int rowIndex, boolean doFocus) {
 		super.startEditing(rowIndex, doFocus);
-		if (canDelete(store.getAt(rowIndex)))
-			delButton.enable();
-		else
-			delButton.disable();
+		if (hasDeleteButton()) {
+			if (canDelete(store.getAt(rowIndex)))
+				delButton.enable();
+			else
+				delButton.disable();
+		}
 	}
 	
 	/**
@@ -237,5 +287,19 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 	
 	public void setStore(ListStore<BeanModel> store) {
 		this.store = store;
+	}
+	
+	public boolean hasDeleteButton() {
+		return delButton != null;
+	}
+
+	public List<Button> getCustomButtons() {
+		return customButtons;
+	}
+
+	public void setCustomButtons(List<Button> customButtons) {
+		this.customButtons = customButtons;
+		if (this.customButtons != null && hasDeleteButton())
+			this.customButtons.add(0, delButton);
 	}
 }

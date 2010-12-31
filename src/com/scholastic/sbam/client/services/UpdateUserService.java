@@ -2,6 +2,7 @@ package com.scholastic.sbam.client.services;
 
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
+import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.objects.UserInstance;
 
 /**
@@ -9,5 +10,5 @@ import com.scholastic.sbam.shared.objects.UserInstance;
  */
 @RemoteServiceRelativePath("updateUser")
 public interface UpdateUserService extends RemoteService {
-	UserInstance updateUser(UserInstance instance) throws IllegalArgumentException;
+	UpdateResponse<UserInstance> updateUser(UserInstance instance) throws IllegalArgumentException;
 }

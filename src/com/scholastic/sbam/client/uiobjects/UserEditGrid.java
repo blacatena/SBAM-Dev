@@ -14,8 +14,6 @@ import com.extjs.gxt.ui.client.data.ListLoader;
 import com.extjs.gxt.ui.client.data.ModelData; 
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -26,24 +24,33 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.extjs.gxt.ui.client.widget.form.DateField;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.Validator;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
+import com.extjs.gxt.ui.client.widget.grid.CheckColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.UpdateUserService;
 import com.scholastic.sbam.client.services.UpdateUserServiceAsync;
 import com.scholastic.sbam.client.services.UserListService;
 import com.scholastic.sbam.client.services.UserListServiceAsync;
+import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.objects.UserInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
+import com.scholastic.sbam.shared.util.AppConstants;
+import com.scholastic.sbam.shared.validation.AppUserNameValidator;
 
 public class UserEditGrid extends LayoutContainer implements AppSleeper {
 	
@@ -66,55 +73,16 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 		
 		panel = new ContentPanel(); 
 		
-		panel.addListener(Events.Refresh, new Listener<ComponentEvent>() {  
-			public void handleEvent(ComponentEvent be) {  
-				System.out.println("UserEditGrid Refresh");  
-			}  
-		});   
-		
-		panel.addListener(Events.Restore, new Listener<ComponentEvent>() {  
-			public void handleEvent(ComponentEvent be) {  
-				System.out.println("UserEditGrid Restore");  
-			}  
-		});
-		
-		// proxy and reader  
-		RpcProxy<List<UserInstance>> proxy = new RpcProxy<List<UserInstance>>() {  
-			@Override  
-			public void load(Object loadConfig, AsyncCallback<List<UserInstance>> callback) {
-		    	userListService.getUsers(null, null, null, null, callback);
-		    }  
-		};
-		BeanModelReader reader = new BeanModelReader();
-		
 		// loader and store  
-		ListLoader<ListLoadResult<ModelData>> loader = new BaseListLoader<ListLoadResult<ModelData>>(proxy, reader);
+		ListLoader<ListLoadResult<ModelData>> loader = getLoader();
 		store = new ListStore<BeanModel>(loader);
 		
-		store.addListener(Store.Update, new Listener<StoreEvent<BeanModel>>() {
-            public void handleEvent(final StoreEvent<BeanModel> se) {
-//                if (se.getRecord() != null && se.getRecord().getModel() != null) {
-//                	System.out.println(se.getRecord().getModel().getProperties());
-//            	} else System.out.println("No model data");
-                
-                if (se.getOperation() == Record.RecordUpdate.COMMIT && se.getModel() != null) {
-                	updateUser(se.getModel());
-                }
-                
-            }
-        });
+		addStoreListeners();
 		
 		loader.load();
 		
-		// column model  
-		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
-		columns.add(getEditColumn(			"userName", 	"User", 		60));
-		columns.add(getEditPasswordColumn(	"password", 	"Password", 	60, 	null));
-		columns.add(getEditColumn(			"firstName", 	"First Name", 	100));
-		columns.add(getEditColumn(			"lastName", 	"Last Name", 	100));
-		columns.add(getEditColumn(			"email", 		"Email", 		200));
-		columns.add(getRoleGroupColumn(						"Role",			130));
-		ColumnModel cm = new ColumnModel(columns);
+		// column model
+		ColumnModel cm = getColumnModel();
 		
 		grid = new Grid<BeanModel>(store, cm);
 		grid.setBorders(true);
@@ -126,17 +94,88 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 
 		makeRowEditor();
 		
+		int width = 0;
+		for (int i = 0; i < cm.getColumnCount(); i++)
+			width += cm.getColumnWidth(i);
+		
 		panel.setHeading("Users");
 		panel.setFrame(true);
-		panel.setSize(730, 600);
+		panel.setSize(width, 450);
 		//panel.setIcon(Resources.ICONS.table());
 		panel.setLayout(new FitLayout());
 		
 		add(panel);
 	}
 	
+	protected ListLoader<ListLoadResult<ModelData>> getLoader() {
+		// proxy and reader  
+		RpcProxy<List<UserInstance>> proxy = new RpcProxy<List<UserInstance>>() {  
+			@Override  
+			public void load(Object loadConfig, AsyncCallback<List<UserInstance>> callback) {
+		    	userListService.getUsers(null, null, null, null, callback);
+		    }  
+		};
+		BeanModelReader reader = new BeanModelReader();
+		
+		// loader and store  
+		ListLoader<ListLoadResult<ModelData>> loader = new BaseListLoader<ListLoadResult<ModelData>>(proxy, reader);
+		return loader;
+	}
+	
+	protected void addStoreListeners() {
+		store.addListener(Store.Update, new Listener<StoreEvent<BeanModel>>() {
+            public void handleEvent(final StoreEvent<BeanModel> se) {
+                if (se.getOperation() == Record.RecordUpdate.COMMIT && se.getModel() != null) {
+                	updateUser(se.getModel());
+                }
+                
+            }
+        });	
+	}
+	
+	protected ColumnModel getColumnModel() {  
+		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
+		addColumns(columns);
+		return new ColumnModel(columns);
+	}
+	
+	protected void addColumns(List<ColumnConfig> columns) {
+		columns.add(getEditColumn(			"userName", 		"User", 			80,		"",		new AppUserNameValidator()));
+	//	columns.add(getEditPasswordColumn(	"password", 		"Password", 		60, 	null));
+		columns.add(getEditColumn(			"firstName", 		"First Name", 		100));
+		columns.add(getEditColumn(			"lastName", 		"Last Name", 		100));
+		columns.add(getEditColumn(			"email", 			"Email", 			200));
+		columns.add(getRoleGroupColumn(							"Role",				130));	
+		columns.add(getEditCheckColumn(		"resetPassword",	"Reset Password", 	100,		"Check to reset user's password"));
+		columns.add(getDateColumn(			"createdDatetime",	"Created", 			75));
+	}
+	
+	protected Validator getUserNameValidator() {
+		return new Validator() {
+			public String validate(Field<?> field, String value) {
+				if (value == null || value.length() < 6)
+					return "A user name must be at least six characters in length.";
+				return null;
+			}
+		};
+	}
+	
+	protected Validator getPasswordValidator() {
+		return new Validator() {
+			public String validate(Field<?> field, String value) {
+				if (value == null || value.length() < 6)
+					return "A password must be at least six characters in length.";
+				if (value != null && !value.matches("^.*[0-9].*$"))
+					return "A password must contain at least one digit.";
+				if (value != null && !value.toLowerCase().matches("^.*[a-z].*$"))
+					return "A password must contain at least one letter.";
+				return null;
+			}
+		};
+	}
+	
 	protected void makeRowEditor() {
-
+		
 		final RowEditor<ModelData> re = new BetterRowEditor<ModelData>(store);
 
 		grid.addPlugin(re);
@@ -175,12 +214,10 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 	}
 	
 	public void awaken() {
-		System.out.println("Awaken UserEditGrid");
 		reload();
 	}
 	
 	public void sleep() {
-		System.out.println("Sleep UserEditGrid");
 		clear();
 	}
 	
@@ -200,6 +237,16 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 	
 	protected ColumnConfig getColumn(String name, String header, int width) {
 		return getColumn(name, header, width, null);
+	}
+	
+	protected ColumnConfig getDateColumn(String name, String header, int width) {
+		return getDateColumn(name, header, width, AppConstants.APP_DATE_TIME_FORMAT);
+	}
+	
+	protected ColumnConfig getDateColumn(String name, String header, int width, DateTimeFormat format) {
+		ColumnConfig column = getColumn(name, header, width, null);
+		column.setDateTimeFormat(format);
+		return column;
 	}
 	
 	protected ColumnConfig getColumn(String name, String header, int width, String toolTip) {
@@ -240,6 +287,37 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 		return column;
 	}
 	
+	protected ColumnConfig getEditColumn(String name, String header, int width, String toolTip, Validator validator) {
+		ColumnConfig column = getColumn(name, header, width, toolTip);
+		TextField<String> text = new TextField<String>();
+		text.setAllowBlank(false);
+		if (validator != null) {
+			text.setValidator(validator);
+		}
+		column.setEditor(new CellEditor(text));
+		return column;
+	}
+	
+	protected ColumnConfig getEditDateColumn(String name, String header, int width, String toolTip, Validator validator) {
+		DateField dateField = new DateField();  
+		dateField.getPropertyEditor().setFormat(AppConstants.APP_DATE_TIME_FORMAT);  
+		
+		ColumnConfig column = new ColumnConfig();  
+		column.setId(name);  
+		column.setHeader(header);  
+		column.setWidth(width);  
+		column.setEditor(new CellEditor(dateField));  
+		column.setDateTimeFormat(AppConstants.APP_DATE_TIME_FORMAT);
+		return column;
+	}
+	
+	protected ColumnConfig getEditCheckColumn(String name, String header, int width, String toolTip) {
+		CheckColumnConfig checkColumn = new CheckColumnConfig(name, header, width); 
+		CellEditor checkBoxEditor = new CellEditor(new CheckBox());
+		checkColumn.setEditor(checkBoxEditor);
+		return checkColumn;
+	}
+	
 	protected ColumnConfig getRoleGroupColumn(String header, int width) {
 		
 		final SimpleComboBox<String> combo = new SimpleComboBox<String>();
@@ -272,7 +350,7 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 		column.setId("roleGroupTitle");
 		column.setHeader(header);
 		column.setWidth(width);
-		column.setEditor(editor); 
+		column.setEditor(editor);
 	
 		return column; 
 	}
@@ -281,22 +359,31 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 		final BeanModel targetBeanModel = beanModel;
 	//	System.out.println("Before update: " + targetBeanModel.getProperties());
 		updateUserService.updateUser((UserInstance) beanModel.getBean(),
-				new AsyncCallback<UserInstance>() {
+				new AsyncCallback<UpdateResponse<UserInstance>>() {
 					public void onFailure(Throwable caught) {
 						// Show the RPC error message to the user
-						System.out.println(caught);
-						MessageBox.alert("Alert", "User update failed unexpectedly.", null);
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "User update failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
 					}
 
-					public void onSuccess(UserInstance updatedUser) {
+					public void onSuccess(UpdateResponse<UserInstance> updateResponse) {
+						UserInstance updatedUser = (UserInstance) updateResponse.getInstance();
 					//	System.out.println("UPDATE SUCCESSFUL");
 						// If this user is newly created, back-populate the id
 						if (targetBeanModel.get("id") == null) {
 							targetBeanModel.set("id",updatedUser.getId());
-					//	System.out.println("After update " + targetBeanModel.getProperties());
-					}
+						}
+						targetBeanModel.set("resetPassword", false);
+						if (updateResponse.getMessage() != null && updateResponse.getMessage().length() > 0)
+							MessageBox.info("Please Note...", updateResponse.getMessage(), null);
 				}
 			});
+		targetBeanModel.set("resetPassword", false);
 	}
 
 }

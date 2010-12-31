@@ -70,14 +70,12 @@ public class AppNav extends Composite implements AppSecurityManager {
 	
 		tbtmWelcome.addListener(Events.Select, new Listener<ComponentEvent>() {  
 			public void handleEvent(ComponentEvent be) {
-				System.out.println("Welcome Tab Selected");
 				sleep(tbtmWelcome);
 			}  
 		}); 
 	
 		tbtmAdministration.addListener(Events.Select, new Listener<ComponentEvent>() {  
 			public void handleEvent(ComponentEvent be) {
-				System.out.println("Administration Tab Selected");
 				sleep(tbtmAdministration);
 				awaken(adminUi);
 			}  
