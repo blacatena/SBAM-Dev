@@ -16,6 +16,9 @@ import com.scholastic.sbam.shared.objects.Authentication;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.objects.UserInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
+import com.scholastic.sbam.shared.validation.AppRoleGroupValidator;
+import com.scholastic.sbam.shared.validation.AppUserNameValidator;
+import com.scholastic.sbam.shared.validation.EmailValidator;
 
 /**
  * The server side implementation of the RPC service.
@@ -39,8 +42,10 @@ public class UpdateUserServiceImpl extends RemoteServiceServlet implements Updat
 			throw new IllegalArgumentException("Requesting user is not authenticated.");
 		if (!auth.hasRoleName(SecurityManager.ROLE_ADMIN))
 			throw new IllegalArgumentException("Requesting user is not authenticated for this task.");
+		
 		if (instance.getUserName() == null)
 			throw new IllegalArgumentException("A user name is required.");
+		useValidators(instance);
 		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();
@@ -123,6 +128,18 @@ public class UpdateUserServiceImpl extends RemoteServiceServlet implements Updat
 		}
 		
 		return new UpdateResponse<UserInstance>(instance, messages);
+	}
+	
+	private void useValidators(UserInstance instance) throws IllegalArgumentException {
+		testMessage(new AppUserNameValidator().validate(instance.getUserName()));
+	//	testMessage(new AppPasswordValidator().validate(instance.getPassword()));
+		testMessage(new EmailValidator().validate(instance.getEmail()));
+		testMessage(new AppRoleGroupValidator().validate(instance.getRoleGroupTitle()));
+	}
+	
+	private void testMessage(String message) throws IllegalArgumentException {
+		if (message != null)
+			throw new IllegalArgumentException(message);
 	}
 	
 	private void silentRollback() {

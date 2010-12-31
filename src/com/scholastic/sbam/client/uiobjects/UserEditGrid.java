@@ -50,7 +50,9 @@ import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.objects.UserInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
 import com.scholastic.sbam.shared.util.AppConstants;
+import com.scholastic.sbam.shared.validation.AppRoleGroupValidator;
 import com.scholastic.sbam.shared.validation.AppUserNameValidator;
+import com.scholastic.sbam.shared.validation.EmailValidator;
 
 public class UserEditGrid extends LayoutContainer implements AppSleeper {
 	
@@ -144,7 +146,7 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 	//	columns.add(getEditPasswordColumn(	"password", 		"Password", 		60, 	null));
 		columns.add(getEditColumn(			"firstName", 		"First Name", 		100));
 		columns.add(getEditColumn(			"lastName", 		"Last Name", 		100));
-		columns.add(getEditColumn(			"email", 			"Email", 			200));
+		columns.add(getEditColumn(			"email", 			"Email", 			200,	"",		new EmailValidator()));
 		columns.add(getRoleGroupColumn(							"Role",				130));	
 		columns.add(getEditCheckColumn(		"resetPassword",	"Reset Password", 	100,		"Check to reset user's password"));
 		columns.add(getDateColumn(			"createdDatetime",	"Created", 			75));
@@ -323,6 +325,8 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 		final SimpleComboBox<String> combo = new SimpleComboBox<String>();
 		combo.setForceSelection(true);
 		combo.setTriggerAction(TriggerAction.ALL);
+		combo.setValidator(new AppRoleGroupValidator());
+		combo.setEditable(false);
 		
 		for (int i = 0; i < SecurityManager.ROLE_GROUPS.length; i++) {
 			combo.add(SecurityManager.ROLE_GROUPS [i].getGroupTitle());

@@ -2,6 +2,7 @@ package com.scholastic.sbam.shared.validation;
 
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.Validator;
+import com.scholastic.sbam.shared.security.SecurityManager;
 
 /**
  * Validator for application (not client) user name fields.
@@ -9,7 +10,7 @@ import com.extjs.gxt.ui.client.widget.form.Validator;
  * @author Bob Lacatena
  *
  */
-public class AppUserNameValidator implements Validator {
+public class AppRoleGroupValidator implements Validator {
 
 	@Override
 	public String validate(Field<?> field, String value) {
@@ -17,9 +18,13 @@ public class AppUserNameValidator implements Validator {
 	}
 	
 	public String validate(String value) {
-		if (value == null || value.length() < 6)
-			return "A user name must be at least six characters in length.";
-		return null;
+		if (value == null || value.length() == 0)
+			return "Invalid role.";
+		for (int i = 0; i < SecurityManager.ROLE_GROUPS.length; i++) {
+			if (value.equals(SecurityManager.ROLE_GROUPS [i].getGroupTitle()))
+				return null;
+		}
+		return "Invalid role.";
 	}
 
 }
