@@ -1,0 +1,6 @@
+<html><body><h4>[$firstname$] [$lastname$],</h4>
+
+<p>The Scholastic SBAM user [$username$] has been created for you with the password [$password$].</p>
+
+<p>&mdash; The Scholastic SBAM System</p>
+</body></html>

@@ -12,6 +12,7 @@ import com.scholastic.sbam.server.database.codegen.UserRoleId;
 import com.scholastic.sbam.server.database.objects.DbUser;
 import com.scholastic.sbam.server.database.objects.DbUserRole;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
+import com.scholastic.sbam.server.util.MailHelper;
 import com.scholastic.sbam.shared.objects.Authentication;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.objects.UserInstance;
@@ -123,8 +124,10 @@ public class UpdateUserServiceImpl extends RemoteServiceServlet implements Updat
 		
 		if (newCreated) {
 			//	Send new e-mail
+			sendEmail(dbInstance, "Scholastic SBAM New User ID", "usercreated.txt");
 		} else if (passwordReset) {
 			///	Send password reset e-mail
+			sendEmail(dbInstance, "Scholastic SBAM Password Reset", "passwordReset.txt");
 		}
 		
 		return new UpdateResponse<UserInstance>(instance, messages);
@@ -187,6 +190,16 @@ public class UpdateUserServiceImpl extends RemoteServiceServlet implements Updat
 				newRole.setId(roleId);
 				DbUserRole.persist(newRole);
 			}
+		}
+	}
+	
+	private void sendEmail(User user, String subject, String emailTemplate) {
+		try {
+			MailHelper.sendStandardMailFromFile(user, subject, emailTemplate);	
+		} catch (Exception e) {
+			System.out.println("ERROR sending password reset e-mail to " + user.getEmail());
+			System.out.println(e);
+			e.printStackTrace();
 		}
 	}
 }
