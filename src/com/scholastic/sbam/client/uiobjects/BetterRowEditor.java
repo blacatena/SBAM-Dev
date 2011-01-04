@@ -1,5 +1,6 @@
 package com.scholastic.sbam.client.uiobjects;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BeanModel;
@@ -11,6 +12,7 @@ import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.user.client.Element;
@@ -40,6 +42,7 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 	
 	private Button delButton;
 	private List<Button> customButtons;
+	private List<Field<?>> unchangeableFields;
 	private ListStore<BeanModel>	store;
 	
 	/**
@@ -58,7 +61,9 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 	 * Constructor to allow the user to exclude the delete button.
 	 * 
 	 * @param store
+	 * The data store.
 	 * @param needsDeleteButton
+	 * Whether or not a row being edited needs a delete button.
 	 */
 	public BetterRowEditor(ListStore<BeanModel> store, boolean needsDeleteButton) {
 		super();
@@ -71,13 +76,62 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 	 * Constructor to allow the user to exclude the delete button and/or add custom buttons.
 	 * 
 	 * @param store
+	 * The data store.
 	 * @param needsDeleteButton
+	 * Whether or not a row being edited needs a delete button.
+	 * @param customButtons
+	 * A list of custom buttons to be added after the normal Cancel/Save/Delete set.
 	 */
 	public BetterRowEditor(ListStore<BeanModel> store, boolean needsDeleteButton, List<Button> customButtons) {
 		this(store, needsDeleteButton);
 		setCustomButtons(customButtons);
 	}
 
+	
+	/**
+	 * Constructor to allow the user to exclude the delete button and/or add custom buttons, as well as a list of fields that cannot be changed on existing records.
+	 * 
+	 * @param store
+	 * The data store.
+	 * @param needsDeleteButton
+	 * Whether or not a row being edited needs a delete button.
+	 * @param customButtons
+	 * A list of custom buttons to be added after the normal Cancel/Save/Delete set.
+	 * @param unchangeableFields
+	 * A list of edit fields (attached to the columns) which cannot be changed for an existing record (but may be entered for a new record).
+	 */
+	public BetterRowEditor(ListStore<BeanModel> store, boolean needsDeleteButton, List<Button> customButtons, List<Field<?>> unchangeableFields) {
+		this(store, needsDeleteButton, customButtons);
+		setUnchangeableFields(unchangeableFields);
+	}
+
+	
+	/**
+	 * Constructor to allow the user to exclude the delete button and/or add custom buttons, as well as a field that cannot be changed on existing records.
+	 * 
+	 * @param store
+	 * @param needsDeleteButton
+	 * @param customButtons
+	 * A list of custom buttons to be added after the normal Cancel/Save/Delete set.
+	 * @param unchangeableField
+	 * An edit field (attached to a column) which cannot be changed for an existing record (but may be entered for a new record).
+	 */
+	public BetterRowEditor(ListStore<BeanModel> store, boolean needsDeleteButton, List<Button> customButtons, Field<?> unchangeableField) {
+		this(store, needsDeleteButton, customButtons);
+		setUnchangeableFields(new ArrayList<Field<?>>());
+		unchangeableFields.add(unchangeableField);
+	}
+
+	
+	/**
+	 * Constructor to allow the user to add custom buttons.
+	 * 
+	 * A delete button will be included.
+	 * 
+	 * @param store
+	 * @param customButtons
+	 * A list of custom buttons to be added after the normal Cancel/Save/Delete set.
+	 */
 	public BetterRowEditor(ListStore<BeanModel> store, List<Button> customButtons) {
 		this(store, true, customButtons);
 	}
@@ -177,6 +231,12 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 			else
 				delButton.disable();
 		}
+		if (unchangeableFields != null) {
+			boolean readOnly = !isNewRecord(store.getAt(rowIndex));
+			for (Field<?> field: unchangeableFields) {
+				field.setReadOnly(readOnly);
+			}
+		}
 	}
 	
 	/**
@@ -201,9 +261,14 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 	 */
 	@Override
 	public boolean isValid() {
+		//	Ignore edits if the record is being deleted.
 		if (isDeleted(store.getAt(rowIndex)))
 			return true;
+		
+		//	Do the original, individual field editing.
 		boolean fieldsAreValid = super.isValid();
+		
+		//	Now do a higher level of validation, e.g. multiple field relationships -- warning, THIS GETS CALLED REPEATEDLY during editing!!!!
 		if (fieldsAreValid) {
 			if (store.getAt(rowIndex) != null) {
 				BetterRowEditInstance instance = (BetterRowEditInstance) store.getAt(rowIndex).getBean();
@@ -211,7 +276,6 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 					fieldsAreValid = instance.thisIsValid();
 			}
 		}
-		//	Now do a higher level of validation, e.g. multiple field relationships -- warning, THIS GETS CALLED REPEATEDLY during editing!!!!
 		return fieldsAreValid;
 	}
 	
@@ -302,4 +366,17 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 		if (this.customButtons != null && hasDeleteButton())
 			this.customButtons.add(0, delButton);
 	}
+
+	public List<Field<?>> getUnchangeableFields() {
+		return unchangeableFields;
+	}
+
+	public void setUnchangeableFields(List<Field<?>> unchangeableFields) {
+		this.unchangeableFields = unchangeableFields;
+	}
+	
+	public void addUnchangeableField(Field<?> field) {
+		this.unchangeableFields.add(field);
+	}
+	
 }

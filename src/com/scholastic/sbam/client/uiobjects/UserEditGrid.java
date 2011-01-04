@@ -152,33 +152,11 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 		columns.add(getDateColumn(			"createdDatetime",	"Created", 			75));
 	}
 	
-	protected Validator getUserNameValidator() {
-		return new Validator() {
-			public String validate(Field<?> field, String value) {
-				if (value == null || value.length() < 6)
-					return "A user name must be at least six characters in length.";
-				return null;
-			}
-		};
-	}
-	
-	protected Validator getPasswordValidator() {
-		return new Validator() {
-			public String validate(Field<?> field, String value) {
-				if (value == null || value.length() < 6)
-					return "A password must be at least six characters in length.";
-				if (value != null && !value.matches("^.*[0-9].*$"))
-					return "A password must contain at least one digit.";
-				if (value != null && !value.toLowerCase().matches("^.*[a-z].*$"))
-					return "A password must contain at least one letter.";
-				return null;
-			}
-		};
-	}
-	
 	protected void makeRowEditor() {
 		
-		final RowEditor<ModelData> re = new BetterRowEditor<ModelData>(store);
+		Field<?> userNameField = grid.getColumnModel().getColumns().get(0).getEditor().getField();
+		//	BetterRowEditor created with delete button, not additional buttons, and the userName field as unchangeable
+		final RowEditor<ModelData> re = new BetterRowEditor<ModelData>(store, true, null, userNameField);
 
 		grid.addPlugin(re);
 		
@@ -246,8 +224,13 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 	}
 	
 	protected ColumnConfig getDateColumn(String name, String header, int width, DateTimeFormat format) {
+		DateField dateField = new DateField();  
+		dateField.getPropertyEditor().setFormat(AppConstants.APP_DATE_TIME_FORMAT);
+		dateField.setReadOnly(true);
+		
 		ColumnConfig column = getColumn(name, header, width, null);
 		column.setDateTimeFormat(format);
+		column.setEditor(new CellEditor(dateField));
 		return column;
 	}
 	
@@ -381,6 +364,7 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 						// If this user is newly created, back-populate the id
 						if (targetBeanModel.get("id") == null) {
 							targetBeanModel.set("id",updatedUser.getId());
+							targetBeanModel.set("createdDattime", updatedUser.getCreatedDatetime());
 						}
 						targetBeanModel.set("resetPassword", false);
 						if (updateResponse.getMessage() != null && updateResponse.getMessage().length() > 0)

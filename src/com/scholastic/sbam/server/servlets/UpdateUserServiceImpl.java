@@ -76,9 +76,10 @@ public class UpdateUserServiceImpl extends RemoteServiceServlet implements Updat
 				dbInstance.setUserName(instance.getUserName());
 			if (instance.isResetPassword()) {
 				passwordReset = true;
-				messages = "The user's password has been reset, and an e-mail has been sent to " + instance.getEmail() + ".";
-				SimpleDateFormat fmt = new SimpleDateFormat("mmss");
-				dbInstance.setPassword(instance.getUserName() + fmt.format(new Date()));
+				messages = "The user " + instance.getUserName() + "'s password has been reset, and an e-mail has been sent to " + instance.getEmail() + ".";
+				int suffix = (int) (1000 * Math.random());
+			//	SimpleDateFormat fmt = new SimpleDateFormat("mmss");
+				dbInstance.setPassword(instance.getUserName() + suffix); // fmt.format(new Date()));
 			}
 			if (instance.getFirstName() != null)
 				dbInstance.setFirstName(instance.getFirstName());
@@ -96,9 +97,10 @@ public class UpdateUserServiceImpl extends RemoteServiceServlet implements Updat
 			setRoles(instance);
 			
 			//	Refresh when new row is created, to get assigend ID
-			if (dbInstance.getId() == null) {
-				DbUser.refresh(dbInstance);
+			if (newCreated) {
+				DbUser.refresh(dbInstance);	// This may not be necessary, but just in case
 				instance.setId(dbInstance.getId());
+				instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
 			}
 			
 			//	If the user changed his own capabilities, make them take effect for this session

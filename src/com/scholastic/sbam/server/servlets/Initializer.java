@@ -14,7 +14,7 @@ public class Initializer extends HttpServlet {
 	//	PrintWriter out = response.getWriter();
 	
 		try {
-			AppServerConstants.init(config.getServletContext().getRealPath("/"), ">>>  ");
+			AppServerConstants.init(config.getServletContext().getRealPath("/"));	//, ">>>  ");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
