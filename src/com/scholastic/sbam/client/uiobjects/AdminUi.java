@@ -16,6 +16,7 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 	private ContentPanel cntntpnlUsers;
 	private ContentPanel cntntpnlMessages;
 	private ContentPanel cntntpnlVersion;
+	private ContentPanel cntntpnlProgramming;
 	private UserEditGrid userEditGrid;
 
 	public AdminUi() {
@@ -53,6 +54,11 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 		cntntpnlVersion.setHeading("Version");
 		cntntpnlVersion.setCollapsible(true);
 		layoutContainer.add(cntntpnlVersion);
+		
+		cntntpnlProgramming = new ContentPanel();
+		cntntpnlProgramming.setHeading("Programming");
+		cntntpnlProgramming.setCollapsible(true);
+		layoutContainer.add(cntntpnlProgramming);
 		
 		initComponent(layoutContainer);
 		layoutContainer.setBorders(true);

@@ -9,6 +9,7 @@ import com.scholastic.sbam.shared.objects.UserInstance;
 import com.scholastic.sbam.shared.validation.AppRoleGroupValidator;
 import com.scholastic.sbam.shared.validation.AppUserNameValidator;
 import com.scholastic.sbam.shared.validation.EmailValidator;
+import com.scholastic.sbam.shared.validation.NameValidator;
 
 public class AppUserValidator {
 	
@@ -23,6 +24,8 @@ public class AppUserValidator {
 		validateUserName(instance.getUserName());
 		validateEmail(instance.getEmail());
 		validateRoleGroupTitle(instance.getRoleGroupTitle());
+		validateName(instance.getFirstName());
+		validateName(instance.getLastName());
 		return messages;
 	}
 	
@@ -60,6 +63,11 @@ public class AppUserValidator {
 				addMessage("User name already exists.");
 			}
 		}
+		return messages;
+	}
+	
+	public List<String> validateName(String name) {
+		addMessage(new NameValidator().validate(name));
 		return messages;
 	}
 	

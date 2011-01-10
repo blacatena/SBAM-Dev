@@ -13,13 +13,11 @@ import com.scholastic.sbam.server.database.objects.DbUser;
 import com.scholastic.sbam.server.database.objects.DbUserRole;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.server.util.MailHelper;
+import com.scholastic.sbam.server.validation.AppUserValidator;
 import com.scholastic.sbam.shared.objects.Authentication;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.objects.UserInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
-import com.scholastic.sbam.shared.validation.AppRoleGroupValidator;
-import com.scholastic.sbam.shared.validation.AppUserNameValidator;
-import com.scholastic.sbam.shared.validation.EmailValidator;
 
 /**
  * The server side implementation of the RPC service.
@@ -44,16 +42,13 @@ public class UpdateUserServiceImpl extends RemoteServiceServlet implements Updat
 		if (!auth.hasRoleName(SecurityManager.ROLE_ADMIN))
 			throw new IllegalArgumentException("Requesting user is not authenticated for this task.");
 		
-		if (instance.getUserName() == null)
-			throw new IllegalArgumentException("A user name is required.");
-		useValidators(instance);
-		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();
 
 		try {
 			
 			//	Pre-edit/fix values
+			validateInput(instance);
 			
 			//	Get existing, or create new
 			if (instance.getId() != null) {
@@ -135,15 +130,24 @@ public class UpdateUserServiceImpl extends RemoteServiceServlet implements Updat
 		return new UpdateResponse<UserInstance>(instance, messages);
 	}
 	
-	private void useValidators(UserInstance instance) throws IllegalArgumentException {
-		testMessage(new AppUserNameValidator().validate(instance.getUserName()));
-	//	testMessage(new AppPasswordValidator().validate(instance.getPassword()));
-		testMessage(new EmailValidator().validate(instance.getEmail()));
-		testMessage(new AppRoleGroupValidator().validate(instance.getRoleGroupTitle()));
+	private void validateInput(UserInstance instance) throws IllegalArgumentException {
+//		testMessage(new AppUserNameValidator().validate(instance.getUserName()));
+//	//	testMessage(new AppPasswordValidator().validate(instance.getPassword()));
+//		testMessage(new EmailValidator().validate(instance.getEmail()));
+//		testMessage(new AppRoleGroupValidator().validate(instance.getRoleGroupTitle()));
+		AppUserValidator validator = new AppUserValidator();
+		validator.setOriginal(instance);	//	This isn't really the original, but it's good enough, because it has the original ID
+		testMessages(validator.validateUser(instance));
+	}
+	
+	private void testMessages(List<String> messages) throws IllegalArgumentException {
+		if (messages != null)
+			for (String message: messages)
+				testMessage(message);
 	}
 	
 	private void testMessage(String message) throws IllegalArgumentException {
-		if (message != null)
+		if (message != null && message.length() > 0)
 			throw new IllegalArgumentException(message);
 	}
 	
