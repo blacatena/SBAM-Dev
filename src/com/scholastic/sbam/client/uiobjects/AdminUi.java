@@ -15,6 +15,7 @@ import com.scholastic.sbam.shared.security.SecurityManager;
 public class AdminUi extends Composite implements AppSecurityManager, AppSleeper {
 	private ContentPanel cntntpnlUsers;
 	private ContentPanel cntntpnlMessages;
+	private ContentPanel cntntpnlVersion;
 	private UserEditGrid userEditGrid;
 
 	public AdminUi() {
@@ -47,6 +48,12 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 		cntntpnlMessages.setHeading("Messages");
 		cntntpnlMessages.setCollapsible(true);
 		layoutContainer.add(cntntpnlMessages);
+		
+		cntntpnlVersion = new ContentPanel();
+		cntntpnlVersion.setHeading("Version");
+		cntntpnlVersion.setCollapsible(true);
+		layoutContainer.add(cntntpnlVersion);
+		
 		initComponent(layoutContainer);
 		layoutContainer.setBorders(true);
 	}

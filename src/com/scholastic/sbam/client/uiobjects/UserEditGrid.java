@@ -42,10 +42,14 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.scholastic.sbam.client.services.FieldValidationServiceAsync;
 import com.scholastic.sbam.client.services.UpdateUserService;
 import com.scholastic.sbam.client.services.UpdateUserServiceAsync;
 import com.scholastic.sbam.client.services.UserListService;
 import com.scholastic.sbam.client.services.UserListServiceAsync;
+import com.scholastic.sbam.client.services.UserNameValidationService;
+import com.scholastic.sbam.client.services.UserNameValidationServiceAsync;
+import com.scholastic.sbam.client.validation.AsyncTextField;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.objects.UserInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
@@ -64,6 +68,7 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 	
 	private final UserListServiceAsync userListService = GWT.create(UserListService.class);
 	private final UpdateUserServiceAsync updateUserService = GWT.create(UpdateUserService.class);
+	private final UserNameValidationServiceAsync userNameValidationService = GWT.create(UserNameValidationService.class);
 
 	public UserEditGrid() {
 	}
@@ -142,11 +147,11 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 	}
 	
 	protected void addColumns(List<ColumnConfig> columns) {
-		columns.add(getEditColumn(			"userName", 		"User", 			80,		"",		new AppUserNameValidator()));
+		columns.add(getEditColumn(			"userName", 		"User", 			80,		"",		new AppUserNameValidator(), userNameValidationService));
 	//	columns.add(getEditPasswordColumn(	"password", 		"Password", 		60, 	null));
 		columns.add(getEditColumn(			"firstName", 		"First Name", 		100));
 		columns.add(getEditColumn(			"lastName", 		"Last Name", 		100));
-		columns.add(getEditColumn(			"email", 			"Email", 			200,	"",		new EmailValidator()));
+		columns.add(getEditColumn(			"email", 			"Email", 			200,	"",		new EmailValidator(),		null));
 		columns.add(getRoleGroupColumn(							"Role",				130));	
 		columns.add(getEditCheckColumn(		"resetPassword",	"Reset Password", 	100,		"Check to reset user's password"));
 		columns.add(getDateColumn(			"createdDatetime",	"Created", 			75));
@@ -264,6 +269,7 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 	protected ColumnConfig getEditColumn(String name, String header, int width, String toolTip, boolean password) {
 		ColumnConfig column = getColumn(name, header, width, toolTip);
 		TextField<String> text = new TextField<String>();
+		text.setName(name);
 		text.setAllowBlank(false);
 		if (password) {
 			text.setPassword(password);
@@ -272,12 +278,15 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 		return column;
 	}
 	
-	protected ColumnConfig getEditColumn(String name, String header, int width, String toolTip, Validator validator) {
+	protected ColumnConfig getEditColumn(String name, String header, int width, String toolTip, Validator validator, FieldValidationServiceAsync validationService) {
 		ColumnConfig column = getColumn(name, header, width, toolTip);
-		TextField<String> text = new TextField<String>();
+		AsyncTextField<String> text = new AsyncTextField<String>();
 		text.setAllowBlank(false);
 		if (validator != null) {
 			text.setValidator(validator);
+		}
+		if (validationService != null) {
+			text.setValidationService(validationService);
 		}
 		column.setEditor(new CellEditor(text));
 		return column;

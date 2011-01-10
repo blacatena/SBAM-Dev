@@ -13,10 +13,12 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.user.client.Element;
 import com.scholastic.sbam.shared.objects.BetterRowEditInstance;
+import com.scholastic.sbam.client.validation.AsyncTextField;
 
 /**
  * This extension of the GXT RowEditor adds functionality for a Delete button, as well as automatic Store reject/commit changes
@@ -224,23 +226,43 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 	 */
 	@Override
 	public void startEditing(int rowIndex, boolean doFocus) {
+		//	Assign current model to any AsyncTextFields
+		BetterRowEditInstance instance = (BetterRowEditInstance) store.getAt(rowIndex).getBean();
+		for (ColumnConfig c : grid.getColumnModel().getColumns()) {
+			Field<?> f = c.getEditor().getField();
+			if (f instanceof AsyncTextField) {
+				((AsyncTextField<?>) f).setDataInstance(instance);
+				((AsyncTextField<?>) f).setAsyncReady(false);
+			}
+		}
+		
 		super.startEditing(rowIndex, doFocus);
+
+		//	Enable/disable delete button as needed
 		if (hasDeleteButton()) {
 			if (canDelete(store.getAt(rowIndex)))
 				delButton.enable();
 			else
 				delButton.disable();
 		}
+		//	Set readonly for fields which cannot be changed on existing records
 		if (unchangeableFields != null) {
 			boolean readOnly = !isNewRecord(store.getAt(rowIndex));
 			for (Field<?> field: unchangeableFields) {
 				field.setReadOnly(readOnly);
 			}
 		}
+		//	Set asynch editing ready
+		for (ColumnConfig c : grid.getColumnModel().getColumns()) {
+			Field<?> f = c.getEditor().getField();
+			if (f instanceof AsyncTextField) {
+				((AsyncTextField<?>) f).setAsyncReady(true);
+			}
+		}
 	}
 	
 	/**
-	 * stopEditing, with the added functionality of rejecting any changes in the Store if the user hit Cancel, and then removing all empty rows, or else automatically
+	 * Overridden to add the functionality of rejecting any changes in the Store if the user hit Cancel, and then removing all empty rows, or else automatically
 	 * committing the changes to the store.
 	 */
 	@Override

@@ -51,6 +51,11 @@
     <servlet-class>com.scholastic.sbam.server.servlets.UpdateUserServiceImpl</servlet-class>
   </servlet>
   
+  <servlet>
+    <servlet-name>userNameValidationServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UserNameValidationServiceImpl</servlet-class>
+  </servlet>
+  
   <servlet-mapping>
     <servlet-name>authenticateServlet</servlet-name>
     <url-pattern>/sbam/authenticate</url-pattern>
@@ -84,6 +89,11 @@
   <servlet-mapping>
     <servlet-name>updateUserServlet</servlet-name>
     <url-pattern>/sbam/updateUser</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>userNameValidationServlet</servlet-name>
+    <url-pattern>/sbam/validateUserName</url-pattern>
   </servlet-mapping>
   
   
