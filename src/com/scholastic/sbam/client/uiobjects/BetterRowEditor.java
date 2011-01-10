@@ -226,13 +226,13 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 	 */
 	@Override
 	public void startEditing(int rowIndex, boolean doFocus) {
-		//	Assign current model to any AsyncTextFields
+		//	Reset any async text fields and assign current model to any AsyncTextFields -- must be done here, before the super call, because it will start validating right away
 		BetterRowEditInstance instance = (BetterRowEditInstance) store.getAt(rowIndex).getBean();
 		for (ColumnConfig c : grid.getColumnModel().getColumns()) {
 			Field<?> f = c.getEditor().getField();
 			if (f instanceof AsyncTextField) {
-				((AsyncTextField<?>) f).setDataInstance(instance);
-				((AsyncTextField<?>) f).setAsyncReady(false);
+				((AsyncTextField<?>) f).reset(instance);
+			//	((AsyncTextField<?>) f).setAsyncReady(false);
 			}
 		}
 		

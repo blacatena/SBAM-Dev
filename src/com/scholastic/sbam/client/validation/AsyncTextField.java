@@ -17,7 +17,7 @@ public class AsyncTextField<D> extends TextField<D> {
 	private Validator				validator 			= null;
 	private BetterRowEditInstance	dataInstance		= null;
 	private String					previousValue		= null;
-	private String					asyncMessage		= null;
+	private List<String>			asyncMessages		= null;
 	private boolean					asyncReady			= false;
 	
 	private FieldValidationServiceAsync validationService	= null;
@@ -53,23 +53,21 @@ public class AsyncTextField<D> extends TextField<D> {
 		if (messages != null && messages.size() > 0) {
 			for (String message : messages)
 				markInvalid(message);
-			System.out.println("error on sync validation");
 			return false;
 		}
 		if (asyncReady && validationService != null) {
 			if (previousValue == null || !previousValue.equals(value)) {
-				System.out.println("Async Validating " + value + " vs " + previousValue);
 				previousValue = value;
 				markInvalid("<em>Validating...</em>");
 				asyncValidate(value);
 			} else {
-				if (asyncMessage != null && asyncMessage.length() > 0) {
-				//	System.out.println("Use async message " + asyncMessage);
-					markInvalid(asyncMessage);
+			//	System.out.println("No async validate needed");
+				if (asyncMessages != null && asyncMessages.size() > 0) {
+					markInvalid(asyncMessages);
 					return false;
 				}
 			}
-		} else System.out.println("ready? " + asyncReady);
+		} //else System.out.println("ready? " + asyncReady);
 		return true;
 	}
 	
@@ -118,7 +116,6 @@ public class AsyncTextField<D> extends TextField<D> {
 	}
 	
 	private void asyncValidate(String value) {
-		System.out.println("asyncValidate" + validationCounter);
 		validationService.validate(value, dataInstance, ++validationCounter,
 				new AsyncCallback<AsyncValidationResponse>() {
 					public void onFailure(Throwable caught) {
@@ -134,14 +131,31 @@ public class AsyncTextField<D> extends TextField<D> {
 
 					public void onSuccess(AsyncValidationResponse response) {
 						//	Mark invalid if an error occurred, and if the response matches the current field validation count setting
-						System.out.println("Response " + response.getValidationCounter() + " vs current " + validationCounter + ": " + response.getMessage());
-						if (response.getMessage() != null && response.getValidationCounter() == validationCounter) {
-							System.out.println("Set " + response.getMessage());
-							asyncMessage = response.getMessage();
-							markInvalid(response.getMessage());
+						if (response.getValidationCounter() == validationCounter) {
+							if (response.getMessages() != null && response.getMessages().size() > 0) {						
+								asyncMessages = response.getMessages();
+								markInvalid(asyncMessages);
+							} else {
+								asyncMessages = null;
+								clearInvalid();
+							}
 						}
 					}
 			});
+	}
+	
+	public void markInvalid(List<String> messages) {
+		for (String message: messages)
+			markInvalid(message);
+	}
+	
+	public void reset(BetterRowEditInstance instance) {
+		asyncReady			= false;
+		validationCounter	= 0;
+		asyncMessages		= null;
+		previousValue		= null;
+	//	clearInvalid();
+		setDataInstance(instance);
 	}
 
 	public Validator getValidator() {

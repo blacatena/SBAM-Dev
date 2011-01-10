@@ -10,5 +10,5 @@ import com.scholastic.sbam.shared.validation.AsyncValidationResponse;
  */
 @RemoteServiceRelativePath("validateUserName")
 public interface UserNameValidationService extends RemoteService {
-	AsyncValidationResponse validate(String value, BetterRowEditInstance dataInstance, int validationCount) throws IllegalArgumentException;
+	AsyncValidationResponse validate(String value, BetterRowEditInstance dataInstance, int validationCount) throws IllegalArgumentException, Exception;
 }
