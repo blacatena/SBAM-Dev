@@ -18,7 +18,7 @@ import com.extjs.gxt.ui.client.widget.grid.RowEditor;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.user.client.Element;
 import com.scholastic.sbam.shared.objects.BetterRowEditInstance;
-import com.scholastic.sbam.client.validation.AsyncTextField;
+import com.scholastic.sbam.client.validation.AsyncField;
 
 /**
  * This extension of the GXT RowEditor adds functionality for a Delete button, as well as automatic Store reject/commit changes
@@ -226,13 +226,12 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 	 */
 	@Override
 	public void startEditing(int rowIndex, boolean doFocus) {
-		//	Reset any async text fields and assign current model to any AsyncTextFields -- must be done here, before the super call, because it will start validating right away
+		//	Reset any async text fields and assign current model to any AsyncFields -- must be done here, before the super call, because it will start validating right away
 		BetterRowEditInstance instance = (BetterRowEditInstance) store.getAt(rowIndex).getBean();
 		for (ColumnConfig c : grid.getColumnModel().getColumns()) {
 			Field<?> f = c.getEditor().getField();
-			if (f instanceof AsyncTextField) {
-				((AsyncTextField<?>) f).reset(instance);
-			//	((AsyncTextField<?>) f).setAsyncReady(false);
+			if (f instanceof AsyncField) {
+				((AsyncField) f).reset(instance);
 			}
 		}
 		
@@ -255,8 +254,8 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 		//	Set asynch editing ready
 		for (ColumnConfig c : grid.getColumnModel().getColumns()) {
 			Field<?> f = c.getEditor().getField();
-			if (f instanceof AsyncTextField) {
-				((AsyncTextField<?>) f).setAsyncReady(true);
+			if (f instanceof AsyncField) {
+				((AsyncField) f).setAsyncReady(true);
 			}
 		}
 	}

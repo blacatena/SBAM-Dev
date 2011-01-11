@@ -11,7 +11,7 @@ import com.scholastic.sbam.client.services.FieldValidationServiceAsync;
 import com.scholastic.sbam.shared.objects.BetterRowEditInstance;
 import com.scholastic.sbam.shared.validation.AsyncValidationResponse;
 
-public class AsyncTextField<D> extends TextField<D> {
+public class AsyncTextField<D> extends TextField<D> implements AsyncField {
 	
 	private int	  					validationCounter	= 0;
 	private Validator				validator 			= null;
@@ -115,7 +115,7 @@ public class AsyncTextField<D> extends TextField<D> {
 			return null;
 	}
 	
-	private void asyncValidate(String value) {
+	public void asyncValidate(String value) {
 		validationService.validate(value, dataInstance, ++validationCounter,
 				new AsyncCallback<AsyncValidationResponse>() {
 					public void onFailure(Throwable caught) {

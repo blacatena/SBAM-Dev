@@ -164,7 +164,7 @@ public class UpdateUserServiceImpl extends RemoteServiceServlet implements Updat
 			return;
 		
 		String [] roleNames = SecurityManager.getRoleNames(instance.getRoleGroupTitle());
-		if (roleNames.length == 0)
+		if (roleNames == null)
 			throw new IllegalArgumentException("Invalid role group '" + instance.getRoleGroupTitle() + "'.");
 		
 		List<UserRole> oldRoles = DbUserRole.findByUserName(instance.getUserName());
