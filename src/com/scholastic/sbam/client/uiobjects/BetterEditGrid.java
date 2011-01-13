@@ -22,7 +22,6 @@ import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreEvent;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
@@ -37,46 +36,53 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
-import com.extjs.gxt.ui.client.widget.grid.filters.DateFilter;
-import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
-import com.extjs.gxt.ui.client.widget.grid.filters.ListFilter;
-import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.FieldValidationServiceAsync;
-import com.scholastic.sbam.client.services.UpdateUserService;
-import com.scholastic.sbam.client.services.UpdateUserServiceAsync;
-import com.scholastic.sbam.client.services.UserListService;
-import com.scholastic.sbam.client.services.UserListServiceAsync;
-import com.scholastic.sbam.client.services.UserNameValidationService;
-import com.scholastic.sbam.client.services.UserNameValidationServiceAsync;
 import com.scholastic.sbam.client.validation.AsyncTextField;
-import com.scholastic.sbam.shared.objects.UpdateResponse;
-import com.scholastic.sbam.shared.objects.UserInstance;
-import com.scholastic.sbam.shared.security.SecurityManager;
+import com.scholastic.sbam.shared.objects.BetterRowEditInstance;
 import com.scholastic.sbam.shared.util.AppConstants;
 import com.scholastic.sbam.shared.validation.AppRoleGroupValidator;
-import com.scholastic.sbam.shared.validation.AppUserNameValidator;
-import com.scholastic.sbam.shared.validation.EmailValidator;
 
-public class UserEditGrid extends LayoutContainer implements AppSleeper {
+public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends LayoutContainer implements AppSleeper {
 	
 	private ListStore<BeanModel>	store;
 	private Grid<BeanModel>			grid;
 	private ContentPanel 			panel;
 	
-	private List<BeanModel> selection;
+	private List<BeanModel> 		selection;
 	
-	private final UserListServiceAsync userListService = GWT.create(UserListService.class);
-	private final UpdateUserServiceAsync updateUserService = GWT.create(UpdateUserService.class);
-	private final UserNameValidationServiceAsync userNameValidationService = GWT.create(UserNameValidationService.class);
-
-	public UserEditGrid() {
+	/**
+	 * The ID of the column which will expand to absorb unused width.
+	 */
+	private String					autoExpandColumn	= null;
+	/**
+	 * The width to force the grid into.  If set to negative or zero, this will be computed from the width of the columns added.
+	 */
+	private int						forceWidth			= -1;
+	/**
+	 * The label for the button to be used to create new grid rows.
+	 */
+	private String					newButtonLabel		= "New";
+	
+	public BetterEditGrid(final String autoExpandColumn) {
+		super();
+		this.autoExpandColumn = autoExpandColumn;
 	}
 	
+	public BetterEditGrid(final int forceWidth) {
+		super();
+		this.forceWidth = forceWidth;
+	}
+	
+	public BetterEditGrid(final int forceWidth, final String autoExpandColumn) {
+		super();
+		this.forceWidth = forceWidth;
+		this.autoExpandColumn = autoExpandColumn;
+	}
+ 	
 	@Override  
 	protected void onRender(Element parent, int index) {  
 		super.onRender(parent, index);
@@ -96,12 +102,7 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 		ColumnModel cm = getColumnModel();
 		
 		grid = new Grid<BeanModel>(store, cm);
-		grid.setBorders(true);
-		grid.setStripeRows(true);
-		grid.setColumnLines(true);
-		grid.setColumnReordering(true);
-		grid.setAutoExpandColumn("userName");
-		grid.getAriaSupport().setLabelledBy(panel.getHeader().getId() + "-label"); // access for people with disabilities -- ARIA
+		setGridAttributes();
 
 		makeFilters();
 		
@@ -110,6 +111,8 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 		int width = 0;
 		for (int i = 0; i < cm.getColumnCount(); i++)
 			width += cm.getColumnWidth(i);
+		if (forceWidth >= 0)
+			width = forceWidth;
 		
 		panel.setHeading("Users");
 		panel.setFrame(true);
@@ -120,12 +123,22 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 		add(panel);
 	}
 	
+	protected void setGridAttributes() {
+		grid.setBorders(true);
+		grid.setStripeRows(true);
+		grid.setColumnLines(true);
+		grid.setColumnReordering(true);
+		if (autoExpandColumn != null)
+			grid.setAutoExpandColumn(autoExpandColumn);
+		grid.getAriaSupport().setLabelledBy(panel.getHeader().getId() + "-label"); // access for people with disabilities -- ARIA	
+	}
+	
 	protected ListLoader<ListLoadResult<ModelData>> getLoader() {
 		// proxy and reader  
-		RpcProxy<List<UserInstance>> proxy = new RpcProxy<List<UserInstance>>() {  
+		RpcProxy<List<I>> proxy = new RpcProxy<List<I>>() {  
 			@Override  
-			public void load(Object loadConfig, AsyncCallback<List<UserInstance>> callback) {
-		    	userListService.getUsers(null, null, null, null, callback);
+			public void load(Object loadConfig, AsyncCallback<List<I>> callback) {
+		    	asyncLoad(loadConfig, callback);
 		    }  
 		};
 		BeanModelReader reader = new BeanModelReader();
@@ -135,11 +148,18 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 		return loader;
 	}
 	
+	/**
+	 * Implement this method to execute the actual asynchronous call to the loader service.
+	 * @param loadConfig
+	 * @param callback
+	 */
+	protected abstract void asyncLoad(Object loadConfig, AsyncCallback<List<I>> callback);
+	
 	protected void addStoreListeners() {
 		store.addListener(Store.Update, new Listener<StoreEvent<BeanModel>>() {
             public void handleEvent(final StoreEvent<BeanModel> se) {
                 if (se.getOperation() == Record.RecordUpdate.COMMIT && se.getModel() != null) {
-                	updateUser(se.getModel());
+                	asyncUpdate(se.getModel());
                 }
                 
             }
@@ -152,43 +172,20 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 		return new ColumnModel(columns);
 	}
 	
-	protected void addColumns(List<ColumnConfig> columns) {
-		columns.add(getEditColumn(			"userName", 		"User", 			80,		"",		new AppUserNameValidator(), userNameValidationService));
-	//	columns.add(getEditPasswordColumn(	"password", 		"Password", 		60, 	null));
-		columns.add(getEditColumn(			"firstName", 		"First Name", 		100));
-		columns.add(getEditColumn(			"lastName", 		"Last Name", 		100));
-		columns.add(getEditColumn(			"email", 			"Email", 			200,	"",		new EmailValidator(),		null));
-		columns.add(getRoleGroupColumn(							"Role",				130));	
-		columns.add(getEditCheckColumn(		"resetPassword",	"Reset Password", 	100,		"Check to reset user's password"));
-		columns.add(getDateColumn(			"createdDatetime",	"Created", 			75));
-	}
+	/**
+	 * Implement this method to add the grid columns.
+	 * 
+	 * This method will basically be a series of columns.add(column) statements.
+	 * @param columns
+	 * The List of column configurations to which columns will be added.
+	 */
+	protected abstract void addColumns(List<ColumnConfig> columns);
 	
+	/**
+	 * Override this method to add any desired fitlers.
+	 */
 	protected void makeFilters() {
-		GridFilters filters = new GridFilters();  
-		filters.setLocal(true);  
-		    
-//		NumericFilter filter = new NumericFilter("change");  
-		StringFilter userNameFilter = new StringFilter("userName");  
-		StringFilter firstNameFilter = new StringFilter("firstName");  
-		StringFilter lastNameFilter	= new StringFilter("lastName");  
-		StringFilter emailFilter	= new StringFilter("email");  
-		DateFilter   dateFilter		= new DateFilter("createdDatetime");  
-//		BooleanFilter booleanFilter = new BooleanFilter("split");  
-		  
-//		ListStore<ModelData> typeStore = new ListStore<ModelData>();
-//		for (int i = 0; i < SecurityManager.ROLE_GROUPS.length; i++)
-//			typeStore.add(SecurityManager.ROLE_GROUPS [i].getGroupTitle());
-		ListFilter listFilter = new ListFilter("roleGroupTitle", SecurityManager.getRoleGroupListStore());  
-		listFilter.setDisplayProperty("groupTitle");  
 		
-		filters.addFilter(userNameFilter);  
-		filters.addFilter(firstNameFilter);  
-		filters.addFilter(lastNameFilter);  
-		filters.addFilter(emailFilter);  
-		filters.addFilter(dateFilter);  
-		filters.addFilter(listFilter);
-		
-		grid.addPlugin(filters);
 	}
 	
 	protected void makeRowEditor() {
@@ -199,20 +196,15 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 
 		grid.addPlugin(re);
 		
-		Button newUser = new Button("New User");
-		newUser.addSelectionListener(new SelectionListener<ButtonEvent>() {
+		Button newButton = new Button(newButtonLabel);
+		newButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			   
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				UserInstance user = new UserInstance();
-				user.setUserName("");
-				user.setFirstName("");
-				user.setLastName("");
-				user.setEmail("");
-				user.setRoleGroupTitle("None");
+				I instance = getNewInstance();
 				 
 				re.stopEditing(false);
-				BeanModel userModel = getModel(user);
+				BeanModel userModel = getModel(instance);
 				store.insert(userModel, 0);
 				re.startEditing(store.indexOf(userModel), true);
 			 
@@ -223,12 +215,18 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 		panel.add(grid);
 		panel.setButtonAlign(HorizontalAlignment.CENTER);
 		
-		panel.addButton(newUser);
+		panel.addButton(newButton);
 	}
 	
-	private BeanModel getModel(UserInstance user) {
-		BeanModelFactory factory = BeanModelLookup.get().getFactory(UserInstance.class);
-		BeanModel model = factory.createModel(user);
+	/**
+	 * Implement this method to return a newly initialized instance to use as the basis for creating a new persistent object.
+	 * @return
+	 */
+	protected abstract I getNewInstance();
+	
+	private BeanModel getModel(I instance) {
+		BeanModelFactory factory = BeanModelLookup.get().getFactory(instance.getClass());
+		BeanModel model = factory.createModel(instance);
 		return model;
 	}
 	
@@ -254,14 +252,48 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 			store.removeAll();
 	}
 	
+	/**
+	 * Utility method to create a basic display only text field.
+	 * @param name
+	 * 	The name of the field.
+	 * @param header
+	 * 	The header for the field.
+	 * @param width
+	 * 	The width of the field.
+	 * @return
+	 */
 	protected ColumnConfig getColumn(String name, String header, int width) {
 		return getColumn(name, header, width, null);
 	}
 	
+	/**
+	 * Utility method to create a basic date field.
+	 * @param name
+	 * 	The name of the field.
+	 * @param header
+	 * 	The header for the field.
+	 * @param width
+	 * 	The width of the field.
+	 * @return
+	 */
 	protected ColumnConfig getDateColumn(String name, String header, int width) {
 		return getDateColumn(name, header, width, AppConstants.APP_DATE_TIME_FORMAT);
 	}
+
+
 	
+	/**
+	 * Utility method to create a basic date field.
+	 * @param name
+	 * 	The name of the field.
+	 * @param header
+	 * 	The header for the field.
+	 * @param width
+	 * 	The width of the field.
+	 * @param format
+	 *  The DateTimeFormat to use for the field.
+	 * @return
+	 */
 	protected ColumnConfig getDateColumn(String name, String header, int width, DateTimeFormat format) {
 		DateField dateField = new DateField();  
 		dateField.getPropertyEditor().setFormat(AppConstants.APP_DATE_TIME_FORMAT);
@@ -273,6 +305,18 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 		return column;
 	}
 	
+	/**
+	 * Utility method to create a basic date field.
+	 * @param name
+	 * 	The name of the field.
+	 * @param header
+	 * 	The header for the field.
+	 * @param width
+	 * 	The width of the field.
+	 * @param toolTip
+	 *  The value of the tool tip to use for the field.
+	 * @return
+	 */
 	protected ColumnConfig getColumn(String name, String header, int width, String toolTip) {
 		ColumnConfig column = new ColumnConfig();
 		column.setId(name);
@@ -283,35 +327,58 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 		return column;
 	}
 	
+	/**
+	 * Utility method to create a basic editable text field.
+	 * @param name
+	 * 	The name of the field.
+	 * @param header
+	 * 	The header for the field.
+	 * @param width
+	 * 	The width of the field.
+	 * @return
+	 */
 	protected ColumnConfig getEditColumn(String name, String header, int width) {
-		return getEditColumn(name, header, width, null, false);
+		return getEditColumn(name, header, width, null);
 	}
 	
+	/**
+	 * Utility method to create a basic editable text field.
+	 * @param name
+	 * 	The name of the field.
+	 * @param header
+	 * 	The header for the field.
+	 * @param width
+	 * 	The width of the field.
+	 * @param toolTip
+	 *  The value of the tool tip to use for the field.
+	 * @return
+	 */
 	protected ColumnConfig getEditColumn(String name, String header, int width, String toolTip) {
-		return getEditColumn(name, header, width, toolTip, false);
-	}
-	
-	protected ColumnConfig getEditPasswordColumn(String name, String header, int width, String toolTip) {
-		return getEditColumn(name, header, width, toolTip, true);
-	}
-	
-	protected ColumnConfig getEditReadOnlyColumn(String name, String header, int width, String toolTip) {
-		ColumnConfig column = getColumn(name, header, width, toolTip);
-		return column;
-	}
-	
-	protected ColumnConfig getEditColumn(String name, String header, int width, String toolTip, boolean password) {
 		ColumnConfig column = getColumn(name, header, width, toolTip);
 		TextField<String> text = new TextField<String>();
 		text.setName(name);
 		text.setAllowBlank(false);
-		if (password) {
-			text.setPassword(password);
-		}
 		column.setEditor(new CellEditor(text));
 		return column;
 	}
+
 	
+	/**
+	 * Utility method to create a basic editable asynchronous text field with custom synchronous and asynchronous validation.
+	 * @param name
+	 * 	The name of the field.
+	 * @param header
+	 * 	The header for the field.
+	 * @param width
+	 * 	The width of the field.
+	 * @param toolTip
+	 *  The value of the tool tip to use for the field.
+	 * @param validator
+	 *  The validator to use for the field for local editing.
+	 * @param validationService
+	 *  The asynchronous validation service to use with the field.
+	 * @return
+	 */
 	protected ColumnConfig getEditColumn(String name, String header, int width, String toolTip, Validator validator, FieldValidationServiceAsync validationService) {
 		ColumnConfig column = getColumn(name, header, width, toolTip);
 		AsyncTextField<String> text = new AsyncTextField<String>();
@@ -339,6 +406,18 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 		return column;
 	}
 	
+	/**
+	 * Utility method to create a basic checkbox field.
+	 * @param name
+	 * 	The name of the field.
+	 * @param header
+	 * 	The header for the field.
+	 * @param width
+	 * 	The width of the field.
+	 * @param toolTip
+	 *  The value of the tool tip to use for the field.
+	 * @return
+	 */
 	protected ColumnConfig getEditCheckColumn(String name, String header, int width, String toolTip) {
 		CheckColumnConfig checkColumn = new CheckColumnConfig(name, header, width); 
 		CellEditor checkBoxEditor = new CellEditor(new CheckBox());
@@ -346,7 +425,19 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 		return checkColumn;
 	}
 	
-	protected ColumnConfig getRoleGroupColumn(String header, int width) {
+	/**
+	 * Utility method to create a combo box column.
+	 * @param name
+	 *  The name of the column.
+	 * @param header
+	 *  The header for the column.
+	 * @param width
+	 *  The width of the column.
+	 * @param values
+	 *  The list of valid values for the column.
+	 * @return
+	 */
+	protected ColumnConfig getComboColumn(String name, String header, int width, String [] values) {
 		
 		final SimpleComboBox<String> combo = new SimpleComboBox<String>();
 		combo.setForceSelection(true);
@@ -354,8 +445,8 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 		combo.setValidator(new AppRoleGroupValidator());
 		combo.setEditable(false);
 		
-		for (int i = 0; i < SecurityManager.ROLE_GROUPS.length; i++) {
-			combo.add(SecurityManager.ROLE_GROUPS [i].getGroupTitle());
+		for (int i = 0; i < values.length; i++) {
+			combo.add(values [i]);
 		}
 		
 		CellEditor editor = new CellEditor(combo) {  
@@ -377,7 +468,7 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 		};
 
 		ColumnConfig column = new ColumnConfig();
-		column.setId("roleGroupTitle");
+		column.setId(name);
 		column.setHeader(header);
 		column.setWidth(width);
 		column.setEditor(editor);
@@ -385,36 +476,64 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 		return column; 
 	}
 	
-	private void updateUser(BeanModel beanModel) {
-		final BeanModel targetBeanModel = beanModel;
-	//	System.out.println("Before update: " + targetBeanModel.getProperties());
-		updateUserService.updateUser((UserInstance) beanModel.getBean(),
-				new AsyncCallback<UpdateResponse<UserInstance>>() {
-					public void onFailure(Throwable caught) {
-						// Show the RPC error message to the user
-						if (caught instanceof IllegalArgumentException)
-							MessageBox.alert("Alert", caught.getMessage(), null);
-						else {
-							MessageBox.alert("Alert", "User update failed unexpectedly.", null);
-							System.out.println(caught.getClass().getName());
-							System.out.println(caught.getMessage());
-						}
-					}
+	/**
+	 * Implement this method to make the asynchronous call to perform an actual update.
+	 * 
+	 * @param beanModel
+	 * Save/use the bean model, as needed, to reflect changes enforced by response from the service call.
+	 */
+	protected abstract void asyncUpdate(BeanModel beanModel);
+	
+	public String getFailureMessage() {
+		return "Update failed unexpectedly.";
+	}
 
-					public void onSuccess(UpdateResponse<UserInstance> updateResponse) {
-						UserInstance updatedUser = (UserInstance) updateResponse.getInstance();
-					//	System.out.println("UPDATE SUCCESSFUL");
-						// If this user is newly created, back-populate the id
-						if (targetBeanModel.get("id") == null) {
-							targetBeanModel.set("id",updatedUser.getId());
-							targetBeanModel.set("createdDattime", updatedUser.getCreatedDatetime());
-						}
-						targetBeanModel.set("resetPassword", false);
-						if (updateResponse.getMessage() != null && updateResponse.getMessage().length() > 0)
-							MessageBox.info("Please Note...", updateResponse.getMessage(), null);
-				}
-			});
-		targetBeanModel.set("resetPassword", false);
+	public ListStore<BeanModel> getStore() {
+		return store;
+	}
+
+	public void setStore(ListStore<BeanModel> store) {
+		this.store = store;
+	}
+
+	public Grid<BeanModel> getGrid() {
+		return grid;
+	}
+
+	public void setGrid(Grid<BeanModel> grid) {
+		this.grid = grid;
+	}
+
+	public ContentPanel getPanel() {
+		return panel;
+	}
+
+	public void setPanel(ContentPanel panel) {
+		this.panel = panel;
+	}
+
+	public String getAutoExpandColumn() {
+		return autoExpandColumn;
+	}
+
+	public void setAutoExpandColumn(String autoExpandColumn) {
+		this.autoExpandColumn = autoExpandColumn;
+	}
+
+	public int getForceWidth() {
+		return forceWidth;
+	}
+
+	public void setForceWidth(int forceWidth) {
+		this.forceWidth = forceWidth;
+	}
+
+	public String getNewButtonLabel() {
+		return newButtonLabel;
+	}
+
+	public void setNewButtonLabel(String newButtonLabel) {
+		this.newButtonLabel = newButtonLabel;
 	}
 
 }

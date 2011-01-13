@@ -23,9 +23,11 @@ public class AppNav extends Composite implements AppSecurityManager {
 	private Html htmlWelcome;
 	private Html htmlMessages;
 	private Html htmlLoading;
+	private TabItem tbtmConfiguration;
 	private TabItem tbtmReports;
 	private TabItem tbtmAgreements;
 	private AdminUi adminUi;
+	private ConfigUi configUi;
 
 	public AppNav() {
 		
@@ -48,6 +50,13 @@ public class AppNav extends Composite implements AppSecurityManager {
 		tbtmAgreements = new TabItem("Agreements");
 		tabPanel.add(tbtmAgreements);
 		
+		tbtmConfiguration = new TabItem("Configuration");
+		tbtmConfiguration.setLayout(new FitLayout());
+
+		configUi = new ConfigUi();
+		tbtmConfiguration.add(configUi);
+		tabPanel.add(tbtmConfiguration);
+		
 		tbtmReports = new TabItem("Reports");
 		tabPanel.add(tbtmReports);
 		
@@ -66,22 +75,47 @@ public class AppNav extends Composite implements AppSecurityManager {
 		loadWelcomeMessages();
 	}
 	
+	/**
+	 * Create listeners for tabs that must be notified when put to sleep.
+	 */
 	private void addSleepListeners() {
 	
 		tbtmWelcome.addListener(Events.Select, new Listener<ComponentEvent>() {  
 			public void handleEvent(ComponentEvent be) {
-				sleep(tbtmWelcome);
+				sleepOthers(tbtmWelcome);
 			}  
 		}); 
 	
 		tbtmAdministration.addListener(Events.Select, new Listener<ComponentEvent>() {  
 			public void handleEvent(ComponentEvent be) {
-				sleep(tbtmAdministration);
+				sleepOthers(tbtmAdministration);
 				awaken(adminUi);
+			}  
+		}); 
+	
+		tbtmConfiguration.addListener(Events.Select, new Listener<ComponentEvent>() {  
+			public void handleEvent(ComponentEvent be) {
+				sleepOthers(tbtmConfiguration);
+				awaken(configUi);
+			}  
+		}); 
+	
+		tbtmAgreements.addListener(Events.Select, new Listener<ComponentEvent>() {  
+			public void handleEvent(ComponentEvent be) {
+				sleepOthers(tbtmAgreements);
+			}  
+		}); 
+	
+		tbtmReports.addListener(Events.Select, new Listener<ComponentEvent>() {  
+			public void handleEvent(ComponentEvent be) {
+				sleepOthers(tbtmReports);
 			}  
 		}); 
 	}
 	
+	/**
+	 * Load any current welcome messages.
+	 */
 	public void loadWelcomeMessages() {
 
 		final WelcomeMessageServiceAsync welcomeMessageService = GWT.create(WelcomeMessageService.class);
@@ -107,9 +141,16 @@ public class AppNav extends Composite implements AppSecurityManager {
 		target.awaken();
 	}
 	
-	protected void sleep(TabItem exception) {
+	/**
+	 * Put other tabs and tab components to sleep.
+	 * @param exception
+	 *  The tab which will stay awake.
+	 */
+	protected void sleepOthers(TabItem exception) {
 		if (exception != tbtmAdministration)
 			adminUi.sleep();
+		if (exception != tbtmConfiguration)
+			configUi.sleep();
 	}
 	
 	public void setLoggedOut() {
@@ -127,6 +168,11 @@ public class AppNav extends Composite implements AppSecurityManager {
 			tbtmAgreements.enable();
 		else
 			tbtmAgreements.disable();
+
+		if (roleNames.contains(SecurityManager.ROLE_MAINT))
+			tbtmConfiguration.enable();
+		else
+			tbtmConfiguration.disable();
 		
 		if (roleNames.contains(SecurityManager.ROLE_QUERY))
 			tbtmReports.enable();
@@ -156,6 +202,30 @@ public class AppNav extends Composite implements AppSecurityManager {
 
 	public void setHtmlwelcomeToThe(Html htmlwelcomeToThe) {
 		this.htmlWelcome = htmlwelcomeToThe;
+	}
+
+	public TabItem getTbtmConfiguration() {
+		return tbtmConfiguration;
+	}
+
+	public void setTbtmConfiguration(TabItem tbtmConfiguration) {
+		this.tbtmConfiguration = tbtmConfiguration;
+	}
+
+	public TabItem getTbtmReports() {
+		return tbtmReports;
+	}
+
+	public void setTbtmReports(TabItem tbtmReports) {
+		this.tbtmReports = tbtmReports;
+	}
+
+	public TabItem getTbtmAgreements() {
+		return tbtmAgreements;
+	}
+
+	public void setTbtmAgreements(TabItem tbtmAgreements) {
+		this.tbtmAgreements = tbtmAgreements;
 	}
 
 }

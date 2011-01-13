@@ -30,13 +30,11 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 		
 		cntntpnlUsers.addListener(Events.Collapse, new Listener<ComponentEvent>() {  
 			public void handleEvent(ComponentEvent be) {
-				System.out.println("Users Collapse");
 				userEditGrid.sleep();
 			}  
 		});  
 		cntntpnlUsers.addListener(Events.Expand, new Listener<ComponentEvent>() {  
 			public void handleEvent(ComponentEvent be) {
-				System.out.println("Users Expand");  
 				userEditGrid.awaken();
 			}  
 		});
