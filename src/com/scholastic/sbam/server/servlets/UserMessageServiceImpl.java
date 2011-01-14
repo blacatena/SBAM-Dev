@@ -20,7 +20,7 @@ public class UserMessageServiceImpl extends AuthenticatedServiceServlet implemen
 	@Override
 	public UserMessageCollection getUserMessages(String locationTag) throws IllegalArgumentException {
 
-		Authentication auth = authenticate("get user messages", null);
+		Authentication auth = authenticate("get user messages");
 		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();

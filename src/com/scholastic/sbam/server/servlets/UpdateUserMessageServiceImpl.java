@@ -18,7 +18,7 @@ public class UpdateUserMessageServiceImpl extends AuthenticatedServiceServlet im
 	@Override
 	public Integer updateUserMessage(UserMessageInstance instance) throws IllegalArgumentException {
 
-		Authentication auth = authenticate("update user message", null);
+		Authentication auth = authenticate("update user message");
 		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();
