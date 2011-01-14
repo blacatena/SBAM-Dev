@@ -4,7 +4,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.scholastic.sbam.client.services.UpdateUserService;
 import com.scholastic.sbam.server.database.codegen.User;
 import com.scholastic.sbam.server.database.codegen.UserRole;
@@ -23,7 +22,7 @@ import com.scholastic.sbam.shared.security.SecurityManager;
  * The server side implementation of the RPC service.
  */
 @SuppressWarnings("serial")
-public class UpdateUserServiceImpl extends RemoteServiceServlet implements UpdateUserService {
+public class UpdateUserServiceImpl extends AuthenticatedServiceServlet implements UpdateUserService {
 
 	@Override
 	public UpdateResponse<UserInstance> updateUser(UserInstance instance) throws IllegalArgumentException {
@@ -35,12 +34,7 @@ public class UpdateUserServiceImpl extends RemoteServiceServlet implements Updat
 		
 		User dbInstance = null;
 		
-		Authentication auth = (Authentication) getServletContext().getAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE);
-		//	If user is no longer logged in, just skip this update
-		if (auth == null)
-			throw new IllegalArgumentException("Requesting user is not authenticated.");
-		if (!auth.hasRoleName(SecurityManager.ROLE_ADMIN))
-			throw new IllegalArgumentException("Requesting user is not authenticated for this task.");
+		Authentication auth = authenticate("update users", SecurityManager.ROLE_ADMIN);
 		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();
@@ -100,10 +94,7 @@ public class UpdateUserServiceImpl extends RemoteServiceServlet implements Updat
 			
 			//	If the user changed his own capabilities, make them take effect for this session
 			if (instance.getUserName().equals(auth.getUserName())) {
-				System.out.println("Refresh authentication");
-				System.out.println(auth);
 				AuthenticateServiceImpl.doAuthentication(instance.getUserName(), instance.getPassword(), this.getServletContext());
-				System.out.println(getServletContext().getAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE));
 			}
 			
 		} catch (IllegalArgumentException exc) {

@@ -90,7 +90,7 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 		
 		addStoreListeners();
 		
-		loader.load();
+			loader.load();
 		
 		// column model
 		ColumnModel cm = getColumnModel();
@@ -124,8 +124,32 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 		// proxy and reader  
 		RpcProxy<List<UserInstance>> proxy = new RpcProxy<List<UserInstance>>() {  
 			@Override  
-			public void load(Object loadConfig, AsyncCallback<List<UserInstance>> callback) {
-		    	userListService.getUsers(null, null, null, null, callback);
+			public void load(Object loadConfig, final AsyncCallback<List<UserInstance>> callback) {
+				
+				// This could be as simple as calling userListService.getUsers and passing the callback
+				// Instead, here the callback is overridden so that it can catch errors and alert the users.  Then the original callback is told of the failure.
+				// On success, the original callback is just passed the onSuccess message, and the response (the list).
+				
+				AsyncCallback<List<UserInstance>> myCallback = new AsyncCallback<List<UserInstance>>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "User list load failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+						callback.onFailure(caught);
+					}
+
+					public void onSuccess(List<UserInstance> list) {
+						callback.onSuccess(list);
+					}
+				};
+				
+				userListService.getUsers(null, null, null, null, myCallback);
+							
 		    }  
 		};
 		BeanModelReader reader = new BeanModelReader();
@@ -403,7 +427,6 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 
 					public void onSuccess(UpdateResponse<UserInstance> updateResponse) {
 						UserInstance updatedUser = (UserInstance) updateResponse.getInstance();
-					//	System.out.println("UPDATE SUCCESSFUL");
 						// If this user is newly created, back-populate the id
 						if (targetBeanModel.get("id") == null) {
 							targetBeanModel.set("id",updatedUser.getId());

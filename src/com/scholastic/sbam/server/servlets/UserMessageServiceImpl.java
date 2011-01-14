@@ -2,7 +2,6 @@ package com.scholastic.sbam.server.servlets;
 
 import java.util.List;
 
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.scholastic.sbam.client.services.UserMessageService;
 import com.scholastic.sbam.server.database.codegen.UserMessage;
 import com.scholastic.sbam.server.database.objects.DbUserMessage;
@@ -10,24 +9,25 @@ import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.objects.Authentication;
 import com.scholastic.sbam.shared.objects.UserMessageCollection;
 import com.scholastic.sbam.shared.objects.UserMessageInstance;
-import com.scholastic.sbam.shared.security.SecurityManager;
 import com.scholastic.sbam.shared.util.WebUtilities;
 
 /**
  * The server side implementation of the RPC service.
  */
 @SuppressWarnings("serial")
-public class UserMessageServiceImpl extends RemoteServiceServlet implements UserMessageService {
+public class UserMessageServiceImpl extends AuthenticatedServiceServlet implements UserMessageService {
 
 	@Override
 	public UserMessageCollection getUserMessages(String locationTag) throws IllegalArgumentException {
+
+		Authentication auth = authenticate("get user messages", null);
 		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();
 
 		UserMessageCollection coll = new UserMessageCollection();
 		try {
-			String userName = ((Authentication) getServletContext().getAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE)).getUserName();
+			String userName = auth.getUserName();
 			if (userName == null || userName.length() == 0)
 				throw new Exception("No logged in user for whom to retrieve notes.");
 			

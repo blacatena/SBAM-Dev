@@ -2,23 +2,23 @@ package com.scholastic.sbam.server.servlets;
 
 import java.util.Date;
 
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.scholastic.sbam.client.services.UpdateUserMessageService;
 import com.scholastic.sbam.server.database.codegen.UserMessage;
 import com.scholastic.sbam.server.database.objects.DbUserMessage;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.objects.Authentication;
 import com.scholastic.sbam.shared.objects.UserMessageInstance;
-import com.scholastic.sbam.shared.security.SecurityManager;
 
 /**
  * The server side implementation of the RPC service.
  */
 @SuppressWarnings("serial")
-public class UpdateUserMessageServiceImpl extends RemoteServiceServlet implements UpdateUserMessageService {
+public class UpdateUserMessageServiceImpl extends AuthenticatedServiceServlet implements UpdateUserMessageService {
 
 	@Override
 	public Integer updateUserMessage(UserMessageInstance instance) throws IllegalArgumentException {
+
+		Authentication auth = authenticate("update user message", null);
 		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();
@@ -26,10 +26,6 @@ public class UpdateUserMessageServiceImpl extends RemoteServiceServlet implement
 		int returnId = -1;
 
 		try {
-			Authentication auth = (Authentication) getServletContext().getAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE);
-			//	If user is no longer logged in, just skip this update
-			if (auth == null)
-				return -1;
 			
 			String userName = auth.getUserName();
 			UserMessage dbInstance = null;

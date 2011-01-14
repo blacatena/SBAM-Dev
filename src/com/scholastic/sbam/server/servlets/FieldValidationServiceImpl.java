@@ -1,10 +1,7 @@
 package com.scholastic.sbam.server.servlets;
 
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
-import com.scholastic.sbam.shared.objects.Authentication;
 import com.scholastic.sbam.shared.objects.BetterRowEditInstance;
-import com.scholastic.sbam.shared.security.SecurityManager;
 import com.scholastic.sbam.shared.validation.AsyncValidationResponse;
 
 /**
@@ -19,7 +16,7 @@ import com.scholastic.sbam.shared.validation.AsyncValidationResponse;
  * The validate method generally should not be overridden, but could be.
  */
 @SuppressWarnings("serial")
-public abstract class FieldValidationServiceImpl extends RemoteServiceServlet {
+public abstract class FieldValidationServiceImpl extends AuthenticatedServiceServlet {
 
 	/**
 	 * Perform backend validation on a field value, given a previous data instance.
@@ -38,6 +35,9 @@ public abstract class FieldValidationServiceImpl extends RemoteServiceServlet {
 	 * @throws Exception
 	 */
 	public AsyncValidationResponse validate(String value, BetterRowEditInstance dataInstance, final int validationCounter) throws Exception {
+
+		authenticate("validate fields", getAuthRole());
+		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();
 
@@ -60,21 +60,6 @@ public abstract class FieldValidationServiceImpl extends RemoteServiceServlet {
 	}
 	
 	/**
-	 * This may be overridden to provide different authentication, but most implementations will override getAuthRole() to return a value other than ROLE_ADMIN.
-	 * @throws Exception
-	 */
-	protected void authenticate() throws Exception {
-		String authUserName = null;
-		Authentication auth = ((Authentication) getServletContext().getAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE));
-		if (auth != null)
-			authUserName = auth.getUserName();
-		if (auth == null || authUserName == null || authUserName.length() == 0)
-			throw new Exception("No validation privileges.");
-		if (!auth.hasRoleName(getAuthRole()))
-			throw new Exception("User does not have validation privileges.");
-	}
-	
-	/**
 	 * Implement this method to perform any validation.
 	 * @param value
 	 * The value currently entered in the field.
@@ -86,12 +71,15 @@ public abstract class FieldValidationServiceImpl extends RemoteServiceServlet {
 	protected abstract void doValidation(String value, BetterRowEditInstance original, AsyncValidationResponse response);
 	
 	/**
-	 * Override this method to return a different authentication role.
+	 * Override this method to return a special authentication role, if a special role is necessary to perform this validation.
 	 * 
-	 * The default role is ROLE_ADMIN.
+	 * Normally, this is only necessary for sensitive data (such as user names).
+	 * 
+	 * The default is to return null, which means that any logged in user can perform the validation task.
 	 * @return
+	 * 	The name of the role required to perform validation.
 	 */
 	protected String getAuthRole() {
-		return SecurityManager.ROLE_ADMIN;
+		return null;
 	}
 }

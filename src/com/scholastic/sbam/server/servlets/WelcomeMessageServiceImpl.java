@@ -10,7 +10,9 @@ import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.util.WebUtilities;
 
 /**
- * The server side implementation of the RPC service.
+ * The server side implementation of the RPC service to retrieve welcome messages.
+ * 
+ * Note that no authentication is done.  Messages are open to anyone, even before they log on.
  */
 @SuppressWarnings("serial")
 public class WelcomeMessageServiceImpl extends RemoteServiceServlet implements WelcomeMessageService {

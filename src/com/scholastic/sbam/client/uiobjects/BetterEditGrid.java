@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreEvent;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
@@ -137,8 +138,32 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 		// proxy and reader  
 		RpcProxy<List<I>> proxy = new RpcProxy<List<I>>() {  
 			@Override  
-			public void load(Object loadConfig, AsyncCallback<List<I>> callback) {
-		    	asyncLoad(loadConfig, callback);
+			public void load(Object loadConfig, final AsyncCallback<List<I>> callback) {
+		    	
+				// This could be as simple as calling userListService.getUsers and passing the callback
+				// Instead, here the callback is overridden so that it can catch errors and alert the users.  Then the original callback is told of the failure.
+				// On success, the original callback is just passed the onSuccess message, and the response (the list).
+				
+				AsyncCallback<List<I>> myCallback = new AsyncCallback<List<I>>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "User list load failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+						callback.onFailure(caught);
+					}
+
+					public void onSuccess(List<I> list) {
+						callback.onSuccess(list);
+					}
+				};
+				
+				asyncLoad(loadConfig, myCallback);
+				
 		    }  
 		};
 		BeanModelReader reader = new BeanModelReader();
@@ -149,11 +174,12 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	}
 	
 	/**
-	 * Implement this method to execute the actual asynchronous call to the loader service.
+	 * Implement this method to execute the actual asynchronous call to the loader service, i.e. to make the service call.
 	 * @param loadConfig
 	 * @param callback
 	 */
 	protected abstract void asyncLoad(Object loadConfig, AsyncCallback<List<I>> callback);
+	// example: { myLoadService.loadMyData(callback); }
 	
 	protected void addStoreListeners() {
 		store.addListener(Store.Update, new Listener<StoreEvent<BeanModel>>() {
@@ -185,7 +211,34 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	 * Override this method to add any desired fitlers.
 	 */
 	protected void makeFilters() {
+
+	/* 
+	 * Sample code for adding filters
+	 * 
+		GridFilters filters = new GridFilters();  
+		filters.setLocal(true);  
+		    
+		NumericFilter numericFilter	 = new NumericFilter("numeric_column_field");  
+		StringFilter stringFilter	 = new StringFilter("string_column_field"); 
+		DateFilter   dateFilter		 = new DateFilter("date_column_field");  
+		BooleanFilter booleanFilter	 = new BooleanFilter("boolean_column_field");  
+		  
+		ListStore<ModelData> choiceStore = new ListStore<ModelData>();
+		for (int i = 0; i < whatever.length(); i++)
+			typeStore.add(whatever [i]);
+		ListFilter listFilter = new ListFilter("choice_column_field", choiceStore);  
+		listFilter.setDisplayProperty("choice_display_property");
 		
+		filters.addFilter(numericFilter);  
+		filters.addFilter(stringFilter);  
+		filters.addFilter(dateFilter);  
+		filters.addFilter(booleanFilter); 
+		filters.addFilter(listFilter);
+		
+		grid.addPlugin(filters);
+	*
+	*
+	*/
 	}
 	
 	protected void makeRowEditor() {
