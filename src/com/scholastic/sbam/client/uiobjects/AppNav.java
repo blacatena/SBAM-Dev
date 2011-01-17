@@ -169,7 +169,7 @@ public class AppNav extends Composite implements AppSecurityManager {
 		else
 			tbtmAgreements.disable();
 
-		if (roleNames.contains(SecurityManager.ROLE_MAINT))
+		if (roleNames.contains(SecurityManager.ROLE_CONFIG))
 			tbtmConfiguration.enable();
 		else
 			tbtmConfiguration.disable();

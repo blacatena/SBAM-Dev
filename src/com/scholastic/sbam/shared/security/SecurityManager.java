@@ -14,9 +14,10 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class SecurityManager {
 	public static final String AUTHENTICATION_ATTRIBUTE = "Auth";
 	
-	public static final String ROLE_ADMIN = "admin";
-	public static final String ROLE_QUERY = "query";
-	public static final String ROLE_MAINT = "maint";
+	public static final String ROLE_ADMIN	= "admin";
+	public static final String ROLE_QUERY	= "query";
+	public static final String ROLE_MAINT	= "maint";
+	public static final String ROLE_CONFIG	= "config";
 	
 	public static final List<String> NO_ROLES = new ArrayList<String>();
 	
@@ -47,7 +48,8 @@ public class SecurityManager {
 	}
 	
 	public static final RoleGroup [] ROLE_GROUPS = new RoleGroup [] {
-					new RoleGroup("ADMIN",     "Administrator", new String [] {ROLE_ADMIN, ROLE_MAINT, ROLE_QUERY} ),
+					new RoleGroup("ADMIN",     "Administrator", new String [] {ROLE_ADMIN, ROLE_MAINT, ROLE_QUERY, ROLE_CONFIG} ),
+					new RoleGroup("CONFIG",    "Standard Plus", new String [] {ROLE_MAINT, ROLE_QUERY, ROLE_CONFIG} ),
 					new RoleGroup("STANDARD",  "Standard", 	    new String [] {ROLE_MAINT, ROLE_QUERY} ),
 					new RoleGroup("REPORT",    "Analyst",       new String [] {ROLE_QUERY} ),
 					new RoleGroup("NONE",      "None",          new String [] {} )

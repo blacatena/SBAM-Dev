@@ -49,24 +49,42 @@ import com.scholastic.sbam.shared.validation.AppRoleGroupValidator;
 
 public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends LayoutContainer implements AppSleeper {
 	
-	private ListStore<BeanModel>	store;
-	private Grid<BeanModel>			grid;
-	private ContentPanel 			panel;
+	private static final int COLUMN_WIDTH_PADDING = 5; //20;
 	
-	private List<BeanModel> 		selection;
+	protected ListStore<BeanModel>	store;
+	protected Grid<BeanModel>		grid;
+	protected ContentPanel 			panel;
 	
+	protected List<BeanModel> 		selection;
+	
+	/**
+	 * The heading of the enclosing panel.
+	 */
+	protected String				panelHeading		= null;
 	/**
 	 * The ID of the column which will expand to absorb unused width.
 	 */
-	private String					autoExpandColumn	= null;
+	protected String				autoExpandColumn	= null;
 	/**
 	 * The width to force the grid into.  If set to negative or zero, this will be computed from the width of the columns added.
 	 */
-	private int						forceWidth			= -1;
+	protected int					forceWidth			= -1;
+	/**
+	 * The width to force the grid into.  If set to negative or zero, this will be computed from the width of the columns added.
+	 */
+	protected int					forceHeight			= -1;
+	/**
+	 * The name of any space to be added as the autoexpand column.
+	 */
+	protected boolean				addSpacer			= false;
 	/**
 	 * The label for the button to be used to create new grid rows.
 	 */
-	private String					newButtonLabel		= "New";
+	protected String				newButtonLabel		= "New";
+	
+	public BetterEditGrid() {
+		super();
+	}
 	
 	public BetterEditGrid(final String autoExpandColumn) {
 		super();
@@ -89,7 +107,7 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 		super.onRender(parent, index);
 		setStyleAttribute("padding", "20px");
 		
-		panel = new ContentPanel(); 
+		panel = new ContentPanel();
 		
 		// loader and store  
 		ListLoader<ListLoadResult<ModelData>> loader = getLoader();
@@ -109,15 +127,22 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 		
 		makeRowEditor();
 		
-		int width = 0;
-		for (int i = 0; i < cm.getColumnCount(); i++)
-			width += cm.getColumnWidth(i);
+		int width = cm.getTotalWidth() + COLUMN_WIDTH_PADDING;
+		
 		if (forceWidth >= 0)
 			width = forceWidth;
 		
-		panel.setHeading("Users");
+		if (panelHeading != null)
+			panel.setHeading(panelHeading);
+		else
+			panel.setHeaderVisible(false);
+		
 		panel.setFrame(true);
-		panel.setSize(width, 450);
+		if (forceHeight > 0)
+			grid.setSize(width, forceHeight);
+		else
+			grid.setWidth(width);
+		
 		//panel.setIcon(Resources.ICONS.table());
 		panel.setLayout(new FitLayout());
 		
@@ -195,6 +220,23 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	protected ColumnModel getColumnModel() {  
 		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
 		addColumns(columns);
+		
+		if (autoExpandColumn != null && autoExpandColumn.length() > 0) {
+			boolean hasAutoExpandColumn = false;
+			for (ColumnConfig column : columns) {
+				if (column.getId() != null && column.getId().equals(autoExpandColumn)) {
+					hasAutoExpandColumn = true;
+					break;
+				}
+			}
+			if (!hasAutoExpandColumn) {
+				ColumnConfig spacer = new ColumnConfig();
+				spacer.setId(autoExpandColumn);
+				spacer.setHeader("");
+				columns.add(spacer);
+			}
+		}
+		
 		return new ColumnModel(columns);
 	}
 	
@@ -573,6 +615,14 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 		this.autoExpandColumn = autoExpandColumn;
 	}
 
+	public int getForceHeight() {
+		return forceHeight;
+	}
+
+	public void setForceHeight(int forceHeight) {
+		this.forceHeight = forceHeight;
+	}
+
 	public int getForceWidth() {
 		return forceWidth;
 	}
@@ -587,6 +637,14 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 
 	public void setNewButtonLabel(String newButtonLabel) {
 		this.newButtonLabel = newButtonLabel;
+	}
+
+	public String getPanelHeading() {
+		return panelHeading;
+	}
+
+	public void setPanelHeading(String panelHeading) {
+		this.panelHeading = panelHeading;
 	}
 
 }

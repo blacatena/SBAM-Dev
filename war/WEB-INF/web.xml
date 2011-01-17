@@ -56,6 +56,21 @@
     <servlet-class>com.scholastic.sbam.server.servlets.UserNameValidationServiceImpl</servlet-class>
   </servlet>
   
+  <servlet>
+    <servlet-name>deleteReasonListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.DeleteReasonListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updateDeleteReasonServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateDeleteReasonServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>deleteReasonCodeValidationServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.DeleteReasonCodeValidationServiceImpl</servlet-class>
+  </servlet>
+  
   <servlet-mapping>
     <servlet-name>authenticateServlet</servlet-name>
     <url-pattern>/sbam/authenticate</url-pattern>
@@ -94,6 +109,21 @@
   <servlet-mapping>
     <servlet-name>userNameValidationServlet</servlet-name>
     <url-pattern>/sbam/validateUserName</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>deleteReasonListServlet</servlet-name>
+    <url-pattern>/sbam/getDeleteReasons</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateDeleteReasonServlet</servlet-name>
+    <url-pattern>/sbam/updateDeleteReason</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>deleteReasonCodeValidationServlet</servlet-name>
+    <url-pattern>/sbam/validateDeleteReasonCode</url-pattern>
   </servlet-mapping>
   
   

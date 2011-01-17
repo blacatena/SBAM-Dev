@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Dec 28, 2010 1:03:40 PM by Hibernate Tools 3.2.4.GA
+// Generated Jan 14, 2011 6:28:15 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -13,6 +13,7 @@ public class Product implements java.io.Serializable {
 	private String description;
 	private String shortName;
 	private Date createdDatetime;
+	private Character defaultServiceType;
 	private char status;
 
 	public Product() {
@@ -24,6 +25,16 @@ public class Product implements java.io.Serializable {
 		this.description = description;
 		this.shortName = shortName;
 		this.createdDatetime = createdDatetime;
+		this.status = status;
+	}
+
+	public Product(String productCode, String description, String shortName,
+			Date createdDatetime, Character defaultServiceType, char status) {
+		this.productCode = productCode;
+		this.description = description;
+		this.shortName = shortName;
+		this.createdDatetime = createdDatetime;
+		this.defaultServiceType = defaultServiceType;
 		this.status = status;
 	}
 
@@ -57,6 +68,14 @@ public class Product implements java.io.Serializable {
 
 	public void setCreatedDatetime(Date createdDatetime) {
 		this.createdDatetime = createdDatetime;
+	}
+
+	public Character getDefaultServiceType() {
+		return this.defaultServiceType;
+	}
+
+	public void setDefaultServiceType(Character defaultServiceType) {
+		this.defaultServiceType = defaultServiceType;
 	}
 
 	public char getStatus() {

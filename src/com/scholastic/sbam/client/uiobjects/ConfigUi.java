@@ -3,8 +3,10 @@ package com.scholastic.sbam.client.uiobjects;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.Composite;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.scholastic.sbam.client.uiobjects.AppSecurityManager;
 import com.scholastic.sbam.shared.security.SecurityManager;
 
@@ -18,6 +20,9 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 	private TabItem  tbtmPreferences;
 	private TabItem  tbtmDeleteReasons;
 	private TabItem  tbtmCancelReasons;
+	
+	private DeleteReasonEditGrid deleteReasonEditGrid;
+	private CancelReasonEditGrid cancelReasonEditGrid;
 	 
 	public ConfigUi() {
 //		VerticalPanel vp = new VerticalPanel();  
@@ -41,11 +46,24 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		tbtmDeleteReasons	=	addTab("Delete Reasons");
 		tbtmCancelReasons	=	addTab("Cancel Reasons");
 		
+		deleteReasonEditGrid = new DeleteReasonEditGrid();
+		
+		LayoutContainer container = new LayoutContainer();
+		container.setLayout(new FitLayout());
+		container.add(deleteReasonEditGrid);
+		tbtmDeleteReasons.add(container);
+		
+	//	tbtmDeleteReasons.add(deleteReasonEditGrid);
+		
+		cancelReasonEditGrid = new CancelReasonEditGrid();
+		tbtmCancelReasons.add(cancelReasonEditGrid);
+		
 		initComponent(advanced);
 	}
 	
 	public TabItem addTab(String tabTitle) {
-		TabItem item = new TabItem();  
+		TabItem item = new TabItem(); 
+		item.setLayout(new FitLayout());
 		item.setText(tabTitle);  
 	//	item.setClosable(false);
 		item.addStyleName("pad-text");  
@@ -54,23 +72,21 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 	}
 
 	public void applyRoles(List<String> roleNames) {
-		if (roleNames.contains(SecurityManager.ROLE_ADMIN)) {
-//			cntntpnlUsers.enable();
-//			cntntpnlMessages.enable();
+		if (roleNames.contains(SecurityManager.ROLE_CONFIG)) {
+			tbtmDeleteReasons.enable();
 		} else {
-//			cntntpnlUsers.disable();
-//			cntntpnlMessages.disable();
+			tbtmDeleteReasons.disable();
 		}
 	}
 	
 	public void sleep() {
-//		userEditGrid.sleep();
+		deleteReasonEditGrid.sleep();
 	}
 	
 	public void awaken() {
-//		if (!cntntpnlUsers.isCollapsed()) {
-//			userEditGrid.awaken();
-//		}
+		if (advanced.getSelectedItem() == tbtmDeleteReasons) {
+			deleteReasonEditGrid.awaken();
+		}
 	}
 
 	public TabPanel getAdvanced() {
