@@ -48,12 +48,12 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		
 		deleteReasonEditGrid = new DeleteReasonEditGrid();
 		
-		LayoutContainer container = new LayoutContainer();
-		container.setLayout(new FitLayout());
-		container.add(deleteReasonEditGrid);
-		tbtmDeleteReasons.add(container);
+//		LayoutContainer container = new LayoutContainer();
+//		container.setLayout(new FitLayout());
+//		container.add(deleteReasonEditGrid);
+//		tbtmDeleteReasons.add(container);
 		
-	//	tbtmDeleteReasons.add(deleteReasonEditGrid);
+		tbtmDeleteReasons.add(deleteReasonEditGrid);
 		
 		cancelReasonEditGrid = new CancelReasonEditGrid();
 		tbtmCancelReasons.add(cancelReasonEditGrid);
@@ -74,18 +74,23 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 	public void applyRoles(List<String> roleNames) {
 		if (roleNames.contains(SecurityManager.ROLE_CONFIG)) {
 			tbtmDeleteReasons.enable();
+			tbtmCancelReasons.enable();
 		} else {
 			tbtmDeleteReasons.disable();
+			tbtmCancelReasons.disable();
 		}
 	}
 	
 	public void sleep() {
 		deleteReasonEditGrid.sleep();
+		cancelReasonEditGrid.sleep();
 	}
 	
 	public void awaken() {
 		if (advanced.getSelectedItem() == tbtmDeleteReasons) {
 			deleteReasonEditGrid.awaken();
+		} else if (advanced.getSelectedItem() == tbtmCancelReasons) {
+			cancelReasonEditGrid.awaken();
 		}
 	}
 

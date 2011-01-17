@@ -430,7 +430,7 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 						// If this user is newly created, back-populate the id
 						if (targetBeanModel.get("id") == null) {
 							targetBeanModel.set("id",updatedUser.getId());
-							targetBeanModel.set("createdDattime", updatedUser.getCreatedDatetime());
+							targetBeanModel.set("createdDatetime", updatedUser.getCreatedDatetime());
 						}
 						targetBeanModel.set("resetPassword", false);
 						if (updateResponse.getMessage() != null && updateResponse.getMessage().length() > 0)

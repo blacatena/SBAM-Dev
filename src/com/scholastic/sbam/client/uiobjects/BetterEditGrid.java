@@ -49,7 +49,8 @@ import com.scholastic.sbam.shared.validation.AppRoleGroupValidator;
 
 public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends LayoutContainer implements AppSleeper {
 	
-	private static final int COLUMN_WIDTH_PADDING = 5; //20;
+	private static final int COLUMN_WIDTH_PADDING	= 0; //20;
+	private static final int GRID_WIDTH_PADDING		= 5; //20;
 	
 	protected ListStore<BeanModel>	store;
 	protected Grid<BeanModel>		grid;
@@ -66,6 +67,10 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	 */
 	protected String				autoExpandColumn	= null;
 	/**
+	 * Arbitrary, additional padding to add to the width of the grid if the width is autocalculated (i.e. forceWidth <= 0).
+	 */
+	protected int					additionalWidthPadding = 0;
+	/**
 	 * The width to force the grid into.  If set to negative or zero, this will be computed from the width of the columns added.
 	 */
 	protected int					forceWidth			= -1;
@@ -74,13 +79,13 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	 */
 	protected int					forceHeight			= -1;
 	/**
-	 * The name of any space to be added as the autoexpand column.
-	 */
-	protected boolean				addSpacer			= false;
-	/**
 	 * The label for the button to be used to create new grid rows.
 	 */
 	protected String				newButtonLabel		= "New";
+	/**
+	 * Should grid buttons (New, Refresh) be placed at the top or bottom of the layout.
+	 */
+	protected boolean				gridButtonsAtBottom	= false;
 	
 	public BetterEditGrid() {
 		super();
@@ -127,7 +132,7 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 		
 		makeRowEditor();
 		
-		int width = cm.getTotalWidth() + COLUMN_WIDTH_PADDING;
+		int width = cm.getTotalWidth() + additionalWidthPadding + (cm.getColumnCount() * COLUMN_WIDTH_PADDING) + GRID_WIDTH_PADDING;
 		
 		if (forceWidth >= 0)
 			width = forceWidth;
@@ -307,10 +312,11 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 		 
 		});
 		
-		panel.add(grid);
 		panel.setButtonAlign(HorizontalAlignment.CENTER);
 		
-		panel.addButton(newButton);
+		if (!gridButtonsAtBottom) panel.addButton(newButton);
+		panel.add(grid);
+		if (gridButtonsAtBottom) panel.addButton(newButton);
 	}
 	
 	/**
@@ -371,8 +377,8 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	 * 	The width of the field.
 	 * @return
 	 */
-	protected ColumnConfig getDateColumn(String name, String header, int width) {
-		return getDateColumn(name, header, width, AppConstants.APP_DATE_TIME_FORMAT);
+	protected ColumnConfig getDateColumn(String name, String header, int width, String toolTip) {
+		return getDateColumn(name, header, width, toolTip, AppConstants.APP_DATE_TIME_FORMAT);
 	}
 
 
@@ -389,12 +395,12 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	 *  The DateTimeFormat to use for the field.
 	 * @return
 	 */
-	protected ColumnConfig getDateColumn(String name, String header, int width, DateTimeFormat format) {
+	protected ColumnConfig getDateColumn(String name, String header, int width, String toolTip, DateTimeFormat format) {
 		DateField dateField = new DateField();  
 		dateField.getPropertyEditor().setFormat(AppConstants.APP_DATE_TIME_FORMAT);
 		dateField.setReadOnly(true);
 		
-		ColumnConfig column = getColumn(name, header, width, null);
+		ColumnConfig column = getColumn(name, header, width, toolTip);
 		column.setDateTimeFormat(format);
 		column.setEditor(new CellEditor(dateField));
 		return column;
@@ -492,10 +498,7 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 		DateField dateField = new DateField();  
 		dateField.getPropertyEditor().setFormat(AppConstants.APP_DATE_TIME_FORMAT);  
 		
-		ColumnConfig column = new ColumnConfig();  
-		column.setId(name);  
-		column.setHeader(header);  
-		column.setWidth(width);  
+		ColumnConfig column = getColumn(name, header, width, toolTip);  
 		column.setEditor(new CellEditor(dateField));  
 		column.setDateTimeFormat(AppConstants.APP_DATE_TIME_FORMAT);
 		return column;
@@ -515,6 +518,8 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	 */
 	protected ColumnConfig getEditCheckColumn(String name, String header, int width, String toolTip) {
 		CheckColumnConfig checkColumn = new CheckColumnConfig(name, header, width); 
+		if (toolTip != null && toolTip.length() > 0)
+			checkColumn.setToolTip(toolTip);
 		CellEditor checkBoxEditor = new CellEditor(new CheckBox());
 		checkColumn.setEditor(checkBoxEditor);
 		return checkColumn;
@@ -532,13 +537,15 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	 *  The list of valid values for the column.
 	 * @return
 	 */
-	protected ColumnConfig getComboColumn(String name, String header, int width, String [] values) {
+	protected ColumnConfig getComboColumn(String name, String header, int width, String [] values, String toolTip) {
 		
 		final SimpleComboBox<String> combo = new SimpleComboBox<String>();
 		combo.setForceSelection(true);
 		combo.setTriggerAction(TriggerAction.ALL);
 		combo.setValidator(new AppRoleGroupValidator());
 		combo.setEditable(false);
+		if (toolTip != null && toolTip.length() > 0)
+			combo.setToolTip(toolTip);
 		
 		for (int i = 0; i < values.length; i++) {
 			combo.add(values [i]);
@@ -607,12 +614,28 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 		this.panel = panel;
 	}
 
+	public int getAdditionalWidthPadding() {
+		return additionalWidthPadding;
+	}
+
+	public void setAdditionalWidthPadding(int additionalWidthPadding) {
+		this.additionalWidthPadding = additionalWidthPadding;
+	}
+
 	public String getAutoExpandColumn() {
 		return autoExpandColumn;
 	}
 
 	public void setAutoExpandColumn(String autoExpandColumn) {
 		this.autoExpandColumn = autoExpandColumn;
+	}
+
+	public boolean isGridButtonsAtBottom() {
+		return gridButtonsAtBottom;
+	}
+
+	public void setGridButtonsAtBottom(boolean gridButtonsAtBottom) {
+		this.gridButtonsAtBottom = gridButtonsAtBottom;
 	}
 
 	public int getForceHeight() {

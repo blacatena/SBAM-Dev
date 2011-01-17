@@ -27,16 +27,8 @@ public class DeleteReasonListServiceImpl extends AuthenticatedServiceServlet imp
 
 		List<DeleteReasonInstance> list = new ArrayList<DeleteReasonInstance>();
 		try {
-//			String authUserName = null;
-//			Authentication auth = ((Authentication) getServletContext().getAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE));
-//			if (auth != null)
-//				authUserName = auth.getUserName();
-//			if (auth == null || authUserName == null || authUserName.length() == 0)
-//				throw new Exception("No logged in user for whom to list users.");
-//			if (!auth.hasRoleName(SecurityManager.ROLE_ADMIN))
-//				throw new Exception("User is not privileged to list users.");
 			
-			//	Find only undeleted users
+			//	Find only undeleted delete reasons
 			List<DeleteReason> deleteReasons = DbDeleteReason.findFiltered(null, null, (char) 0, 'X');
 
 			for (DeleteReason deleteReason : deleteReasons) {

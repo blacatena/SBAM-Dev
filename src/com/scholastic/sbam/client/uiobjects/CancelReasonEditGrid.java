@@ -1,89 +1,104 @@
+/**
+ * 
+ */
 package com.scholastic.sbam.client.uiobjects;
 
-import com.extjs.gxt.ui.client.widget.Composite;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
-import com.extjs.gxt.ui.client.widget.grid.EditorGrid;
-import com.extjs.gxt.ui.client.data.BeanModel;
-import com.extjs.gxt.ui.client.event.ColumnModelEvent;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
-import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import java.util.List;
-import java.util.ArrayList;
+
+import com.extjs.gxt.ui.client.data.BeanModel;
+import com.extjs.gxt.ui.client.data.LoadConfig;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
-import com.extjs.gxt.ui.client.widget.layout.AnchorLayout;
-import com.extjs.gxt.ui.client.widget.layout.FillLayout;
-import com.extjs.gxt.ui.client.Style.Orientation;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.scholastic.sbam.client.services.CancelReasonCodeValidationService;
+import com.scholastic.sbam.client.services.CancelReasonCodeValidationServiceAsync;
+import com.scholastic.sbam.client.services.CancelReasonListService;
+import com.scholastic.sbam.client.services.CancelReasonListServiceAsync;
+import com.scholastic.sbam.client.services.UpdateCancelReasonService;
+import com.scholastic.sbam.client.services.UpdateCancelReasonServiceAsync;
+import com.scholastic.sbam.shared.objects.CancelReasonInstance;
+import com.scholastic.sbam.shared.objects.UpdateResponse;
+import com.scholastic.sbam.shared.validation.CodeValidator;
+import com.scholastic.sbam.shared.validation.NameValidator;
 
-public class CancelReasonEditGrid extends Composite {
+/**
+ * @author Bob Lacatena
+ *
+ */
+public class CancelReasonEditGrid extends BetterFilterEditGrid<CancelReasonInstance> {
 	
-	private EditorGrid<BeanModel> grid;
-	ContentPanel layoutContainer;
-
-	public CancelReasonEditGrid() {
-		
-		LayoutContainer layoutContainer = new LayoutContainer();
-		List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-		layoutContainer.setLayout(new FillLayout(Orientation.VERTICAL));
-		
-		ColumnConfig clmncnfgstColumn = new ColumnConfig("id", "1st Column", 60);
-		configs.add(clmncnfgstColumn);
-		
-		ColumnConfig clmncnfgndColumn = new ColumnConfig("id", "2nd Column", 200);
-		configs.add(clmncnfgndColumn);
-		
-		ColumnConfig clmncnfgrdColumn = new ColumnConfig("id", "3rd Column", 100);
-		configs.add(clmncnfgrdColumn);
-		
-		ColumnConfig clmncnfgthColumn = new ColumnConfig("id", "4th Column", 150);
-		configs.add(clmncnfgthColumn);
-		
-		grid = new EditorGrid<BeanModel>(new ListStore<BeanModel>(), new ColumnModel(configs));
-		layoutContainer.add(grid);
-//		grid.setWidth("81px");
-		grid.setWidth(grid.getColumnModel().getTotalWidth() + 20);
-		grid.setBorders(false);
-		
-//		grid.addListener(Events.ViewReady, new Listener<ComponentEvent>() {
-//		      public void handleEvent(ComponentEvent be) {
-////		        grid.getStore().addListener(Store.Add, new Listener<StoreEvent<Plant>>() {
-////		          public void handleEvent(StoreEvent<Plant> be) {
-////		            doAutoHeight();
-////		          }
-////		        });
-//		        doAutoHeight();
-//		      }
-//		    });
-//		grid.addListener(Events.ColumnResize, new Listener<ComponentEvent>() {
-//		      public void handleEvent(ComponentEvent be) {
-//		        doAutoHeight();
-//		      }
-//		    });
-//		grid.getColumnModel().addListener(Events.HiddenChange, new Listener<ColumnModelEvent>() {
-//		      public void handleEvent(ColumnModelEvent be) {
-//		        doAutoHeight();
-//		      }
-//		    });
-		
-		initComponent(layoutContainer);
-		layoutContainer.setBorders(false);
+	private final CancelReasonListServiceAsync cancelReasonListService = GWT.create(CancelReasonListService.class);
+	private final UpdateCancelReasonServiceAsync updateCancelReasonService = GWT.create(UpdateCancelReasonService.class);
+	private final CancelReasonCodeValidationServiceAsync cancelReasonCodeValidationService = GWT.create(CancelReasonCodeValidationService.class);
+	
+	@Override
+	public void onRender(Element parent, int index) {
+		setForceHeight(600);
+		setAdditionalWidthPadding(14);
+	//	setForceWidth(600);
+	//	setAutoExpandColumn("spacer");
+		setLayout(new CenterLayout());
+	//	setLayout(new FillLayout(Orientation.VERTICAL));
+		setPanelHeading("Cancel Reasons");
+		super.onRender(parent, index);
 	}
 
+	@Override
+	protected void asyncLoad(Object loadConfig, AsyncCallback<List<CancelReasonInstance>> callback) {
+		LoadConfig myLoadConfig = null;
+		if (loadConfig instanceof LoadConfig)
+			myLoadConfig = (LoadConfig) loadConfig;
+		cancelReasonListService.getCancelReasons(myLoadConfig, callback);
+	}
 
+	@Override
+	protected void addColumns(List<ColumnConfig> columns) {
+		columns.add(getEditColumn(			"cancelReasonCode", 	"Code", 			40,		"A unique code to identify the reason for a deletion.",		new CodeValidator(2), 		cancelReasonCodeValidationService));
+		columns.add(getEditColumn(			"description", 			"Description", 		200,	"A clear description of the reason for the deletion.",		new NameValidator(),		null));
+		columns.add(getEditCheckColumn(		"changeNotCancel",		"Change", 			50,		"Check if this represents a change (move) of service rather than a cancellation."));
+		columns.add(getEditCheckColumn(		"active",				"Active", 			50,		"Uncheck to deactivate a code value."));
+		columns.add(getDateColumn(			"createdDatetime",		"Created", 			75,		"The date that this row was created."));
+	}
 
-	  protected void doAutoHeight() {
-	    if (grid.isViewReady()) {
-	    	if (grid.getParent() != null) {
-	    		int rowHeight = grid.getView().getBody().firstChild() != null ? grid.getView().getBody().firstChild().getHeight() : 0;
-	    		grid.getParent().setHeight(((grid.getView().getBody().isScrollableX() ? 19 : 0) + grid.el().getFrameWidth("tb")
-		          + rowHeight + grid.getView().getBody().firstChild().getHeight()) + "px");
-	    	}
-	    }
-	  }
+	@Override
+	protected CancelReasonInstance getNewInstance() {
+		CancelReasonInstance cancelReason = new CancelReasonInstance();
+		cancelReason.setCancelReasonCode(null);
+		cancelReason.setDescription("");
+		cancelReason.setChangeNotCancel('n');
+		cancelReason.setStatus('A');
+		cancelReason.setActive(true);
+		return cancelReason;
+	}
+
+	@Override
+	protected void asyncUpdate(BeanModel beanModel) {
+		final BeanModel targetBeanModel = beanModel;
+	//	System.out.println("Before update: " + targetBeanModel.getProperties());
+		updateCancelReasonService.updateCancelReason((CancelReasonInstance) beanModel.getBean(),
+				new AsyncCallback<UpdateResponse<CancelReasonInstance>>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "Cancel reason update failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+					}
+
+					public void onSuccess(UpdateResponse<CancelReasonInstance> updateResponse) {
+						CancelReasonInstance updatedCancelReason = (CancelReasonInstance) updateResponse.getInstance();
+						// If this user is newly created, back-populate the id
+						if (targetBeanModel.get("createdDatetime") == null) {
+							targetBeanModel.set("createdDatetime", updatedCancelReason.getCreatedDatetime());
+						}
+				}
+			});
+	}
+
 }

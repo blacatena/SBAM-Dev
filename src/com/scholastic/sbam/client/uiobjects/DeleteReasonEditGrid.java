@@ -37,6 +37,7 @@ public class DeleteReasonEditGrid extends BetterFilterEditGrid<DeleteReasonInsta
 	@Override
 	public void onRender(Element parent, int index) {
 		setForceHeight(600);
+		setAdditionalWidthPadding(0);
 	//	setForceWidth(600);
 	//	setAutoExpandColumn("spacer");
 		setLayout(new CenterLayout());
@@ -57,8 +58,8 @@ public class DeleteReasonEditGrid extends BetterFilterEditGrid<DeleteReasonInsta
 	protected void addColumns(List<ColumnConfig> columns) {
 		columns.add(getEditColumn(			"deleteReasonCode", 	"Code", 			40,		"A unique code to identify the reason for a deletion.",		new CodeValidator(2), 		deleteReasonCodeValidationService));
 		columns.add(getEditColumn(			"description", 			"Description", 		200,	"A clear description of the reason for the deletion.",		new NameValidator(),		null));
-		columns.add(getEditCheckColumn(		"active",				"Active", 			100,	"Uncheck to deactivate a code value."));
-		columns.add(getDateColumn(			"createdDatetime",		"Created", 			75));
+		columns.add(getEditCheckColumn(		"active",				"Active", 			50,		"Uncheck to deactivate a code value."));
+		columns.add(getDateColumn(			"createdDatetime",		"Created", 			75,		"The date that this row was created."));
 	}
 
 	@Override
@@ -82,7 +83,7 @@ public class DeleteReasonEditGrid extends BetterFilterEditGrid<DeleteReasonInsta
 						if (caught instanceof IllegalArgumentException)
 							MessageBox.alert("Alert", caught.getMessage(), null);
 						else {
-							MessageBox.alert("Alert", "User update failed unexpectedly.", null);
+							MessageBox.alert("Alert", "Delete reason update failed unexpectedly.", null);
 							System.out.println(caught.getClass().getName());
 							System.out.println(caught.getMessage());
 						}
@@ -91,12 +92,11 @@ public class DeleteReasonEditGrid extends BetterFilterEditGrid<DeleteReasonInsta
 					public void onSuccess(UpdateResponse<DeleteReasonInstance> updateResponse) {
 						DeleteReasonInstance updatedDeleteReason = (DeleteReasonInstance) updateResponse.getInstance();
 						// If this user is newly created, back-populate the id
-						if (targetBeanModel.get("createdDattime") == null) {
-							targetBeanModel.set("createdDattime", updatedDeleteReason.getCreatedDatetime());
+						if (targetBeanModel.get("createdDatetime") == null) {
+							targetBeanModel.set("createdDatetime", updatedDeleteReason.getCreatedDatetime());
 						}
 				}
 			});
-		targetBeanModel.set("resetPassword", false);
 	}
 
 }

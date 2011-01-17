@@ -95,14 +95,14 @@ public abstract class BetterFilterEditGrid<I extends BetterRowEditInstance> exte
 		return getColumn(name, header, width, null);
 	}
 	
-	protected ColumnConfig getDateColumn(String name, String header, int width) {
+	protected ColumnConfig getDateColumn(String name, String header, int width, String toolTip) {
 		addFilter(name, FilterType.DATE);
-		return super.getDateColumn(name, header, width);
+		return super.getDateColumn(name, header, width, toolTip);
 	}
 
-	protected ColumnConfig getDateColumn(String name, String header, int width, DateTimeFormat format) {
+	protected ColumnConfig getDateColumn(String name, String header, int width, String toolTip, DateTimeFormat format) {
 		addFilter(name, FilterType.DATE);
-		return super.getDateColumn(name, header, width, format);
+		return super.getDateColumn(name, header, width, toolTip, format);
 	}
 	
 	protected ColumnConfig getColumn(String name, String header, int width, String toolTip) {
@@ -135,9 +135,9 @@ public abstract class BetterFilterEditGrid<I extends BetterRowEditInstance> exte
 		return super.getEditCheckColumn(name, header, width, toolTip);
 	}
 	
-	protected ColumnConfig getComboColumn(String name, String header, int width, String [] values) {
+	protected ColumnConfig getComboColumn(String name, String header, int width, String [] values, String toolTip) {
 		addFilter(name, FilterType.CHOICE, values);
-		return super.getComboColumn(name, header, width, values);
+		return super.getComboColumn(name, header, width, values, toolTip);
 	}
 	
 	protected void addFilter(String name, FilterType type) {

@@ -57,6 +57,21 @@
   </servlet>
   
   <servlet>
+    <servlet-name>cancelReasonListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.CancelReasonListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updateCancelReasonServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateCancelReasonServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>cancelReasonCodeValidationServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.CancelReasonCodeValidationServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>deleteReasonListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.DeleteReasonListServiceImpl</servlet-class>
   </servlet>
@@ -109,6 +124,21 @@
   <servlet-mapping>
     <servlet-name>userNameValidationServlet</servlet-name>
     <url-pattern>/sbam/validateUserName</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>cancelReasonListServlet</servlet-name>
+    <url-pattern>/sbam/getCancelReasons</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateCancelReasonServlet</servlet-name>
+    <url-pattern>/sbam/updateCancelReason</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>cancelReasonCodeValidationServlet</servlet-name>
+    <url-pattern>/sbam/validateCancelReasonCode</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

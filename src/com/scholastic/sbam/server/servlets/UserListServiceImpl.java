@@ -28,14 +28,6 @@ public class UserListServiceImpl extends AuthenticatedServiceServlet implements 
 
 		List<UserInstance> list = new ArrayList<UserInstance>();
 		try {
-//			String authUserName = null;
-//			Authentication auth = ((Authentication) getServletContext().getAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE));
-//			if (auth != null)
-//				authUserName = auth.getUserName();
-//			if (auth == null || authUserName == null || authUserName.length() == 0)
-//				throw new Exception("No logged in user for whom to list users.");
-//			if (!auth.hasRoleName(SecurityManager.ROLE_ADMIN))
-//				throw new Exception("User is not privileged to list users.");
 			
 			//	Find only undeleted users
 			List<User> users = DbUser.findFiltered(userName, firstName, lastName, email, 'X');

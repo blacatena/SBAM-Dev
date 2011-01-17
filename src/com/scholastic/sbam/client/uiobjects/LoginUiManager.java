@@ -165,6 +165,8 @@ public class LoginUiManager {
 					if (theApp != null)
 						theApp.setLoggedOut();
 					loginBox.status.clearStatus("");
+					loginBox.userName.clearInvalid();
+					loginBox.password.clearInvalid();
 				//	loginBox.el().fadeIn(FxConfig.NONE);
 					loginBox.show();
 				}
