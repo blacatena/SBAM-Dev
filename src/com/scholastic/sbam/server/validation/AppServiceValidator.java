@@ -42,14 +42,14 @@ public class AppServiceValidator {
 			return messages;
 		
 		if (value == null || value.length() == 0) {
-			addMessage("A cancel reason code is required.");
+			addMessage("A service code is required.");
 			return messages;
 		}
 		
 		addMessage((new CodeValidator(2)).validate(value));
 		
 		if (!cancelReason.getServiceCode().equals(value))
-			addMessage("Cancel reason code cannot be changed.");
+			addMessage("Service code cannot be changed.");
 		
 		return messages;
 	}
@@ -59,7 +59,7 @@ public class AppServiceValidator {
 		if (value != null && value.length() > 0) {
 			Service conflict = DbService.getByCode(value);
 			if (conflict != null) {
-				addMessage("Cancel reason code already exists.");
+				addMessage("Service code already exists.");
 			}
 		}
 		return messages;
@@ -96,7 +96,7 @@ public class AppServiceValidator {
 		if (cancelReason == null) {
 			cancelReason = DbService.getByCode(original.getServiceCode());
 			if (cancelReason == null) {
-				addMessage("Unexpected Error: Original cancel reason not found in database.");
+				addMessage("Unexpected Error: Original service code not found in database.");
 				return false;
 			}
 		}

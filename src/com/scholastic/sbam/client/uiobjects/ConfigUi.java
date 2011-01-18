@@ -23,6 +23,7 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 	private DeleteReasonEditGrid	deleteReasonEditGrid;
 	private CancelReasonEditGrid	cancelReasonEditGrid;
 	private ServiceEditGrid 		serviceEditGrid;
+	private TermTypeEditGrid 		termTypeEditGrid;
 	 
 	public ConfigUi() {
 //		VerticalPanel vp = new VerticalPanel();  
@@ -55,6 +56,9 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		serviceEditGrid = new ServiceEditGrid();
 		tbtmServices.add(serviceEditGrid);
 		
+		termTypeEditGrid = new TermTypeEditGrid();
+		tbtmTermTypes.add(termTypeEditGrid);
+		
 		initComponent(advanced);
 	}
 	
@@ -73,10 +77,12 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 			tbtmDeleteReasons.enable();
 			tbtmCancelReasons.enable();
 			tbtmServices.enable();
+			tbtmTermTypes.enable();
 		} else {
 			tbtmDeleteReasons.disable();
 			tbtmCancelReasons.disable();
 			tbtmServices.disable();
+			tbtmTermTypes.disable();
 		}
 	}
 	
@@ -84,6 +90,7 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		deleteReasonEditGrid.sleep();
 		cancelReasonEditGrid.sleep();
 		serviceEditGrid.sleep();
+		termTypeEditGrid.sleep();
 	}
 	
 	public void awaken() {
@@ -93,6 +100,8 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 			cancelReasonEditGrid.awaken();
 		} else if (advanced.getSelectedItem() == tbtmServices) {
 			serviceEditGrid.awaken();
+		} else if (advanced.getSelectedItem() == tbtmTermTypes) {
+			termTypeEditGrid.awaken();
 		}
 	}
 

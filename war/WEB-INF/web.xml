@@ -101,6 +101,21 @@
     <servlet-class>com.scholastic.sbam.server.servlets.ServiceCodeValidationServiceImpl</servlet-class>
   </servlet>
   
+  <servlet>
+    <servlet-name>termTypeListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.TermTypeListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updateTermTypeServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateTermTypeServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>termTypeCodeValidationServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.TermTypeCodeValidationServiceImpl</servlet-class>
+  </servlet>
+  
   <servlet-mapping>
     <servlet-name>authenticateServlet</servlet-name>
     <url-pattern>/sbam/authenticate</url-pattern>
@@ -184,6 +199,21 @@
   <servlet-mapping>
     <servlet-name>serviceCodeValidationServlet</servlet-name>
     <url-pattern>/sbam/validateServiceCode</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>termTypeListServlet</servlet-name>
+    <url-pattern>/sbam/getTermTypes</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateTermTypeServlet</servlet-name>
+    <url-pattern>/sbam/updateTermType</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>termTypeCodeValidationServlet</servlet-name>
+    <url-pattern>/sbam/validateTermTypeCode</url-pattern>
   </servlet-mapping>
   
   
