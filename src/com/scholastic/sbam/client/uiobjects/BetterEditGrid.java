@@ -82,6 +82,10 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	 */
 	protected String				newButtonLabel		= "New";
 	/**
+	 * The label for the button to be used to refresh the grid data (if null or zero length string, then no refresh button will be available).
+	 */
+	protected String				refreshButtonLabel		= null;
+	/**
 	 * Should grid buttons (New, Refresh) be placed at the top or bottom of the layout.
 	 */
 	protected boolean				gridButtonsAtBottom	= false;
@@ -221,6 +225,11 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
         });	
 	}
 	
+	protected void refreshGridData() {
+		store.removeAll();
+		getLoader().load();
+	}
+	
 	protected ColumnModel getColumnModel() {  
 		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
 		addColumns(columns);
@@ -311,11 +320,32 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 		 
 		});
 		
+		Button refreshButton = null;
+		if (refreshButtonLabel != null && refreshButtonLabel.length() > 0) {
+			refreshButton = new Button(refreshButtonLabel);
+			refreshButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+				   
+				@Override
+				public void componentSelected(ButtonEvent ce) {
+					refreshGridData();
+				}  
+			 
+			});
+		}
+		
 		panel.setButtonAlign(HorizontalAlignment.CENTER);
 		
-		if (!gridButtonsAtBottom) panel.addButton(newButton);
+		if (!gridButtonsAtBottom) {
+			panel.addButton(newButton);
+			if (refreshButton != null) panel.addButton(refreshButton);
+		}
+		
 		panel.add(grid);
-		if (gridButtonsAtBottom) panel.addButton(newButton);
+		
+		if (gridButtonsAtBottom) {
+			panel.addButton(newButton);
+			if (refreshButton != null) panel.addButton(refreshButton);
+		}
 	}
 	
 	/**
@@ -671,6 +701,14 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 
 	public void setForceWidth(int forceWidth) {
 		this.forceWidth = forceWidth;
+	}
+
+	public String getRefreshButtonLabel() {
+		return refreshButtonLabel;
+	}
+
+	public void setRefreshButtonLabel(String refreshButtonLabel) {
+		this.refreshButtonLabel = refreshButtonLabel;
 	}
 
 	public String getNewButtonLabel() {

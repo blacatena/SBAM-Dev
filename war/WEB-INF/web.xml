@@ -87,6 +87,21 @@
   </servlet>
   
   <servlet>
+    <servlet-name>preferenceCategoryListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.PreferenceCategoryListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updatePreferenceCategoryServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdatePreferenceCategoryServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>prefCatCodeValidationServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.PrefCatCodeValidationServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>serviceListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.ServiceListServiceImpl</servlet-class>
   </servlet>
@@ -184,6 +199,21 @@
   <servlet-mapping>
     <servlet-name>deleteReasonCodeValidationServlet</servlet-name>
     <url-pattern>/sbam/validateDeleteReasonCode</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>preferenceCategoryListServlet</servlet-name>
+    <url-pattern>/sbam/getPreferenceCategories</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updatePreferenceCategoryServlet</servlet-name>
+    <url-pattern>/sbam/updatePreferenceCategory</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>prefCatCodeValidationServlet</servlet-name>
+    <url-pattern>/sbam/validatePrefCatCode</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

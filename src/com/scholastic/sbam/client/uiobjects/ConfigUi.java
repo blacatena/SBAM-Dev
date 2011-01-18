@@ -20,10 +20,11 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 	private TabItem  tbtmDeleteReasons;
 	private TabItem  tbtmCancelReasons;
 	
-	private DeleteReasonEditGrid	deleteReasonEditGrid;
-	private CancelReasonEditGrid	cancelReasonEditGrid;
-	private ServiceEditGrid 		serviceEditGrid;
-	private TermTypeEditGrid 		termTypeEditGrid;
+	private DeleteReasonEditGrid		deleteReasonEditGrid;
+	private CancelReasonEditGrid		cancelReasonEditGrid;
+	private ServiceEditGrid 			serviceEditGrid;
+	private TermTypeEditGrid 			termTypeEditGrid;
+	private PreferenceCategoryEditGrid 	preferenceCategoryEditGrid;
 	 
 	public ConfigUi() {
 //		VerticalPanel vp = new VerticalPanel();  
@@ -58,6 +59,9 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		
 		termTypeEditGrid = new TermTypeEditGrid();
 		tbtmTermTypes.add(termTypeEditGrid);
+		
+		preferenceCategoryEditGrid = new PreferenceCategoryEditGrid();
+		tbtmPreferences.add(preferenceCategoryEditGrid);
 		
 		initComponent(advanced);
 	}

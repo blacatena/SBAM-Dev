@@ -56,8 +56,8 @@ public class CancelReasonEditGrid extends BetterFilterEditGrid<CancelReasonInsta
 
 	@Override
 	protected void addColumns(List<ColumnConfig> columns) {
-		columns.add(getEditColumn(			"cancelReasonCode", 	"Code", 			40,		"A unique code to identify the reason for a deletion.",		new CodeValidator(2), 		cancelReasonCodeValidationService));
-		columns.add(getEditColumn(			"description", 			"Description", 		200,	"A clear description of the reason for the deletion.",		new NameValidator(),		null));
+		columns.add(getEditColumn(			"cancelReasonCode", 	"Code", 			40,		"A unique code to identify the reason for a cancellation.",		new CodeValidator(2), 		cancelReasonCodeValidationService));
+		columns.add(getEditColumn(			"description", 			"Description", 		200,	"A clear description of the reason for the cancellation.",		new NameValidator(),		null));
 		columns.add(getEditCheckColumn(		"changeNotCancel",		"Change", 			50,		"Check if this represents a change (move) of service rather than a cancellation."));
 		columns.add(getEditCheckColumn(		"active",				"Active", 			50,		"Uncheck to deactivate a code value."));
 		columns.add(getDateColumn(			"createdDatetime",		"Created", 			75,		"The date that this row was created."));
