@@ -94,10 +94,6 @@ public class UpdateCancelReasonServiceImpl extends AuthenticatedServiceServlet i
 	}
 	
 	private void validateInput(CancelReasonInstance instance) throws IllegalArgumentException {
-//		testMessage(new AppUserNameValidator().validate(instance.getUserName()));
-//	//	testMessage(new AppPasswordValidator().validate(instance.getPassword()));
-//		testMessage(new EmailValidator().validate(instance.getEmail()));
-//		testMessage(new AppRoleGroupValidator().validate(instance.getRoleGroupTitle()));
 		AppCancelReasonValidator validator = new AppCancelReasonValidator();
 		validator.setOriginal(instance);	//	This isn't really the original, but it's good enough, because it has the original ID
 		testMessages(validator.validateCancelReason(instance));

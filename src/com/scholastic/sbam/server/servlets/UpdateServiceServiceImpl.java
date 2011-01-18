@@ -3,33 +3,33 @@ package com.scholastic.sbam.server.servlets;
 import java.util.Date;
 import java.util.List;
 
-import com.scholastic.sbam.client.services.UpdateDeleteReasonService;
-import com.scholastic.sbam.server.database.codegen.DeleteReason;
-import com.scholastic.sbam.server.database.objects.DbDeleteReason;
+import com.scholastic.sbam.client.services.UpdateServiceService;
+import com.scholastic.sbam.server.database.codegen.Service;
+import com.scholastic.sbam.server.database.objects.DbService;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
-import com.scholastic.sbam.server.validation.AppDeleteReasonValidator;
+import com.scholastic.sbam.server.validation.AppServiceValidator;
 import com.scholastic.sbam.shared.objects.Authentication;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
-import com.scholastic.sbam.shared.objects.DeleteReasonInstance;
+import com.scholastic.sbam.shared.objects.ServiceInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
 
 /**
  * The server side implementation of the RPC service.
  */
 @SuppressWarnings("serial")
-public class UpdateDeleteReasonServiceImpl extends AuthenticatedServiceServlet implements UpdateDeleteReasonService {
+public class UpdateServiceServiceImpl extends AuthenticatedServiceServlet implements UpdateServiceService {
 
 	@Override
-	public UpdateResponse<DeleteReasonInstance> updateDeleteReason(DeleteReasonInstance instance) throws IllegalArgumentException {
+	public UpdateResponse<ServiceInstance> updateService(ServiceInstance instance) throws IllegalArgumentException {
 		
 		boolean newCreated				= false;
 		
 		String	messages				= null;
 		
-		DeleteReason dbInstance = null;
+		Service dbInstance = null;
 		
 		@SuppressWarnings("unused")
-		Authentication auth = authenticate("update delete reasons", SecurityManager.ROLE_CONFIG);	// May later be used for logging activity
+		Authentication auth = authenticate("update cancel reasons", SecurityManager.ROLE_CONFIG);	// May later be used for logging activity
 		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();
@@ -40,33 +40,41 @@ public class UpdateDeleteReasonServiceImpl extends AuthenticatedServiceServlet i
 			validateInput(instance);
 			
 			//	Get existing, or create new
-			if (instance.getDeleteReasonCode() != null) {
-				dbInstance = DbDeleteReason.getByCode(instance.getDeleteReasonCode());
+			if (instance.getServiceCode() != null) {
+				dbInstance = DbService.getByCode(instance.getServiceCode());
 			}
 
 			//	If none found, create new
 			if (dbInstance == null) {
 				newCreated = true;
-				dbInstance = new DeleteReason();
+				dbInstance = new Service();
 				//	Set the create date/time
 				dbInstance.setCreatedDatetime(new Date());
 				dbInstance.setStatus('I');
 			}
 
 			//	Update values
-			if (instance.getDeleteReasonCode() != null)
-				dbInstance.setDeleteReasonCode(instance.getDeleteReasonCode());
+			if (instance.getServiceCode() != null)
+				dbInstance.setServiceCode(instance.getServiceCode());
+			if (instance.getDescription() != null)
+				dbInstance.setDescription(instance.getDescription());
+			if (instance.getExportValue() != null)
+				dbInstance.setExportValue(instance.getExportValue());
+			if (instance.getExportFile() != null)
+				dbInstance.setExportFile(instance.getExportFile());
 			if (instance.getDescription() != null)
 				dbInstance.setDescription(instance.getDescription());
 			if (instance.getStatus() != 0 && instance.getStatus() != dbInstance.getStatus())
 				dbInstance.setStatus(instance.getStatus());
+			if (instance.getServiceType() != dbInstance.getServiceType())
+				dbInstance.setServiceType(instance.getServiceType());
 			
 			//	Persist in database
-			DbDeleteReason.persist(dbInstance);
+			DbService.persist(dbInstance);
 			
 			//	Refresh when new row is created, to get assigend ID
 			if (newCreated) {
-				DbDeleteReason.refresh(dbInstance);	// This may not be necessary, but just in case
+				DbService.refresh(dbInstance);	// This may not be necessary, but just in case
 			//	instance.setId(dbInstance.getId());	// Not autoincrement, so not needed
 				instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
 			}
@@ -84,13 +92,13 @@ public class UpdateDeleteReasonServiceImpl extends AuthenticatedServiceServlet i
 			HibernateUtil.closeSession();
 		}
 		
-		return new UpdateResponse<DeleteReasonInstance>(instance, messages);
+		return new UpdateResponse<ServiceInstance>(instance, messages);
 	}
 	
-	private void validateInput(DeleteReasonInstance instance) throws IllegalArgumentException {
-		AppDeleteReasonValidator validator = new AppDeleteReasonValidator();
+	private void validateInput(ServiceInstance instance) throws IllegalArgumentException {
+		AppServiceValidator validator = new AppServiceValidator();
 		validator.setOriginal(instance);	//	This isn't really the original, but it's good enough, because it has the original ID
-		testMessages(validator.validateDeleteReason(instance));
+		testMessages(validator.validateService(instance));
 	}
 	
 	private void testMessages(List<String> messages) throws IllegalArgumentException {

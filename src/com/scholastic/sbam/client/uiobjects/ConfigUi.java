@@ -3,7 +3,6 @@ package com.scholastic.sbam.client.uiobjects;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.Composite;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
@@ -21,8 +20,9 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 	private TabItem  tbtmDeleteReasons;
 	private TabItem  tbtmCancelReasons;
 	
-	private DeleteReasonEditGrid deleteReasonEditGrid;
-	private CancelReasonEditGrid cancelReasonEditGrid;
+	private DeleteReasonEditGrid	deleteReasonEditGrid;
+	private CancelReasonEditGrid	cancelReasonEditGrid;
+	private ServiceEditGrid 		serviceEditGrid;
 	 
 	public ConfigUi() {
 //		VerticalPanel vp = new VerticalPanel();  
@@ -47,16 +47,13 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		tbtmCancelReasons	=	addTab("Cancel Reasons");
 		
 		deleteReasonEditGrid = new DeleteReasonEditGrid();
-		
-//		LayoutContainer container = new LayoutContainer();
-//		container.setLayout(new FitLayout());
-//		container.add(deleteReasonEditGrid);
-//		tbtmDeleteReasons.add(container);
-		
 		tbtmDeleteReasons.add(deleteReasonEditGrid);
 		
 		cancelReasonEditGrid = new CancelReasonEditGrid();
 		tbtmCancelReasons.add(cancelReasonEditGrid);
+		
+		serviceEditGrid = new ServiceEditGrid();
+		tbtmServices.add(serviceEditGrid);
 		
 		initComponent(advanced);
 	}
@@ -75,15 +72,18 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		if (roleNames.contains(SecurityManager.ROLE_CONFIG)) {
 			tbtmDeleteReasons.enable();
 			tbtmCancelReasons.enable();
+			tbtmServices.enable();
 		} else {
 			tbtmDeleteReasons.disable();
 			tbtmCancelReasons.disable();
+			tbtmServices.disable();
 		}
 	}
 	
 	public void sleep() {
 		deleteReasonEditGrid.sleep();
 		cancelReasonEditGrid.sleep();
+		serviceEditGrid.sleep();
 	}
 	
 	public void awaken() {
@@ -91,6 +91,8 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 			deleteReasonEditGrid.awaken();
 		} else if (advanced.getSelectedItem() == tbtmCancelReasons) {
 			cancelReasonEditGrid.awaken();
+		} else if (advanced.getSelectedItem() == tbtmServices) {
+			serviceEditGrid.awaken();
 		}
 	}
 

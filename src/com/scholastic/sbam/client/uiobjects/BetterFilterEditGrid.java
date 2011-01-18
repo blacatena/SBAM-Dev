@@ -3,11 +3,15 @@ package com.scholastic.sbam.client.uiobjects;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.Validator;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.filters.BooleanFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.DateFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
+import com.extjs.gxt.ui.client.widget.grid.filters.ListFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.NumericFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
 import com.google.gwt.i18n.client.DateTimeFormat;
@@ -34,7 +38,8 @@ public abstract class BetterFilterEditGrid<I extends BetterRowEditInstance> exte
 	
 	private SortedMap<String, FilterType>	filterTypes = new TreeMap<String, FilterType>();
 	private SortedMap<String, String []>	filterValues = new TreeMap<String, String []>();
-	
+
+	@Override
 	public void onRender(Element parent, int index) {
 		super.onRender(parent, index);
 	}
@@ -63,12 +68,16 @@ public abstract class BetterFilterEditGrid<I extends BetterRowEditInstance> exte
 				case BOOLEAN:	filters.addFilter(new BooleanFilter(name));
 								break;
 				case CHOICE:	if (filterValues != null && filterValues.containsKey(name)) {
-//									String [] values = filterValues.get(name);
-//									ListStore<ModelData> choiceStore = new ListStore<ModelData>();
-//									for (int i = 0; i < values.length; i++)
-//										typeStore.add(new StringInstance(whatever [i]));
-//									ListFilter listFilter = new ListFilter(name, choiceStore);  
-//									listFilter.setDisplayProperty("stringValue");
+									String [] values = filterValues.get(name);
+									ListStore<ModelData> choiceStore = new ListStore<ModelData>();
+									for (int i = 0; i < values.length; i++) {
+										ModelData model = new BaseModelData();  
+										model.set(name, values [i]); 
+										choiceStore.add(model);
+									}
+									ListFilter listFilter = new ListFilter(name, choiceStore);  
+									listFilter.setDisplayProperty(name);
+									filters.addFilter(listFilter);
 								}
 								break;
 			}
@@ -90,65 +99,82 @@ public abstract class BetterFilterEditGrid<I extends BetterRowEditInstance> exte
 	protected void adjustFilters() {
 		
 	}
-	
+
+	@Override
 	protected ColumnConfig getColumn(String name, String header, int width) {
-		return getColumn(name, header, width, null);
+		addFilter(name, FilterType.STRING);
+		return super.getColumn(name, header, width, null);
 	}
-	
+
+	@Override
 	protected ColumnConfig getDateColumn(String name, String header, int width, String toolTip) {
 		addFilter(name, FilterType.DATE);
 		return super.getDateColumn(name, header, width, toolTip);
 	}
 
+	@Override
 	protected ColumnConfig getDateColumn(String name, String header, int width, String toolTip, DateTimeFormat format) {
 		addFilter(name, FilterType.DATE);
 		return super.getDateColumn(name, header, width, toolTip, format);
 	}
-	
+
+	@Override
 	protected ColumnConfig getColumn(String name, String header, int width, String toolTip) {
 		addFilter(name, FilterType.STRING);
 		return super.getColumn(name, header, width, toolTip);
 	}
-	
+
+	@Override
 	protected ColumnConfig getEditColumn(String name, String header, int width) {
 		addFilter(name, FilterType.STRING);
 		return super.getEditColumn(name, header, width);
 	}
 
+	@Override
 	protected ColumnConfig getEditColumn(String name, String header, int width, String toolTip) {
 		addFilter(name, FilterType.STRING);
 		return super.getEditColumn(name, header, width, toolTip);
 	}
-	
+
+	@Override
 	protected ColumnConfig getEditColumn(String name, String header, int width, String toolTip, Validator validator, FieldValidationServiceAsync validationService) {
 		addFilter(name, FilterType.STRING);
 		return super.getEditColumn(name, header, width, toolTip, validator, validationService);
 	}
 
+	@Override
 	protected ColumnConfig getEditDateColumn(String name, String header, int width, String toolTip, Validator validator) {
 		addFilter(name, FilterType.DATE);
 		return super.getEditDateColumn(name, header, width, toolTip, validator);
 	}
-	
+
+	@Override
 	protected ColumnConfig getEditCheckColumn(String name, String header, int width, String toolTip) {
 		addFilter(name, FilterType.BOOLEAN);
 		return super.getEditCheckColumn(name, header, width, toolTip);
 	}
 	
-	protected ColumnConfig getComboColumn(String name, String header, int width, String [] values, String toolTip) {
+	@Override
+	protected ColumnConfig getComboColumn(String name, String header, int width, String toolTip, String [] values) {
 		addFilter(name, FilterType.CHOICE, values);
-		return super.getComboColumn(name, header, width, values, toolTip);
+		return super.getComboColumn(name, header, width, toolTip, values);
+	}
+	
+	@Override
+	protected ColumnConfig getComboColumn(String name, String header, int width, String toolTip, String [] values, Validator validator) {
+		addFilter(name, FilterType.CHOICE, values);
+		return super.getComboColumn(name, header, width, toolTip, values, validator);
 	}
 	
 	protected void addFilter(String name, FilterType type) {
-		addFilter(name, type, null);
+		if (filterTypes != null && !filterTypes.containsKey(name)) {
+			filterTypes.put(name, type);
+		}
 	}
 
 	protected void addFilter(String name, FilterType type, String [] values) {
-		if (filterTypes != null) {
-			filterTypes.put(name, type);
-			if (filterValues != null)
-				filterValues.put(name, values);
-		}
+		addFilter(name, type);
+		if (filterValues != null)
+			filterValues.put(name, values);
 	}
 }

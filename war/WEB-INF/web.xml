@@ -86,6 +86,21 @@
     <servlet-class>com.scholastic.sbam.server.servlets.DeleteReasonCodeValidationServiceImpl</servlet-class>
   </servlet>
   
+  <servlet>
+    <servlet-name>serviceListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.ServiceListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updateServiceServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateServiceServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>serviceCodeValidationServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.ServiceCodeValidationServiceImpl</servlet-class>
+  </servlet>
+  
   <servlet-mapping>
     <servlet-name>authenticateServlet</servlet-name>
     <url-pattern>/sbam/authenticate</url-pattern>
@@ -154,6 +169,21 @@
   <servlet-mapping>
     <servlet-name>deleteReasonCodeValidationServlet</servlet-name>
     <url-pattern>/sbam/validateDeleteReasonCode</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>serviceListServlet</servlet-name>
+    <url-pattern>/sbam/getServices</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateServiceServlet</servlet-name>
+    <url-pattern>/sbam/updateService</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>serviceCodeValidationServlet</servlet-name>
+    <url-pattern>/sbam/validateServiceCode</url-pattern>
   </servlet-mapping>
   
   

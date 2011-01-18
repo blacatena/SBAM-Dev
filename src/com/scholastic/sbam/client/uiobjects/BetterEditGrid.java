@@ -45,7 +45,6 @@ import com.scholastic.sbam.client.services.FieldValidationServiceAsync;
 import com.scholastic.sbam.client.validation.AsyncTextField;
 import com.scholastic.sbam.shared.objects.BetterRowEditInstance;
 import com.scholastic.sbam.shared.util.AppConstants;
-import com.scholastic.sbam.shared.validation.AppRoleGroupValidator;
 
 public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends LayoutContainer implements AppSleeper {
 	
@@ -537,15 +536,33 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	 *  The list of valid values for the column.
 	 * @return
 	 */
-	protected ColumnConfig getComboColumn(String name, String header, int width, String [] values, String toolTip) {
+	protected ColumnConfig getComboColumn(String name, String header, int width, String toolTip, String [] values) {
+		return getComboColumn(name, header, width, toolTip, values, null);
+	}
+	
+	/**
+	 * Utility method to create a combo box column.
+	 * @param name
+	 *  The name of the column.
+	 * @param header
+	 *  The header for the column.
+	 * @param width
+	 *  The width of the column.
+	 * @param values
+	 *  The list of valid values for the column.
+	 * @param validator
+	 *  The validator to use for these values.
+	 * @return
+	 */
+	protected ColumnConfig getComboColumn(String name, String header, int width, String toolTip, String [] values, Validator validator) {
 		
 		final SimpleComboBox<String> combo = new SimpleComboBox<String>();
 		combo.setForceSelection(true);
+		combo.disableTextSelection(false);
 		combo.setTriggerAction(TriggerAction.ALL);
-		combo.setValidator(new AppRoleGroupValidator());
+		if (validator != null)
+			combo.setValidator(validator);
 		combo.setEditable(false);
-		if (toolTip != null && toolTip.length() > 0)
-			combo.setToolTip(toolTip);
 		
 		for (int i = 0; i < values.length; i++) {
 			combo.add(values [i]);
@@ -574,6 +591,8 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 		column.setHeader(header);
 		column.setWidth(width);
 		column.setEditor(editor);
+		if (toolTip != null && toolTip.length() > 0)
+			column.setToolTip(toolTip);
 	
 		return column; 
 	}
