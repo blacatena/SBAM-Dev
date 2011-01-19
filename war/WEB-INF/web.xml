@@ -102,6 +102,21 @@
   </servlet>
   
   <servlet>
+    <servlet-name>preferenceCodeListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.PreferenceCodeListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updatePreferenceCodeServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdatePreferenceCodeServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>prefCodeSelCodeValidationServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.PrefCodeSelCodeValidationServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>serviceListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.ServiceListServiceImpl</servlet-class>
   </servlet>
@@ -214,6 +229,21 @@
   <servlet-mapping>
     <servlet-name>prefCatCodeValidationServlet</servlet-name>
     <url-pattern>/sbam/validatePrefCatCode</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>preferenceCodeListServlet</servlet-name>
+    <url-pattern>/sbam/getPreferenceCodees</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updatePreferenceCodeServlet</servlet-name>
+    <url-pattern>/sbam/updatePreferenceCode</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>prefCodeSelCodeValidationServlet</servlet-name>
+    <url-pattern>/sbam/validatePrefCodeSelCode</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

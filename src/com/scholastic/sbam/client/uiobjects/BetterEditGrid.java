@@ -84,11 +84,11 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	/**
 	 * The label for the button to be used to refresh the grid data (if null or zero length string, then no refresh button will be available).
 	 */
-	protected String				refreshButtonLabel		= null;
+	protected String				refreshButtonLabel		= "Refresh";
 	/**
 	 * Should grid buttons (New, Refresh) be placed at the top or bottom of the layout.
 	 */
-	protected boolean				gridButtonsAtBottom	= false;
+	protected boolean				gridButtonsAtBottom	= true;
 	
 	public BetterEditGrid() {
 		super();
@@ -225,9 +225,8 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
         });	
 	}
 	
-	protected void refreshGridData() {
-		store.removeAll();
-		getLoader().load();
+	public void refreshGridData() {
+		store.getLoader().load();
 	}
 	
 	protected ColumnModel getColumnModel() {  
