@@ -24,6 +24,10 @@ public class DbTermType extends HibernateAccessor {
 		return (TermType) getByField(objectName, "termTypeCode", code, "description");
 	}
 	
+	public static TermType getByCode(char code) {
+		return (TermType) getByField(objectName, "termTypeCode", code + "", "description");
+	}
+	
 	public static List<TermType> findAll() {
 		List<Object> results = findAll(objectName);
 		List<TermType> reasons = new ArrayList<TermType>();

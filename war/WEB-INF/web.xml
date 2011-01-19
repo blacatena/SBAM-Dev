@@ -117,6 +117,21 @@
   </servlet>
   
   <servlet>
+    <servlet-name>productListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.ProductListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updateProductServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateProductServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>productCodeValidationServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.ProductCodeValidationServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>serviceListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.ServiceListServiceImpl</servlet-class>
   </servlet>
@@ -244,6 +259,21 @@
   <servlet-mapping>
     <servlet-name>prefCodeSelCodeValidationServlet</servlet-name>
     <url-pattern>/sbam/validatePrefCodeSelCode</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>productListServlet</servlet-name>
+    <url-pattern>/sbam/getProducts</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateProductServlet</servlet-name>
+    <url-pattern>/sbam/updateProduct</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>productCodeValidationServlet</servlet-name>
+    <url-pattern>/sbam/validateProductCode</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

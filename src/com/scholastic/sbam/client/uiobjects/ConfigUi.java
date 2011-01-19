@@ -25,6 +25,7 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 	private ServiceEditGrid 			serviceEditGrid;
 	private TermTypeEditGrid 			termTypeEditGrid;
 	private PreferenceCategoryEditGrid 	preferenceCategoryEditGrid;
+	private ProductEditGrid 			productEditGrid;
 	 
 	public ConfigUi() {
 //		VerticalPanel vp = new VerticalPanel();  
@@ -63,6 +64,9 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		preferenceCategoryEditGrid = new PreferenceCategoryEditGrid();
 		tbtmPreferences.add(preferenceCategoryEditGrid);
 		
+		productEditGrid = new ProductEditGrid();
+		tbtmProducts.add(productEditGrid);
+		
 		initComponent(advanced);
 	}
 	
@@ -82,11 +86,15 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 			tbtmCancelReasons.enable();
 			tbtmServices.enable();
 			tbtmTermTypes.enable();
+			tbtmPreferences.enable();
+			tbtmProducts.enable();
 		} else {
 			tbtmDeleteReasons.disable();
 			tbtmCancelReasons.disable();
 			tbtmServices.disable();
 			tbtmTermTypes.disable();
+			tbtmPreferences.disable();
+			tbtmProducts.disable();
 		}
 	}
 	
@@ -95,6 +103,8 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		cancelReasonEditGrid.sleep();
 		serviceEditGrid.sleep();
 		termTypeEditGrid.sleep();
+		preferenceCategoryEditGrid.sleep();
+		productEditGrid.sleep();
 	}
 	
 	public void awaken() {
@@ -106,6 +116,10 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 			serviceEditGrid.awaken();
 		} else if (advanced.getSelectedItem() == tbtmTermTypes) {
 			termTypeEditGrid.awaken();
+		} else if (advanced.getSelectedItem() == tbtmPreferences) {
+			preferenceCategoryEditGrid.awaken();
+		} else if (advanced.getSelectedItem() == tbtmProducts) {
+			productEditGrid.awaken();
 		}
 	}
 
