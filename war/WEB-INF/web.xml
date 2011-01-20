@@ -248,7 +248,7 @@
   
   <servlet-mapping>
     <servlet-name>preferenceCodeListServlet</servlet-name>
-    <url-pattern>/sbam/getPreferenceCodees</url-pattern>
+    <url-pattern>/sbam/getPreferenceCodes</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

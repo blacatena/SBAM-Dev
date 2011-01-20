@@ -51,9 +51,9 @@ public class DbPreferenceCode extends HibernateAccessor {
         {
             Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
             if (catCode != null && catCode.length() > 0)
-            	crit.add(Restrictions.like("prefCatCode", catCode));
+            	crit.add(Restrictions.like("id.prefCatCode", catCode));
             if (selCode != null && selCode.length() > 0)
-            	crit.add(Restrictions.like("prefSelCode", selCode));
+            	crit.add(Restrictions.like("id.prefSelCode", selCode));
             if (description != null && description.length() > 0)
             	crit.add(Restrictions.like("description", description));
             if (exportValue != null && exportValue.length() > 0)

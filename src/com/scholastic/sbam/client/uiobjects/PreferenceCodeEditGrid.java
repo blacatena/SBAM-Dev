@@ -7,11 +7,13 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.data.LoadConfig;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.PrefCodeSelCodeValidationService;
 import com.scholastic.sbam.client.services.PrefCodeSelCodeValidationServiceAsync;
@@ -28,25 +30,30 @@ import com.scholastic.sbam.shared.validation.NameValidator;
  * @author Bob Lacatena
  *
  */
-public class PreferenceCodeEditGrid extends BetterFilterEditGrid<PreferenceCodeInstance> {
+public class PreferenceCodeEditGrid extends BetterFilterEditGrid<PreferenceCodeInstance> implements DualEditGridLink {
 	
 	private String prefCatCode;
+	private DualEditGridLinker gridLinker;
 	
 	private final PreferenceCodeListServiceAsync preferenceCodeListService = GWT.create(PreferenceCodeListService.class);
 	private final UpdatePreferenceCodeServiceAsync updatePreferenceCodeService = GWT.create(UpdatePreferenceCodeService.class);
 	private final PrefCodeSelCodeValidationServiceAsync prefCodeSelCodeValidationService = GWT.create(PrefCodeSelCodeValidationService.class);
 	
-	@Override
-	public void onRender(Element parent, int index) {
+	public PreferenceCodeEditGrid() {
 		setForceHeight(600);
 		setAdditionalWidthPadding(0);
 	//	setForceWidth(600);
 	//	setAutoExpandColumn("spacer");
-		setLayout(new CenterLayout());
-	//	setLayout(new FillLayout(Orientation.VERTICAL));
 		setPanelHeading("Preference Codes");
-		super.onRender(parent, index);
+		setLayout(new CenterLayout());
 	}
+	
+//	@Override
+//	public void onRender(Element parent, int index) {
+//		setLayout(new CenterLayout());
+//	//	setLayout(new FillLayout(Orientation.VERTICAL));
+//		super.onRender(parent, index);
+//	}
 
 	@Override
 	protected void asyncLoad(Object loadConfig, AsyncCallback<List<PreferenceCodeInstance>> callback) {
@@ -102,6 +109,22 @@ public class PreferenceCodeEditGrid extends BetterFilterEditGrid<PreferenceCodeI
 				}
 			});
 	}
+	
+	protected void makeRowEditor() {
+		super.makeRowEditor();
+		
+		Button doneButton = new Button("Done");
+		doneButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			   
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				gridLinker.showParent();
+			}  
+		 
+		});
+		
+		panel.addButton(doneButton);
+	}
 
 	public String getPrefCatCode() {
 		return prefCatCode;
@@ -109,6 +132,23 @@ public class PreferenceCodeEditGrid extends BetterFilterEditGrid<PreferenceCodeI
 
 	public void setPrefCatCode(String prefCatCode) {
 		this.prefCatCode = prefCatCode;
+	}
+
+	@Override
+	public DualEditGridLinker getGridLinker() {
+		return gridLinker;
+	}
+
+	@Override
+	public void setGridLinker(DualEditGridLinker gridLinker) {
+		this.gridLinker = gridLinker;
+	}
+
+	@Override
+	public void prepareForActivation(Object... args) {
+		if (args != null && args.length > 0)
+			setPrefCatCode(args [0].toString());
+		refreshGridData();
 	}
 
 }

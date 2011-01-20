@@ -24,7 +24,8 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 	private CancelReasonEditGrid		cancelReasonEditGrid;
 	private ServiceEditGrid 			serviceEditGrid;
 	private TermTypeEditGrid 			termTypeEditGrid;
-	private PreferenceCategoryEditGrid 	preferenceCategoryEditGrid;
+//	private PreferenceCategoryEditGrid 	preferenceCategoryEditGrid;
+	private DualEditGridContainer		dualEditGridContainer;
 	private ProductEditGrid 			productEditGrid;
 	 
 	public ConfigUi() {
@@ -61,8 +62,16 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		termTypeEditGrid = new TermTypeEditGrid();
 		tbtmTermTypes.add(termTypeEditGrid);
 		
-		preferenceCategoryEditGrid = new PreferenceCategoryEditGrid();
-		tbtmPreferences.add(preferenceCategoryEditGrid);
+		PreferenceCategoryEditGrid preferenceCategoryEditGrid = new PreferenceCategoryEditGrid();
+		preferenceCategoryEditGrid.setAutoExpandColumn("description");
+		preferenceCategoryEditGrid.setForceWidth(450);
+		PreferenceCodeEditGrid preferenceCodeEditGrid = new PreferenceCodeEditGrid();
+		preferenceCodeEditGrid.setAutoExpandColumn("description");
+		preferenceCodeEditGrid.setForceWidth(450);
+		dualEditGridContainer = new DualEditGridContainer(preferenceCategoryEditGrid, preferenceCodeEditGrid);
+		dualEditGridContainer.setForceWidth(preferenceCategoryEditGrid.getForceWidth() + 12);
+		dualEditGridContainer.setForceHeight(preferenceCategoryEditGrid.getForceHeight() + 73);
+		tbtmPreferences.add(dualEditGridContainer);
 		
 		productEditGrid = new ProductEditGrid();
 		tbtmProducts.add(productEditGrid);
@@ -103,7 +112,8 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		cancelReasonEditGrid.sleep();
 		serviceEditGrid.sleep();
 		termTypeEditGrid.sleep();
-		preferenceCategoryEditGrid.sleep();
+	//	preferenceCategoryEditGrid.sleep();
+		dualEditGridContainer.sleep();
 		productEditGrid.sleep();
 	}
 	
@@ -117,7 +127,8 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		} else if (advanced.getSelectedItem() == tbtmTermTypes) {
 			termTypeEditGrid.awaken();
 		} else if (advanced.getSelectedItem() == tbtmPreferences) {
-			preferenceCategoryEditGrid.awaken();
+		//	preferenceCategoryEditGrid.awaken();
+			dualEditGridContainer.awaken();
 		} else if (advanced.getSelectedItem() == tbtmProducts) {
 			productEditGrid.awaken();
 		}

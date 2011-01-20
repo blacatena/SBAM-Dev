@@ -3,15 +3,18 @@
  */
 package com.scholastic.sbam.client.uiobjects;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.data.LoadConfig;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.PrefCatCodeValidationService;
 import com.scholastic.sbam.client.services.PrefCatCodeValidationServiceAsync;
@@ -28,23 +31,30 @@ import com.scholastic.sbam.shared.validation.NameValidator;
  * @author Bob Lacatena
  *
  */
-public class PreferenceCategoryEditGrid extends BetterFilterEditGrid<PreferenceCategoryInstance> {
+public class PreferenceCategoryEditGrid extends BetterFilterEditGrid<PreferenceCategoryInstance> implements DualEditGridLink {
+
+	private DualEditGridLinker gridLinker;
 	
 	private final PreferenceCategoryListServiceAsync preferenceCategoryListService = GWT.create(PreferenceCategoryListService.class);
 	private final UpdatePreferenceCategoryServiceAsync updatePreferenceCategoryService = GWT.create(UpdatePreferenceCategoryService.class);
 	private final PrefCatCodeValidationServiceAsync prefCatCodeValidationService = GWT.create(PrefCatCodeValidationService.class);
 	
-	@Override
-	public void onRender(Element parent, int index) {
+	public PreferenceCategoryEditGrid() {
+		super();
 		setForceHeight(600);
 		setAdditionalWidthPadding(0);
-	//	setForceWidth(600);
-	//	setAutoExpandColumn("spacer");
-		setLayout(new CenterLayout());
-	//	setLayout(new FillLayout(Orientation.VERTICAL));
+		//	setForceWidth(600);
+		//	setAutoExpandColumn("spacer");
 		setPanelHeading("Preference Categories");
-		super.onRender(parent, index);
+		setLayout(new CenterLayout());
 	}
+	
+//	@Override
+//	public void onRender(Element parent, int index) {
+//		setLayout(new CenterLayout());
+//	//	setLayout(new FillLayout(Orientation.VERTICAL));
+//		super.onRender(parent, index);
+//	}
 
 	@Override
 	protected void asyncLoad(Object loadConfig, AsyncCallback<List<PreferenceCategoryInstance>> callback) {
@@ -98,6 +108,40 @@ public class PreferenceCategoryEditGrid extends BetterFilterEditGrid<PreferenceC
 						}
 				}
 			});
+	}
+	
+	@Override
+	public List<Button> getCustomRowButtons() {
+		List<Button> customList = new ArrayList<Button>();
+		
+		Button editCodes = new Button("Values");
+		editCodes.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			   
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				gridLinker.showChild(grid.getSelectionModel().getSelectedItem().get("prefCatCode"));
+			}  
+		 
+		});
+		
+		customList.add(editCodes);
+		
+		return customList;
+	}
+
+	@Override
+	public DualEditGridLinker getGridLinker() {
+		return gridLinker;
+	}
+
+	@Override
+	public void setGridLinker(DualEditGridLinker gridLinker) {
+		this.gridLinker = gridLinker;
+	}
+
+	@Override
+	public void prepareForActivation(Object... args) {
+		// Nothing to do
 	}
 
 }

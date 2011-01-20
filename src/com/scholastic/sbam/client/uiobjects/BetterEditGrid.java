@@ -113,6 +113,9 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	@Override  
 	protected void onRender(Element parent, int index) {  
 		super.onRender(parent, index);
+		
+//		setLayout(new CenterLayout());
+		
 		setStyleAttribute("padding", "20px");
 		
 		panel = new ContentPanel();
@@ -226,7 +229,8 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	}
 	
 	public void refreshGridData() {
-		store.getLoader().load();
+		if (store != null && store.getLoader() != null)
+			store.getLoader().load();
 	}
 	
 	protected ColumnModel getColumnModel() {  
@@ -297,9 +301,7 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	
 	protected void makeRowEditor() {
 		
-		Field<?> userNameField = grid.getColumnModel().getColumns().get(0).getEditor().getField();
-		//	BetterRowEditor created with delete button, not additional buttons, and the userName field as unchangeable
-		final RowEditor<ModelData> re = new BetterRowEditor<ModelData>(store, true, null, userNameField);
+		final RowEditor<ModelData> re = new BetterRowEditor<ModelData>(store, true, getCustomRowButtons(), getUnchangeableKeyField());
 
 		grid.addPlugin(re);
 		
@@ -345,6 +347,27 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 			panel.addButton(newButton);
 			if (refreshButton != null) panel.addButton(refreshButton);
 		}
+	}
+	
+	/**
+	 * Override this method to return any single field from the column data which may not be changed on an existing row, but may be entered for a new row.
+	 * 
+	 * This may return null, if no such behavior is desired.
+	 * 
+	 * The default implementation returns the first field in the row.
+	 * @return
+	 */
+	public Field<?> getUnchangeableKeyField() {
+		return grid.getColumnModel().getColumns().get(0).getEditor().getField();
+	}
+	
+	/**
+	 * Override this method to return a list of buttons to be added after the Cancel/Save/Delete buttons.
+	 * 
+	 * This may return null, if no custom buttons are needed.
+	 */
+	public List<Button> getCustomRowButtons() {
+		return null;
 	}
 	
 	/**
