@@ -747,6 +747,8 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 
 	public void setPanelHeading(String panelHeading) {
 		this.panelHeading = panelHeading;
+		if (panel != null)
+			panel.setHeading(panelHeading);
 	}
 
 }

@@ -146,8 +146,12 @@ public class PreferenceCodeEditGrid extends BetterFilterEditGrid<PreferenceCodeI
 
 	@Override
 	public void prepareForActivation(Object... args) {
-		if (args != null && args.length > 0)
+		if (args != null && args.length > 0) {
 			setPrefCatCode(args [0].toString());
+			if (args.length > 1 && args [1] != null)
+				setPanelHeading("Preference Codes: " + args [1]);
+		}
+		
 		refreshGridData();
 	}
 

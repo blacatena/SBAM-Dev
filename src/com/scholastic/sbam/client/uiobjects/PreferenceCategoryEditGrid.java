@@ -119,7 +119,7 @@ public class PreferenceCategoryEditGrid extends BetterFilterEditGrid<PreferenceC
 			   
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				gridLinker.showChild(grid.getSelectionModel().getSelectedItem().get("prefCatCode"));
+				gridLinker.showChild(grid.getSelectionModel().getSelectedItem().get("prefCatCode"), grid.getSelectionModel().getSelectedItem().get("description"));
 			}  
 		 
 		});
