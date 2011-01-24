@@ -9,6 +9,7 @@ import org.hibernate.criterion.Restrictions;
 
 import com.scholastic.sbam.server.database.codegen.TermType;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
+import com.scholastic.sbam.shared.objects.TermTypeInstance;
 
 /**
  * Sample database table accessor class, extending HibernateAccessor, and implementing custom get/find methods.
@@ -19,6 +20,17 @@ import com.scholastic.sbam.server.database.util.HibernateAccessor;
 public class DbTermType extends HibernateAccessor {
 	
 	static String objectName = TermType.class.getSimpleName();
+	
+	public static TermTypeInstance getInstance(TermType dbInstance) {
+		TermTypeInstance instance = new TermTypeInstance();
+		instance.setTermTypeCode(dbInstance.getTermTypeCode());
+		instance.setDescription(dbInstance.getDescription());
+		instance.setActivate(dbInstance.getActivate());
+		instance.setStatus(dbInstance.getStatus());
+		instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
+		
+		return instance;
+	}
 	
 	public static TermType getByCode(String code) {
 		return (TermType) getByField(objectName, "termTypeCode", code, "description");
@@ -31,8 +43,9 @@ public class DbTermType extends HibernateAccessor {
 	public static List<TermType> findAll() {
 		List<Object> results = findAll(objectName);
 		List<TermType> reasons = new ArrayList<TermType>();
-		for (int i = 0; i < results.size(); i++)
-			reasons.add((TermType) results.get(i));
+		if (results != null)
+			for (int i = 0; i < results.size(); i++)
+				reasons.add((TermType) results.get(i));
 		return reasons;
 	}
 	

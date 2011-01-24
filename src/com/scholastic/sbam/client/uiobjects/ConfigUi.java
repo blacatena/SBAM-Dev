@@ -25,8 +25,8 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 	private ServiceEditGrid 			serviceEditGrid;
 	private TermTypeEditGrid 			termTypeEditGrid;
 //	private PreferenceCategoryEditGrid 	preferenceCategoryEditGrid;
-	private DualEditGridContainer		dualEditGridContainer;
-	private ProductEditGrid 			productEditGrid;
+	private DualEditGridContainer		preferenceEditGridContainer;
+	private DualEditGridContainer		productEditGridContainer;
 	 
 	public ConfigUi() {
 //		VerticalPanel vp = new VerticalPanel();  
@@ -68,13 +68,25 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		PreferenceCodeEditGrid preferenceCodeEditGrid = new PreferenceCodeEditGrid();
 		preferenceCodeEditGrid.setAutoExpandColumn("description");
 		preferenceCodeEditGrid.setForceWidth(450);
-		dualEditGridContainer = new DualEditGridContainer(preferenceCategoryEditGrid, preferenceCodeEditGrid);
-		dualEditGridContainer.setForceWidth(preferenceCategoryEditGrid.getForceWidth() + 12);
-		dualEditGridContainer.setForceHeight(preferenceCategoryEditGrid.getForceHeight() + 73);
-		tbtmPreferences.add(dualEditGridContainer);
+		preferenceEditGridContainer = new DualEditGridContainer(preferenceCategoryEditGrid, preferenceCodeEditGrid);
+		preferenceEditGridContainer.setForceWidth(preferenceCategoryEditGrid.getForceWidth() + 12);
+		preferenceEditGridContainer.setForceHeight(preferenceCategoryEditGrid.getForceHeight() + 73);
+		tbtmPreferences.add(preferenceEditGridContainer);
 		
-		productEditGrid = new ProductEditGrid();
-		tbtmProducts.add(productEditGrid);
+		ProductEditGrid productEditGrid = new ProductEditGrid();
+		productEditGrid.setAutoExpandColumn("description");
+		productEditGrid.setForceWidth(650);
+		productEditGrid.setForceHeight(600);
+		ProductServiceSelectTree productServiceSelectTree = new ProductServiceSelectTree();
+		productServiceSelectTree.setWidth(500);
+		productServiceSelectTree.setHeight(600);
+		productEditGridContainer = new DualEditGridContainer(productEditGrid, productServiceSelectTree);
+		productEditGridContainer.setForceWidth(662);	//	productEditGrid.getForceWidth() + 12);
+		productEditGridContainer.setForceHeight(673);	//	productEditGrid.getForceHeight() + 73);
+		tbtmProducts.add(productEditGridContainer);
+		
+	//	productEditGrid = new ProductEditGrid();
+	//	tbtmProducts.add(productEditGrid);
 		
 		initComponent(advanced);
 	}
@@ -113,8 +125,8 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		serviceEditGrid.sleep();
 		termTypeEditGrid.sleep();
 	//	preferenceCategoryEditGrid.sleep();
-		dualEditGridContainer.sleep();
-		productEditGrid.sleep();
+		preferenceEditGridContainer.sleep();
+		productEditGridContainer.sleep();
 	}
 	
 	public void awaken() {
@@ -128,9 +140,9 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 			termTypeEditGrid.awaken();
 		} else if (advanced.getSelectedItem() == tbtmPreferences) {
 		//	preferenceCategoryEditGrid.awaken();
-			dualEditGridContainer.awaken();
+			preferenceEditGridContainer.awaken();
 		} else if (advanced.getSelectedItem() == tbtmProducts) {
-			productEditGrid.awaken();
+			productEditGridContainer.awaken();
 		}
 	}
 

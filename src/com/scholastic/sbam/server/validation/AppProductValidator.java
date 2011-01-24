@@ -75,8 +75,8 @@ public class AppProductValidator {
 		return messages;
 	}
 	
-	public List<String> validateDefaultTermType(char defaultTermType) {
-		if (defaultTermType == (char) 0)
+	public List<String> validateDefaultTermType(String defaultTermType) {
+		if (defaultTermType == null || defaultTermType.length() == 0)
 			addMessage("A default term type is required.");
 		else {
 			if (DbTermType.getByCode(defaultTermType) == null)

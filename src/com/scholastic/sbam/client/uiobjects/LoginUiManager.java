@@ -19,6 +19,7 @@ import com.scholastic.sbam.client.services.DeauthenticateService;
 import com.scholastic.sbam.client.services.DeauthenticateServiceAsync;
 import com.scholastic.sbam.client.services.UserMessageService;
 import com.scholastic.sbam.client.services.UserMessageServiceAsync;
+import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.Authentication;
 import com.scholastic.sbam.shared.objects.UserMessageCollection;
 import com.scholastic.sbam.shared.objects.UserMessageInstance;
@@ -200,7 +201,13 @@ public class LoginUiManager {
 	}
 	
 	public void setLoggedOut() {
+		//	Cancel periodic events
+		UiConstants.cancel();
+		
+		//	Clear away any sticky notes
 		destroyStickyNotes();
+		
+		//	Clear the logged in panel values
 		loggedInUserName = null;
 		if (displayName != null)
 			displayName.setHtml(DISPLAY_NOT_LOGGED_IN);
@@ -208,7 +215,11 @@ public class LoginUiManager {
 			logoutButton.setVisible(false);
 	}
 	
-	public void setLoggedIn(String loggedInName) {
+	public void setLoggedIn(String loggedInName) {		
+		//	Initialize application UI constants
+		UiConstants.init();
+		
+		//	Set logged in UI controls and values
 		if (displayName != null)
 			displayName.setHtml(loggedInName);
 		if (logoutButton != null)

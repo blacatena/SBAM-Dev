@@ -103,4 +103,7 @@ public class TermTypeInstance extends BetterRowEditInstance implements BeanModel
 		setStatus(active?'A':'I');
 	}
 
+	public String toString() {
+		return description;
+	}
 }

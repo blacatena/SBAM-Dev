@@ -10,10 +10,12 @@ public class ProductInstance extends BetterRowEditInstance implements BeanModelT
 	private String productCode;
 	private String description;
 	private String shortName;
-	private char   defaultTermType;
+	private String defaultTermType;
 	private char   status;
 	private boolean active;
 	private Date   createdDatetime;
+	
+	private TermTypeInstance defaultTermTypeInstance;
 	
 	@Override
 	public void markForDeletion() {
@@ -69,11 +71,11 @@ public class ProductInstance extends BetterRowEditInstance implements BeanModelT
 		this.shortName = shortName;
 	}
 
-	public char getDefaultTermType() {
+	public String getDefaultTermType() {
 		return defaultTermType;
 	}
 
-	public void setDefaultTermType(char defaultTermType) {
+	public void setDefaultTermType(String defaultTermType) {
 		this.defaultTermType = defaultTermType;
 	}
 
@@ -102,6 +104,18 @@ public class ProductInstance extends BetterRowEditInstance implements BeanModelT
 		if (this.status == 'X')
 			return;
 		setStatus(active?'A':'I');
+	}
+	
+	public String toString() {
+		return productCode + " / " + description + " / " + shortName + " / " + defaultTermType + " / " + status + " / " + createdDatetime + "/ [" + defaultTermTypeInstance + "]";
+	}
+
+	public TermTypeInstance getDefaultTermTypeInstance() {
+		return defaultTermTypeInstance;
+	}
+
+	public void setDefaultTermTypeInstance(TermTypeInstance defaultTermTypeInstance) {
+		this.defaultTermTypeInstance = defaultTermTypeInstance;
 	}
 
 }

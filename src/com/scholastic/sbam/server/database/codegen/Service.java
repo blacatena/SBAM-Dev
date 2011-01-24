@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Jan 19, 2011 12:27:01 PM by Hibernate Tools 3.2.4.GA
+// Generated Jan 22, 2011 7:18:02 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -14,6 +14,8 @@ public class Service implements java.io.Serializable {
 	private char serviceType;
 	private String exportValue;
 	private String exportFile;
+	private String presentationPath;
+	private int seq;
 	private Date createdDatetime;
 	private char status;
 
@@ -21,13 +23,15 @@ public class Service implements java.io.Serializable {
 	}
 
 	public Service(String serviceCode, String description, char serviceType,
-			String exportValue, String exportFile, Date createdDatetime,
-			char status) {
+			String exportValue, String exportFile, String presentationPath,
+			int seq, Date createdDatetime, char status) {
 		this.serviceCode = serviceCode;
 		this.description = description;
 		this.serviceType = serviceType;
 		this.exportValue = exportValue;
 		this.exportFile = exportFile;
+		this.presentationPath = presentationPath;
+		this.seq = seq;
 		this.createdDatetime = createdDatetime;
 		this.status = status;
 	}
@@ -70,6 +74,22 @@ public class Service implements java.io.Serializable {
 
 	public void setExportFile(String exportFile) {
 		this.exportFile = exportFile;
+	}
+
+	public String getPresentationPath() {
+		return this.presentationPath;
+	}
+
+	public void setPresentationPath(String presentationPath) {
+		this.presentationPath = presentationPath;
+	}
+
+	public int getSeq() {
+		return this.seq;
+	}
+
+	public void setSeq(int seq) {
+		this.seq = seq;
 	}
 
 	public Date getCreatedDatetime() {

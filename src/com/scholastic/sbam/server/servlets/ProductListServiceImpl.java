@@ -4,11 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.LoadConfig;
+import com.google.gwt.dev.util.collect.HashMap;
 import com.scholastic.sbam.client.services.ProductListService;
 import com.scholastic.sbam.server.database.codegen.Product;
+import com.scholastic.sbam.server.database.codegen.TermType;
 import com.scholastic.sbam.server.database.objects.DbProduct;
+import com.scholastic.sbam.server.database.objects.DbTermType;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.objects.ProductInstance;
+import com.scholastic.sbam.shared.objects.TermTypeInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
 
 /**
@@ -27,9 +31,14 @@ public class ProductListServiceImpl extends AuthenticatedServiceServlet implemen
 
 		List<ProductInstance> list = new ArrayList<ProductInstance>();
 		try {
+			List<TermType> termTypeList = DbTermType.findAll();
+			HashMap<String, TermTypeInstance> termTypes = new HashMap<String, TermTypeInstance>();
+			for (TermType dbTermType : termTypeList) {
+				termTypes.put(dbTermType.getTermTypeCode(), DbTermType.getInstance(dbTermType));
+			}
 			
 			//	Find only undeleted delete reasons
-			List<Product> products = DbProduct.findFiltered(null, null, null, (char) 0, (char) 0, 'X');
+			List<Product> products = DbProduct.findFiltered(null, null, null, null, (char) 0, 'X');
 
 			for (Product product : products) {
 				ProductInstance instance = new ProductInstance();
@@ -39,6 +48,12 @@ public class ProductListServiceImpl extends AuthenticatedServiceServlet implemen
 				instance.setDefaultTermType(product.getDefaultTermType());
 				instance.setStatus(product.getStatus());
 				instance.setCreatedDatetime(product.getCreatedDatetime());
+				
+				instance.setDefaultTermTypeInstance(null);
+				if (termTypes.containsKey(product.getDefaultTermType().toLowerCase())) {
+					instance.setDefaultTermTypeInstance(termTypes.get(product.getDefaultTermType().toLowerCase()));
+				}
+				
 				list.add(instance);
 			}
 

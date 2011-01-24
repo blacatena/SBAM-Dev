@@ -21,9 +21,12 @@ public class DualEditGridContainer extends LayoutContainer implements AppSleeper
 	private int forceWidth	=	0;
 	private int forceHeight	=	0;
 
-	public DualEditGridContainer(Component mainGrid, Component childGrid) {	
+	public DualEditGridContainer(Component mainGrid, Component childGrid) {
 		this.mainGrid = mainGrid;
 		this.childGrid = childGrid;
+		
+		((DualEditGridLink) mainGrid).setGridLinker(this);
+		((DualEditGridLink) childGrid).setGridLinker(this);
 	}
 	
 	@Override
@@ -53,8 +56,8 @@ public class DualEditGridContainer extends LayoutContainer implements AppSleeper
 		childPanel.setBorders(false);
 		cntntpnlDualGrid.add(childPanel);
 		
-		((DualEditGridLink) mainGrid).setGridLinker(this);
-		((DualEditGridLink) childGrid).setGridLinker(this);
+//		((DualEditGridLink) mainGrid).setGridLinker(this);
+//		((DualEditGridLink) childGrid).setGridLinker(this);
 		
 		mainPanel.add(mainGrid);
 		childPanel.add(childGrid);

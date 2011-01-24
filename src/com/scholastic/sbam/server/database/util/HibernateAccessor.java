@@ -333,7 +333,7 @@ public class HibernateAccessor
         try
         {
             Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
-            crit.addOrder(Order.asc("ObjectName"));
+        //  crit.addOrder(Order.asc("ObjectName"));
             List <Object>objects = crit.list();
             return objects;
         }

@@ -94,7 +94,7 @@ public class PreferenceCategoryEditGrid extends BetterFilterEditGrid<PreferenceC
 						if (caught instanceof IllegalArgumentException)
 							MessageBox.alert("Alert", caught.getMessage(), null);
 						else {
-							MessageBox.alert("Alert", "Cancel reason update failed unexpectedly.", null);
+							MessageBox.alert("Alert", "Preference Category update failed unexpectedly.", null);
 							System.out.println(caught.getClass().getName());
 							System.out.println(caught.getMessage());
 						}

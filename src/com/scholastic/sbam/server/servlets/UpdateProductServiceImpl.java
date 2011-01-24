@@ -60,8 +60,8 @@ public class UpdateProductServiceImpl extends AuthenticatedServiceServlet implem
 				dbInstance.setDescription(instance.getDescription());
 			if (instance.getShortName() != null)
 				dbInstance.setShortName(instance.getShortName());
-			if (instance.getDefaultTermType() != (char) 0)
-				dbInstance.setDefaultTermType(instance.getDefaultTermType());
+			if (instance.getDefaultTermTypeInstance() != null)
+				dbInstance.setDefaultTermType(instance.getDefaultTermTypeInstance().getTermTypeCode());
 			if (instance.getStatus() != 0 && instance.getStatus() != dbInstance.getStatus())
 				dbInstance.setStatus(instance.getStatus());
 			

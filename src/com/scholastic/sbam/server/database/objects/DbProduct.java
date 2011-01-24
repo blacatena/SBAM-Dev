@@ -47,7 +47,7 @@ public class DbProduct extends HibernateAccessor {
 		return products;
 	}
 	
-	public static List<Product> findFiltered(String productCode, String description, String shortName, char defaultTermType, char status, char neStatus) {
+	public static List<Product> findFiltered(String productCode, String description, String shortName, String defaultTermType, char status, char neStatus) {
         try
         {
             Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
@@ -57,7 +57,7 @@ public class DbProduct extends HibernateAccessor {
             	crit.add(Restrictions.like("description", description));
             if (shortName != null && shortName.length() > 0)
             	crit.add(Restrictions.like("shortName", shortName));
-            if (defaultTermType != 0)
+            if (defaultTermType != null)
             	crit.add(Restrictions.like("defaultTermType", defaultTermType));
             if (status != 0)
             	crit.add(Restrictions.like("status", status));

@@ -226,32 +226,47 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 	 */
 	@Override
 	public void startEditing(int rowIndex, boolean doFocus) {
-		//	Reset any async text fields and assign current model to any AsyncFields -- must be done here, before the super call, because it will start validating right away
-		BetterRowEditInstance instance = (BetterRowEditInstance) store.getAt(rowIndex).getBean();
+		
+		// Suspend Async edits for now. because it may start happening before everything is properly set up
 		for (ColumnConfig c : grid.getColumnModel().getColumns()) {
 			Field<?> f = c.getEditor().getField();
 			if (f instanceof AsyncField) {
-				((AsyncField) f).reset(instance);
+				((AsyncField) f).setAsyncReady(false);
 			}
 		}
 		
 		super.startEditing(rowIndex, doFocus);
-
-		//	Enable/disable delete button as needed
-		if (hasDeleteButton()) {
-			if (canDelete(store.getAt(rowIndex)))
-				delButton.enable();
-			else
-				delButton.disable();
-		}
-		//	Set readonly for fields which cannot be changed on existing records
-		if (unchangeableFields != null) {
-			boolean readOnly = !isNewRecord(store.getAt(rowIndex));
-			for (Field<?> field: unchangeableFields) {
-				field.setReadOnly(readOnly);
+		
+		//	If we are now editing the selected row, then set the fields to match
+		//	Start editing may have rejected this request, in which case it didn't set this.rowIndex to the requested row
+		if (rowIndex == this.rowIndex) {
+		
+		//	Reset any async text fields and assign current model to any AsyncFields -- must be done here, before the super call, because it will start validating right away
+			BetterRowEditInstance instance = (BetterRowEditInstance) store.getAt(rowIndex).getBean();
+			for (ColumnConfig c : grid.getColumnModel().getColumns()) {
+				Field<?> f = c.getEditor().getField();
+				if (f instanceof AsyncField) {
+					((AsyncField) f).reset(instance);
+				}
+			}
+	
+			//	Enable/disable delete button as needed
+			if (hasDeleteButton()) {
+				if (canDelete(store.getAt(rowIndex)))
+					delButton.enable();
+				else
+					delButton.disable();
+			}
+			//	Set readonly for fields which cannot be changed on existing records
+			if (unchangeableFields != null) {
+				boolean readOnly = !isNewRecord(store.getAt(rowIndex));
+				for (Field<?> field: unchangeableFields) {
+					field.setReadOnly(readOnly);
+				}
 			}
 		}
-		//	Set asynch editing ready
+		
+		//	Turn asynch editing back on (whether for the same old row, or a newly edited row)
 		for (ColumnConfig c : grid.getColumnModel().getColumns()) {
 			Field<?> f = c.getEditor().getField();
 			if (f instanceof AsyncField) {

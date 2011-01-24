@@ -14,6 +14,9 @@ import com.extjs.gxt.ui.client.data.ListLoader;
 import com.extjs.gxt.ui.client.data.ModelData; 
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ColumnModelEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -25,6 +28,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -74,9 +78,17 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	 */
 	protected int					forceWidth			= -1;
 	/**
-	 * The width to force the grid into.  If set to negative or zero, this will be computed from the width of the columns added.
+	 * The height to force the grid into.  If set to negative or zero, the height will be determined by GXT.
 	 */
 	protected int					forceHeight			= -1;
+	/**
+	 * The maximum height for an auto expand.
+	 */
+	protected int					maxHeight			= -1;
+	/**
+	 * Whether or not the grid should use automatic height change.
+	 */
+	protected boolean				autoHeight			= false;
 	/**
 	 * The label for the button to be used to create new grid rows.
 	 */
@@ -153,6 +165,8 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 			grid.setSize(width, forceHeight);
 		else
 			grid.setWidth(width);
+		
+		addAutoHeight();
 		
 		//panel.setIcon(Resources.ICONS.table());
 		panel.setLayout(new FitLayout());
@@ -403,6 +417,45 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 		if (store != null)
 			store.removeAll();
 	}
+
+	protected void doAutoHeight() { 
+		if (!autoHeight)
+			return;
+		 if (grid.isViewReady()) {  
+			grid.getView().getScroller().setStyleAttribute("overflowY", "hidden");  
+			int newHeight = (grid.getView().getBody().isScrollableX() ? 19 : 0) + grid.el().getFrameWidth("tb")  
+				+ grid.getView().getHeader().getHeight() + panel.getFrameHeight()  
+				+ grid.getView().getBody().firstChild().getHeight();
+			if (newHeight > maxHeight)
+				newHeight = maxHeight;
+			panel.setHeight(newHeight);  
+		}  
+	}  
+	
+	protected void addAutoHeight() {
+		if (!autoHeight)
+			return;
+		grid.addListener(Events.ViewReady, new Listener<ComponentEvent>() {  
+		  public void handleEvent(ComponentEvent be) {  
+		    grid.getStore().addListener(Store.Add, new Listener<StoreEvent<ModelData>>() {  
+		      public void handleEvent(StoreEvent<ModelData> be) {  
+		        doAutoHeight();  
+		      }  
+		    });  
+		    doAutoHeight();  
+		  }  
+		});  
+		grid.addListener(Events.ColumnResize, new Listener<ComponentEvent>() {  
+		  public void handleEvent(ComponentEvent be) {  
+		    doAutoHeight();  
+		  }  
+		});  
+		grid.getColumnModel().addListener(Events.HiddenChange, new Listener<ColumnModelEvent>() {  
+		  public void handleEvent(ColumnModelEvent be) {  
+		    doAutoHeight();  
+		  }  
+		});  
+	}
 	
 	/**
 	 * Utility method to create a basic display only text field.
@@ -614,7 +667,7 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 		combo.setTriggerAction(TriggerAction.ALL);
 		if (validator != null)
 			combo.setValidator(validator);
-		combo.setEditable(false);
+	//	combo.setEditable(false);
 		
 		for (int i = 0; i < values.length; i++) {
 			combo.add(values [i]);
@@ -637,6 +690,43 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 		    return ((ModelData) value).get("value");
 		  }  
 		};
+
+		ColumnConfig column = new ColumnConfig();
+		column.setId(name);
+		column.setHeader(header);
+		column.setWidth(width);
+		column.setEditor(editor);
+		if (toolTip != null && toolTip.length() > 0)
+			column.setToolTip(toolTip);
+	
+		return column; 
+	}
+	
+	protected ColumnConfig getComboColumn(String name, String header, int width, String toolTip, BeanModel [] values, String valueField, String displayField, Validator validator) {
+		
+		ListStore<BeanModel> listStore = new ListStore<BeanModel>();
+		for (int i = 0; i < values.length; i++) {
+			listStore.add(values [i]);
+		}
+		
+		return getComboColumn(name, header, width, toolTip, listStore, valueField, displayField, validator);
+	}
+	
+	protected ColumnConfig getComboColumn(String name, String header, int width, String toolTip, ListStore<BeanModel> listStore, String valueField, String displayField, Validator validator) {
+		
+		final ComboBox<BeanModel> combo = new ComboBox<BeanModel>();
+		combo.setForceSelection(true);
+		combo.disableTextSelection(false);
+		combo.setTriggerAction(TriggerAction.ALL);
+		combo.setDisplayField(displayField);
+		combo.setValueField(valueField);
+		if (validator != null)
+			combo.setValidator(validator);
+	//	combo.setEditable(false);
+		
+		combo.setStore(listStore);
+		
+		CellEditor editor = new CellEditor(combo);
 
 		ColumnConfig column = new ColumnConfig();
 		column.setId(name);
@@ -749,6 +839,22 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 		this.panelHeading = panelHeading;
 		if (panel != null)
 			panel.setHeading(panelHeading);
+	}
+
+	public int getMaxHeight() {
+		return maxHeight;
+	}
+
+	public void setMaxHeight(int maxHeight) {
+		this.maxHeight = maxHeight;
+	}
+
+	public boolean isAutoHeight() {
+		return autoHeight;
+	}
+
+	public void setAutoHeight(boolean autoHeight) {
+		this.autoHeight = autoHeight;
 	}
 
 }
