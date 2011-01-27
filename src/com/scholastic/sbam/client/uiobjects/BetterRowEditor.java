@@ -18,6 +18,7 @@ import com.extjs.gxt.ui.client.widget.grid.RowEditor;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.user.client.Element;
 import com.scholastic.sbam.shared.objects.BetterRowEditInstance;
+import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.validation.AsyncField;
 
 /**
@@ -139,7 +140,8 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 	}
 	
 	private void createDeleteButton() {
-		delButton = new Button("Delete");      
+		delButton = new Button("Delete");
+		IconSupplier.setIcon(delButton, IconSupplier.getDeleteIconName());
 		delButton.addListener(Events.Select, new Listener<ButtonEvent>() {
 			public void handleEvent(ButtonEvent be) {
 				deletePressed(be);

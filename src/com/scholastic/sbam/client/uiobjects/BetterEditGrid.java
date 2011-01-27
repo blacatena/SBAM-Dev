@@ -46,6 +46,7 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.FieldValidationServiceAsync;
+import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.validation.AsyncTextField;
 import com.scholastic.sbam.shared.objects.BetterRowEditInstance;
 import com.scholastic.sbam.shared.util.AppConstants;
@@ -320,6 +321,7 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 		grid.addPlugin(re);
 		
 		Button newButton = new Button(newButtonLabel);
+		IconSupplier.setIcon(newButton, IconSupplier.getNewIconName());
 		newButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			   
 			@Override
@@ -338,6 +340,7 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 		Button refreshButton = null;
 		if (refreshButtonLabel != null && refreshButtonLabel.length() > 0) {
 			refreshButton = new Button(refreshButtonLabel);
+			IconSupplier.setIcon(refreshButton, IconSupplier.getRefreshIconName());
 			refreshButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 				   
 				@Override

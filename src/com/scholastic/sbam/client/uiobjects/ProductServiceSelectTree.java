@@ -3,6 +3,7 @@ package com.scholastic.sbam.client.uiobjects;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.ModelData;
@@ -17,8 +18,8 @@ import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.TreeStore;
+import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Layout;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -26,15 +27,24 @@ import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
+import com.extjs.gxt.ui.client.widget.treepanel.TreePanel.CheckCascade;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel.CheckNodes;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel.TreeNode;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.IsSerializable;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.scholastic.sbam.client.services.ProductServiceListService;
+import com.scholastic.sbam.client.services.ProductServiceListServiceAsync;
+import com.scholastic.sbam.client.util.IconSupplier;
+import com.scholastic.sbam.shared.objects.ProductServiceTreeInstance;
 
 public class ProductServiceSelectTree extends LayoutContainer implements DualEditGridLink, AppSleeper {
 	
@@ -103,6 +113,45 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 			return super.calculateIconStyle(model);
 		}
 		
+		/**
+		 * Overridden to automatically check anything which has the "checked" property set to "checked" when the model is added to the tree.
+		 */
+		@Override
+		protected String register(M m) {
+			String id = super.register(m);
+			setChecked(m, (m.get("checked") != null && m.get("checked").equals("checked")));
+			return id;
+		}
+		
+		/**
+		 * Overridden to turn off cascade behavior when rendering children, which happens on a load, refresh, expand, etc.
+		 * 
+		 * Basically, only do the cascade when the user checks the box.
+		 * 
+		 */
+		@Override
+		protected void renderChildren(M parent) {
+			CheckCascade save = getCheckStyle();
+			setCheckStyle(CheckCascade.NONE);
+			super.renderChildren(parent);
+			setCheckStyle(save);
+		}
+		
+		/**
+		 * Overridden to adjust model in store to match tree, both for use with the filter and for passing back to the server side
+		 */
+		@Override
+		public void setChecked(M m, boolean checked) {
+			super.setChecked(m, checked);
+			if (m.getPropertyNames().contains("checked"))
+				m.set("checked", checked ? "checked" : "");
+			if (store.contains(m)) {
+				if (store.getRecord(m).getModel().getPropertyNames().contains("checked")) {
+					store.getRecord(m).getModel().set("checked", checked ? "checked" : "");
+				}
+			}
+		}
+		
 		private boolean isFolder(ModelData item) {
 			return item.get("type") != null && item.get("type").equals("folder");
 		}
@@ -120,9 +169,13 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 			super(tree);
 		}
 
+
+		/**
+		 * Overridden to disallow drops onto non-folder items, whether they are leafs or not.
+		 */
 		@SuppressWarnings("rawtypes")
 		@Override
-		protected void showFeedback(DNDEvent event) {
+		protected void handleAppend(DNDEvent event, final TreeNode item) {
 			final TreeNode overItem = tree.findNode(event.getTarget());
 		    if (overItem != null) {
 		    	if (overItem instanceof TreeNode) {
@@ -132,8 +185,8 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 		    		}
 		    	}
 		    }
-		    super.showFeedback(event);
-		  }
+		    super.handleAppend(event, overItem);
+		}
 		
 		@SuppressWarnings("rawtypes")
 		public boolean isFolder(TreeNode item) {
@@ -150,38 +203,71 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 	private String panelHeading;
 	private DualEditGridLinker gridLinker;
 
-	ContentPanel panel;
-	TreePanel<ModelData> tree;
-	TreeStore<ModelData> store;
+	private ContentPanel panel;
+	private TreePanel<ModelData> tree;
+	private TreeStore<ModelData> store;
+	
+	private final ProductServiceListServiceAsync productServiceListService = GWT.create(ProductServiceListService.class);
+//	private final UpdateProductServiceServiceAsync updateProductServiceService = GWT.create(UpdateProductServiceService.class);
 
 	public ProductServiceSelectTree() {
 	}
 
 	@Override  
 	protected void onRender(Element parent, int index) {  
-		super.onRender(parent, index);  
+		super.onRender(parent, index);
 
 		setLayout(new FitLayout());
 		setBorders(false);
 		
-		panel = new ContentPanel();
-		
-		Layout panelLayout = new FitLayout();
-		panel.setLayout(panelLayout);
+		panel = new ContentPanel(new FitLayout());
 		panel.setBorders(false);
+		IconSupplier.setIcon(panel, IconSupplier.getServiceIconName());
 		panel.setHeading(panelHeading);
 		panel.setHeaderVisible(true);
+//		panel.setDeferHeight(true);
 		
-		LayoutContainer inset = new LayoutContainer(new FlowLayout());
-		inset.setStyleAttribute("padding", "10px");
-
 		createTreeStore();
-		inset.add(getExpandCollapseBar());
-		inset.add(getFilter());
-		inset.add(getTreePanel());
+		StoreFilterField<ModelData> filter = getFilter();
+		ToolBar toolbar = getExpandCollapseBar();
+		createTreePanel();
+		
+		final LayoutContainer tools = new LayoutContainer(new RowLayout(Orientation.HORIZONTAL));
+		tools.setHeight(30);
+		tools.add(filter,  new RowData(0.6, -1, new Margins(2)));
+		tools.add(toolbar, new RowData(200, 30, new Margins(2)));
+		
+		LayoutContainer inset = new LayoutContainer(new FlowLayout(10)) {
+			@Override
+			protected void onResize(int width, int height) {
+				if (tools.isRendered()) {
+					tree.setHeight(height - tools.getHeight());
+				} else {
+					tree.setHeight(height - 40);
+				}
+				tree.setWidth(width - 10);
+				
+				super.onResize(width, height);	
+			}
+		};
+//		inset.setDeferHeight(true);
+//		inset.setStyleAttribute("padding", "10px");
+		
+//		LayoutContainer container = new LayoutContainer();
+//		container.setSize(400, 300);
+//		container.setBorders(false);  
+//		container.setLayout(new FitLayout());
+
+//		inset.add(filter);
+//		inset.add(toolbar);
+		inset.add(tools);
+		inset.add(tree);
+//		container.add(getTreePanel());
+//		inset.add(container);
 		createButtons();
 		
 		panel.add(inset);
+		
 		add(panel);
 		
 		addReorderCapability();
@@ -192,23 +278,7 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 	 */
 	public void createTreeStore() {
 		store = new TreeStore<ModelData>();
-
-		ModelData item1 = new BaseModelData();
-		item1.set("description", "Child Item 1");
-		store.add(item1, false);
-		store.add(new Folder("My First Folder"), true);
-		store.add(new Folder("My Second Folder"), true);
-		Folder folder3 = new Folder("My Third Folder");
-		ModelData item = new BaseModelData();
-		item.set("description", "Child Item 4");
-		folder3.add(item);
-		item = new BaseModelData();
-		item.set("description", "Child Item 5 asdfsddsfsdfdsfssfdsfdf");
-		folder3.add(item);
-		store.add(folder3, true);
-		
-//		store.add(folder, true);
-		
+		refreshTreeData();
 	}
 	
 	/**
@@ -223,17 +293,17 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 		      ModelData record, String property, String filter) {  
 		    // only match leaf nodes  
 		    if (record instanceof Folder) {  
-		      return false;  
+		      return false;
 		    }  
-		    String description = record.get("description");  
-		    description = description.toLowerCase();  
+		    String description = record.get("description");
+		    description = description.toLowerCase();
 		    if (description.contains(filter.toLowerCase())) {  
-		      return true;  
+		      return true;
 		    }  
-		    return false;  
+		    return false;
 		  }  
 		 
-		};  
+		};
 		filter.bind(store);
 		filter.setWidth("40%");
 		
@@ -244,20 +314,27 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 	 * Set up and get the TreePanel to use.
 	 * @return
 	 */
-	public TreePanel<ModelData> getTreePanel() {
+	public void createTreePanel() {
 //		EditorTreeGrid<ModelData> tree = new EditorTreeGrid<ModelData>(store, cm); 
 		tree = new MyTreePanel<ModelData>(store);
 		tree.setDisplayProperty("description");
 		tree.setCheckable(true);
-		tree.setCheckNodes(CheckNodes.LEAF);
+		tree.setCheckNodes(CheckNodes.BOTH);
+		tree.setCheckStyle(CheckCascade.CHILDREN);
 		tree.setBorders(false);
-		tree.setAutoWidth(true);
-		tree.setAutoHeight(true);
-		tree.setDeferHeight(true);
+//		int height = 600;
+//		if (isRendered()) { System.out.println("parent isRendered() " + getHeight(true)); height = getHeight(true); };
+//		tree.setHeight(height - 200);
+//		tree.setAutoWidth(false);
+//		tree.setAutoHeight(false);
+//		tree.setDeferHeight(true);
 		tree.setStateful(true);
 		tree.setAutoExpand(true);
 		tree.setAutoLoad(true);
-		tree.setStyleAttribute("padding", "10px");
+//		tree.setStyleAttribute("padding", "20px");	// Just to get some padding between the tree and other elements
+//		tree.setIconProvider(iconProvider);
+		tree.getStyle().setLeafIcon(IconSupplier.getColorfulIcon(IconSupplier.getServiceIconName()));
+//		tree.getStyle().setLeafIcon(IconHelper.create("resources/images/icons/menus/service.png"));
 //		tree.expandAll();
 		
 //		tree.setShadow(true);
@@ -268,8 +345,6 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 		
 		addContextMenu();
 		
-		return tree;
-		
 	}
 	
 	/**
@@ -278,7 +353,7 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 	 */
 	public ToolBar getExpandCollapseBar() {
 		ButtonBar toolbar = new ButtonBar();
-		toolbar.setAlignment(HorizontalAlignment.CENTER);
+		toolbar.setAlignment(HorizontalAlignment.RIGHT);
 		
 		Button expandButton = new Button("Expand");
 		expandButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -314,6 +389,7 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 		panel.setButtonAlign(HorizontalAlignment.CENTER);
 		
 		Button cancelButton = new Button("Cancel");
+		IconSupplier.setIcon(cancelButton, IconSupplier.getCancelIconName());
 		cancelButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			   
 			@Override
@@ -324,6 +400,7 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 		});
 		
 		Button saveButton = new Button("Save");
+		IconSupplier.setIcon(saveButton, IconSupplier.getSaveIconName());
 		saveButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			   
 			@Override
@@ -335,7 +412,8 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 		});
 		
 		Button resetButton = new Button("Reset");
-		saveButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+		IconSupplier.setIcon(resetButton, IconSupplier.getResetIconName());
+		resetButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			   
 			@Override
 			public void componentSelected(ButtonEvent ce) {
@@ -357,16 +435,16 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 	public void addReorderCapability() {
 		
 		new TreePanelDragSource(tree);
-//		TreePanelDragSource source = new TreePanelDragSource(tree);  
+//		TreePanelDragSource source = new TreePanelDragSource(tree);
 //		Original code rejected drag/drop with first item... why?  Did it mean if there's only one item?  Does it cause problems? 
 //		source.addDNDListener(new DNDListener() { 
 //		  @Override  
 //		  public void dragStart(DNDEvent e) {  
-//		    ModelData sel = tree.getSelectionModel().getSelectedItem();  
+//		    ModelData sel = tree.getSelectionModel().getSelectedItem();
 //		    if (sel != null && sel == tree.getStore().getRootItems().get(0)) {  
-//		      e.setCancelled(true);  
-//		      e.getStatus().setStatus(false);  
-//		      return;  
+//		      e.setCancelled(true);
+//		      e.getStatus().setStatus(false);
+//		      return;
 //		    }  
 //		    super.dragStart(e);
 //		  }  
@@ -374,8 +452,8 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 		  
 		TreePanelDropTarget target = new MyTreePanelDropTarget(tree);
 		target.setAllowDropOnLeaf(true);
-		target.setAllowSelfAsSource(true);  
-		target.setFeedback(Feedback.BOTH);  
+		target.setAllowSelfAsSource(true);
+		target.setFeedback(Feedback.BOTH);
 		target.setScrollElementId(panel.getId());
 		target.setAutoExpand(true);
 		
@@ -392,9 +470,9 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 	
 //	public void addHelpButton() {
 //		IconButton helpButton = new IconButton("ExtGWT/images/default/button/arrow.gif");
-//		ToolTipConfig config = new ToolTipConfig();  
-//		config.setTitle("What To Do:");  
-//		config.setShowDelay(1);  
+//		ToolTipConfig config = new ToolTipConfig();
+//		config.setTitle("What To Do:");
+//		config.setShowDelay(1);
 //		config.setText("Check the services which apply to this product and hit save.");
 //		panel.getHeader().addTool(helpButton);
 //	}
@@ -403,20 +481,21 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 	 * Add a contextual menu to all the user to insert, remove or rename folders.
 	 */
 	public void addContextMenu() {
-		Menu contextMenu = new Menu();  
+		Menu contextMenu = new Menu();
  
-		MenuItem insert = new MenuItem();  
-		insert.setText("Insert Folder");  
-//		insert.setIcon(Resources.ICONS.add());  
+		MenuItem insert = new MenuItem();
+		insert.setText("Insert Folder");
+		insert.setIcon(IconSupplier.getMenuIcon(IconSupplier.getInsertIconName()));
+//		insert.setIconStyle("resources/images/icons/menus/insert.png");
 		insert.addSelectionListener(new SelectionListener<MenuEvent>() {  
 		  public void componentSelected(MenuEvent ce) {  
-		    ModelData parent = tree.getSelectionModel().getSelectedItem();  
+		    ModelData parent = tree.getSelectionModel().getSelectedItem();
 		    if (parent != null) {  
 		      Folder child = new Folder("New Folder " + ((int) (Math.random() * 100)));
 		      folderRename(child, "Enter a name for the new folder:");
 		      if (isFolder(parent)) {
-			      store.add(parent, child, false);  
-			      tree.setExpanded(parent, true);  
+			      store.add(parent, child, false);
+			      tree.setExpanded(parent, true);
 		      } else
 		    	  if (store.getParent(parent) != null)
 		    		  store.add(store.getParent(parent), child, false);
@@ -424,12 +503,13 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 		    		  store.add(child, false);
 		    }
 		  }  
-		});  
-		contextMenu.add(insert);  
+		});
+		contextMenu.add(insert);
 
-		MenuItem remove = new MenuItem();  
-		remove.setText("Remove");  
-//		remove.setIcon(Resources.ICONS.delete());  
+		MenuItem remove = new MenuItem();
+		remove.setText("Remove");
+		remove.setIcon(IconSupplier.getMenuIcon(IconSupplier.getRemoveIconName()));
+//		remove.setIconStyle("resources/images/icons/menus/remove.png");
 		remove.addSelectionListener(new SelectionListener<MenuEvent>() {  
 		  public void componentSelected(MenuEvent ce) {  
 		    List<ModelData> selected = tree.getSelectionModel().getSelectedItems();
@@ -450,14 +530,15 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 		    		MessageBox.alert("Alert", "You cannot remove a service, only a folder.", null);
 		    }  
 		  }  
-		});  
-		contextMenu.add(remove);  
+		});
+		contextMenu.add(remove);
 
-		MenuItem rename = new MenuItem();  
-		rename.setText("Rename");  
-//		remove.setIcon(Resources.ICONS.rename());  
-		rename.addSelectionListener(new SelectionListener<MenuEvent>() {  
-		  public void componentSelected(MenuEvent ce) {  
+		MenuItem rename = new MenuItem();
+		rename.setText("Rename");
+		rename.setIcon(IconSupplier.getMenuIcon(IconSupplier.getRenameIconName()));
+//		rename.setIconStyle("resources/images/icons/menus/rename.png");
+		rename.addSelectionListener(new SelectionListener<MenuEvent>() {
+		  public void componentSelected(MenuEvent ce) {
 		    List<ModelData> selected = tree.getSelectionModel().getSelectedItems();
 		    for (ModelData sel : selected) { 
 		    	if (isFolder(sel)) {
@@ -466,10 +547,10 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 		    		MessageBox.alert("Alert", "You cannot rename a service, only a folder.", null);
 		    }  
 		  }  
-		});  
-		contextMenu.add(rename);  
+		});
+		contextMenu.add(rename);
 
-		tree.setContextMenu(contextMenu);  
+		tree.setContextMenu(contextMenu);
 	}
 	
 	/**
@@ -479,7 +560,7 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 	 * @param prompt
 	 */
 	private void folderRename(final ModelData toRename, String prompt) {
-		final MessageBox box = MessageBox.prompt("Folder Name", prompt);  
+		final MessageBox box = MessageBox.prompt("Folder Name", prompt);
 			box.addCallback(new Listener<MessageBoxEvent>() {  
 				public void handleEvent(MessageBoxEvent be) {
 					if (!be.isCancelled() && be.getValue() != null && be.getValue().length() > 0)
@@ -492,7 +573,10 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 	 * Reload the tree from the database.
 	 */
 	private void refreshTreeData() {
-		
+		if (store != null) {
+			//	Note... the store will be *cleared* and replaced when the data is successfully retrieved... don't removeAll() now
+			asyncLoad();
+		}
 	}
 	
 	/**
@@ -506,6 +590,49 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 	}
 	
 	public void sleep() {
+	}
+
+	protected void asyncLoad() {
+		productServiceListService.getProductServices(productCode, null,
+				new AsyncCallback<List<ProductServiceTreeInstance>>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "Get product services for " + productCode + " failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+					}
+
+					public void onSuccess(List<ProductServiceTreeInstance> productServices) {
+						if (store == null)
+							return;
+						store.removeAll();
+						for (ProductServiceTreeInstance instance : productServices) {
+							addInstance(null, instance);
+						}
+					//	tree.expandAll();
+					}
+				});
+	}
+	
+	private void addInstance(ModelData parent, ProductServiceTreeInstance instance) {
+		ModelData item = new BaseModelData();
+		item.set("description", instance.getDescription());
+		item.set("type", instance.getType());
+		item.set("serviceCode", instance.getServiceCode());
+		item.set("checked", instance.isSelected() ? "checked" : "");
+		if (parent == null)
+			store.add(item, false);
+		else
+			store.add(parent, item, false);
+		
+		if (instance.getChildren() != null)
+			for (ProductServiceTreeInstance child : instance.getChildren()) {
+				addInstance(item, child);
+			}
 	}
 	
 	public void setPanelHeading(String panelHeading) {

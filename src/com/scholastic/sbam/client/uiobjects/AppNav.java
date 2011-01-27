@@ -14,6 +14,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.WelcomeMessageService;
 import com.scholastic.sbam.client.services.WelcomeMessageServiceAsync;
+import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.security.SecurityManager;
 
 public class AppNav extends Composite implements AppSecurityManager {
@@ -34,6 +35,7 @@ public class AppNav extends Composite implements AppSecurityManager {
 		tabPanel = new TabPanel();
 		
 		tbtmWelcome = new TabItem("Welcome");
+		IconSupplier.setIcon(tbtmWelcome, IconSupplier.getWelcomeIconName());
 		
 		htmlWelcome = new Html("<h2><i><b>Welcome</b></i> to the Scholastic Site Based Authentication Management System (SBAM).</h2><hr/>");
 		tbtmWelcome.add(htmlWelcome);
@@ -48,19 +50,23 @@ public class AppNav extends Composite implements AppSecurityManager {
 		tabPanel.add(tbtmWelcome);
 		
 		tbtmAgreements = new TabItem("Agreements");
+		IconSupplier.setIcon(tbtmAgreements, IconSupplier.getAgreementIconName());
 		tabPanel.add(tbtmAgreements);
 		
 		tbtmConfiguration = new TabItem("Configuration");
 		tbtmConfiguration.setLayout(new FitLayout());
+		IconSupplier.setIcon(tbtmConfiguration, IconSupplier.getConfigurationIconName());
 
 		configUi = new ConfigUi();
 		tbtmConfiguration.add(configUi);
 		tabPanel.add(tbtmConfiguration);
 		
 		tbtmReports = new TabItem("Reports");
+		IconSupplier.setIcon(tbtmReports, IconSupplier.getReportIconName());
 		tabPanel.add(tbtmReports);
 		
 		tbtmAdministration = new TabItem("Administration");
+		IconSupplier.setIcon(tbtmAdministration, IconSupplier.getAdministrationIconName());
 		tbtmAdministration.setLayout(new FitLayout());
 		
 		adminUi = new AdminUi();

@@ -32,6 +32,10 @@ public class DbService extends HibernateAccessor {
 		return reasons;
 	}
 	
+	public static List<Service> findUndeleted() {
+		return findFiltered(null, null, (char) 0, null, (char) 0, 'X');
+	}
+	
 	public static List<Service> findFiltered(String code, String description, char serviceType, String exportValue, char status, char neStatus) {
         try
         {
@@ -48,6 +52,8 @@ public class DbService extends HibernateAccessor {
             	crit.add(Restrictions.like("status", status));
             if (neStatus != 0)
             	crit.add(Restrictions.ne("status", neStatus));
+            crit.addOrder(Order.asc("seq"));
+            crit.addOrder(Order.asc("presentationPath"));
             crit.addOrder(Order.asc("description"));
             @SuppressWarnings("unchecked")
 			List<Service> objects = crit.list();

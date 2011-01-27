@@ -132,6 +132,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>productServiceListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.ProductServiceListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>serviceListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.ServiceListServiceImpl</servlet-class>
   </servlet>
@@ -274,6 +279,11 @@
   <servlet-mapping>
     <servlet-name>productCodeValidationServlet</servlet-name>
     <url-pattern>/sbam/validateProductCode</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>productServiceListServlet</servlet-name>
+    <url-pattern>/sbam/getProductServices</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

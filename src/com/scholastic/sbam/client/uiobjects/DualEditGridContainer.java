@@ -56,9 +56,6 @@ public class DualEditGridContainer extends LayoutContainer implements AppSleeper
 		childPanel.setBorders(false);
 		cntntpnlDualGrid.add(childPanel);
 		
-//		((DualEditGridLink) mainGrid).setGridLinker(this);
-//		((DualEditGridLink) childGrid).setGridLinker(this);
-		
 		mainPanel.add(mainGrid);
 		childPanel.add(childGrid);
 		

@@ -7,6 +7,7 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.scholastic.sbam.client.uiobjects.AppSecurityManager;
+import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.security.SecurityManager;
 
 public class ConfigUi extends Composite implements AppSecurityManager, AppSleeper {
@@ -43,12 +44,12 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		advanced.setTabScroll(true);  
 		advanced.setCloseContextMenu(true); 
 
-		tbtmProducts		=	addTab("Products");
-		tbtmServices		=	addTab("Services");
-		tbtmTermTypes		=	addTab("Term Types");
-		tbtmPreferences		=	addTab("Preferences");
-		tbtmDeleteReasons	=	addTab("Delete Reasons");
-		tbtmCancelReasons	=	addTab("Cancel Reasons");
+		tbtmProducts		=	addTab("Products",		IconSupplier.getProductIconName());
+		tbtmServices		=	addTab("Services",		IconSupplier.getServiceIconName());
+		tbtmTermTypes		=	addTab("Term Types",	IconSupplier.getTermTypeIconName());
+		tbtmPreferences		=	addTab("Preferences",	IconSupplier.getPreferenceIconName());
+		tbtmDeleteReasons	=	addTab("Delete Reasons",IconSupplier.getDeleteReasonIconName());
+		tbtmCancelReasons	=	addTab("Cancel Reasons",IconSupplier.getCancelReasonIconName());
 		
 		deleteReasonEditGrid = new DeleteReasonEditGrid();
 		tbtmDeleteReasons.add(deleteReasonEditGrid);
@@ -63,10 +64,10 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		tbtmTermTypes.add(termTypeEditGrid);
 		
 		PreferenceCategoryEditGrid preferenceCategoryEditGrid = new PreferenceCategoryEditGrid();
-		preferenceCategoryEditGrid.setAutoExpandColumn("description");
+	//	preferenceCategoryEditGrid.setAutoExpandColumn("description");
 		preferenceCategoryEditGrid.setForceWidth(450);
 		PreferenceCodeEditGrid preferenceCodeEditGrid = new PreferenceCodeEditGrid();
-		preferenceCodeEditGrid.setAutoExpandColumn("description");
+	//	preferenceCodeEditGrid.setAutoExpandColumn("description");
 		preferenceCodeEditGrid.setForceWidth(450);
 		preferenceEditGridContainer = new DualEditGridContainer(preferenceCategoryEditGrid, preferenceCodeEditGrid);
 		preferenceEditGridContainer.setForceWidth(preferenceCategoryEditGrid.getForceWidth() + 12);
@@ -74,7 +75,7 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		tbtmPreferences.add(preferenceEditGridContainer);
 		
 		ProductEditGrid productEditGrid = new ProductEditGrid();
-		productEditGrid.setAutoExpandColumn("description");
+	//	productEditGrid.setAutoExpandColumn("description");
 		productEditGrid.setForceWidth(650);
 		productEditGrid.setForceHeight(600);
 		ProductServiceSelectTree productServiceSelectTree = new ProductServiceSelectTree();
@@ -92,9 +93,15 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 	}
 	
 	public TabItem addTab(String tabTitle) {
+		return addTab(tabTitle, null);
+	}
+	
+	public TabItem addTab(String tabTitle, String iconName) {
 		TabItem item = new TabItem(); 
 		item.setLayout(new FitLayout());
-		item.setText(tabTitle);  
+		item.setText(tabTitle);
+		if (iconName != null && iconName.length() > 0)
+			IconSupplier.setIcon(item, iconName);
 	//	item.setClosable(false);
 		item.addStyleName("pad-text");  
 		advanced.add(item);
