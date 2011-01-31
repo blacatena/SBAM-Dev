@@ -57,7 +57,6 @@ public class DbProductService extends HibernateAccessor {
             	crit.add(Restrictions.like("id.serviceCode", serviceCode));
             crit.addOrder(Order.asc("id.productCode"));
             crit.addOrder(Order.asc("id.serviceCode"));
-            System.out.println(crit.toString());
             @SuppressWarnings("unchecked")
 			List<ProductService> objects = crit.list();
             return objects;

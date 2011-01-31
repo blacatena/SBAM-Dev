@@ -6,15 +6,22 @@ import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 public class AppConstants {
 	public static final DateTimeFormat APP_DATE_TIME_FORMAT = DateTimeFormat.getFormat(PredefinedFormat.DATE_MEDIUM);	//	DateTimeFormat.getFormat("MM/dd/yy");
 	
+	public static final char STATUS_ACTIVE		= 'A';
+	public static final char STATUS_INACTIVE	= 'I';
+	public static final char STATUS_DELETED		= 'X';
+	
+	public static final char PATH_DELIMITER		= '/';
+	public static final char PATH_ESCAPE		= '\\';
+	
 	public static final String REPLACEMENT_START = "[$";
 	public static final String REPLACEMENT_END   = "$]";
-	public static final String CHUNK_START = "[[";
-	public static final String CHUNK_END   = "]]";
-	public static final String CHUNK_PART  = "::";
+	public static final String CHUNK_START		= "[[";
+	public static final String CHUNK_END		= "]]";
+	public static final String CHUNK_PART		= "::";
     
-    public static final String DIGITS		= "0123456789";
-    public static final String LETTERS		= "abcdefghijklmnopqrstuvwxyz";
-    public static final String LETTERS_ALL	= "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    public static final String DIGITS			= "0123456789";
+    public static final String LETTERS			= "abcdefghijklmnopqrstuvwxyz";
+    public static final String LETTERS_ALL		= "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 	
 	public static final String []	NUMBER_WORDS_0_19		=	{ 
 																	"Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",

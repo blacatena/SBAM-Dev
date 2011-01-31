@@ -1,5 +1,6 @@
 package com.scholastic.sbam.client.uiobjects;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -43,6 +44,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.scholastic.sbam.client.services.ProductServiceListService;
 import com.scholastic.sbam.client.services.ProductServiceListServiceAsync;
+import com.scholastic.sbam.client.services.UpdateProductServiceListService;
+import com.scholastic.sbam.client.services.UpdateProductServiceListServiceAsync;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.objects.ProductServiceTreeInstance;
 
@@ -208,7 +211,7 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 	private TreeStore<ModelData> store;
 	
 	private final ProductServiceListServiceAsync productServiceListService = GWT.create(ProductServiceListService.class);
-//	private final UpdateProductServiceServiceAsync updateProductServiceService = GWT.create(UpdateProductServiceService.class);
+	private final UpdateProductServiceListServiceAsync updateProductServiceListService = GWT.create(UpdateProductServiceListService.class);
 
 	public ProductServiceSelectTree() {
 	}
@@ -455,6 +458,7 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 		target.setAllowSelfAsSource(true);
 		target.setFeedback(Feedback.BOTH);
 		target.setScrollElementId(panel.getId());
+		target.setAutoScroll(true);
 		target.setAutoExpand(true);
 		
 	}
@@ -582,8 +586,76 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 	/**
 	 * Update the database with the current tree settings.
 	 */
-	private void doUpdate() {
+	private void doUpdate() {		
+		updateProductServiceListService.updateProductServiceList(productCode, getOrderedUpdateList(),
+				new AsyncCallback<String>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "Update of product services for " + productCode + " failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+					}
+
+					public void onSuccess(String result) {
+					}
+				});
+	}
+	
+	public List<ProductServiceTreeInstance> getOrderedUpdateList() {
+		List<ProductServiceTreeInstance> updateList = new ArrayList<ProductServiceTreeInstance>();
 		
+		List<ModelData> rootItems = store.getRootItems();
+		
+		for (ModelData rootItem : rootItems) {
+			addAllToList(updateList, rootItem);
+		}
+		
+		return updateList;
+	}
+	
+	public void addAllToList(List<ProductServiceTreeInstance> list, ModelData model) {
+		ProductServiceTreeInstance instance = getPstInstance(model );
+		list.add( instance );
+		addChildrenToParent(instance, model);
+//		for (ModelData child : store.getChildren(item))
+//			addAllToList(list, child);
+	}
+	
+	public void addChildrenToParent(ProductServiceTreeInstance parentInstance, ModelData parentModel) {
+		System.out.println();
+		System.out.println("add children to :" + parentInstance);
+		System.out.println(" from " + parentModel.getProperties());
+		System.out.println("Number of children is " + store.getChildCount(parentModel));
+		for (ModelData childModel : store.getChildren(parentModel)) {
+			ProductServiceTreeInstance child = getPstInstance(childModel);
+			System.out.println("Child instance " + child);
+			System.out.println(" from " + childModel.getProperties());
+			System.out.println("  add to parent " + parentInstance);
+			parentInstance.addChildInstance(child);
+			addChildrenToParent(child, childModel);
+		}
+	}
+	
+	public ProductServiceTreeInstance getPstInstance(ModelData item) {
+		ProductServiceTreeInstance instance = new ProductServiceTreeInstance();
+		instance.setProductCode(productCode);
+		instance.setServiceCode(getAsString(item.get("serviceCode")));
+		instance.setDescription(getAsString(item.get("description")));
+		instance.setSelected(item.get("checked") != null && item.get("checked").equals("checked"));
+		instance.setType(getAsString(item.get("type")));
+		
+		return instance;
+	}
+	
+	public String getAsString(Object value) {
+		if (value == null)
+			return "";
+		else
+			return value.toString();
 	}
 	
 	public void awaken() {
@@ -611,14 +683,14 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 							return;
 						store.removeAll();
 						for (ProductServiceTreeInstance instance : productServices) {
-							addInstance(null, instance);
+							addInstanceToStore(null, instance);
 						}
 					//	tree.expandAll();
 					}
 				});
 	}
 	
-	private void addInstance(ModelData parent, ProductServiceTreeInstance instance) {
+	private void addInstanceToStore(ModelData parent, ProductServiceTreeInstance instance) {
 		ModelData item = new BaseModelData();
 		item.set("description", instance.getDescription());
 		item.set("type", instance.getType());
@@ -629,9 +701,9 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 		else
 			store.add(parent, item, false);
 		
-		if (instance.getChildren() != null)
-			for (ProductServiceTreeInstance child : instance.getChildren()) {
-				addInstance(item, child);
+		if (instance.getChildInstances() != null)
+			for (ProductServiceTreeInstance child : instance.getChildInstances()) {
+				addInstanceToStore(item, child);
 			}
 	}
 	

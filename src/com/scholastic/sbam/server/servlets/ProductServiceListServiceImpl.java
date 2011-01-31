@@ -13,6 +13,7 @@ import com.scholastic.sbam.server.database.objects.DbService;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.objects.ProductServiceTreeInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
+import com.scholastic.sbam.shared.util.AppConstants;
 
 /**
  * The server side implementation of the RPC service to list product service assignments.
@@ -22,9 +23,6 @@ import com.scholastic.sbam.shared.security.SecurityManager;
  */
 @SuppressWarnings("serial")
 public class ProductServiceListServiceImpl extends AuthenticatedServiceServlet implements ProductServiceListService {
-
-	public static final char PATH_DELIMITER = '/';
-	public static final char PATH_ESCAPE	= '\\';
 	
 	@Override
 	public List<ProductServiceTreeInstance> getProductServices(String productCode, LoadConfig loadConfig) throws IllegalArgumentException {
@@ -114,7 +112,7 @@ public class ProductServiceListServiceImpl extends AuthenticatedServiceServlet i
 		if (root == null || !root.getDescription().equals(folders [0])) {
 //			System.out.println("New root: create for " + instance.getDescription() + " ... " + path);
 			root = getNewFolder(folders [0]);
-			addChild(addFolders(root, folders, 1), instance);
+			addChild(addFolders(root, folders, 1, instance.isSelected()), instance);
 			list.add(root);
 			return root;
 		}
@@ -151,18 +149,20 @@ public class ProductServiceListServiceImpl extends AuthenticatedServiceServlet i
 	 *  The starting point in the list of folders corresponding to the current parent element.
 	 */
 	protected void addToRoot(ProductServiceTreeInstance parent, ProductServiceTreeInstance instance, String [] folders, int i) {
+//		Set parent select to selected if any child is : this behavior could be changed
+		if (instance.isSelected()) parent.setSelected(true);
 //		System.out.println("addToRoot: for " + instance.getDescription() + " ::: " + parent.getDescription());
 		if (i >= folders.length)	// No more folders, so append here
 			addChild(parent, instance);
 		else {
 			ProductServiceTreeInstance lastChild = getLastChild(parent);
 			if (lastChild == null)	//	If there's nothing below this, add from here
-				addChild(addFolders(parent, folders, i), instance);
+				addChild(addFolders(parent, folders, i, instance.isSelected()), instance);
 			else { // If there is a child, test it for a match
 				 if (ProductServiceTreeInstance.FOLDER.equals(lastChild.getType()) && lastChild.getDescription().equals(folders [i])) // Folders match, so go to the next
 					 addToRoot(lastChild, instance, folders, i+1);
 				 else // Folders don't match, or it's not a folder, so add remaining folders here, than add to that
-					 addChild(addFolders(parent, folders, i), instance);
+					 addChild(addFolders(parent, folders, i, instance.isSelected()), instance);
 			}
 		}
 	}
@@ -177,9 +177,10 @@ public class ProductServiceListServiceImpl extends AuthenticatedServiceServlet i
 	 *  The point at which to start using names from the array.
 	 * @return
 	 */
-	protected ProductServiceTreeInstance addFolders(ProductServiceTreeInstance parent, String [] folders, int start) {
+	protected ProductServiceTreeInstance addFolders(ProductServiceTreeInstance parent, String [] folders, int start, boolean selected) {
 		for (int i = start; i < folders.length; i++) {
 			ProductServiceTreeInstance child = getNewFolder(folders [i]);
+			child.setSelected(selected);
 			addChild(parent, child);
 			parent = child;
 		}
@@ -192,12 +193,9 @@ public class ProductServiceListServiceImpl extends AuthenticatedServiceServlet i
 	 * @param child
 	 */
 	protected void addChild(ProductServiceTreeInstance parent, ProductServiceTreeInstance child) {
-		//	Copy the children to a new array, one larger, and put the new child in that last spot
-		ProductServiceTreeInstance [] children = new ProductServiceTreeInstance [parent.getChildren().length + 1];
-		for (int i = 0; i < parent.getChildren().length; i++)
-			children [i] = parent.getChildren() [i];
-		children [children.length - 1] = child;
-		parent.setChildren(children);
+//		Set parent select to selected if any child is : this behavior could be changed
+		if (child.isSelected()) parent.setSelected(true);
+		parent.addChildInstance(child);
 	}
 	
 	/**
@@ -209,12 +207,13 @@ public class ProductServiceListServiceImpl extends AuthenticatedServiceServlet i
 	 * @return
 	 */
 	protected ProductServiceTreeInstance getLastFolder(ProductServiceTreeInstance instance) {
-		if (instance.getChildren() == null || instance.getChildren().length == 0)
+		if (instance.getChildInstances() == null)
 			return null;
-		for (int i = 0; i < instance.getChildren().length; i++)
-			if (instance.getChildren() [i].getType() == ProductServiceTreeInstance.FOLDER)
-				return instance.getChildren() [i];
-		return null;
+		ProductServiceTreeInstance folder = null;
+		for (ProductServiceTreeInstance child : instance.getChildInstances())
+			if (child.getType() == ProductServiceTreeInstance.FOLDER)
+				folder = child;
+		return folder;
 	}
 	
 	/**
@@ -223,9 +222,9 @@ public class ProductServiceListServiceImpl extends AuthenticatedServiceServlet i
 	 * @return
 	 */
 	protected ProductServiceTreeInstance getLastChild(ProductServiceTreeInstance instance) {
-		if (instance.getChildren() == null || instance.getChildren().length == 0)
+		if (instance.getChildInstances() == null || instance.getChildInstances().size() == 0)
 			return null;
-		return instance.getChildren() [ instance.getChildren().length - 1];
+		return instance.getChildInstances().get( instance.getChildInstances().size() - 1 );
 	}
 	
 	/**
@@ -235,11 +234,14 @@ public class ProductServiceListServiceImpl extends AuthenticatedServiceServlet i
 	 * @return
 	 */
 	protected String [] parsePath(String path) {
-		return parsePath(path, PATH_DELIMITER, PATH_ESCAPE);
+		return parsePath(path, AppConstants.PATH_DELIMITER, AppConstants.PATH_ESCAPE);
 	}
 	
 	/**
-	 * Parse a string of folder names where the very first character is the escape character and the next character is the delimiter character.
+	 * Parse a string of folder names where the very first character is the delimiter character and the next character is the escape character.
+	 * 
+	 * Note that this approach is thus compatible on read with either method, since the escape character will simply "escape" the first character of the first folder,
+	 * while the delimiter character at the start will simply create a "no name" folder (which will not be added to the path, as it has no name).
 	 * 
 	 * This method is not currently used, but is available for use by a subclass that overrides parsePath(String) to do so.
 	 * 
@@ -249,8 +251,8 @@ public class ProductServiceListServiceImpl extends AuthenticatedServiceServlet i
 	protected String [] parsePathVariable(String path) {
 		if (path.length() < 2)
 			return parsePath(path);
-		char escapeChar = path.charAt(0);
-		char delimiter  = path.charAt(1);
+		char delimiter  = path.charAt(0);
+		char escapeChar = path.charAt(1);
 		return parsePath(path, delimiter, escapeChar);
 	}
 	
@@ -267,22 +269,20 @@ public class ProductServiceListServiceImpl extends AuthenticatedServiceServlet i
 	 * @return
 	 */
 	protected String [] parsePath(String path, char delimiter, char escapeChar) {
+		System.out.println();
+		System.out.println();
 		path = path.trim();
 		List<String> folders = new ArrayList<String>();
-		int begin=0;
-		boolean escaped = false;
+		int begin = 0;
 		for (int i = 0; i < path.length(); i++) {
 			if (path.charAt(i) == delimiter) {
-				if (!escaped) {
-					if (i > begin) {
-						folders.add(path.substring(begin, i));
-						begin = i + 1;
-					}
+				if (i > begin) {
+					folders.add(path.substring(begin, i));
 				}
-			} else if (path.charAt(i) == escapeChar)
-				escaped = !escaped;
-			else
-				escaped = false;
+				begin = i + 1;
+			} else if (path.charAt(i) == escapeChar) {
+				path = path.substring(0, i) + path.substring(i + 1);
+			}
 		}
 		
 		if (begin < path.length()) {

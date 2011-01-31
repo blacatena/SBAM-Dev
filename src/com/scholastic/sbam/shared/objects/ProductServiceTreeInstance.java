@@ -1,5 +1,8 @@
 package com.scholastic.sbam.shared.objects;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -12,7 +15,7 @@ public class ProductServiceTreeInstance implements BeanModelTag, IsSerializable 
 	private String serviceCode;
 	private String description;
 	private String type;
-	private ProductServiceTreeInstance [] children = new ProductServiceTreeInstance [0];
+	private List<ProductServiceTreeInstance> childInstances = new ArrayList<ProductServiceTreeInstance>();
 	private boolean selected;
 	
 	public String getProductCode() {
@@ -39,14 +42,14 @@ public class ProductServiceTreeInstance implements BeanModelTag, IsSerializable 
 	public void setType(String type) {
 		this.type = type;
 	}
-	public ProductServiceTreeInstance[] getChildren() {
-		return children;
+	public List<ProductServiceTreeInstance> getChildInstances() {
+		return childInstances;
 	}
-	public void setChildren(ProductServiceTreeInstance[] children) {
+	public void setChildInstances(List<ProductServiceTreeInstance> children) {
 		if (children == null)
-			children = new ProductServiceTreeInstance [0];
+			children = new ArrayList<ProductServiceTreeInstance>();
 		else
-			this.children = children;
+			this.childInstances = children;
 	}
 	public boolean isSelected() {
 		return selected;
@@ -54,5 +57,13 @@ public class ProductServiceTreeInstance implements BeanModelTag, IsSerializable 
 	public void setSelected(boolean selected) {
 		this.selected = selected;
 	}
+	public String toString() {
+		return "[" + type + " / " + productCode + " / " + serviceCode + " / " + description + " / " + selected + " / <<<" + childInstances + ">>> ]"; 
+	}
 	
+	public void addChildInstance(ProductServiceTreeInstance child) {
+		if (childInstances == null)
+			childInstances = new ArrayList<ProductServiceTreeInstance>();
+		childInstances.add(child);
+	}
 }
