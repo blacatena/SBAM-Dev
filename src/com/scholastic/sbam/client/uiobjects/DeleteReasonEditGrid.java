@@ -91,9 +91,11 @@ public class DeleteReasonEditGrid extends BetterFilterEditGrid<DeleteReasonInsta
 
 					public void onSuccess(UpdateResponse<DeleteReasonInstance> updateResponse) {
 						DeleteReasonInstance updatedDeleteReason = (DeleteReasonInstance) updateResponse.getInstance();
+						DeleteReasonInstance   storeInstance = targetBeanModel.getBean();
+						storeInstance.setNewRecord(false);
 						// If this user is newly created, back-populate the id
-						if (targetBeanModel.get("createdDatetime") == null) {
-							targetBeanModel.set("createdDatetime", updatedDeleteReason.getCreatedDatetime());
+						if (storeInstance.getCreatedDatetime() == null) {
+							storeInstance.setCreatedDatetime(updatedDeleteReason.getCreatedDatetime());
 						}
 				}
 			});

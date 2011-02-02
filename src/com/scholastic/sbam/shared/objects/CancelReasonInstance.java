@@ -25,11 +25,6 @@ public class CancelReasonInstance extends BetterRowEditInstance implements BeanM
 	}
 
 	@Override
-	public boolean thisIsNewRecord() {
-		return cancelReasonCode == null || cancelReasonCode.length() == 0;
-	}
-
-	@Override
 	public boolean thisIsValid() {
 		return true;
 	}

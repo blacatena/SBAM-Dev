@@ -10,14 +10,22 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.scholastic.sbam.client.services.CommissionTypeListService;
+import com.scholastic.sbam.client.services.CommissionTypeListServiceAsync;
 import com.scholastic.sbam.client.services.TermTypeListService;
 import com.scholastic.sbam.client.services.TermTypeListServiceAsync;
+import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
 import com.scholastic.sbam.shared.objects.TermTypeInstance;
 
 public class UiConstants {
+	public enum CommissionTypeTargets {
+		PRODUCT, SITE, AGREEMENT, AGREEMENT_TERM;
+	}
+	
 	private final static int REFRESH_PERIOD = 10 * 60 * 1000;	// Every 10 minutes
 	
 	private static ListStore<BeanModel>	termTypes = new ListStore<BeanModel>();
+	private static ListStore<BeanModel>	commissionTypes = new ListStore<BeanModel>();
 	private static Timer				refreshTimer;
 	
 	public static void init() {
@@ -27,6 +35,7 @@ public class UiConstants {
 	
 	public static void refresh() {
 		loadTermTypes();
+		loadCommissionTypes();
 	}
 	
 	public static void setTimer() {
@@ -84,5 +93,56 @@ public class UiConstants {
 	
 	public static ListStore<BeanModel> getTermTypes() {
 		return termTypes;
+	}
+	
+	private static void loadCommissionTypes() {
+		CommissionTypeListServiceAsync commissionTypeListService = GWT.create(CommissionTypeListService.class);
+		
+		AsyncCallback<List<CommissionTypeInstance>> callback = new AsyncCallback<List<CommissionTypeInstance>>() {
+			public void onFailure(Throwable caught) {
+				// Show the RPC error message to the user
+				if (caught instanceof IllegalArgumentException)
+					MessageBox.alert("Alert", caught.getMessage(), null);
+				else {
+					MessageBox.alert("Alert", "Commission types load failed unexpectedly.", null);
+					System.out.println(caught.getClass().getName());
+					System.out.println(caught.getMessage());
+				}
+			}
+
+			public void onSuccess(List<CommissionTypeInstance> list) {
+				commissionTypes.removeAll();
+				BeanModelFactory factory = null;
+				for (CommissionTypeInstance instance : list) {
+					if (factory == null)
+						factory = BeanModelLookup.get().getFactory(instance.getClass());
+					commissionTypes.add(factory.createModel(instance));	
+				}
+			}
+		};
+		
+		commissionTypeListService.getCommissionTypes(null, callback);
+	}
+	
+	public static ListStore<BeanModel> getCommissionTypes() {
+		return commissionTypes;
+	}
+	
+	public static ListStore<BeanModel> getCommissionTypes(CommissionTypeTargets target) {
+		ListStore<BeanModel> list = new ListStore<BeanModel>();
+		
+		for (BeanModel model : commissionTypes.getModels()) {
+			CommissionTypeInstance instance = (CommissionTypeInstance) model.getBean();
+			if (target == CommissionTypeTargets.PRODUCT && instance.isProducts())
+				list.add(model);
+			else if (target == CommissionTypeTargets.SITE && instance.isSites())
+				list.add(model);
+			else if (target == CommissionTypeTargets.AGREEMENT && instance.isAgreements())
+				list.add(model);
+			else if (target == CommissionTypeTargets.AGREEMENT_TERM && instance.isAgreements())
+				list.add(model);
+		}
+		
+		return list;
 	}
 }

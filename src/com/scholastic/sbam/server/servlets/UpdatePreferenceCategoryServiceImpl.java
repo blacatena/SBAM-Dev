@@ -68,7 +68,7 @@ public class UpdatePreferenceCategoryServiceImpl extends AuthenticatedServiceSer
 			
 			//	Refresh when new row is created, to get assigned ID or created date/time
 			if (newCreated) {
-				DbPreferenceCategory.refresh(dbInstance);	// This may not be necessary, but just in case
+			//	DbPreferenceCategory.refresh(dbInstance);	// This may not be necessary, but just in case
 			//	instance.setId(dbInstance.getId());	// Not auto-increment, so not needed
 				instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
 			}

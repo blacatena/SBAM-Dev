@@ -102,9 +102,11 @@ public class PreferenceCategoryEditGrid extends BetterFilterEditGrid<PreferenceC
 
 					public void onSuccess(UpdateResponse<PreferenceCategoryInstance> updateResponse) {
 						PreferenceCategoryInstance updatedPreferenceCategory = (PreferenceCategoryInstance) updateResponse.getInstance();
+						PreferenceCategoryInstance  storeInstance = targetBeanModel.getBean();
+						storeInstance.setNewRecord(false);
 						// If this user is newly created, back-populate the id
-						if (targetBeanModel.get("createdDatetime") == null) {
-							targetBeanModel.set("createdDatetime", updatedPreferenceCategory.getCreatedDatetime());
+						if (storeInstance.getCreatedDatetime() == null) {
+							storeInstance.setCreatedDatetime(updatedPreferenceCategory.getCreatedDatetime());
 						}
 				}
 			});

@@ -11,6 +11,8 @@ import com.scholastic.sbam.shared.validation.NameValidator;
 
 public class AppServiceValidator {
 	
+	public static int MIN_CODE_LEN = 2;
+	
 	private List<String> messages = new ArrayList<String>();
 	
 	private	ServiceInstance original;
@@ -19,7 +21,7 @@ public class AppServiceValidator {
 	public List<String> validateService(ServiceInstance instance) {
 		if (instance.getStatus() == 'X')
 			return null;
-		validateServiceCode(instance.getServiceCode());
+		validateServiceCode(instance.getServiceCode(), instance.isNewRecord());
 		validateDescription(instance.getDescription());
 		validateServiceType(instance.getServiceType());
 		validateExportValue(instance.getExportValue());
@@ -28,11 +30,11 @@ public class AppServiceValidator {
 		return messages;
 	}
 	
-	public List<String> validateServiceCode(String value) {
-		if (original.getServiceCode() != null && original.getServiceCode().length() > 0) {
-			validateOldServiceCode(value);
-		} else {
+	public List<String> validateServiceCode(String value, boolean isNew) {
+		if (isNew) {
 			validateNewServiceCode(value);
+		} else {
+			validateOldServiceCode(value);
 		}
 		return messages;
 	}
@@ -46,7 +48,7 @@ public class AppServiceValidator {
 			return messages;
 		}
 		
-		addMessage((new CodeValidator(2)).validate(value));
+		addMessage((new CodeValidator(MIN_CODE_LEN)).validate(value));
 		
 		if (!cancelReason.getServiceCode().equals(value))
 			addMessage("Service code cannot be changed.");
@@ -55,7 +57,7 @@ public class AppServiceValidator {
 	}
 	
 	public List<String> validateNewServiceCode(String value) {
-		addMessage((new CodeValidator()).validate(value));
+		addMessage((new CodeValidator(MIN_CODE_LEN)).validate(value));
 		if (value != null && value.length() > 0) {
 			Service conflict = DbService.getByCode(value);
 			if (conflict != null) {

@@ -129,9 +129,11 @@ public class ProductEditGrid extends BetterFilterEditGrid<ProductInstance> imple
 
 					public void onSuccess(UpdateResponse<ProductInstance> updateResponse) {
 						ProductInstance updatedProduct = (ProductInstance) updateResponse.getInstance();
+						ProductInstance  storeInstance = targetBeanModel.getBean();
+						storeInstance.setNewRecord(false);
 						// If this user is newly created, back-populate the id
-						if (targetBeanModel.get("createdDatetime") == null) {
-							targetBeanModel.set("createdDatetime", updatedProduct.getCreatedDatetime());
+						if (storeInstance.getCreatedDatetime() == null) {
+							storeInstance.setCreatedDatetime(updatedProduct.getCreatedDatetime());
 						}
 				}
 			});

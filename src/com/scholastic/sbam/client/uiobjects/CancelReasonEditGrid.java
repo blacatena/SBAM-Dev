@@ -93,9 +93,11 @@ public class CancelReasonEditGrid extends BetterFilterEditGrid<CancelReasonInsta
 
 					public void onSuccess(UpdateResponse<CancelReasonInstance> updateResponse) {
 						CancelReasonInstance updatedCancelReason = (CancelReasonInstance) updateResponse.getInstance();
+						CancelReasonInstance  storeInstance = targetBeanModel.getBean();
+						storeInstance.setNewRecord(false);
 						// If this user is newly created, back-populate the id
-						if (targetBeanModel.get("createdDatetime") == null) {
-							targetBeanModel.set("createdDatetime", updatedCancelReason.getCreatedDatetime());
+						if (storeInstance.getCreatedDatetime() == null) {
+							storeInstance.setCreatedDatetime(updatedCancelReason.getCreatedDatetime());
 						}
 				}
 			});

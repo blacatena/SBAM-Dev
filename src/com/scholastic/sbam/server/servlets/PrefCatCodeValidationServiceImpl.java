@@ -16,7 +16,7 @@ public class PrefCatCodeValidationServiceImpl extends FieldValidationServiceImpl
 	protected void doValidation(String value, BetterRowEditInstance original, AsyncValidationResponse response) {
 		AppPreferenceCategoryValidator validator = new AppPreferenceCategoryValidator();
 		validator.setOriginal((PreferenceCategoryInstance) original);
-		response.addMessages(validator.validatePreferenceCategoryCode(value));
+		response.addMessages(validator.validatePreferenceCategoryCode(value, original.isNewRecord()));
 	}
 	
 	@Override

@@ -75,7 +75,7 @@ public class UpdatePreferenceCodeServiceImpl extends AuthenticatedServiceServlet
 			
 			//	Refresh when new row is created, to get assigned ID or created date/time
 			if (newCreated) {
-				DbPreferenceCode.refresh(dbInstance);	// This may not be necessary, but just in case
+			//	DbPreferenceCode.refresh(dbInstance);	// This may not be necessary, but just in case
 			//	instance.setId(dbInstance.getId());	// Not auto-increment, so not needed
 				instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
 			}

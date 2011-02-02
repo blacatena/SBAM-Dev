@@ -28,11 +28,6 @@ public class ProductInstance extends BetterRowEditInstance implements BeanModelT
 	}
 
 	@Override
-	public boolean thisIsNewRecord() {
-		return productCode == null || productCode.length() == 0;
-	}
-
-	@Override
 	public boolean thisIsValid() {
 		return true;
 	}

@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Jan 22, 2011 7:18:02 PM by Hibernate Tools 3.2.4.GA
+// Generated Jan 31, 2011 3:49:15 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -13,16 +13,18 @@ public class Site implements java.io.Serializable {
 	private String description;
 	private Date createdDatetime;
 	private String status;
+	private char pseudoSite;
 
 	public Site() {
 	}
 
 	public Site(SiteId id, String description, Date createdDatetime,
-			String status) {
+			String status, char pseudoSite) {
 		this.id = id;
 		this.description = description;
 		this.createdDatetime = createdDatetime;
 		this.status = status;
+		this.pseudoSite = pseudoSite;
 	}
 
 	public SiteId getId() {
@@ -55,6 +57,14 @@ public class Site implements java.io.Serializable {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+	public char getPseudoSite() {
+		return this.pseudoSite;
+	}
+
+	public void setPseudoSite(char pseudoSite) {
+		this.pseudoSite = pseudoSite;
 	}
 
 }

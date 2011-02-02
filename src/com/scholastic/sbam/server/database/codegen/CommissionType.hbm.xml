@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jan 31, 2011 3:49:16 PM by Hibernate Tools 3.2.4.GA -->
+<hibernate-mapping>
+    <class name="com.scholastic.sbam.server.database.codegen.CommissionType" table="commission_type" catalog="sbam">
+        <id name="commissionCode" type="string">
+            <column name="commission_code" length="32" />
+            <generator class="assigned" />
+        </id>
+        <property name="description" type="string">
+            <column name="description" not-null="true" />
+        </property>
+        <property name="shortName" type="string">
+            <column name="short_name" length="64" not-null="true" />
+        </property>
+        <property name="products" type="char">
+            <column name="products" length="1" not-null="true" />
+        </property>
+        <property name="sites" type="char">
+            <column name="sites" length="1" not-null="true" />
+        </property>
+        <property name="agreements" type="char">
+            <column name="agreements" length="1" not-null="true" />
+        </property>
+        <property name="agreementTerms" type="char">
+            <column name="agreement_terms" length="1" not-null="true" />
+        </property>
+        <property name="status" type="char">
+            <column name="status" length="1" not-null="true" />
+        </property>
+        <property name="createdDatetime" type="timestamp">
+            <column name="created_datetime" length="19" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

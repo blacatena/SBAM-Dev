@@ -1,6 +1,17 @@
 package com.scholastic.sbam.shared.objects;
 
-public abstract class BetterRowEditInstance {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+public abstract class BetterRowEditInstance implements IsSerializable {
+	private boolean newRecord = false;
+	
+	public boolean isNewRecord() {
+		return newRecord;
+	}
+	
+	public void setNewRecord(boolean newRecord) {
+		this.newRecord = newRecord;
+	}
 	
 	/**
 	 * Implement this method to set any property values that show that this instance is to be deleted from the database (or marked as such).
@@ -12,12 +23,6 @@ public abstract class BetterRowEditInstance {
 	 * @return
 	 */
 	public abstract boolean thisIsDeleted();
-	
-	/**
-	 * Implement this method to determine if a record has not yet been persisted in the database (i.e. represents a new row).
-	 * @return
-	 */
-	public abstract boolean thisIsNewRecord();
 	
 	/**
 	 * Implement this method, if desired, to determine if the values in a row taken together are valid (e.g. if two distinct properties have compatible values).

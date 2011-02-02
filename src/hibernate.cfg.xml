@@ -24,9 +24,11 @@
         <mapping resource="com/scholastic/sbam/server/database/codegen/DeleteReason.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/User.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/AuthIp.hbm.xml" />
+        <mapping resource="com/scholastic/sbam/server/database/codegen/CommissionType.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/ProductService.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/ExportAuthUnit.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/Agreement.hbm.xml" />
+        <mapping resource="com/scholastic/sbam/server/database/codegen/AuthMethod.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/CancelReason.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/PreferenceCategory.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/Product.hbm.xml" />
@@ -40,7 +42,7 @@
         <mapping resource="com/scholastic/sbam/server/database/codegen/WelcomeMessage.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/Service.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/UserMessage.hbm.xml" />
-        <mapping resource="com/scholastic/sbam/server/database/codegen/AuthUrl.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/PreferenceCode.hbm.xml" />
+        <mapping resource="com/scholastic/sbam/server/database/codegen/AuthUrl.hbm.xml" />
     </session-factory>
 </hibernate-configuration>

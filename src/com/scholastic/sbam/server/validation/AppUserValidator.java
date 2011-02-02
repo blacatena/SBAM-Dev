@@ -21,7 +21,7 @@ public class AppUserValidator {
 	public List<String> validateUser(UserInstance instance) {
 		if (instance.getStatus() == 'X')
 			return null;
-		validateUserName(instance.getUserName());
+		validateUserName(instance.getUserName(), instance.isNewRecord());
 		validateEmail(instance.getEmail());
 		validateRoleGroupTitle(instance.getRoleGroupTitle());
 		validateName(instance.getFirstName());
@@ -29,12 +29,12 @@ public class AppUserValidator {
 		return messages;
 	}
 	
-	public List<String> validateUserName(String value) {
-		if (original.getId() != null && original.getId() > 0) {
-			validateOldUserName(value);
-		} else {
+	public List<String> validateUserName(String value, boolean isNew) {
+		if (isNew) {
 			validateNewUserName(value);
-		}
+		} else {
+			validateOldUserName(value);
+		} 
 		return messages;
 	}
 	

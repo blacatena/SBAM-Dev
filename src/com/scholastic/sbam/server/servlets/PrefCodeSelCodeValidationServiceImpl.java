@@ -16,7 +16,7 @@ public class PrefCodeSelCodeValidationServiceImpl extends FieldValidationService
 	protected void doValidation(String value, BetterRowEditInstance original, AsyncValidationResponse response) {
 		AppPreferenceCodeValidator validator = new AppPreferenceCodeValidator();
 		validator.setOriginal((PreferenceCodeInstance) original);
-		response.addMessages(validator.validatePreferenceSelectionCode(value));
+		response.addMessages(validator.validatePreferenceSelectionCode(value, original.isNewRecord()));
 	}
 	
 	@Override

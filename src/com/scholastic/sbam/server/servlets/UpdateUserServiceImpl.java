@@ -85,9 +85,9 @@ public class UpdateUserServiceImpl extends AuthenticatedServiceServlet implement
 			//	Update roles
 			setRoles(instance);
 			
-			//	Refresh when new row is created, to get assigend ID
+			//	Refresh when new row is created, to get assigned ID
 			if (newCreated) {
-				DbUser.refresh(dbInstance);	// This may not be necessary, but just in case
+			//	DbUser.refresh(dbInstance);	// This may not be necessary, but just in case
 				instance.setId(dbInstance.getId());
 				instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
 			}

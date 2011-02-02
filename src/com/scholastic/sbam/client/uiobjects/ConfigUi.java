@@ -20,11 +20,13 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 	private TabItem  tbtmPreferences;
 	private TabItem  tbtmDeleteReasons;
 	private TabItem  tbtmCancelReasons;
+	private TabItem  tbtmCommissionTypes;
 	
 	private DeleteReasonEditGrid		deleteReasonEditGrid;
 	private CancelReasonEditGrid		cancelReasonEditGrid;
 	private ServiceEditGrid 			serviceEditGrid;
 	private TermTypeEditGrid 			termTypeEditGrid;
+	private CommissionTypeEditGrid		commissionTypeEditGrid;
 //	private PreferenceCategoryEditGrid 	preferenceCategoryEditGrid;
 	private DualEditGridContainer		preferenceEditGridContainer;
 	private DualEditGridContainer		productEditGridContainer;
@@ -44,12 +46,13 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		advanced.setTabScroll(true);  
 		advanced.setCloseContextMenu(true); 
 
-		tbtmProducts		=	addTab("Products",		IconSupplier.getProductIconName());
-		tbtmServices		=	addTab("Services",		IconSupplier.getServiceIconName());
-		tbtmTermTypes		=	addTab("Term Types",	IconSupplier.getTermTypeIconName());
 		tbtmPreferences		=	addTab("Preferences",	IconSupplier.getPreferenceIconName());
+		tbtmServices		=	addTab("Services",		IconSupplier.getServiceIconName());
+		tbtmProducts		=	addTab("Products",		IconSupplier.getProductIconName());
+		tbtmTermTypes		=	addTab("Term Types",	IconSupplier.getTermTypeIconName());
 		tbtmDeleteReasons	=	addTab("Delete Reasons",IconSupplier.getDeleteReasonIconName());
 		tbtmCancelReasons	=	addTab("Cancel Reasons",IconSupplier.getCancelReasonIconName());
+		tbtmCommissionTypes	=	addTab("Commission Types",IconSupplier.getCommissionTypeIconName());
 		
 		deleteReasonEditGrid = new DeleteReasonEditGrid();
 		tbtmDeleteReasons.add(deleteReasonEditGrid);
@@ -62,6 +65,9 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		
 		termTypeEditGrid = new TermTypeEditGrid();
 		tbtmTermTypes.add(termTypeEditGrid);
+		
+		commissionTypeEditGrid = new CommissionTypeEditGrid();
+		tbtmCommissionTypes.add(commissionTypeEditGrid);
 		
 		PreferenceCategoryEditGrid preferenceCategoryEditGrid = new PreferenceCategoryEditGrid();
 		preferenceCategoryEditGrid.setAutoExpandColumn("description");
@@ -114,6 +120,7 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 			tbtmCancelReasons.enable();
 			tbtmServices.enable();
 			tbtmTermTypes.enable();
+			tbtmCommissionTypes.enable();
 			tbtmPreferences.enable();
 			tbtmProducts.enable();
 		} else {
@@ -121,6 +128,7 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 			tbtmCancelReasons.disable();
 			tbtmServices.disable();
 			tbtmTermTypes.disable();
+			tbtmCommissionTypes.disable();
 			tbtmPreferences.disable();
 			tbtmProducts.disable();
 		}
@@ -131,6 +139,7 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		cancelReasonEditGrid.sleep();
 		serviceEditGrid.sleep();
 		termTypeEditGrid.sleep();
+		commissionTypeEditGrid.sleep();
 	//	preferenceCategoryEditGrid.sleep();
 		preferenceEditGridContainer.sleep();
 		productEditGridContainer.sleep();
@@ -143,6 +152,8 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 			cancelReasonEditGrid.awaken();
 		} else if (advanced.getSelectedItem() == tbtmServices) {
 			serviceEditGrid.awaken();
+		} else if (advanced.getSelectedItem() == tbtmCommissionTypes) {
+			commissionTypeEditGrid.awaken();
 		} else if (advanced.getSelectedItem() == tbtmTermTypes) {
 			termTypeEditGrid.awaken();
 		} else if (advanced.getSelectedItem() == tbtmPreferences) {
@@ -207,6 +218,14 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 
 	public void setTbtmCancelReasons(TabItem tbtmCancelReasons) {
 		this.tbtmCancelReasons = tbtmCancelReasons;
+	}
+
+	public TabItem getTbtmCommissionTypes() {
+		return tbtmCommissionTypes;
+	}
+
+	public void setTbtmCommissionTypes(TabItem tbtmCommissionTypes) {
+		this.tbtmCommissionTypes = tbtmCommissionTypes;
 	}
 	
 }

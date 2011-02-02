@@ -25,11 +25,6 @@ public class PreferenceCategoryInstance extends BetterRowEditInstance implements
 	}
 
 	@Override
-	public boolean thisIsNewRecord() {
-		return prefCatCode == null || prefCatCode.length() == 0;
-	}
-
-	@Override
 	public boolean thisIsValid() {
 		return true;
 	}

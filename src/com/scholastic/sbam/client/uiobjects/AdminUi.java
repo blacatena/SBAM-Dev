@@ -10,6 +10,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.scholastic.sbam.client.uiobjects.AppSecurityManager;
+import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.security.SecurityManager;
 
 public class AdminUi extends Composite implements AppSecurityManager, AppSleeper {
@@ -27,6 +28,7 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 		cntntpnlUsers = new ContentPanel();
 		cntntpnlUsers.setHeading("Users");
 		cntntpnlUsers.setCollapsible(true);
+		IconSupplier.setIcon(cntntpnlUsers, IconSupplier.getUsersIconName());
 		
 		cntntpnlUsers.addListener(Events.Collapse, new Listener<ComponentEvent>() {  
 			public void handleEvent(ComponentEvent be) {
@@ -46,16 +48,19 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 		cntntpnlMessages = new ContentPanel();
 		cntntpnlMessages.setHeading("Messages");
 		cntntpnlMessages.setCollapsible(true);
+		IconSupplier.setIcon(cntntpnlMessages, IconSupplier.getMessagesIconName());
 		layoutContainer.add(cntntpnlMessages);
 		
 		cntntpnlVersion = new ContentPanel();
 		cntntpnlVersion.setHeading("Version");
 		cntntpnlVersion.setCollapsible(true);
+		IconSupplier.setIcon(cntntpnlVersion, IconSupplier.getVersionIconName());
 		layoutContainer.add(cntntpnlVersion);
 		
 		cntntpnlProgramming = new ContentPanel();
 		cntntpnlProgramming.setHeading("Programming");
 		cntntpnlProgramming.setCollapsible(true);
+		IconSupplier.setIcon(cntntpnlProgramming, IconSupplier.getProgrammingIconName());
 		layoutContainer.add(cntntpnlProgramming);
 		
 		initComponent(layoutContainer);

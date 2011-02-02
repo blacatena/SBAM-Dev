@@ -93,9 +93,11 @@ public class TermTypeEditGrid extends BetterFilterEditGrid<TermTypeInstance> {
 
 					public void onSuccess(UpdateResponse<TermTypeInstance> updateResponse) {
 						TermTypeInstance updatedTermType = (TermTypeInstance) updateResponse.getInstance();
+						TermTypeInstance  storeInstance = targetBeanModel.getBean();
+						storeInstance.setNewRecord(false);
 						// If this user is newly created, back-populate the id
-						if (targetBeanModel.get("createdDatetime") == null) {
-							targetBeanModel.set("createdDatetime", updatedTermType.getCreatedDatetime());
+						if (storeInstance.getCreatedDatetime() == null) {
+							storeInstance.setCreatedDatetime(updatedTermType.getCreatedDatetime());
 						}
 				}
 			});

@@ -12,6 +12,8 @@ import com.scholastic.sbam.shared.validation.NameValidator;
 
 public class AppProductValidator {
 	
+	public static int MIN_CODE_LEN = 2;
+	
 	private List<String> messages = new ArrayList<String>();
 	
 	private	ProductInstance original;
@@ -20,7 +22,7 @@ public class AppProductValidator {
 	public List<String> validateProduct(ProductInstance instance) {
 		if (instance.getStatus() == 'X')
 			return null;
-		validateProductCode(instance.getProductCode());
+		validateProductCode(instance.getProductCode(), instance.isNewRecord());
 		validateDescription(instance.getDescription());
 		validateShortName(instance.getShortName());
 		validateDefaultTermType(instance.getDefaultTermType());
@@ -28,11 +30,11 @@ public class AppProductValidator {
 		return messages;
 	}
 	
-	public List<String> validateProductCode(String value) {
-		if (original.getProductCode() != null && original.getProductCode().length() > 0) {
-			validateOldProductCode(value);
-		} else {
+	public List<String> validateProductCode(String value, boolean isNew) {
+		if (isNew) {
 			validateNewProductCode(value);
+		} else {
+			validateOldProductCode(value);
 		}
 		return messages;
 	}
@@ -46,7 +48,7 @@ public class AppProductValidator {
 			return messages;
 		}
 		
-		addMessage((new CodeValidator(2)).validate(value));
+		addMessage((new CodeValidator(MIN_CODE_LEN)).validate(value));
 		
 		if (!product.getProductCode().equals(value))
 			addMessage("Product code cannot be changed.");
@@ -55,7 +57,7 @@ public class AppProductValidator {
 	}
 	
 	public List<String> validateNewProductCode(String value) {
-		addMessage((new CodeValidator()).validate(value));
+		addMessage((new CodeValidator(MIN_CODE_LEN)).validate(value));
 		if (value != null && value.length() > 0) {
 			Product conflict = DbProduct.getByCode(value);
 			if (conflict != null) {

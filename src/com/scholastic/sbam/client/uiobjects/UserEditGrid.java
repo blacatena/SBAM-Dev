@@ -234,6 +234,7 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 				user.setLastName("");
 				user.setEmail("");
 				user.setRoleGroupTitle("None");
+				user.setNewRecord(true);
 				 
 				re.stopEditing(false);
 				BeanModel userModel = getModel(user);
@@ -427,12 +428,14 @@ public class UserEditGrid extends LayoutContainer implements AppSleeper {
 
 					public void onSuccess(UpdateResponse<UserInstance> updateResponse) {
 						UserInstance updatedUser = (UserInstance) updateResponse.getInstance();
+						UserInstance  storeInstance = targetBeanModel.getBean();
+						storeInstance.setNewRecord(false);
 						// If this user is newly created, back-populate the id
-						if (targetBeanModel.get("id") == null) {
-							targetBeanModel.set("id",updatedUser.getId());
-							targetBeanModel.set("createdDatetime", updatedUser.getCreatedDatetime());
-						}
-						targetBeanModel.set("resetPassword", false);
+						if (storeInstance.getId() == null)
+							storeInstance.setId(updatedUser.getId());
+						if (storeInstance.getCreatedDatetime() == null)
+							storeInstance.setCreatedDatetime(updatedUser.getCreatedDatetime());
+						storeInstance.setResetPassword(false);
 						if (updateResponse.getMessage() != null && updateResponse.getMessage().length() > 0)
 							MessageBox.info("Please Note...", updateResponse.getMessage(), null);
 				}

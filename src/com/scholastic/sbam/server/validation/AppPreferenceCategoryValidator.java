@@ -11,6 +11,8 @@ import com.scholastic.sbam.shared.validation.NameValidator;
 
 public class AppPreferenceCategoryValidator {
 	
+	public static int MIN_CODE_LEN = 2;
+	
 	private List<String> messages = new ArrayList<String>();
 	
 	private	PreferenceCategoryInstance original;
@@ -19,17 +21,17 @@ public class AppPreferenceCategoryValidator {
 	public List<String> validatePreferenceCategory(PreferenceCategoryInstance instance) {
 		if (instance.getStatus() == 'X')
 			return null;
-		validatePreferenceCategoryCode(instance.getPrefCatCode());
+		validatePreferenceCategoryCode(instance.getPrefCatCode(), instance.isNewRecord());
 		validateDescription(instance.getDescription());
 		validateStatus(instance.getStatus());
 		return messages;
 	}
 	
-	public List<String> validatePreferenceCategoryCode(String value) {
-		if (original.getPrefCatCode() != null && original.getPrefCatCode().length() > 0) {
-			validateOldPreferenceCategoryCode(value);
-		} else {
+	public List<String> validatePreferenceCategoryCode(String value, boolean isNew) {
+		if (isNew) {
 			validateNewPreferenceCategoryCode(value);
+		} else {
+			validateOldPreferenceCategoryCode(value);
 		}
 		return messages;
 	}
@@ -43,7 +45,7 @@ public class AppPreferenceCategoryValidator {
 			return messages;
 		}
 		
-		addMessage((new CodeValidator(2)).validate(value));
+		addMessage((new CodeValidator(MIN_CODE_LEN)).validate(value));
 		
 		if (!preferenceCategory.getPrefCatCode().equals(value))
 			addMessage("Preference Category code cannot be changed.");
@@ -52,7 +54,7 @@ public class AppPreferenceCategoryValidator {
 	}
 	
 	public List<String> validateNewPreferenceCategoryCode(String value) {
-		addMessage((new CodeValidator()).validate(value));
+		addMessage((new CodeValidator(MIN_CODE_LEN)).validate(value));
 		if (value != null && value.length() > 0) {
 			PreferenceCategory conflict = DbPreferenceCategory.getByCode(value);
 			if (conflict != null) {

@@ -13,6 +13,8 @@ import com.scholastic.sbam.shared.validation.NameValidator;
 
 public class AppPreferenceCodeValidator {
 	
+	public static int MIN_CODE_LEN = 2;
+	
 	private List<String> messages = new ArrayList<String>();
 	
 	private	PreferenceCodeInstance	original;
@@ -23,7 +25,7 @@ public class AppPreferenceCodeValidator {
 		if (instance.getStatus() == 'X')
 			return null;
 		validatePreferenceCategoryCode(instance.getPrefCatCode());
-		validatePreferenceSelectionCode(instance.getPrefSelCode());
+		validatePreferenceSelectionCode(instance.getPrefSelCode(), instance.isNewRecord());
 		validateDescription(instance.getDescription());
 		validateStatus(instance.getStatus());
 		return messages;
@@ -38,7 +40,7 @@ public class AppPreferenceCodeValidator {
 			return messages;
 		}
 		
-		addMessage((new CodeValidator(2)).validate(value));
+		addMessage((new CodeValidator(MIN_CODE_LEN)).validate(value));
 		
 		if (!preferenceCategory.getPrefCatCode().equals(value))
 			addMessage("Preference Category code cannot be changed.");
@@ -51,11 +53,11 @@ public class AppPreferenceCodeValidator {
 		return messages;
 	}
 	
-	public List<String> validatePreferenceSelectionCode(String value) {
-		if (original.getPrefCatCode() != null && original.getPrefCatCode().length() > 0) {
-			validateOldPreferenceSelectionCode(value);
-		} else {
+	public List<String> validatePreferenceSelectionCode(String value, boolean isNew) {
+		if (isNew) {
 			validateNewPreferenceSelectionCode(value);
+		} else {
+			validateOldPreferenceSelectionCode(value);
 		}
 		return messages;
 	}
@@ -69,7 +71,7 @@ public class AppPreferenceCodeValidator {
 			return messages;
 		}
 		
-		addMessage((new CodeValidator(2)).validate(value));
+		addMessage((new CodeValidator(MIN_CODE_LEN)).validate(value));
 		
 		if (!preferenceCategory.getPrefCatCode().equals(value))
 			addMessage("Preference selection code cannot be changed.");
@@ -78,7 +80,7 @@ public class AppPreferenceCodeValidator {
 	}
 	
 	public List<String> validateNewPreferenceSelectionCode(String value) {
-		addMessage((new CodeValidator()).validate(value));
+		addMessage((new CodeValidator(MIN_CODE_LEN)).validate(value));
 		if (value != null && value.length() > 0) {
 			PreferenceCategory conflict = DbPreferenceCategory.getByCode(value);
 			if (conflict != null) {

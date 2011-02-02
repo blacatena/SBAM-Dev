@@ -27,7 +27,7 @@ public class TermTypeListServiceImpl extends AuthenticatedServiceServlet impleme
 		List<TermTypeInstance> list = new ArrayList<TermTypeInstance>();
 		try {
 			
-			//	Find only undeleted cancel reasons
+			//	Find only undeleted term types
 			List<TermType> dbInstances = DbTermType.findFiltered(null, null, (char) 0, (char) 0, 'X');
 
 			for (TermType dbInstance : dbInstances) {

@@ -101,10 +101,6 @@ public class UserInstance extends BetterRowEditInstance implements IsSerializabl
 		return status == 'X';
 	}
 	@Override
-	public boolean thisIsNewRecord() {
-		return id == null;
-	}
-	@Override
 	public boolean thisIsValid() {
 		return true;
 	}

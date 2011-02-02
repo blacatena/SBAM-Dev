@@ -25,11 +25,6 @@ public class TermTypeInstance extends BetterRowEditInstance implements BeanModel
 	}
 
 	@Override
-	public boolean thisIsNewRecord() {
-		return termTypeCode == null || termTypeCode.length() == 0;
-	}
-
-	@Override
 	public boolean thisIsValid() {
 		return true;
 	}

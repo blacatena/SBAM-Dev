@@ -70,8 +70,28 @@ public class IconSupplier {
 		return "cancelreason.png";
 	}
 	
+	public static String getCommissionTypeIconName() {
+		return "commissions.png";
+	}
+	
 	public static String getNoteIconName() {
 		return "note.png";
+	}
+	
+	public static String getUsersIconName() {
+		return "users.png";
+	}
+	
+	public static String getProgrammingIconName() {
+		return "programming.png";
+	}
+	
+	public static String getVersionIconName() {
+		return "version.png";
+	}
+	
+	public static String getMessagesIconName() {
+		return "messages.png";
 	}
 	
 	public static String getSaveIconName() {

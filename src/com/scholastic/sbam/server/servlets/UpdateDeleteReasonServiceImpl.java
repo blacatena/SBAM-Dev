@@ -64,10 +64,10 @@ public class UpdateDeleteReasonServiceImpl extends AuthenticatedServiceServlet i
 			//	Persist in database
 			DbDeleteReason.persist(dbInstance);
 			
-			//	Refresh when new row is created, to get assigend ID
+			//	Refresh when new row is created, to get assigned ID
 			if (newCreated) {
-				DbDeleteReason.refresh(dbInstance);	// This may not be necessary, but just in case
-			//	instance.setId(dbInstance.getId());	// Not autoincrement, so not needed
+			//	DbDeleteReason.refresh(dbInstance);	// This may not be necessary, but just in case
+			//	instance.setId(dbInstance.getId());	// Not auto-increment, so not needed
 				instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
 			}
 			

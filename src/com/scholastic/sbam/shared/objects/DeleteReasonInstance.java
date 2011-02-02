@@ -23,11 +23,6 @@ public class DeleteReasonInstance extends BetterRowEditInstance implements IsSer
 	}
 
 	@Override
-	public boolean thisIsNewRecord() {
-		return deleteReasonCode == null || deleteReasonCode.length() == 0;
-	}
-
-	@Override
 	public boolean thisIsValid() {
 		return true;
 	}
@@ -84,5 +79,4 @@ public class DeleteReasonInstance extends BetterRowEditInstance implements IsSer
 			return;
 		setStatus(active?'A':'I');
 	}
-
 }

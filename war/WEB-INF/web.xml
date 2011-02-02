@@ -72,6 +72,21 @@
   </servlet>
   
   <servlet>
+    <servlet-name>commissionTypeListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.CommissionTypeListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updateCommissionTypeServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateCommissionTypeServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>commissionCodeValidationServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.CommissionCodeValidationServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>deleteReasonListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.DeleteReasonListServiceImpl</servlet-class>
   </servlet>
@@ -224,6 +239,21 @@
   <servlet-mapping>
     <servlet-name>cancelReasonCodeValidationServlet</servlet-name>
     <url-pattern>/sbam/validateCancelReasonCode</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>commissionTypeListServlet</servlet-name>
+    <url-pattern>/sbam/getCommissionTypes</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateCommissionTypeServlet</servlet-name>
+    <url-pattern>/sbam/updateCommissionType</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>commissionCodeValidationServlet</servlet-name>
+    <url-pattern>/sbam/validateCommissionCode</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

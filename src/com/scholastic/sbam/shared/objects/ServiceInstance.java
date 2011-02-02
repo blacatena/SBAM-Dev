@@ -31,11 +31,6 @@ public class ServiceInstance extends BetterRowEditInstance implements BeanModelT
 	}
 
 	@Override
-	public boolean thisIsNewRecord() {
-		return serviceCode == null || serviceCode.length() == 0;
-	}
-
-	@Override
 	public boolean thisIsValid() {
 		return true;
 	}

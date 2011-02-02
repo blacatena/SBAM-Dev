@@ -327,6 +327,7 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 			@Override
 			public void componentSelected(ButtonEvent ce) {
 				I instance = getNewInstance();
+				instance.setNewRecord(true);
 				 
 				re.stopEditing(false);
 				BeanModel userModel = getModel(instance);

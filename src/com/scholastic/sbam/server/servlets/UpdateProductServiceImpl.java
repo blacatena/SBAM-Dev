@@ -68,10 +68,10 @@ public class UpdateProductServiceImpl extends AuthenticatedServiceServlet implem
 			//	Persist in database
 			DbProduct.persist(dbInstance);
 			
-			//	Refresh when new row is created, to get assigend ID
+			//	Refresh when new row is created, to get assigned ID
 			if (newCreated) {
-				DbProduct.refresh(dbInstance);	// This may not be necessary, but just in case
-			//	instance.setId(dbInstance.getId());	// Not autoincrement, so not needed
+			//	DbProduct.refresh(dbInstance);	// This may not be necessary, but just in case
+			//	instance.setId(dbInstance.getId());	// Not auto-increment, so not needed
 				instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
 			}
 			

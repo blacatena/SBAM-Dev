@@ -16,7 +16,7 @@ public class ProductCodeValidationServiceImpl extends FieldValidationServiceImpl
 	protected void doValidation(String value, BetterRowEditInstance original, AsyncValidationResponse response) {
 		AppProductValidator validator = new AppProductValidator();
 		validator.setOriginal((ProductInstance) original);
-		response.addMessages(validator.validateProductCode(value));
+		response.addMessages(validator.validateProductCode(value, original.isNewRecord()));
 	}
 	
 	@Override

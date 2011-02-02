@@ -72,10 +72,10 @@ public class UpdateServiceServiceImpl extends AuthenticatedServiceServlet implem
 			//	Persist in database
 			DbService.persist(dbInstance);
 			
-			//	Refresh when new row is created, to get assigend ID
+			//	Refresh when new row is created, to get assigned ID
 			if (newCreated) {
-				DbService.refresh(dbInstance);	// This may not be necessary, but just in case
-			//	instance.setId(dbInstance.getId());	// Not autoincrement, so not needed
+			//	DbService.refresh(dbInstance);	// This may not be necessary, but just in case
+			//	instance.setId(dbInstance.getId());	// Not auto-increment, so not needed
 				instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
 			}
 			

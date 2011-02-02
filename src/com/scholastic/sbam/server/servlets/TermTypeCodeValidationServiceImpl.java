@@ -16,7 +16,7 @@ public class TermTypeCodeValidationServiceImpl extends FieldValidationServiceImp
 	protected void doValidation(String value, BetterRowEditInstance original, AsyncValidationResponse response) {
 		AppTermTypeValidator validator = new AppTermTypeValidator();
 		validator.setOriginal((TermTypeInstance) original);
-		response.addMessages(validator.validateTermTypeCode(value));
+		response.addMessages(validator.validateTermTypeCode(value, original.isNewRecord()));
 	}
 	
 	@Override

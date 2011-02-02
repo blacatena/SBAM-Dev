@@ -97,9 +97,11 @@ public class ServiceEditGrid extends BetterFilterEditGrid<ServiceInstance> {
 
 					public void onSuccess(UpdateResponse<ServiceInstance> updateResponse) {
 						ServiceInstance updatedService = (ServiceInstance) updateResponse.getInstance();
+						ServiceInstance  storeInstance = targetBeanModel.getBean();
+						storeInstance.setNewRecord(false);
 						// If this user is newly created, back-populate the id
-						if (targetBeanModel.get("createdDatetime") == null) {
-							targetBeanModel.set("createdDatetime", updatedService.getCreatedDatetime());
+						if (storeInstance.getCreatedDatetime() == null) {
+							storeInstance.setCreatedDatetime(updatedService.getCreatedDatetime());
 						}
 				}
 			});

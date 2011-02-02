@@ -11,6 +11,8 @@ import com.scholastic.sbam.shared.validation.NameValidator;
 
 public class AppDeleteReasonValidator {
 	
+	public static int MIN_CODE_LEN = 2;
+	
 	private List<String> messages = new ArrayList<String>();
 	
 	private	DeleteReasonInstance original;
@@ -19,17 +21,17 @@ public class AppDeleteReasonValidator {
 	public List<String> validateDeleteReason(DeleteReasonInstance instance) {
 		if (instance.getStatus() == 'X')
 			return null;
-		validateDeleteReasonCode(instance.getDeleteReasonCode());
+		validateDeleteReasonCode(instance.getDeleteReasonCode(), instance.isNewRecord());
 		validateDescription(instance.getDescription());
 		validateStatus(instance.getStatus());
 		return messages;
 	}
 	
-	public List<String> validateDeleteReasonCode(String value) {
-		if (original.getDeleteReasonCode() != null && original.getDeleteReasonCode().length() > 0) {
-			validateOldDeleteReasonCode(value);
-		} else {
+	public List<String> validateDeleteReasonCode(String value, boolean isNew) {
+		if (isNew) {
 			validateNewDeleteReasonCode(value);
+		} else {
+			validateOldDeleteReasonCode(value);
 		}
 		return messages;
 	}
@@ -43,7 +45,7 @@ public class AppDeleteReasonValidator {
 			return messages;
 		}
 		
-		addMessage((new CodeValidator(2)).validate(value));
+		addMessage((new CodeValidator(MIN_CODE_LEN)).validate(value));
 		
 		if (!deleteReason.getDeleteReasonCode().equals(value))
 			addMessage("Delete reason code cannot be changed.");
@@ -52,7 +54,7 @@ public class AppDeleteReasonValidator {
 	}
 	
 	public List<String> validateNewDeleteReasonCode(String value) {
-		addMessage((new CodeValidator()).validate(value));
+		addMessage((new CodeValidator(MIN_CODE_LEN)).validate(value));
 		if (value != null && value.length() > 0) {
 			DeleteReason conflict = DbDeleteReason.getByCode(value);
 			if (conflict != null) {

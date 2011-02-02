@@ -11,6 +11,8 @@ import com.scholastic.sbam.shared.validation.NameValidator;
 
 public class AppTermTypeValidator {
 	
+	public static int MIN_CODE_LEN = 2;
+	
 	private List<String> messages = new ArrayList<String>();
 	
 	private	TermTypeInstance original;
@@ -19,18 +21,18 @@ public class AppTermTypeValidator {
 	public List<String> validateTermType(TermTypeInstance instance) {
 		if (instance.getStatus() == 'X')
 			return null;
-		validateTermTypeCode(instance.getTermTypeCode());
+		validateTermTypeCode(instance.getTermTypeCode(), instance.isNewRecord());
 		validateDescription(instance.getDescription());
 	//	validateActivate(instance.getActivate());
 		validateStatus(instance.getStatus());
 		return messages;
 	}
 	
-	public List<String> validateTermTypeCode(String value) {
-		if (original.getTermTypeCode() != null && original.getTermTypeCode().length() > 0) {
-			validateOldTermTypeCode(value);
+	public List<String> validateTermTypeCode(String value, boolean isNew) {
+		if (isNew) {
+			validateNewTermTypeCode(value);	
 		} else {
-			validateNewTermTypeCode(value);
+			validateOldTermTypeCode(value);
 		}
 		return messages;
 	}
@@ -44,7 +46,7 @@ public class AppTermTypeValidator {
 			return messages;
 		}
 		
-		addMessage((new CodeValidator(2)).validate(value));
+		addMessage((new CodeValidator(MIN_CODE_LEN)).validate(value));
 		
 		if (!termType.getTermTypeCode().equals(value))
 			addMessage("Term type code cannot be changed.");
@@ -53,7 +55,7 @@ public class AppTermTypeValidator {
 	}
 	
 	public List<String> validateNewTermTypeCode(String value) {
-		addMessage((new CodeValidator()).validate(value));
+		addMessage((new CodeValidator(MIN_CODE_LEN)).validate(value));
 		if (value != null && value.length() > 0) {
 			TermType conflict = DbTermType.getByCode(value);
 			if (conflict != null) {

@@ -11,6 +11,8 @@ import com.scholastic.sbam.shared.validation.NameValidator;
 
 public class AppCancelReasonValidator {
 	
+	public static int MIN_CODE_LEN = 2;
+	
 	private List<String> messages = new ArrayList<String>();
 	
 	private	CancelReasonInstance original;
@@ -19,18 +21,18 @@ public class AppCancelReasonValidator {
 	public List<String> validateCancelReason(CancelReasonInstance instance) {
 		if (instance.getStatus() == 'X')
 			return null;
-		validateCancelReasonCode(instance.getCancelReasonCode());
+		validateCancelReasonCode(instance.getCancelReasonCode(), instance.isNewRecord());
 		validateDescription(instance.getDescription());
 	//	validateChangeNotCancel(instance.getChangeNotCancel());
 		validateStatus(instance.getStatus());
 		return messages;
 	}
 	
-	public List<String> validateCancelReasonCode(String value) {
-		if (original.getCancelReasonCode() != null && original.getCancelReasonCode().length() > 0) {
-			validateOldCancelReasonCode(value);
-		} else {
+	public List<String> validateCancelReasonCode(String value, boolean isNew) {
+		if (isNew) {
 			validateNewCancelReasonCode(value);
+		} else {
+			validateOldCancelReasonCode(value);
 		}
 		return messages;
 	}
@@ -44,7 +46,7 @@ public class AppCancelReasonValidator {
 			return messages;
 		}
 		
-		addMessage((new CodeValidator(2)).validate(value));
+		addMessage((new CodeValidator(MIN_CODE_LEN)).validate(value));
 		
 		if (!cancelReason.getCancelReasonCode().equals(value))
 			addMessage("Cancel reason code cannot be changed.");
@@ -53,7 +55,7 @@ public class AppCancelReasonValidator {
 	}
 	
 	public List<String> validateNewCancelReasonCode(String value) {
-		addMessage((new CodeValidator()).validate(value));
+		addMessage((new CodeValidator(MIN_CODE_LEN)).validate(value));
 		if (value != null && value.length() > 0) {
 			CancelReason conflict = DbCancelReason.getByCode(value);
 			if (conflict != null) {

@@ -380,7 +380,7 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 		if (instance == null)
 			return false;
 		
-		return instance.thisIsNewRecord();
+		return instance.isNewRecord();
 	}
 
 	public ListStore<BeanModel> getStore() {
