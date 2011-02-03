@@ -8,6 +8,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Composite;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
+import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.scholastic.sbam.client.uiobjects.AppSecurityManager;
 import com.scholastic.sbam.client.util.IconSupplier;
@@ -25,7 +26,7 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 		LayoutContainer layoutContainer = new LayoutContainer();
 		layoutContainer.setLayout(new AccordionLayout());
 		
-		cntntpnlUsers = new ContentPanel();
+		cntntpnlUsers = new ContentPanel(new CenterLayout());
 		cntntpnlUsers.setHeading("Users");
 		cntntpnlUsers.setCollapsible(true);
 		IconSupplier.setIcon(cntntpnlUsers, IconSupplier.getUsersIconName());
