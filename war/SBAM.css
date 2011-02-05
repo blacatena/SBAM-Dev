@@ -76,6 +76,34 @@ background-image:url(resources/themes/xtheme-wheat/images/wheat/shared/warning.g
 	padding-left: 50px;
 }
 
+.pdocImage {
+	padding: 5px;
+}
+
+.pdocTitle {
+	padding: 5px;
+	color:	dimgray;
+}
+
+a.pdocLink:link, a.pdocLink:active {
+	text-decoration: underline;
+	color:	saddlebrown;
+}
+
+a.pdocLink:visited {
+	color: darkgoldenrod;
+}
+
+a.pdocLink:hover {
+	color: goldenrod;
+}
+
+.pdocDescr {
+	padding: 5px;
+	color:	 black;
+	background-color: cornsilk;
+}
+
 /* override modal behavior to be darker */
 *.x-modal {
   filter: alpha(opacity =                         60);

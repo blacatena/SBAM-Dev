@@ -34,7 +34,7 @@ public class DocumentationLinksDisplay extends Composite implements AppSleeper {
 		
 		initComponent(layoutContainer);
 		
-		startReload();
+	//	startReload();
 	}
 	
 	public void startReload() {
@@ -78,36 +78,39 @@ public class DocumentationLinksDisplay extends Composite implements AppSleeper {
 					String contents = "";
 					Html   html;
 					for (DocumentationInstance link : list) {
-						contents = "";
+						contents = "<div  class=\"pdocImage\">";
 						if (link.getIconImage() != null && link.getIconImage().length() > 0) {
 							contents += "<img src=\"";
 							contents += link.getIconImage();
 							contents += "\" border=0/ style=\"padding-right: 10px\">";
 						}
+						contents += "</div>";
 						html = new Html(contents);
 						html.setWidth(50);
 						docList.add(html);
 						
 						//	Add link to/title of document
-						contents = "";
+						contents = "<div  class=\"pdocTitle\">";
 						if (link.getLink() != null) {
 							contents += "<a href=\"";
 							contents += getLink(link);
-							contents += "\" target=\"_blank\" >";
+							contents += "\" target=\"_blank\" class=\"pdocLink\" >";
 							contents += link.getTitle();
 							contents += "</a>";
 						} else {
 							contents += link.getTitle();
 						}
+						contents += "</div>";
 						html = new Html(contents);
 						html.setWidth(150);
 						docList.add(html);
 						
 						// Add description of document
-						contents = "";
+						contents = "<div  class=\"pdocDescr\">";
 						if (link.getDescription() != null) {
-							contents = link.getDescription();
+							contents += link.getDescription();
 						}
+						contents += "</div>";
 						html = new Html(contents);
 					//	html.setWidth(50);
 						docList.add(html);
