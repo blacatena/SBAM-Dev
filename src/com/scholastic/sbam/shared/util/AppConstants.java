@@ -4,11 +4,15 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 
 public class AppConstants {
+	public static final String VERSION = "0.0dev";
+	public static final String VERSION_DESCRIPTION = "In Development.";
+	
 	public static final DateTimeFormat APP_DATE_TIME_FORMAT = DateTimeFormat.getFormat(PredefinedFormat.DATE_MEDIUM);	//	DateTimeFormat.getFormat("MM/dd/yy");
 	
 	public static final char STATUS_ACTIVE		= 'A';
 	public static final char STATUS_INACTIVE	= 'I';
 	public static final char STATUS_DELETED		= 'X';
+	public static final char STATUS_EXPIRED		= 'E';
 	
 	public static final char PATH_DELIMITER		= '/';
 	public static final char PATH_ESCAPE		= '\\';

@@ -20,6 +20,7 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 	private ContentPanel cntntpnlVersion;
 	private ContentPanel cntntpnlProgramming;
 	private UserEditGrid userEditGrid;
+	private DocumentationLinksDisplay docLinksDisplay;
 
 	public AdminUi() {
 		
@@ -56,13 +57,24 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 		cntntpnlVersion.setHeading("Version");
 		cntntpnlVersion.setCollapsible(true);
 		IconSupplier.setIcon(cntntpnlVersion, IconSupplier.getVersionIconName());
+		cntntpnlVersion.add(new VersionDisplay());
 		layoutContainer.add(cntntpnlVersion);
 		
 		cntntpnlProgramming = new ContentPanel();
 		cntntpnlProgramming.setHeading("Programming");
 		cntntpnlProgramming.setCollapsible(true);
 		IconSupplier.setIcon(cntntpnlProgramming, IconSupplier.getProgrammingIconName());
+		
+		docLinksDisplay = new DocumentationLinksDisplay();
+		cntntpnlProgramming.add(docLinksDisplay);
 		layoutContainer.add(cntntpnlProgramming);
+		
+		cntntpnlProgramming.addListener(Events.Expand, new Listener<ComponentEvent>() {
+            public void handleEvent(ComponentEvent be) {
+            	if(docLinksDisplay != null)
+            		docLinksDisplay.startReload();
+            }
+        });
 		
 		initComponent(layoutContainer);
 		layoutContainer.setBorders(true);
@@ -72,19 +84,27 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 		if (roleNames.contains(SecurityManager.ROLE_ADMIN)) {
 			cntntpnlUsers.enable();
 			cntntpnlMessages.enable();
+			cntntpnlVersion.enable();
+			cntntpnlProgramming.enable();
 		} else {
 			cntntpnlUsers.disable();
 			cntntpnlMessages.disable();
+			cntntpnlVersion.disable();
+			cntntpnlProgramming.disable();
 		}
 	}
 	
 	public void sleep() {
 		userEditGrid.sleep();
+		docLinksDisplay.sleep();
 	}
 	
 	public void awaken() {
 		if (!cntntpnlUsers.isCollapsed()) {
 			userEditGrid.awaken();
+		}
+		if (!cntntpnlProgramming.isCollapsed()) {
+			docLinksDisplay.awaken();
 		}
 	}
 	

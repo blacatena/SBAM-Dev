@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Jan 31, 2011 3:49:16 PM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Feb 4, 2011 11:02:15 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.AgreementTerm" table="agreement_term" catalog="sbam">
         <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.AgreementTermId">

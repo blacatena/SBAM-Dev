@@ -102,6 +102,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>documentationListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.DocumentationListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>preferenceCategoryListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.PreferenceCategoryListServiceImpl</servlet-class>
   </servlet>
@@ -269,6 +274,11 @@
   <servlet-mapping>
     <servlet-name>deleteReasonCodeValidationServlet</servlet-name>
     <url-pattern>/sbam/validateDeleteReasonCode</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>documentationListServlet</servlet-name>
+    <url-pattern>/sbam/getDocumentationLinks</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

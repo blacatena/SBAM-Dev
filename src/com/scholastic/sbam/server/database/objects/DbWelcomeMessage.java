@@ -10,6 +10,7 @@ import org.hibernate.criterion.Restrictions;
 
 import com.scholastic.sbam.server.database.codegen.WelcomeMessage;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
+import com.scholastic.sbam.shared.util.AppConstants;
 
 /**
  * Sample database table accessor class, extending HibernateAccessor, and implementing custom get/find methods.
@@ -27,21 +28,34 @@ public class DbWelcomeMessage extends HibernateAccessor {
         {
             Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
             crit.add(Restrictions.gt("expireDate", new Date()));
-            crit.add(Restrictions.ne("deleted", "Y"));
+            crit.add(Restrictions.eq("status", AppConstants.STATUS_ACTIVE));
             crit.addOrder(Order.desc("postDate"));
             List<WelcomeMessage> objects = crit.list();
             return objects;
-//            List<WelcomeMessage> welcomeMessages = new ArrayList<WelcomeMessage>();
-//            for (Object object: objects)
-//            	welcomeMessages.add((WelcomeMessage) object);
-//            return welcomeMessages;
         }
         catch(Exception e)
         {
             System.out.println(e.getMessage());
             throw e;
         }
-    //    return new ArrayList<WelcomeMessage>();
+	}
+
+    @SuppressWarnings("unchecked")
+	public static List<WelcomeMessage> findAfterExpireDate(Date expireDate) throws Exception {
+        try
+        {
+            Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
+            crit.add(Restrictions.gt("expireDate", expireDate));
+            crit.add(Restrictions.ne("status", AppConstants.STATUS_DELETED));
+            crit.addOrder(Order.desc("postDate"));
+            List<WelcomeMessage> objects = crit.list();
+            return objects;
+        }
+        catch(Exception e)
+        {
+            System.out.println(e.getMessage());
+            throw e;
+        }
 	}
 	
 	public static List<WelcomeMessage> findAll() {

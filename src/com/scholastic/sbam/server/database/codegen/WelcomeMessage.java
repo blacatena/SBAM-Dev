@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Jan 31, 2011 3:49:15 PM by Hibernate Tools 3.2.4.GA
+// Generated Feb 4, 2011 11:02:14 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -14,18 +14,18 @@ public class WelcomeMessage implements java.io.Serializable {
 	private String title;
 	private String content;
 	private Date expireDate;
-	private char deleted;
+	private char status;
 
 	public WelcomeMessage() {
 	}
 
 	public WelcomeMessage(Date postDate, String title, String content,
-			Date expireDate, char deleted) {
+			Date expireDate, char status) {
 		this.postDate = postDate;
 		this.title = title;
 		this.content = content;
 		this.expireDate = expireDate;
-		this.deleted = deleted;
+		this.status = status;
 	}
 
 	public Integer getId() {
@@ -68,12 +68,12 @@ public class WelcomeMessage implements java.io.Serializable {
 		this.expireDate = expireDate;
 	}
 
-	public char getDeleted() {
-		return this.deleted;
+	public char getStatus() {
+		return this.status;
 	}
 
-	public void setDeleted(char deleted) {
-		this.deleted = deleted;
+	public void setStatus(char status) {
+		this.status = status;
 	}
 
 }
