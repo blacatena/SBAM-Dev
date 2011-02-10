@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Feb 4, 2011 11:02:14 PM by Hibernate Tools 3.2.4.GA
+// Generated Feb 10, 2011 10:50:48 AM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -12,7 +12,7 @@ public class Documentation implements java.io.Serializable {
 	private Integer id;
 	private int seq;
 	private String title;
-	private String type;
+	private String types;
 	private String link;
 	private String iconImage;
 	private String docVersion;
@@ -24,12 +24,12 @@ public class Documentation implements java.io.Serializable {
 	public Documentation() {
 	}
 
-	public Documentation(int seq, String title, String type, String link,
+	public Documentation(int seq, String title, String types, String link,
 			String iconImage, String docVersion, String description,
 			Date updatedDatetime, Date createdDatetime, char status) {
 		this.seq = seq;
 		this.title = title;
-		this.type = type;
+		this.types = types;
 		this.link = link;
 		this.iconImage = iconImage;
 		this.docVersion = docVersion;
@@ -63,12 +63,12 @@ public class Documentation implements java.io.Serializable {
 		this.title = title;
 	}
 
-	public String getType() {
-		return this.type;
+	public String getTypes() {
+		return this.types;
 	}
 
-	public void setType(String type) {
-		this.type = type;
+	public void setTypes(String types) {
+		this.types = types;
 	}
 
 	public String getLink() {

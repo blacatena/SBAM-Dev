@@ -21,11 +21,30 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 	private ContentPanel cntntpnlProgramming;
 	private UserEditGrid userEditGrid;
 	private DocumentationLinksDisplay docLinksDisplay;
+	private WelcomeMessageEditGrid welcomeMessageEditGrid;
 
 	public AdminUi() {
 		
 		LayoutContainer layoutContainer = new LayoutContainer();
 		layoutContainer.setLayout(new AccordionLayout());
+		
+		/*
+		 * Welcome Messages edit
+		 */
+		
+		cntntpnlMessages = new ContentPanel();
+		cntntpnlMessages.setHeading("Messages");
+		cntntpnlMessages.setCollapsible(true);
+		cntntpnlMessages.setLayout(new CenterLayout());
+		IconSupplier.setIcon(cntntpnlMessages, IconSupplier.getMessagesIconName());
+		
+		welcomeMessageEditGrid = new WelcomeMessageEditGrid();
+		cntntpnlMessages.add(welcomeMessageEditGrid);
+		layoutContainer.add(cntntpnlMessages);
+		
+		/*
+		 * Users edit
+		 */
 		
 		cntntpnlUsers = new ContentPanel(new CenterLayout());
 		cntntpnlUsers.setHeading("Users");
@@ -47,11 +66,9 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 		cntntpnlUsers.add(userEditGrid);
 		layoutContainer.add(cntntpnlUsers);
 		
-		cntntpnlMessages = new ContentPanel();
-		cntntpnlMessages.setHeading("Messages");
-		cntntpnlMessages.setCollapsible(true);
-		IconSupplier.setIcon(cntntpnlMessages, IconSupplier.getMessagesIconName());
-		layoutContainer.add(cntntpnlMessages);
+		/*
+		 * Version display
+		 */
 		
 		cntntpnlVersion = new ContentPanel();
 		cntntpnlVersion.setHeading("Version");
@@ -59,6 +76,10 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 		IconSupplier.setIcon(cntntpnlVersion, IconSupplier.getVersionIconName());
 		cntntpnlVersion.add(new VersionDisplay());
 		layoutContainer.add(cntntpnlVersion);
+		
+		/*
+		 * Programming documentation links
+		 */
 		
 		cntntpnlProgramming = new ContentPanel();
 		cntntpnlProgramming.setHeading("Programming");

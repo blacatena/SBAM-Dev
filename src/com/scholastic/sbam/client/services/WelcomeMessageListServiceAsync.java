@@ -8,6 +8,6 @@ import com.scholastic.sbam.shared.objects.WelcomeMessageInstance;
 
 public interface WelcomeMessageListServiceAsync {
 
-	void getWelcomeMessages(LoadConfig loadConfig, AsyncCallback<List<WelcomeMessageInstance>> callback);
+	void getWelcomeMessageList(LoadConfig loadConfig, AsyncCallback<List<WelcomeMessageInstance>> callback);
 
 }

@@ -27,7 +27,7 @@ public class DbDocumentation extends HibernateAccessor {
 		instance.setId(dbInstance.getId());
 		instance.setTitle(dbInstance.getTitle());
 		instance.setSeq(dbInstance.getSeq());
-		instance.setType(dbInstance.getType());
+		instance.setTypes(dbInstance.getTypes());
 		instance.setDocVersion(dbInstance.getDocVersion());
 		instance.setDescription(dbInstance.getDescription());
 		instance.setLink(dbInstance.getLink());

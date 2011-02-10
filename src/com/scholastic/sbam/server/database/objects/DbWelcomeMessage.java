@@ -10,6 +10,7 @@ import org.hibernate.criterion.Restrictions;
 
 import com.scholastic.sbam.server.database.codegen.WelcomeMessage;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
+import com.scholastic.sbam.shared.objects.WelcomeMessageInstance;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 /**
@@ -21,6 +22,22 @@ import com.scholastic.sbam.shared.util.AppConstants;
 public class DbWelcomeMessage extends HibernateAccessor {
 	
 	static String objectName = WelcomeMessage.class.getSimpleName();
+	
+	public static WelcomeMessageInstance getInstance(WelcomeMessage dbInstance) {
+		WelcomeMessageInstance instance = new WelcomeMessageInstance();
+		instance.setId(dbInstance.getId());
+		instance.setTitle(dbInstance.getTitle());
+		instance.setContent(dbInstance.getContent());
+		instance.setExpireDate(dbInstance.getExpireDate());
+		instance.setPostDate(dbInstance.getPostDate());
+		instance.setStatus(dbInstance.getStatus());
+		
+		return instance;
+	}
+	
+	public static WelcomeMessage getById(int id) {
+		return (WelcomeMessage) HibernateAccessor.getById(objectName, id);
+	}
 
     @SuppressWarnings("unchecked")
 	public static List<WelcomeMessage> findToShow() throws Exception {
@@ -45,7 +62,8 @@ public class DbWelcomeMessage extends HibernateAccessor {
         try
         {
             Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
-            crit.add(Restrictions.gt("expireDate", expireDate));
+            if (expireDate != null)
+            	crit.add(Restrictions.gt("expireDate", expireDate));
             crit.add(Restrictions.ne("status", AppConstants.STATUS_DELETED));
             crit.addOrder(Order.desc("postDate"));
             List<WelcomeMessage> objects = crit.list();

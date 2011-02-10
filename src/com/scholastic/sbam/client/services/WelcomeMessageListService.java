@@ -10,7 +10,7 @@ import com.scholastic.sbam.shared.objects.WelcomeMessageInstance;
 /**
  * The client side stub for the RPC service.
  */
-@RemoteServiceRelativePath("getWelcomeMessages")
+@RemoteServiceRelativePath("getWelcomeMessageList")
 public interface WelcomeMessageListService extends RemoteService {
-	List<WelcomeMessageInstance> getWelcomeMessages(LoadConfig loadConfig) throws IllegalArgumentException;
+	List<WelcomeMessageInstance> getWelcomeMessageList(LoadConfig loadConfig) throws IllegalArgumentException;
 }

@@ -10,7 +10,8 @@ import com.extjs.gxt.ui.client.widget.form.Validator;
  *
  */
 public class NameValidator implements Validator {
-	private int	   maxLen;
+	private int    minLen = 0;
+	private int	   maxLen = 0;
 	private String label;
 	
 	public NameValidator() {
@@ -22,6 +23,12 @@ public class NameValidator implements Validator {
 		this.maxLen = maxLen;
 	}
 	
+	public NameValidator(int minLen, int maxLen) {
+		this();
+		this.minLen = minLen;
+		this.maxLen = maxLen;
+	}
+	
 	public NameValidator(String label) {
 		this();
 		this.label = label;
@@ -30,6 +37,12 @@ public class NameValidator implements Validator {
 	public NameValidator(String label, int maxLen) {
 		this(label);
 		this.maxLen = maxLen;
+	}
+	
+	public NameValidator(String label, int minLen, int maxLen) {
+		this(label);
+		this.maxLen = maxLen;
+		this.minLen = minLen;
 	}
 	
 	@Override
@@ -48,6 +61,11 @@ public class NameValidator implements Validator {
 				return "Cannot be longer than " + maxLen + " characters.";
 			else
 				return label + " cannot be longer than " + maxLen + " characters.";
+		} else if (minLen > 0 && value.length() < minLen) {
+			if (label == null)
+				return "Cannot be shorter than " + minLen + " characters.";
+			else
+				return label + " cannot be shorter than " + minLen + " characters.";
 		}
 		return null;
 	}

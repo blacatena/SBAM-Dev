@@ -10,7 +10,7 @@ public class DocumentationInstance extends BetterRowEditInstance implements Bean
 	private int		id;
 	private int		seq;
 	private String	title;
-	private String	type;
+	private String	types;
 	private String	link;
 	private String	iconImage;
 	private String	docVersion;
@@ -69,12 +69,37 @@ public class DocumentationInstance extends BetterRowEditInstance implements Bean
 		this.title = title;
 	}
 
-	public String getType() {
-		return type;
+	public String getTypes() {
+		return types;
 	}
 
-	public void setType(String type) {
-		this.type = type;
+	public void setTypes(String types) {
+		this.types = types;
+	}
+	
+	/**
+	 * Return the document types as an array, stripped of leading/trailing blanks and empty doc types. 
+	 * @return
+	 */
+	public String [] parseTypes() {
+		String [] split = types.split(types);
+		int nonempty = 0;
+		for (int i = 0; i < split.length; i++) {
+			split [i] = split [i].trim();
+			if (split [i].length() > 0)
+				nonempty++;
+		}
+		
+		if (nonempty < split.length ) {
+			int j = 0;
+			String [] newsplit = new String [nonempty];
+			for (int i = 0; i < split.length; i++)
+				if (split [i].length() > 0)
+					newsplit [j++] = split [i];
+			split = newsplit;
+		}
+		
+		return split;
 	}
 
 	public String getLink() {

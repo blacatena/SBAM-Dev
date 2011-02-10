@@ -30,6 +30,10 @@ hr {
 background-image:url(resources/themes/xtheme-wheat/images/wheat/shared/warning.gif);
 }
 
+*.x-html-editor-tb *.x-btn-text{
+background-image: none;
+}
+
 .sbamAppLoading {
 	position: absolute; 
 	top: 45%; 

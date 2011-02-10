@@ -191,6 +191,16 @@
     <servlet-class>com.scholastic.sbam.server.servlets.TermTypeCodeValidationServiceImpl</servlet-class>
   </servlet>
   
+  <servlet>
+    <servlet-name>welcomeMessageListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.WelcomeMessageListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updateWelcomeMessageServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateWelcomeMessageServiceImpl</servlet-class>
+  </servlet>
+  
   <servlet-mapping>
     <servlet-name>authenticateServlet</servlet-name>
     <url-pattern>/sbam/authenticate</url-pattern>
@@ -364,6 +374,16 @@
   <servlet-mapping>
     <servlet-name>termTypeCodeValidationServlet</servlet-name>
     <url-pattern>/sbam/validateTermTypeCode</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>welcomeMessageListServlet</servlet-name>
+    <url-pattern>/sbam/getWelcomeMessageList</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateWelcomeMessageServlet</servlet-name>
+    <url-pattern>/sbam/updateWelcomeMessage</url-pattern>
   </servlet-mapping>
   
   

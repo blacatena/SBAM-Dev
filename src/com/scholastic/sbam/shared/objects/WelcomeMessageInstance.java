@@ -2,7 +2,10 @@ package com.scholastic.sbam.shared.objects;
 
 import java.util.Date;
 
-public class WelcomeMessageInstance {
+import com.extjs.gxt.ui.client.data.BeanModelTag;
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+public class WelcomeMessageInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
 	private int		id;
 	private Date	postDate;
 	private String	title;
@@ -10,6 +13,32 @@ public class WelcomeMessageInstance {
 	private Date	expireDate;
 	private char	status;
 	private boolean active;
+	
+	@Override
+	public void markForDeletion() {
+		setStatus('X');
+	}
+
+	@Override
+	public boolean thisIsDeleted() {
+		return status == 'X';
+	}
+
+	@Override
+	public boolean thisIsValid() {
+		return true;
+	}
+
+	@Override
+	public String returnTriggerProperty() {
+		return "junk";
+	}
+
+	@Override
+	public String returnTriggerValue() {
+		return "junk";
+	}
+	
 	public int getId() {
 		return id;
 	}

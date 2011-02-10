@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Feb 4, 2011 11:02:15 PM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Feb 10, 2011 10:50:49 AM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.Documentation" table="documentation" catalog="sbam">
         <id name="id" type="java.lang.Integer">
@@ -14,8 +14,8 @@
         <property name="title" type="string">
             <column name="title" not-null="true" />
         </property>
-        <property name="type" type="string">
-            <column name="type" length="32" not-null="true" />
+        <property name="types" type="string">
+            <column name="types" not-null="true" />
         </property>
         <property name="link" type="string">
             <column name="link" length="1024" not-null="true" />
