@@ -67,7 +67,6 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 	private final WelcomeMessageListServiceAsync welcomeMessageListService = GWT.create(WelcomeMessageListService.class);
 	private final UpdateWelcomeMessageServiceAsync updateWelcomeMessageService = GWT.create(UpdateWelcomeMessageService.class);
 
-//	protected	FormBinding								formBindings;
 	protected	ListLoader<ListLoadResult<ModelData>>	loader;
 	protected	ListStore<BeanModel>					store;
 	protected	Grid<BeanModel>							grid;
@@ -130,8 +129,6 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 	    cp.add(grid, new RowData(535, 1));
 	
 	    panel = createForm();
-	    
-	    prepareBind();
 	
 	    cp.add(panel, new RowData(640, 1));
 	
@@ -270,45 +267,18 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 		dirtyListenTimer.scheduleRepeating(200);
 	}
 	
-	protected void prepareBind() {
-//	    formBindings = new FormBinding(panel, true);
-//	    formBindings.addListener(Events.Bind, new Listener<BindingEvent>() {
-//
-//				@Override
-//				public void handleEvent(BindingEvent be) {
-//					enableBindingButtons();
-//				}
-//	    	
-//	    	});
-//	    formBindings.addListener(Events.UnBind, new Listener<BindingEvent>() {
-//	
-//				@Override
-//				public void handleEvent(BindingEvent be) {
-//					disableNoBindingButtons();
-//				}
-//	    	
-//	    	});	
-	}
-	
 	protected void bind(SelectionChangedEvent<BeanModel> be) {
 		if (be.getSelection().size() > 0) {
 			bind((BeanModel) be.getSelection().get(0));
 		} else {
 			unbind();
 		}
-//        if (be.getSelection().size() > 0) {    
-//            formBindings.bind((ModelData) be.getSelection().get(0));
-//        } else {    
-//            formBindings.unbind();
-//        }
 	}
 	
 	protected void bind(BeanModel model) {
 		targetModel = model;
 		targetInstance = model.getBean();
 		formSet();
-		
-//		deleteButton.enable();
 	}
 	
 	protected void unbind() {
@@ -317,18 +287,14 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 		
 		formClear();
 		grid.getSelectionModel().deselectAll();
-		
-//		formBindings.unbind();
 	}
 	
 	protected boolean modelBound() {
 		return targetModel != null;
-//		return formBindings.getModel() != null;
 	}
 	
 	protected boolean noModelBound() {
 		return targetModel == null;
-//		return formBindings.getModel() == null;
 	}
 	
 	protected boolean newModel() {
@@ -336,8 +302,6 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 	}
 	
 	protected void formClear() {
-//		formBindings.clear();
-		
 		panel.clear();
 		panel.clearDirtyFields();
 	}
@@ -527,30 +491,6 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 	    panel.addButton(refreshThisButton); 
 	    panel.addButton(cancelButton); 
 	    panel.addButton(refreshAllButton);
-    
-//	    
-//	    //	Add bindings for button behaviors
-//	    
-//	    FormButtonBinding binding = new FormButtonBinding(panel);  
-//	    binding.addButton(saveButton);
-	}
-	
-	protected void disableNoBindingButtons() {
-	//	if (saveButton != null) 
-	//		saveButton.disable();
-		if (deleteButton != null) 
-			deleteButton.disable();
-		if (refreshThisButton != null) 
-			refreshThisButton.disable();
-	}
-	
-	protected void enableBindingButtons() {
-	//	if (saveButton != null) 
-	//		saveButton.enable();
-		if (deleteButton != null) 
-			deleteButton.enable();
-		if (refreshThisButton != null) 
-			refreshThisButton.enable();
 	}
 	
 	private void refuseAction(final ButtonEvent be, final String message) {
@@ -760,10 +700,6 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 	public UpdateWelcomeMessageServiceAsync getUpdateWelcomeMessageService() {
 		return updateWelcomeMessageService;
 	}
-
-//	public FormBinding getFormBindings() {
-//		return formBindings;
-//	}
 
 	public ListStore<BeanModel> getStore() {
 		return store;
