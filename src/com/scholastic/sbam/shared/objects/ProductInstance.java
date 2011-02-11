@@ -11,6 +11,7 @@ public class ProductInstance extends BetterRowEditInstance implements BeanModelT
 	private String description;
 	private String shortName;
 	private String defaultTermType;
+	private String defaultCommissionCode;
 	private char   status;
 	private boolean active;
 	private Date   createdDatetime;
@@ -111,6 +112,14 @@ public class ProductInstance extends BetterRowEditInstance implements BeanModelT
 
 	public void setDefaultTermTypeInstance(TermTypeInstance defaultTermTypeInstance) {
 		this.defaultTermTypeInstance = defaultTermTypeInstance;
+	}
+
+	public String getDefaultCommissionCode() {
+		return defaultCommissionCode;
+	}
+
+	public void setDefaultCommissionCode(String defaultCommissionCode) {
+		this.defaultCommissionCode = defaultCommissionCode;
 	}
 
 }

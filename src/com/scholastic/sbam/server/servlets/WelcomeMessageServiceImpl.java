@@ -34,7 +34,10 @@ public class WelcomeMessageServiceImpl extends RemoteServiceServlet implements W
 				sb.append(msg.getPostDate());
 				sb.append("</div>");
 				if (msg.getTitle() != null && msg.getTitle().length() > 0) {
-					sb.append("<div class=\"sbamMsgTitle\">");
+					if (msg.getPriority() == 'y')
+						sb.append("<div class=\"sbamMsgPriorityTitle\">");
+					else
+						sb.append("<div class=\"sbamMsgTitle\">");
 					sb.append(msg.getTitle());
 					sb.append("</div>");
 				}

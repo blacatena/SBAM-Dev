@@ -41,6 +41,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
+import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Element;
@@ -132,6 +133,7 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 		setStyleAttribute("padding", "20px");
 		
 		panel = new ContentPanel();
+		panel.setLayout(new CenterLayout());
 		
 		// loader and store  
 		ListLoader<ListLoadResult<ModelData>> loader = getLoader();

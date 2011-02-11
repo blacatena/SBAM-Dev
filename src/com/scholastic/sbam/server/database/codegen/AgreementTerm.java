@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Feb 10, 2011 10:50:48 AM by Hibernate Tools 3.2.4.GA
+// Generated Feb 11, 2011 6:12:56 PM by Hibernate Tools 3.2.4.GA
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -26,6 +26,7 @@ public class AgreementTerm implements java.io.Serializable {
 	private String poNumber;
 	private Integer contractGroup;
 	private Integer referenceSaId;
+	private String commissionCode;
 	private Date createdDatetime;
 	private char status;
 
@@ -34,13 +35,14 @@ public class AgreementTerm implements java.io.Serializable {
 
 	public AgreementTerm(AgreementTermId id, String productCode,
 			Date startDate, Date endDate, Date terminateDate, String termType,
-			Date createdDatetime, char status) {
+			String commissionCode, Date createdDatetime, char status) {
 		this.id = id;
 		this.productCode = productCode;
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.terminateDate = terminateDate;
 		this.termType = termType;
+		this.commissionCode = commissionCode;
 		this.createdDatetime = createdDatetime;
 		this.status = status;
 	}
@@ -50,7 +52,8 @@ public class AgreementTerm implements java.io.Serializable {
 			String cancelReasonCode, Date cancelDate, BigDecimal dollarValue,
 			Integer workstations, Integer buildings, Integer population,
 			Integer enrollment, String poNumber, Integer contractGroup,
-			Integer referenceSaId, Date createdDatetime, char status) {
+			Integer referenceSaId, String commissionCode, Date createdDatetime,
+			char status) {
 		this.id = id;
 		this.productCode = productCode;
 		this.startDate = startDate;
@@ -67,6 +70,7 @@ public class AgreementTerm implements java.io.Serializable {
 		this.poNumber = poNumber;
 		this.contractGroup = contractGroup;
 		this.referenceSaId = referenceSaId;
+		this.commissionCode = commissionCode;
 		this.createdDatetime = createdDatetime;
 		this.status = status;
 	}
@@ -197,6 +201,14 @@ public class AgreementTerm implements java.io.Serializable {
 
 	public void setReferenceSaId(Integer referenceSaId) {
 		this.referenceSaId = referenceSaId;
+	}
+
+	public String getCommissionCode() {
+		return this.commissionCode;
+	}
+
+	public void setCommissionCode(String commissionCode) {
+		this.commissionCode = commissionCode;
 	}
 
 	public Date getCreatedDatetime() {

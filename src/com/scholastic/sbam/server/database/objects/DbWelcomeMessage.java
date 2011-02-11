@@ -31,6 +31,7 @@ public class DbWelcomeMessage extends HibernateAccessor {
 		instance.setExpireDate(dbInstance.getExpireDate());
 		instance.setPostDate(dbInstance.getPostDate());
 		instance.setStatus(dbInstance.getStatus());
+		instance.setPriorityChar(dbInstance.getPriority());
 		
 		return instance;
 	}
@@ -46,6 +47,7 @@ public class DbWelcomeMessage extends HibernateAccessor {
             Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
             crit.add(Restrictions.gt("expireDate", new Date()));
             crit.add(Restrictions.eq("status", AppConstants.STATUS_ACTIVE));
+            crit.addOrder(Order.desc("priority"));
             crit.addOrder(Order.desc("postDate"));
             List<WelcomeMessage> objects = crit.list();
             return objects;
@@ -65,6 +67,7 @@ public class DbWelcomeMessage extends HibernateAccessor {
             if (expireDate != null)
             	crit.add(Restrictions.gt("expireDate", expireDate));
             crit.add(Restrictions.ne("status", AppConstants.STATUS_DELETED));
+            crit.addOrder(Order.desc("priority"));
             crit.addOrder(Order.desc("postDate"));
             List<WelcomeMessage> objects = crit.list();
             return objects;

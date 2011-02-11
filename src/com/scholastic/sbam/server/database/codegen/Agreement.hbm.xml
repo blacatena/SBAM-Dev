@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Feb 10, 2011 10:50:49 AM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Feb 11, 2011 6:12:56 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.Agreement" table="agreement" catalog="sbam">
         <id name="id" type="java.lang.Integer">
@@ -16,6 +16,9 @@
         </property>
         <property name="agreementTypeCode" type="string">
             <column name="agreement_type_code" length="32" not-null="true" />
+        </property>
+        <property name="commissionCode" type="string">
+            <column name="commission_code" length="32" not-null="true" />
         </property>
         <property name="deleteReasonCode" type="string">
             <column name="delete_reason_code" length="16" not-null="true" />

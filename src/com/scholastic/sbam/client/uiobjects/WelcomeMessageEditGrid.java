@@ -7,7 +7,6 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
-import com.extjs.gxt.ui.client.binding.FormBinding;
 import com.extjs.gxt.ui.client.data.BaseListLoader;
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.data.BeanModelFactory;
@@ -18,7 +17,6 @@ import com.extjs.gxt.ui.client.data.ListLoader;
 import com.extjs.gxt.ui.client.data.LoadConfig;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.RpcProxy;
-import com.extjs.gxt.ui.client.event.BindingEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -31,10 +29,12 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.DateField;
-import com.extjs.gxt.ui.client.widget.form.FormButtonBinding;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.HtmlEditor;
+import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.CheckColumnConfig;
@@ -51,6 +51,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.UpdateWelcomeMessageService;
 import com.scholastic.sbam.client.services.UpdateWelcomeMessageServiceAsync;
@@ -60,25 +61,26 @@ import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.objects.WelcomeMessageInstance;
 import com.scholastic.sbam.shared.util.AppConstants;
-import com.scholastic.sbam.shared.validation.NameValidator;
 
-public class WelcomeMessageEditGrid extends LayoutContainer {
+public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleeper {
 
 	private final WelcomeMessageListServiceAsync welcomeMessageListService = GWT.create(WelcomeMessageListService.class);
 	private final UpdateWelcomeMessageServiceAsync updateWelcomeMessageService = GWT.create(UpdateWelcomeMessageService.class);
 
-	protected	FormBinding								formBindings;
+//	protected	FormBinding								formBindings;
 	protected	ListLoader<ListLoadResult<ModelData>>	loader;
 	protected	ListStore<BeanModel>					store;
 	protected	Grid<BeanModel>							grid;
 	protected	ContentPanel 							cp;
 	protected	FormPanel 								panel;
 	
-	protected	TextField<String>						id;
+	protected	NumberField								id;
 	protected	TextField<String>						title;
-	protected	TextField<String>						posted;
+	protected	DateField								posted;
 	protected	DateField								expires;
 	protected	CheckBox								active;
+	protected	CheckBox								priority;
+	protected	CheckBoxGroup							checkGroup;
 	protected	HtmlEditor								content;
 	
 	protected	Button									saveButton;
@@ -87,6 +89,11 @@ public class WelcomeMessageEditGrid extends LayoutContainer {
 	protected	Button									refreshAllButton;
 	protected	Button									deleteButton;
 	protected	Button									cancelButton;
+	
+	protected	BeanModel								targetModel;
+	protected	WelcomeMessageInstance					targetInstance;
+	
+	protected	Timer									dirtyListenTimer;
 	
 	public WelcomeMessageEditGrid() {
 	}
@@ -100,7 +107,7 @@ public class WelcomeMessageEditGrid extends LayoutContainer {
 	
 	    cp.setHeading("Welcome Messages");
 	    cp.setFrame(true);
-	    cp.setSize(1150, 600);
+	    cp.setSize(1185, 600);
 	    cp.setLayout(new RowLayout(Orientation.HORIZONTAL));
 	    IconSupplier.setIcon(cp, IconSupplier.getMessagesIconName());
 		
@@ -111,43 +118,25 @@ public class WelcomeMessageEditGrid extends LayoutContainer {
 		
 		loader.load();
 	
-	    Grid<BeanModel> grid = createGrid();
+	    grid = createGrid();
 	    grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 	    grid.getSelectionModel().addListener(Events.SelectionChange,    
 	            new Listener<SelectionChangedEvent<BeanModel>>() { 
 	    			@Override
-	                public void handleEvent(SelectionChangedEvent<BeanModel> be) {    
-	                    if (be.getSelection().size() > 0) {    
-	                        formBindings.bind((ModelData) be.getSelection().get(0));
-	                    } else {    
-	                        formBindings.unbind();
-	                    }
+	                public void handleEvent(SelectionChangedEvent<BeanModel> be) { 
+	    				bind(be);
 	                }
 	            });
-	    cp.add(grid, new RowData(550, 1));
+	    cp.add(grid, new RowData(535, 1));
 	
 	    panel = createForm();
 	    
-	    formBindings = new FormBinding(panel, true);
-	    formBindings.addListener(Events.Bind, new Listener<BindingEvent>() {
-
-				@Override
-				public void handleEvent(BindingEvent be) {
-					enableBindingButtons();
-				}
-	    	
-	    	});
-	    formBindings.addListener(Events.UnBind, new Listener<BindingEvent>() {
+	    prepareBind();
 	
-				@Override
-				public void handleEvent(BindingEvent be) {
-					disableNoBindingButtons();
-				}
-	    	
-	    	});
+	    cp.add(panel, new RowData(640, 1));
 	
-	    cp.add(panel, new RowData(595, 1));
-	
+	    formClear();
+	    
 	    add(cp);
 	}
 	
@@ -155,28 +144,32 @@ public class WelcomeMessageEditGrid extends LayoutContainer {
 	 * Create a form panel to edit welcome messages.
 	 * @return
 	 */
-	private FormPanel createForm() {    
+	protected FormPanel createForm() {    
 		FormPanel panel = new FormPanel();
 	    panel.setHeaderVisible(false);
 	
-	    id = new TextField<String>();
+	    id = new NumberField();
 	    id.setName("id");
 	    id.setFieldLabel("ID");
 	    id.setReadOnly(true);
 	    id.setWidth(50);
+	    id.setVisible(false);
+	    id.setToolTip("This is the ID that uniquely identifies the message in the database.");
 	    panel.add(id);
 	
 	    title = new TextField<String>();
 	    title.setName("title");
 	    title.setFieldLabel("Title");
-	    title.setValidator(new NameValidator(10, 0));
+	    title.setMinLength(10);
 	    title.setMessageTarget("tooltip");
+	    title.setToolTip("This is the title of the message.");
 	    panel.add(title, new FormData("100%"));
 	
-	    posted = new TextField<String>();
+	    posted = new DateField();
 	    posted.setName("postDate");
 	    posted.setFieldLabel("Posted");
 	    posted.setReadOnly(true);
+	    posted.setToolTip("This is the date on which this message was created.");
 	    panel.add(posted);   
 	
 	    expires = new DateField();
@@ -185,12 +178,25 @@ public class WelcomeMessageEditGrid extends LayoutContainer {
 	    expires.setMinValue(new Date());
 	    expires.setMinLength(0);
 	    expires.setMessageTarget("tooltip");
+	    expires.setToolTip("Select a date after which this message will no longer display on the Welcome tab.");
 	    panel.add(expires);   
 	
 	    active = new CheckBox();
 	    active.setName("active");
-	    active.setFieldLabel("Active?");
-	    panel.add(active);
+	    active.setBoxLabel("Active");
+	    active.setToolTip("Uncheck this message to prevent it from displaying on the Welcome tab.");
+	
+	    priority = new CheckBox();
+	    priority.setName("priority");
+	    priority.setBoxLabel("Priority");
+	    priority.setToolTip("Check this message as priority to get it to list before other messages on the Welcome tab.");
+	    
+	    checkGroup = new CheckBoxGroup();  
+	    checkGroup.setFieldLabel("");
+	    checkGroup.setLabelSeparator("");
+	    checkGroup.add(active);
+	    checkGroup.add(priority);
+	    panel.add(checkGroup);
 	    
 	    content = new HtmlEditor();
 	    content.setName("content");
@@ -198,16 +204,192 @@ public class WelcomeMessageEditGrid extends LayoutContainer {
 	    content.setHeight(380);
 	    panel.add(content, new FormData("100%"));
 	    
+	    setButtonStatusListener(panel);
+	    
 	    addFormButtons(panel);
 	
 	    return panel;
 	}
 	
-	/**
-	 * Add Save, New and Refresh buttons to the form panel.
-	 * @param panel
-	 */
-	private void addFormButtons(FormPanel panel) { 
+	protected void disableButton(Button button) {
+		if (button != null)
+			if (button.isEnabled())
+				button.setEnabled(false);
+	}
+	
+	protected void enableButton(Button button) {
+		if (button != null)
+			if (!button.isEnabled())
+				button.setEnabled(true);
+	}
+	
+	protected void setButtonEnable(Button button, boolean enable) {
+		if (button != null)
+			if (button.isEnabled() != enable)
+				button.setEnabled(enable);
+	}
+	
+	protected boolean mainFieldsAreEmpty() {
+		return title.getValue() == null || title.getValue().length() == 0 || expires.getValue() == null;
+	}
+	
+	protected boolean allFieldsAreEmpty() {
+		return mainFieldsAreEmpty() || content.getValue() == null || content.getValue().length() == 0;
+	}
+	
+	protected boolean fieldsAreComplete() {
+		return title.isValid() && expires.isValid() && !mainFieldsAreEmpty();
+	}
+	
+	protected void debugDirty() {
+		if (panel.isDirty()) {
+
+		    for (Field<?> f : panel.getFields()) {
+		      if (f.isDirty()) {
+		        System.out.println(f.getName() + " is dirty with <" + f.getOriginalValue() + "> versus <" + f.getValue() + ">");
+		      }
+		    }
+		}
+	}
+	
+	protected void setButtonStatusListener(final FormPanel panel) {
+		dirtyListenTimer = new Timer() {
+			  @Override
+			  public void run() {
+			    	boolean panelDirty = panel != null && panel.isDirty();
+			    	boolean panelValid = panel != null && panel.isValid();
+			    	setButtonEnable(refreshThisButton, 	panelDirty && targetModel != null);
+			    	setButtonEnable(refreshAllButton, 	!panelDirty || targetModel == null);
+			    	setButtonEnable(saveButton, 		panelDirty && panelValid && fieldsAreComplete());
+			    	setButtonEnable(deleteButton, 		!panelDirty && targetModel != null);
+			    	setButtonEnable(startNewButton, 	!panelDirty);
+			    	setButtonEnable(cancelButton, 		panelDirty || targetModel != null);	// || (targetModel == null && !allFieldsAreEmpty()));
+			  }
+			};
+
+		dirtyListenTimer.scheduleRepeating(200);
+	}
+	
+	protected void prepareBind() {
+//	    formBindings = new FormBinding(panel, true);
+//	    formBindings.addListener(Events.Bind, new Listener<BindingEvent>() {
+//
+//				@Override
+//				public void handleEvent(BindingEvent be) {
+//					enableBindingButtons();
+//				}
+//	    	
+//	    	});
+//	    formBindings.addListener(Events.UnBind, new Listener<BindingEvent>() {
+//	
+//				@Override
+//				public void handleEvent(BindingEvent be) {
+//					disableNoBindingButtons();
+//				}
+//	    	
+//	    	});	
+	}
+	
+	protected void bind(SelectionChangedEvent<BeanModel> be) {
+		if (be.getSelection().size() > 0) {
+			bind((BeanModel) be.getSelection().get(0));
+		} else {
+			unbind();
+		}
+//        if (be.getSelection().size() > 0) {    
+//            formBindings.bind((ModelData) be.getSelection().get(0));
+//        } else {    
+//            formBindings.unbind();
+//        }
+	}
+	
+	protected void bind(BeanModel model) {
+		targetModel = model;
+		targetInstance = model.getBean();
+		formSet();
+		
+//		deleteButton.enable();
+	}
+	
+	protected void unbind() {
+		targetModel = null;
+		targetInstance = null;
+		
+		formClear();
+		grid.getSelectionModel().deselectAll();
+		
+//		formBindings.unbind();
+	}
+	
+	protected boolean modelBound() {
+		return targetModel != null;
+//		return formBindings.getModel() != null;
+	}
+	
+	protected boolean noModelBound() {
+		return targetModel == null;
+//		return formBindings.getModel() == null;
+	}
+	
+	protected boolean newModel() {
+		return id.getValue() != null && id.getValue().intValue() < 0;
+	}
+	
+	protected void formClear() {
+//		formBindings.clear();
+		
+		panel.clear();
+		panel.clearDirtyFields();
+	}
+	
+	protected void formSet() {
+		id.setOriginalValue(targetInstance.getId());
+		title.setOriginalValue(targetInstance.getTitle());
+		posted.setOriginalValue(targetInstance.getPostDate());
+		expires.setOriginalValue(targetInstance.getExpireDate());
+		active.setOriginalValue(targetInstance.isActive());
+		priority.setOriginalValue(targetInstance.isPriority());
+		content.setOriginalValue(targetInstance.getContent());
+		
+		formReset();
+	}
+	
+	protected void formReset() {
+		
+		id.setValue(targetInstance.getId());
+		title.setValue(targetInstance.getTitle());
+		posted.setValue(targetInstance.getPostDate());
+		expires.setValue(targetInstance.getExpireDate());
+		active.setValue(targetInstance.isActive());
+		priority.setValue(targetInstance.isPriority());
+		content.setValue(targetInstance.getContent());
+	}
+	
+	protected void reflectChanges(BeanModel updatedModel) {
+		
+//		This should have worked, but doesn't
+//		targetInstance = targetModel.getBean();
+////	targetInstance.setId(id.getValue().intValue());
+//		targetInstance.setTitle(title.getValue());
+////	targetInstance.setPosted(posted.getValue());
+//		targetInstance.setExpireDate(expires.getValue());
+//		targetInstance.setActive(active.getValue());
+//		targetInstance.setPriority(priority.getValue());
+//		targetInstance.setContent(content.getValue());
+		
+		//	Update anything that's not null directly in the bean model
+		for (String name : updatedModel.getPropertyNames()) {
+			if (updatedModel.get(name) != null) {
+				targetModel.set(name, updatedModel.get(name));
+			}
+		}
+		
+		store.commitChanges();
+		
+		grid.getSelectionModel().deselectAll();
+	}
+
+	private void createSaveButton() { 
 		
 		saveButton = new Button("Save");
 		
@@ -215,12 +397,15 @@ public class WelcomeMessageEditGrid extends LayoutContainer {
 			   
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				if (formBindings.getModel() == null  && title.getValue() != null && !title.getValue().equals("New"))
+				if (noModelBound() && !newModel())
 					refuseAction(ce, "Nothing is selected to be saved.");
 				else
 					asyncUpdate(false);
 			}
 		});
+	}
+
+	private void createStartNewButton() { 
 		
 		startNewButton = new Button("Start New");
 		
@@ -232,16 +417,30 @@ public class WelcomeMessageEditGrid extends LayoutContainer {
 				Date defaultExpires = new Date();
 				defaultExpires.setDate(defaultExpires.getDate() + 1);
 				
-				formBindings.unbind();
-				id.setValue("New");
+				unbind();
+				
+				id.setOriginalValue(-1);
+				title.setOriginalValue("");
+				posted.setOriginalValue(new Date());
+				expires.setOriginalValue(defaultExpires);
+				content.setOriginalValue("");
+				active.setOriginalValue(true);
+				priority.setOriginalValue(false);
+				
+				id.setValue(-1);
 				title.setValue("");
-				posted.setValue("");
+				posted.setValue(new Date());
 				expires.setValue(defaultExpires);
 				content.setValue("");
+				active.setValue(true);
+				priority.setValue(false);
 				title.focus();
 			}  
 		 
 		}); 
+	}
+
+	private void createDeleteButton() { 
 		
 		deleteButton = new Button("Delete");
 		
@@ -260,22 +459,15 @@ public class WelcomeMessageEditGrid extends LayoutContainer {
 				};
 
 				//	Refuse to delete nothing, or else ask for confirmation and delete if confirmed
-				if (formBindings.getModel() == null)
+				if (noModelBound())
 					refuseAction(ce, "No message is selected to be deleted.");
 				else
 					MessageBox.confirm("Confirm Delete", "Are you sure you want to delete this welcome message?", confirmDelete);
 			}
 		});
-		
-		cancelButton = new Button("Delete");
-		
-		cancelButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-			   
-			@Override
-			public void componentSelected(ButtonEvent ce) {
-				cancelChanges();
-			}
-		});
+	}
+
+	private void createRefreshThisButton() { 
 		
 		refreshThisButton = new Button("Refresh This");
 		
@@ -286,8 +478,11 @@ public class WelcomeMessageEditGrid extends LayoutContainer {
 				getFormPanel().reset();
 			}
 		});
+	}
+
+	private void createRefreshAllButton() { 
 		
-		refreshAllButton = new Button("Refresh All");
+		refreshAllButton = new Button("Refresh List");
 		
 		refreshAllButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			   
@@ -296,27 +491,51 @@ public class WelcomeMessageEditGrid extends LayoutContainer {
 				if (loader != null)
 					loader.load();
 			}
+		}); 
+	}
+
+	private void createCancelButton() { 
+		
+		cancelButton = new Button("Cancel");
+		
+		cancelButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			   
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				cancelChanges();
+			}
 		});
+	}
+		
+	/**
+	 * Add Save, New and Refresh buttons to the form panel.
+	 * @param panel
+	 */
+	private void addFormButtons(FormPanel panel) { 
+
+		createSaveButton();
+		createStartNewButton();
+		createDeleteButton();
+		createRefreshThisButton();
+		createCancelButton();
+		createRefreshAllButton();
  
 	    panel.setButtonAlign(HorizontalAlignment.CENTER);
 	    panel.addButton(saveButton); 
 	    panel.addButton(startNewButton);
 	    panel.addButton(deleteButton); 
 	    panel.addButton(refreshThisButton); 
+	    panel.addButton(cancelButton); 
 	    panel.addButton(refreshAllButton);
-		
-	    // Set initial states
-	    saveButton.disable();
-	    deleteButton.disable();
-	    refreshThisButton.disable();	    
-	    
-	    //	Add bindings for button behaviors
-	    
-	    FormButtonBinding binding = new FormButtonBinding(panel);  
-	    binding.addButton(saveButton);
+    
+//	    
+//	    //	Add bindings for button behaviors
+//	    
+//	    FormButtonBinding binding = new FormButtonBinding(panel);  
+//	    binding.addButton(saveButton);
 	}
 	
-	private void disableNoBindingButtons() {
+	protected void disableNoBindingButtons() {
 	//	if (saveButton != null) 
 	//		saveButton.disable();
 		if (deleteButton != null) 
@@ -325,7 +544,7 @@ public class WelcomeMessageEditGrid extends LayoutContainer {
 			refreshThisButton.disable();
 	}
 	
-	private void enableBindingButtons() {
+	protected void enableBindingButtons() {
 	//	if (saveButton != null) 
 	//		saveButton.enable();
 		if (deleteButton != null) 
@@ -335,9 +554,6 @@ public class WelcomeMessageEditGrid extends LayoutContainer {
 	}
 	
 	private void refuseAction(final ButtonEvent be, final String message) {
-//		be.getButton().setToolTip(message);
-//		be.getButton().getToolTip().disable();
-//		be.getButton().getToolTip().show();
 		MessageBox.alert("Sorry", message, null);
 	}
 	
@@ -370,6 +586,7 @@ public class WelcomeMessageEditGrid extends LayoutContainer {
 	    column.setId("id");
 	    column.setHeader("ID");
 	    column.setWidth(50);
+	    column.setHidden(true);
 	    configs.add(column);
 	
 	    column = new ColumnConfig();
@@ -385,20 +602,25 @@ public class WelcomeMessageEditGrid extends LayoutContainer {
 //	    column.setHidden(true);
 //	    configs.add(column);
 	
-	    column = new ColumnConfig("postDate", "Posted", 120);
+	    column = new ColumnConfig("postDate", "Posted", 110);
 	    column.setHeader("Posted");
 	    column.setAlignment(HorizontalAlignment.RIGHT);
 	    column.setDateTimeFormat(DateTimeFormat.getFormat("E, MMM dd, yyyy"));
 	    configs.add(column);
 	
-	    column = new ColumnConfig("expireDate", "Expires", 120);
+	    column = new ColumnConfig("expireDate", "Expires", 110);
 	    column.setHeader("Expires");
 	    column.setAlignment(HorizontalAlignment.RIGHT);
 	    column.setDateTimeFormat(DateTimeFormat.getFormat("E, MMM dd, yyyy"));
 	    configs.add(column);
 	    
-		CheckColumnConfig checkColumn = new CheckColumnConfig("active", "Active?", 55);
+		CheckColumnConfig checkColumn = new CheckColumnConfig("active", "Active", 55);
 		CellEditor checkBoxEditor = new CellEditor(new CheckBox());
+		checkColumn.setEditor(checkBoxEditor);
+		configs.add(checkColumn);
+	    
+		checkColumn = new CheckColumnConfig("priority", "Priority", 55);
+		checkBoxEditor = new CellEditor(new CheckBox());
 		checkColumn.setEditor(checkBoxEditor);
 		configs.add(checkColumn);
 	
@@ -470,8 +692,8 @@ public class WelcomeMessageEditGrid extends LayoutContainer {
 	}
 	
 	protected void cancelChanges() {
-		formBindings.clear();
-		formBindings.unbind();
+		formClear();
+		unbind();
 	}
 	
 	protected void asyncLoad(Object loadConfig, AsyncCallback<List<WelcomeMessageInstance>> callback) {
@@ -482,11 +704,10 @@ public class WelcomeMessageEditGrid extends LayoutContainer {
 	}
 	
 	protected void asyncUpdate(boolean delete) {
-	//	System.out.println("Before update: " + targetBeanModel.getProperties());
 		WelcomeMessageInstance updateInstance = new WelcomeMessageInstance();
 		updateInstance.setId(-1);
-		if (id.getValue() != null && id.getValue().length() > 0 && !id.getValue().equals("New"))
-			updateInstance.setId(Integer.parseInt(id.getValue()));
+		if (id.getValue() != null && id.getValue().intValue() >= 0 )
+			updateInstance.setId(id.getValue().intValue());
 		else
 			updateInstance.setNewRecord(true);
 		if (delete) {
@@ -496,6 +717,7 @@ public class WelcomeMessageEditGrid extends LayoutContainer {
 			updateInstance.setContent(content.getValue());
 			updateInstance.setExpireDate(expires.getValue());
 			updateInstance.setActive(active.getValue());
+			updateInstance.setPriority(priority.getValue());
 		}
 		
 		updateWelcomeMessageService.updateWelcomeMessage(updateInstance,
@@ -518,11 +740,15 @@ public class WelcomeMessageEditGrid extends LayoutContainer {
 						// If this welcome message is newly created, back-populate the grid
 						if (updateResponse.isNewCreated()) {
 							store.add(model);
+							store.commitChanges();
 						} else if (updatedWelcomeMessage.getStatus() == AppConstants.STATUS_DELETED) {
 							store.remove(model);
+							store.commitChanges();
+						} else {
+							reflectChanges(model);
 						}
-						formBindings.unbind();
-						panel.clear();
+						unbind();
+						formClear();
 				}
 			});
 	}
@@ -535,9 +761,9 @@ public class WelcomeMessageEditGrid extends LayoutContainer {
 		return updateWelcomeMessageService;
 	}
 
-	public FormBinding getFormBindings() {
-		return formBindings;
-	}
+//	public FormBinding getFormBindings() {
+//		return formBindings;
+//	}
 
 	public ListStore<BeanModel> getStore() {
 		return store;
@@ -553,6 +779,19 @@ public class WelcomeMessageEditGrid extends LayoutContainer {
 
 	public FormPanel getFormPanel() {
 		return panel;
+	}
+
+	@Override
+	public void awaken() {
+		if (dirtyListenTimer != null)
+			dirtyListenTimer.scheduleRepeating(250);
+	}
+
+	@Override
+	public void sleep() {
+		if (dirtyListenTimer != null) {
+			dirtyListenTimer.cancel();
+		}
 	}
 
 }

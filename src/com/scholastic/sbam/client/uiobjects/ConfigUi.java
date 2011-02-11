@@ -48,7 +48,7 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 
 		tbtmPreferences		=	addTab("Preferences",	IconSupplier.getPreferenceIconName());
 		tbtmServices		=	addTab("Services",		IconSupplier.getServiceIconName());
-		tbtmProducts		=	addTab("Products",		IconSupplier.getProductIconName());
+		tbtmProducts		=	addTab("Products",		IconSupplier.getProductIconName(), "Maintain the products which may be assigned to agreements.");
 		tbtmTermTypes		=	addTab("Term Types",	IconSupplier.getTermTypeIconName());
 		tbtmDeleteReasons	=	addTab("Delete Reasons",IconSupplier.getDeleteReasonIconName());
 		tbtmCancelReasons	=	addTab("Cancel Reasons",IconSupplier.getCancelReasonIconName());
@@ -103,12 +103,18 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 	}
 	
 	public TabItem addTab(String tabTitle, String iconName) {
+		return addTab(tabTitle, iconName, null);
+	}
+		
+	public TabItem addTab(String tabTitle, String iconName, String toolTip) {
 		TabItem item = new TabItem(); 
 		item.setLayout(new FitLayout());
 		item.setText(tabTitle);
 		if (iconName != null && iconName.length() > 0)
 			IconSupplier.setIcon(item, iconName);
 	//	item.setClosable(false);
+		if (toolTip != null)
+			item.setToolTip(toolTip);
 		item.addStyleName("pad-text");  
 		advanced.add(item);
 		return item;

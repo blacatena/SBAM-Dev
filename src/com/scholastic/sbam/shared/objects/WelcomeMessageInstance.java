@@ -11,6 +11,7 @@ public class WelcomeMessageInstance extends BetterRowEditInstance implements Bea
 	private String	title;
 	private String	content;
 	private Date	expireDate;
+	private char	priority;
 	private char	status;
 	private boolean active;
 	
@@ -83,6 +84,21 @@ public class WelcomeMessageInstance extends BetterRowEditInstance implements Bea
 		if (this.status == 'X')
 			return;
 		setStatus(active?'A':'I');
+	}
+	public boolean isPriority() {
+		return priority == 'y';
+	}
+	public void setPriority(boolean priority) {
+		this.priority = priority?'y':'n';
+	}
+	public char getPriorityChar() {
+		return priority;
+	}
+	public void setPriorityChar(char priority) {
+		this.priority = priority;
+	}
+	public boolean testPriorityChar(char priority) {
+		return priority == 'y';
 	}
 	
 	

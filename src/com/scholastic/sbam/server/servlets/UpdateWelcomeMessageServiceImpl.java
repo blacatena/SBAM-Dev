@@ -60,6 +60,8 @@ public class UpdateWelcomeMessageServiceImpl extends AuthenticatedServiceServlet
 				dbInstance.setContent(instance.getContent());
 			if (instance.getExpireDate() != null)
 				dbInstance.setExpireDate(instance.getExpireDate());
+			if (instance.getPriorityChar() != 0)
+				dbInstance.setPriority(instance.getPriorityChar());
 			if (instance.getStatus() != 0 && instance.getStatus() != dbInstance.getStatus())
 				dbInstance.setStatus(instance.getStatus());
 			

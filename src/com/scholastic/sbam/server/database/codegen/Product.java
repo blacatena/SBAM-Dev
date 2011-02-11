@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Feb 10, 2011 10:50:48 AM by Hibernate Tools 3.2.4.GA
+// Generated Feb 11, 2011 6:12:56 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -13,6 +13,7 @@ public class Product implements java.io.Serializable {
 	private String description;
 	private String shortName;
 	private String defaultTermType;
+	private String defaultCommissionCode;
 	private Date createdDatetime;
 	private char status;
 
@@ -20,20 +21,23 @@ public class Product implements java.io.Serializable {
 	}
 
 	public Product(String productCode, String description, String shortName,
-			Date createdDatetime, char status) {
+			String defaultCommissionCode, Date createdDatetime, char status) {
 		this.productCode = productCode;
 		this.description = description;
 		this.shortName = shortName;
+		this.defaultCommissionCode = defaultCommissionCode;
 		this.createdDatetime = createdDatetime;
 		this.status = status;
 	}
 
 	public Product(String productCode, String description, String shortName,
-			String defaultTermType, Date createdDatetime, char status) {
+			String defaultTermType, String defaultCommissionCode,
+			Date createdDatetime, char status) {
 		this.productCode = productCode;
 		this.description = description;
 		this.shortName = shortName;
 		this.defaultTermType = defaultTermType;
+		this.defaultCommissionCode = defaultCommissionCode;
 		this.createdDatetime = createdDatetime;
 		this.status = status;
 	}
@@ -68,6 +72,14 @@ public class Product implements java.io.Serializable {
 
 	public void setDefaultTermType(String defaultTermType) {
 		this.defaultTermType = defaultTermType;
+	}
+
+	public String getDefaultCommissionCode() {
+		return this.defaultCommissionCode;
+	}
+
+	public void setDefaultCommissionCode(String defaultCommissionCode) {
+		this.defaultCommissionCode = defaultCommissionCode;
 	}
 
 	public Date getCreatedDatetime() {

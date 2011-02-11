@@ -32,11 +32,21 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 		 * Welcome Messages edit
 		 */
 		
-		cntntpnlMessages = new ContentPanel();
+		cntntpnlMessages = new ContentPanel(new CenterLayout());
 		cntntpnlMessages.setHeading("Messages");
 		cntntpnlMessages.setCollapsible(true);
-		cntntpnlMessages.setLayout(new CenterLayout());
 		IconSupplier.setIcon(cntntpnlMessages, IconSupplier.getMessagesIconName());
+		
+		cntntpnlMessages.addListener(Events.Collapse, new Listener<ComponentEvent>() {  
+			public void handleEvent(ComponentEvent be) {
+				if (welcomeMessageEditGrid != null) welcomeMessageEditGrid.sleep();
+			}  
+		});  
+		cntntpnlMessages.addListener(Events.Expand, new Listener<ComponentEvent>() {  
+			public void handleEvent(ComponentEvent be) {
+				if (welcomeMessageEditGrid != null) welcomeMessageEditGrid.awaken();
+			}  
+		});
 		
 		welcomeMessageEditGrid = new WelcomeMessageEditGrid();
 		cntntpnlMessages.add(welcomeMessageEditGrid);
@@ -46,19 +56,25 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 		 * Users edit
 		 */
 		
-		cntntpnlUsers = new ContentPanel(new CenterLayout());
+		cntntpnlUsers = new ContentPanel(new CenterLayout()) {
+			@Override
+			public void onExpand() {
+				super.onExpand();
+				layout(true);
+			}
+		};
 		cntntpnlUsers.setHeading("Users");
 		cntntpnlUsers.setCollapsible(true);
 		IconSupplier.setIcon(cntntpnlUsers, IconSupplier.getUsersIconName());
 		
 		cntntpnlUsers.addListener(Events.Collapse, new Listener<ComponentEvent>() {  
 			public void handleEvent(ComponentEvent be) {
-				userEditGrid.sleep();
+				if (userEditGrid != null) userEditGrid.sleep();
 			}  
 		});  
 		cntntpnlUsers.addListener(Events.Expand, new Listener<ComponentEvent>() {  
 			public void handleEvent(ComponentEvent be) {
-				userEditGrid.awaken();
+				if (userEditGrid != null) userEditGrid.awaken();
 			}  
 		});
 		
@@ -116,16 +132,20 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 	}
 	
 	public void sleep() {
-		userEditGrid.sleep();
-		docLinksDisplay.sleep();
+		if (userEditGrid != null) 			userEditGrid.sleep();
+		if (docLinksDisplay != null) 		docLinksDisplay.sleep();
+		if (welcomeMessageEditGrid != null) welcomeMessageEditGrid.sleep();
 	}
 	
 	public void awaken() {
-		if (!cntntpnlUsers.isCollapsed()) {
+		if (!cntntpnlUsers.isCollapsed() && userEditGrid != null) {
 			userEditGrid.awaken();
 		}
-		if (!cntntpnlProgramming.isCollapsed()) {
+		if (!cntntpnlProgramming.isCollapsed() && docLinksDisplay != null) {
 			docLinksDisplay.awaken();
+		}
+		if (!cntntpnlMessages.isCollapsed() && welcomeMessageEditGrid != null) {
+			welcomeMessageEditGrid.awaken();
 		}
 	}
 	

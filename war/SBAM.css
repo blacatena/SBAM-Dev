@@ -68,6 +68,12 @@ background-image: none;
 	font-weight: bold;
 }
 
+.sbamMsg .sbamMsgHeader .sbamMsgPriorityTitle {
+	display: inline;
+	font-weight: bold;
+	color:	red;
+}
+
 .sbamMsg .sbamMsgHeader .sbamMsgPostDate {
 	display: inline;
 	font-style: italic;
@@ -87,6 +93,10 @@ background-image: none;
 .pdocTitle {
 	padding: 5px;
 	color:	dimgray;
+}
+
+a.pdocType {
+	padding: 5px;
 }
 
 a.pdocLink:link, a.pdocLink:active {
