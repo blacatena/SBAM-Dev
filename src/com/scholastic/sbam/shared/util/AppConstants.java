@@ -4,7 +4,7 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 
 public class AppConstants {
-	public static final String VERSION = "0.0dev";
+	public static final String VERSION = "0.0.4dev";
 	public static final String VERSION_DESCRIPTION = "In Development.";
 	
 	public static final DateTimeFormat APP_DATE_TIME_FORMAT = DateTimeFormat.getFormat(PredefinedFormat.DATE_MEDIUM);	//	DateTimeFormat.getFormat("MM/dd/yy");
