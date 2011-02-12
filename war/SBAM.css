@@ -92,11 +92,16 @@ background-image: none;
 
 .pdocTitle {
 	padding: 5px;
-	color:	dimgray;
+	color:	darkgoldenrod;
 }
 
-a.pdocType {
+.pdocType {
 	padding: 5px;
+}
+
+.pdocType img {
+	text-decoration: none;
+	vertical-align: middle;
 }
 
 a.pdocLink:link, a.pdocLink:active {

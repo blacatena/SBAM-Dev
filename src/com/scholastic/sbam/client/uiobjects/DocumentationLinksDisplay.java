@@ -73,7 +73,7 @@ public class DocumentationLinksDisplay extends Composite implements AppSleeper {
 						return;
 					
 					docList.removeAll();
-					docList.setLayout(new TableLayout(3));
+					docList.setLayout(new TableLayout(6));
 					
 					String contents = "";
 					Html   html;
@@ -91,9 +91,9 @@ public class DocumentationLinksDisplay extends Composite implements AppSleeper {
 						
 						//	Add link to/title of document
 						contents = "<div  class=\"pdocTitle\">";
-						if (link.getLink() != null) {
+						if (link.getLink() != null && link.parseTypes().length > 0) {
 							contents += "<a href=\"";
-							contents += getLink(link);
+							contents += getLink(link) + link.parseTypes() [0];
 							contents += "\" target=\"_blank\" class=\"pdocLink\" >";
 							contents += link.getTitle();
 							contents += "</a>";
@@ -104,6 +104,32 @@ public class DocumentationLinksDisplay extends Composite implements AppSleeper {
 						html = new Html(contents);
 						html.setWidth(150);
 						docList.add(html);
+						
+						for (String docType : new String [] {"pdf", "docx", "html"}) {
+							contents = "<div class=\"pdocType\">";
+							if (link.getTypes().contains(docType)) {
+								contents += "<a href=\"";
+								contents += getLink(link);
+								contents += ".";
+								contents += docType;
+								contents += "\" target=\"_blank\" class=\"pdocLink\" >";
+								contents += "<img src=\"resources/images/icons/docs/doc_";
+								contents += docType;
+								contents += ".png\" />";
+								contents += "</a>";
+								contents += "<a href=\"";
+								contents += getLink(link);
+								contents += ".";
+								contents += docType;
+								contents += "\" target=\"_blank\" class=\"pdocLink\" >";
+								contents += docType;
+								contents += "</a>";
+							}
+							contents += "</div>";
+							html = new Html(contents);
+							html.setWidth(75);
+							docList.add(html);
+						}
 						
 						// Add description of document
 						contents = "<div  class=\"pdocDescr\">";

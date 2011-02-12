@@ -1,0 +1,1243 @@
+<html>
+
+<head>
+<meta name=Title content="Scholastic Site Based Authentication">
+<meta name=Keywords content="">
+<meta http-equiv=Content-Type content="text/html; charset=macintosh">
+<meta name=ProgId content=Word.Document>
+<meta name=Generator content="Microsoft Word 2008">
+<meta name=Originator content="Microsoft Word 2008">
+<link rel=File-List href="SBAM%20Use%20Model_files/filelist.xml">
+<title>Scholastic Site Based Authentication</title>
+<style>
+<!--
+ /* Font Definitions */
+@font-face
+	{font-family:"Goudy Old Style";
+	panose-1:2 2 5 2 5 3 5 2 3 3;}
+@font-face
+	{font-family:"Lucida Grande";}
+ /* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-ascii-font-family:"Goudy Old Style";
+	mso-fareast-font-family:"Goudy Old Style";
+	mso-hansi-font-family:"Goudy Old Style";
+	mso-bidi-font-family:"Times New Roman";}
+h1
+	{margin-top:24.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:0in;
+	margin-bottom:.0001pt;
+	page-break-before:always;
+	font-size:16.0pt;
+	font-family:"Times New Roman";
+	mso-ascii-font-family:"Goudy Old Style";
+	mso-fareast-font-family:"Times New Roman";
+	mso-hansi-font-family:"Goudy Old Style";
+	mso-bidi-font-family:"Times New Roman";
+	color:#5E0605;
+	mso-bidi-font-weight:bold;}
+h2
+	{margin-top:10.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:0in;
+	margin-bottom:.0001pt;
+	font-size:13.0pt;
+	font-family:"Times New Roman";
+	mso-ascii-font-family:"Goudy Old Style";
+	mso-fareast-font-family:"Times New Roman";
+	mso-hansi-font-family:"Goudy Old Style";
+	mso-bidi-font-family:"Times New Roman";
+	color:#860908;
+	mso-bidi-font-weight:bold;}
+p.MsoToc1, li.MsoToc1, div.MsoToc1
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:6.0pt;
+	margin-left:0in;
+	font-size:11.0pt;
+	font-family:"Times New Roman";
+	mso-ascii-font-family:"Goudy Old Style";
+	mso-fareast-font-family:"Goudy Old Style";
+	mso-hansi-font-family:"Goudy Old Style";
+	mso-bidi-font-family:"Times New Roman";
+	text-transform:uppercase;
+	font-weight:bold;
+	mso-bidi-font-weight:normal;
+	text-decoration:underline;
+	text-underline:single;}
+p.MsoToc2, li.MsoToc2, div.MsoToc2
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Times New Roman";
+	mso-ascii-font-family:"Goudy Old Style";
+	mso-fareast-font-family:"Goudy Old Style";
+	mso-hansi-font-family:"Goudy Old Style";
+	mso-bidi-font-family:"Times New Roman";
+	font-variant:small-caps;
+	font-weight:bold;
+	mso-bidi-font-weight:normal;}
+p.MsoToc3, li.MsoToc3, div.MsoToc3
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Times New Roman";
+	mso-ascii-font-family:"Goudy Old Style";
+	mso-fareast-font-family:"Goudy Old Style";
+	mso-hansi-font-family:"Goudy Old Style";
+	mso-bidi-font-family:"Times New Roman";
+	font-variant:small-caps;}
+p.MsoToc4, li.MsoToc4, div.MsoToc4
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Times New Roman";
+	mso-ascii-font-family:"Goudy Old Style";
+	mso-fareast-font-family:"Goudy Old Style";
+	mso-hansi-font-family:"Goudy Old Style";
+	mso-bidi-font-family:"Times New Roman";}
+p.MsoToc5, li.MsoToc5, div.MsoToc5
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Times New Roman";
+	mso-ascii-font-family:"Goudy Old Style";
+	mso-fareast-font-family:"Goudy Old Style";
+	mso-hansi-font-family:"Goudy Old Style";
+	mso-bidi-font-family:"Times New Roman";}
+p.MsoToc6, li.MsoToc6, div.MsoToc6
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Times New Roman";
+	mso-ascii-font-family:"Goudy Old Style";
+	mso-fareast-font-family:"Goudy Old Style";
+	mso-hansi-font-family:"Goudy Old Style";
+	mso-bidi-font-family:"Times New Roman";}
+p.MsoToc7, li.MsoToc7, div.MsoToc7
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Times New Roman";
+	mso-ascii-font-family:"Goudy Old Style";
+	mso-fareast-font-family:"Goudy Old Style";
+	mso-hansi-font-family:"Goudy Old Style";
+	mso-bidi-font-family:"Times New Roman";}
+p.MsoToc8, li.MsoToc8, div.MsoToc8
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Times New Roman";
+	mso-ascii-font-family:"Goudy Old Style";
+	mso-fareast-font-family:"Goudy Old Style";
+	mso-hansi-font-family:"Goudy Old Style";
+	mso-bidi-font-family:"Times New Roman";}
+p.MsoToc9, li.MsoToc9, div.MsoToc9
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Times New Roman";
+	mso-ascii-font-family:"Goudy Old Style";
+	mso-fareast-font-family:"Goudy Old Style";
+	mso-hansi-font-family:"Goudy Old Style";
+	mso-bidi-font-family:"Times New Roman";}
+p.MsoHeader, li.MsoHeader, div.MsoHeader
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:0in;
+	margin-bottom:.0001pt;
+	tab-stops:center 3.0in right 6.0in;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-ascii-font-family:"Goudy Old Style";
+	mso-fareast-font-family:"Goudy Old Style";
+	mso-hansi-font-family:"Goudy Old Style";
+	mso-bidi-font-family:"Times New Roman";}
+p.MsoFooter, li.MsoFooter, div.MsoFooter
+	{margin-top:12.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:0in;
+	margin-bottom:.0001pt;
+	tab-stops:center 3.0in right 6.0in;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-ascii-font-family:"Goudy Old Style";
+	mso-fareast-font-family:"Goudy Old Style";
+	mso-hansi-font-family:"Goudy Old Style";
+	mso-bidi-font-family:"Times New Roman";}
+p.MsoDocumentMap, li.MsoDocumentMap, div.MsoDocumentMap
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-ascii-font-family:"Lucida Grande";
+	mso-fareast-font-family:"Goudy Old Style";
+	mso-hansi-font-family:"Lucida Grande";
+	mso-bidi-font-family:"Times New Roman";}
+p.MsoTocHeading, li.MsoTocHeading, div.MsoTocHeading
+	{margin-top:24.0pt;
+	margin-right:0in;
+	margin-bottom:0in;
+	margin-left:0in;
+	margin-bottom:.0001pt;
+	line-height:115%;
+	page-break-before:always;
+	font-size:14.0pt;
+	font-family:"Times New Roman";
+	mso-ascii-font-family:"Goudy Old Style";
+	mso-fareast-font-family:"Times New Roman";
+	mso-hansi-font-family:"Goudy Old Style";
+	mso-bidi-font-family:"Times New Roman";
+	color:#640606;
+	font-weight:bold;}
+span.HeaderChar
+	{mso-ansi-font-size:12.0pt;
+	mso-bidi-font-size:12.0pt;}
+span.FooterChar
+	{mso-ansi-font-size:12.0pt;
+	mso-bidi-font-size:12.0pt;}
+span.Heading1Char
+	{mso-ansi-font-size:16.0pt;
+	mso-bidi-font-size:16.0pt;
+	font-family:"Goudy Old Style";
+	mso-ascii-font-family:"Goudy Old Style";
+	mso-fareast-font-family:"Times New Roman";
+	mso-hansi-font-family:"Goudy Old Style";
+	mso-bidi-font-family:"Times New Roman";
+	color:#5E0605;
+	font-weight:bold;}
+span.Heading2Char
+	{mso-ansi-font-size:13.0pt;
+	mso-bidi-font-size:13.0pt;
+	font-family:"Goudy Old Style";
+	mso-ascii-font-family:"Goudy Old Style";
+	mso-fareast-font-family:"Times New Roman";
+	mso-hansi-font-family:"Goudy Old Style";
+	mso-bidi-font-family:"Times New Roman";
+	color:#860908;
+	font-weight:bold;}
+span.DocumentMapChar
+	{mso-ansi-font-size:12.0pt;
+	mso-bidi-font-size:12.0pt;
+	font-family:"Lucida Grande";
+	mso-ascii-font-family:"Lucida Grande";
+	mso-hansi-font-family:"Lucida Grande";}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;
+	mso-title-page:yes;
+	mso-header:url(":SBAM Use Model_files:header.htm") h1;
+	mso-even-footer:url(":SBAM Use Model_files:header.htm") ef1;
+	mso-footer:url(":SBAM Use Model_files:header.htm") f1;
+	mso-first-header:url(":SBAM Use Model_files:header.htm") fh1;
+	mso-first-footer:url(":SBAM Use Model_files:header.htm") ff1;
+	mso-paper-source:0;}
+div.Section1
+	{page:Section1;}
+@page Section2
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;
+	mso-page-numbers:1;
+	mso-header:url(":SBAM Use Model_files:header.htm") h1;
+	mso-even-footer:url(":SBAM Use Model_files:header.htm") ef1;
+	mso-footer:url(":SBAM Use Model_files:header.htm") f1;
+	mso-first-header:url(":SBAM Use Model_files:header.htm") fh1;
+	mso-first-footer:url(":SBAM Use Model_files:header.htm") ff1;
+	mso-paper-source:0;}
+div.Section2
+	{page:Section2;}
+@page Section3
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;
+	mso-header:url(":SBAM Use Model_files:header.htm") h1;
+	mso-even-footer:url(":SBAM Use Model_files:header.htm") ef1;
+	mso-footer:url(":SBAM Use Model_files:header.htm") f1;
+	mso-first-header:url(":SBAM Use Model_files:header.htm") fh1;
+	mso-first-footer:url(":SBAM Use Model_files:header.htm") ff1;
+	mso-paper-source:0;}
+div.Section3
+	{page:Section3;}
+-->
+</style>
+<style>
+ /* Style Definitions */
+table.MsoNormalTable
+	{mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-ascii-font-family:"Goudy Old Style";
+	mso-hansi-font-family:"Goudy Old Style";}
+table.MsoTableGrid
+	{mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	font-size:10.0pt;
+	font-family:"Times New Roman";
+	mso-ascii-font-family:"Goudy Old Style";
+	mso-hansi-font-family:"Goudy Old Style";}
+table.MsoTableLightShadingAccent1
+	{mso-para-margin:0in;
+	mso-para-margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Times New Roman";
+	mso-ascii-font-family:"Goudy Old Style";
+	mso-fareast-font-family:"Times New Roman";
+	mso-hansi-font-family:"Goudy Old Style";
+	color:#640606;}
+table.MsoTableLightShadingAccent1FirstRow
+	{mso-para-margin-top:0in;
+	mso-para-margin-bottom:0in;
+	mso-para-margin-bottom:.0001pt;
+	line-height:normal;
+	mso-ansi-font-weight:bold;
+	mso-bidi-font-weight:bold;}
+table.MsoTableLightShadingAccent1LastRow
+	{mso-para-margin-top:0in;
+	mso-para-margin-bottom:0in;
+	mso-para-margin-bottom:.0001pt;
+	line-height:normal;
+	mso-ansi-font-weight:bold;
+	mso-bidi-font-weight:bold;}
+table.MsoTableLightShadingAccent1FirstCol
+	{mso-ansi-font-weight:bold;
+	mso-bidi-font-weight:bold;}
+table.MsoTableLightShadingAccent1LastCol
+	{mso-ansi-font-weight:bold;
+	mso-bidi-font-weight:bold;}
+table.MsoTableLightShadingAccent1OddColumn {}
+table.MsoTableLightShadingAccent1OddRow {}
+</style>
+</head>
+
+<body lang=EN-US style='tab-interval:.5in'>
+
+<div class=Section1>
+
+<p class=MsoNormal><span style='position:absolute;z-index:251661312;margin-left:
+126px;margin-top:108px;width:363px;height:129px'><span style='position:absolute;
+z-index:251661312;margin-left:1px;margin-top:1px;width:362px;height:128px'><img
+width=362 height=128 src="SBAM%20Use%20Model_files/image001.png"
+alt="Text Box: Scholastic Site Based Authentication&#13;Use Model&#13;Robert Lacatena&#13;"></span><span
+style='position:absolute;z-index:251661312;margin-left:4px;margin-top:4px;
+width:355px;height:121px'><img width=355 height=121
+src="SBAM%20Use%20Model_files/image002.png"></span></span><span
+style='position:absolute;z-index:251660285;margin-left:29px;margin-top:29px;
+width:557px;height:737px'><span style='position:absolute;z-index:251660285;
+margin-left:0px;margin-top:0px;width:556px;height:736px'><img width=556
+height=736 src="SBAM%20Use%20Model_files/image003.png"></span><span
+style='position:absolute;z-index:251660285;margin-left:1px;margin-top:1px;
+width:556px;height:736px'><img width=556 height=736
+src="SBAM%20Use%20Model_files/image004.png"
+alt="Text Box: &#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;&#952;&#969;&#949;&#961;&#964;&#968;&#965;&#953;&#959;π&#945;&#963;&#948;&#966;&#947;&#951;&#981;&#954;&#955;&#950;&#958;&#967;&#982;&#946;&#957;&#956;"></span></span></p>
+
+<span style='font-size:12.0pt;font-family:"Goudy Old Style";mso-fareast-font-family:
+"Goudy Old Style";mso-bidi-font-family:"Times New Roman"'><br clear=ALL
+style='page-break-before:always'>
+</span>
+
+<p class=MsoNormal>Scholastic Site Based Authentication Use Model</p>
+
+<p class=MsoNormal>written by Robert N. Lacatena<br>
+for Scholastic, Inc.<br>
+February 3, 2011</p>
+
+<p class=MsoNormal>as part of the SBAM System implementation effort</p>
+
+<p class=MsoNormal>This document was prepared as an introduction to the
+concepts, restrictions and techniques that underlie the business model in use
+at Scholastic with the intent of delivering online web services through the
+Internet to a selected customer base without individual (personal) user
+authentication.</p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+<p class=MsoTocHeading>Table of Contents</p>
+
+<p class=MsoToc1 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Introduction&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>1</span></p>
+
+<p class=MsoToc2 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>The Business Model&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>1</span></p>
+
+<p class=MsoToc2 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Customers and Products&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>1</span></p>
+
+<p class=MsoToc2 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Authentication&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>1</span></p>
+
+<p class=MsoToc1 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Authentication&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>2</span></p>
+
+<p class=MsoToc2 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>IP Addresses&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>2</span></p>
+
+<p class=MsoToc2 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>User Names and Passwords&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>2</span></p>
+
+<p class=MsoToc2 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Referrer URLs&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>3</span></p>
+
+<p class=MsoToc2 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Proxy Networks&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>3</span></p>
+
+<p class=MsoToc2 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Remote Setup URLS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>3</span></p>
+
+<p class=MsoToc1 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Subscription Terms&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>5</span></p>
+
+<p class=MsoToc1 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Customer Profiles&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>6</span></p>
+
+<p class=MsoToc2 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Customers and Sites&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>6</span></p>
+
+<p class=MsoToc2 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Districts&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>6</span></p>
+
+<p class=MsoToc2 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Consortia&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>6</span></p>
+
+<p class=MsoToc2 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Locations and Preferences&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>7</span></p>
+
+<p class=MsoToc2 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Contact Information&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>7</span></p>
+
+<p class=MsoToc1 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Agreements&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>8</span></p>
+
+<p class=MsoToc2 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Agreement Structure&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>8</span></p>
+
+<p class=MsoToc2 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Mixed Agreements&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>8</span></p>
+
+<p class=MsoToc2 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Unresolved Authentication&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>8</span></p>
+
+<p class=MsoToc1 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Usage Statistics&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>9</span></p>
+
+<p class=MsoToc1 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Reporting&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>10</span></p>
+
+<p class=MsoToc2 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>General&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>10</span></p>
+
+<p class=MsoToc2 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Commissions&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>10</span></p>
+
+<p class=MsoToc2 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Renewals&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>10</span></p>
+
+<p class=MsoToc2 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Deferrals&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>10</span></p>
+
+<p class=MsoToc1 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Putting it All Together&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>12</span></p>
+
+<p class=MsoToc2 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>The Site Based Authentication Data Management System&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>12</span></p>
+
+<p class=MsoToc2 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Authentication Export&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>12</span></p>
+
+<p class=MsoToc2 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Existing Data Conversion&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>12</span></p>
+
+<p class=MsoToc1 style='tab-stops:right 431.5pt'><span style='mso-no-proof:
+yes'>Glossary&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-no-proof:yes'>13</span></p>
+
+<p class=MsoNormal>&nbsp;</p>
+
+</div>
+
+<b><span style='font-size:16.0pt;font-family:"Goudy Old Style";mso-fareast-font-family:
+"Times New Roman";mso-bidi-font-family:"Times New Roman";color:#5E0605'><br
+clear=ALL style='page-break-before:right'>
+</span></b>
+
+<div class=Section2>
+
+<h1><a name="_Toc158453679">Introduction</a></h1>
+
+<h2><a name="_Toc158453680">The Business Model</a></h2>
+
+<p class=MsoNormal>The Scholastic Site Based Authentication System is designed
+to support a “site based authentication” business model.  In this context, a
+“site” defines a customer location, rather than individual persons at that
+location.  Authentication refers to the task of determining which sites are or
+are not entitled to access to which products (Internet services).</p>
+
+<p class=MsoNormal>In this business model, the products delivered by the
+business come from a menu of Internet based services which will be restricted
+to paying customers through an authentication method.  That method will
+identify the customer, and so determine the products for which a visitor is
+eligible (i.e. has paid for or should otherwise receive) based on the site from
+which the products are accessed.</p>
+
+<h2><a name="_Toc158453681">Customers and Products</a></h2>
+
+<p class=MsoNormal>The customers in this business model are not individuals,
+but rather institutions with some sort of enrolled patronage (a student body
+for a school, or patrons for a library).  The service is paid for by that
+institution or some umbrella institution.  The individual customers receive the
+service (with a few notable exceptions) through computers belonging to the
+customer institution, and which are identifiable as such, i.e. “authenticated.”</p>
+
+<h2><a name="_Toc158453682">Authentication</a></h2>
+
+<p class=MsoNormal>Authentication is the act of determining whether or not site
+access is allowed for a visitor, and what products (database services) the
+authenticated customer can access.  It is also necessary to track usage
+statistics for a customer, so that each product and page access can be
+tabulated for and reported to the customer.</p>
+
+<p class=MsoNormal>A variety of authentication methods are used to identify
+visitors.  The simplest is by IP address, but a visitor may also be identified
+by user names and passwords or a referrer URL, and these latter methods may
+also be further restricted by IP ranges (usually in the event of a proxy).</p>
+
+<h1><a name="_Toc158453683">Authentication</a></h1>
+
+<h2><a name="_Toc158453684">IP Addresses</a></h2>
+
+<p class=MsoNormal>The most direct method of authenticating a user request
+would be through the user’s IP address.  In theory, the IP addresses used by a
+particular customer (an institution, or a particular building owned by an
+institution) will all fall within a known range, and no other customers will
+ever use those addresses.  Under this model, a customer can be authenticated
+simply by associating a range of IP addresses with the customer, and then
+identifying visitors (and associating them with a customer and a customer’s
+agreement) by their IP address.</p>
+
+<p class=MsoNormal>This simple scenario fails under various circumstances.  In
+some cases, the network in use by a customer (for instance, a district wide network
+for an entire school system) may randomly use IP addresses in a range for the
+network, so that individual schools or buildings within the network cannot be
+distinguished.  Some customers may also use proxy services, which are shared
+with many other customers, and the IP address which is seen by the destination
+service will be any IP address from the range assigned to the proxy network,
+regardless of what visitor originated the request.</p>
+
+<h2><a name="_Toc158453685">User Names and Passwords</a></h2>
+
+<p class=MsoNormal>The easiest way to overcome IP address resolution issues is
+to assign user names and passwords.  It should be noted that these usernames
+and passwords are assigned only to customers, not to individual users at the
+customer site.</p>
+
+<p class=MsoNormal>The advantage to this method is that a user name can be
+assigned for use from any computer, regardless of its network or physical
+location.  The primary disadvantage of this method is that the individual user
+may need to know the user name and password.  A secondary disadvantage is that
+it is less secure, and would allow persons who are not actual enrolled patrons
+of the customer institution to use the services.</p>
+
+<p class=MsoNormal>To overcome this second problem, whenever possible “cookie”
+user names/passwords are used.  In this scenario, an administrator (or
+technical contact) is given a user name and password.  At each computer
+workstation, the administrator can visit a cookie page, where they can enter
+the valid username and password, and the page can install a permanent
+authentication cookie.  In this way, future visits to the product Internet
+sites from that workstation will be authenticated from that cookie, without the
+actual user ever entering or even knowing the user name and password.</p>
+
+<p class=MsoNormal>In some rare cases a “permanent” user name and password can
+be used instead, although the term “permanent” is a misleading label.  This is
+an actual user name and password which must be entered each time the site is
+accessed from a workstation.  It is “permanent” in that it must be retained to
+be functional, while the “cookie” username and password previously described is
+not needed, once it is applied, for workstations to continue to have access. </p>
+
+<h2><a name="_Toc158453686">Referrer URLs</a></h2>
+
+<p class=MsoNormal>A superior alternative to user names and passwords, when
+applicable, is the use of a “referrer URL.”  Whenever a user clicks a link to
+visit a web page, that request comes with a “referrer URL,” i.e. the URL of the
+page on which they clicked the link.  If the customer has a secure page
+delivery service, one which can only be visited by users from within the
+institution, then this referrer URL can be set up as an authentication method. 
+That is, if the product site can match the referrer URL for a web page to one
+assigned to the customer, then visits which are directed from that URL can be
+assumed to be for that customer.  There would be no way (without spoofing an
+Internet request) for a person to link to a product page, from a customer page,
+as long as that page is guaranteed to reside within and only be accessible from
+within the customer’s network.</p>
+
+<h2><a name="_Toc158453687">Proxy Networks</a></h2>
+
+<p class=MsoNormal>A common cause for the use of usernames and passwords or
+referrer URLs instead of IP addresses is the use of a proxy network for the
+school or district.  A proxy service, as it applies to the problem of
+authentication, acts as an Internet portal for the visitor, effectively masking
+the visitor’s actual IP address (any authentication system will only see an IP
+address for the proxy, not the visitor who originated the request).  </p>
+
+<p class=MsoNormal>When this is the case, while the range of IP addresses for
+the proxy network as a whole cannot be used to distinguish a particular
+customer, they can be used as an additional constraint on another
+authentication method.  This provides some level of added insurance that, for
+example, a password is not abused and used from outside of the customer site
+(or, rather, from outside of the proxy service, and therefore outside of the
+customer site).</p>
+
+<h2><a name="_Toc158453688">Remote Setup URLS</a></h2>
+
+<p class=MsoNormal>Some institutions pay extra for the privilege of allowing
+their patrons to use the services off-site.  This requires the assignment of individual
+user names for each patron, which would be an onerous task for the business to
+undertake.</p>
+
+<p class=MsoNormal>Instead, the referrer URL mechanism is used as a method of
+allowing customers to select their own usernames and to receive passwords.  A
+“remote setup URL” is established, distinct and separate from referrer URLs. 
+The customer is given a page to link to from a secure page within their own
+network (i.e. a page that can only be accessed from a workstation inside of
+their institution).</p>
+
+<p class=MsoNormal>When a customer visits that page, the referring URL will be
+validated to determine the customer.  If the customer authenticates, then a
+remote setup username and password can be established within the authentication
+system for that individual, associated with that customer and the services
+allotted to that customer.  It should be noted that such remotely set up user
+names and passwords are not visible to or needed by the business.  The business
+only defines the method of authentication for getting to the remote setup page,
+but the business never sees the remote user names and passwords which are set
+up on that page.</p>
+
+<h1><a name="_Toc158453689">Subscription Terms</a></h1>
+
+<p class=MsoNormal>Site based authentication products are sold on subscription
+terms.  That is, the customer pays for site access to selected products for a
+predetermined period, usually a full year defined by start and end dates. 
+Customers may amend the product list, either by adding additional products in
+the same period (or overlapping periods), or by terminating one, some or all
+products early.</p>
+
+<p class=MsoNormal>Subscriptions may be (and often are) renewed from one year
+to the next.  A renewal will consist of an additional date range, with any
+required product changes.  In the event of large agreements with multiple
+sites, the recipient sites may also change (adding or dropping schools).</p>
+
+<h1><a name="_Toc158453690">Customer Profiles</a></h1>
+
+<p class=MsoNormal>Customers for site based authentication products are usually
+large institutions, such as schools, school districts, libraries or library
+networks, or colleges and universities.</p>
+
+<h2><a name="_Toc158453691">Customers and Sites</a></h2>
+
+<p class=MsoNormal>There are typically three sorts of customer entities as
+defined by this business model.</p>
+
+<p class=MsoNormal>One entity is the customer paying for the service.  This may
+be an institution (like a school), a parent institution (like a district to
+which a school belongs), or a somewhat artificial “institution” (such as a
+consortium, i.e. a collection of schools or school districts).</p>
+
+<p class=MsoNormal>The second entity is the customer receiving the service. 
+This is termed a “site” or a “recipient.”  This is usually a school.  It could
+be an entire district (in a case where it is not possible to, or no one has
+taken the effort to, resolve the individual schools) or other collection of
+actual, physical sites.</p>
+
+<p class=MsoNormal>The third entity is the “official” parent of the recipient,
+if there is one.  For a school, this may be a district.  For a branch library,
+this may be the main library.  The primary reason for this distinction comes in
+gathering and reporting usage statistics, which would be relevant to (and
+should be made available to) the customer paying for the service, the
+recipient, and the parent institution of the recipient, if one exists.</p>
+
+<h2><a name="_Toc158453692">Districts</a></h2>
+
+<p class=MsoNormal>In many cases, services may be purchased district wide.  In
+these cases, the district is both the parent institution and the customer
+paying for the service.</p>
+
+<p class=MsoNormal>A main library is the equivalent of a district.  A library
+network could also, in theory, have a parent like a school/district, but often
+there is no such actual parent entity, or the entity may not be carried in the
+database as a distinct customer (if there is no one in any capacity to review usage
+statistics for the library network as a whole, or to need to view the stats for
+libraries other than their own within the agreement.</p>
+
+<h2><a name="_Toc158453693">Consortia</a></h2>
+
+<p class=MsoNormal>In some cases, the paying customer is a consortium.  A
+consortium is a collection of schools, sometimes related in some way (for
+instance all in the same county, although in some cases, the schools have
+crossed state boundaries), and sometimes not, which are engaged together in receiving
+a service.  A consortium can consist of hundreds or even a thousand schools. 
+In the case of a consortium, the consortium pays for the service, and the
+member schools are all recipients..</p>
+
+<p class=MsoNormal>A consortium must be set up as a customer in the database in
+order to be used as the paying customer for an agreement.</p>
+
+<h2><a name="_Toc158453694">Locations and Preferences</a></h2>
+
+<p class=MsoNormal>Many products include customer preferences.  These
+preferences affect behaviors such as the style of presentation for a product,
+or whether or not sound or multi-media features are turned on, or perhaps
+specifies some customer specific value, such as the name of a logo image to be
+displayed on the web pages (for instance, a consortium’s logo).  Preferences
+are distinct from products, and are turned on or off (or are otherwise set) by
+recipient site.</p>
+
+<p class=MsoNormal>It is possible, either for the gathering of usage statistics
+or for the application of preferences, that one recipient site will need to be
+separated into multiple locations.  For example, a service might be implemented
+for a school with audio and multi-media features turned on, but those features
+need to be turned off in the school library.  Or the site may be a library,
+where those features should be turned off except in their media room.</p>
+
+<p class=MsoNormal>To manage this, it is sometimes necessary to subdivide a
+site into locations, so that each location can be associated with different
+authentication methods and so be given separate preferences.  This division is
+another reason for the use of user names and passwords or referrer URLs (if,
+for instance, there is no way to distinguish the IP addresses for workstations
+in the different locations).</p>
+
+<h2><a name="_Toc158453695">Contact Information</a></h2>
+
+<p class=MsoNormal>Individual, personal contact information is sometimes
+associated with either a customer or an agreement.  At the time that accounts
+are first set up a technical contact is usually recorded.  This will be needed
+frequently to work through all of the authentication issues which may be
+encountered in the effort to get the product services properly delivered.  Other
+contacts may also be recorded, such as the person responsible for the contract,
+a person responsible for testing access.</p>
+
+<h1><a name="_Toc158453696">Agreements</a></h1>
+
+<h2><a name="_Toc158453697">Agreement Structure</a></h2>
+
+<p class=MsoNormal>For the business, contracts are organized into agreements
+for business purposes (i.e. an agreement to deliver certain product services
+for a specified period to specified customers).</p>
+
+<p class=MsoNormal>For the purposes of actual implementation, however, with the
+need to deliver different product services to different sites or locations,
+using varying authentication methods, one “actual” business agreement may be
+broken into multiple “system” agreements, purely for the purposes of
+organization.</p>
+
+<h2><a name="_Toc158453698">Mixed Agreements</a></h2>
+
+<p class=MsoNormal>Sometimes a customer site will receive different services
+from multiple agreements (“business” or “system”).  This could occur for “real
+world” reasons, such as because there are different actual business agreements.
+ For example, a school could decide to purchase one product on its own, while
+the parent district purchases a set of other products for the entire district
+(or all schools of a certain grade range in the district), while yet other
+products are being purchased for the school by a consortium (for instance, by
+the state).</p>
+
+<p class=MsoNormal>In these cases the same site (or site locations) will appear
+on multiple agreements, but should necessarily have the exact same
+authentication methods and preferences.</p>
+
+<p class=MsoNormal>Because of the complexity of managing the data (the number
+and variety of authentication methods, and the problems that can arise in a
+more complex situation versus another, simpler case) this is sometimes not
+always properly realized.</p>
+
+<h2><a name="_Toc158453699">Unresolved Authentication</a></h2>
+
+<p class=MsoNormal>There are circumstances where authentication methods are established
+within an agreement (such as a range of IP addresses) with the intent of making
+the product services available to the customer (i.e. meeting the terms of the
+business agreement) without necessarily resolving the distinction between
+different recipient sites.  This is perfectly acceptable if the customer is not
+interested in usage statistics by site, and there is no business reason to make
+a distinction (e.g. there is no site within those covered by the authentication
+methods which should not be receiving the services).</p>
+
+<p class=MsoNormal>As a result, there may be cases within the data where
+authentication methods are not tied to customers or customer sites at all. 
+They are instead tied only to an agreement, and so can be used to activate the
+services for those authentication methods (i.e. for anyone using those IP
+addresses, usernames/passwords, or referrer URLs), but they cannot be
+associated with any particular customer site.</p>
+
+<h1><a name="_Toc158453700">Usage Statistics</a></h1>
+
+<p class=MsoNormal>Customers are often interested in viewing usage statistics
+which show when and how which product services were accessed by visitors from
+which sites.  These statistics are gathered by the authentication system, but
+are then compiled and reported through a separate usage statistics reporting
+system.  That system is tasked with authenticating the visitor using a user
+name and password (one which is separate and distinct from any product services
+authentication password &#8211; it’s an administrative ID) and associating the
+user with a particular customer and rights to view particular customer stats.</p>
+
+<p class=MsoNormal>Generally, a user will be allowed to view any stats for
+their associated customer which is a site, for any sites for which their
+associated customer is the parent, and for any sites for which their associated
+customer is paying for the service.</p>
+
+<p class=MsoNormal>While the task of collecting and reporting the statistics
+falls to other systems, it is still the role of the business to maintain the
+user names and passwords which will be used to log onto the reporting system,
+and to associate them with customers.</p>
+
+<p class=MsoNormal>The reporting system also includes an “aggregation” feature.
+ By declaring an aggregation code with a site, the business is able to let the
+customer group related sites.  For example, aggregation codes in a large
+district or consortium might be set up to allow the user to group schools by
+grade range (high school, middle school, elementary school) or by geographic
+location (east , west , north , south).</p>
+
+<h1><a name="_Toc158453701">Reporting</a></h1>
+
+<h2><a name="_Toc158453702">General</a></h2>
+
+<p class=MsoNormal>Within the business systems in use are a variety of
+reporting needs.  Any system which supports site based authentication is
+primarily concerned with fulfilling that task, however other parts of the
+business will need reports from the system since in many cases it may be the
+only repository of the required information.</p>
+
+<h2><a name="_Toc158453703">Commissions</a></h2>
+
+<p class=MsoNormal>Commissions for site based authentication are complicated by
+several factors.  First, the products offered often originate from several
+different business units, so the credited sales rep may vary by product.  At
+the same time, these services are available to a wide variety of customers
+(public schools, private schools, school libraries, school districts, public
+libraries, other public and private institutions, and consortia).  Again, often
+different business units are responsible for different types of customers, but
+an agreement may mix recipients of different types, without any distinction as
+to the dollar value of the service allotted to each receiving site.</p>
+
+<p class=MsoNormal>As such, the business may need to accurately record a sales
+representative (or territory) assignment for agreements, customers, products
+and agreement terms.  In some cases, it simply is not possible to properly
+distinguish sales rep assignments.</p>
+
+<p class=MsoNormal>The commission structure behind this business model also
+usually involves different rates for renewals versus new service set ups.</p>
+
+<p class=MsoNormal>Lastly, agreements may often be split or merged due to the
+complexity of managing the authentication data, which is the primary task at
+hand.  In this case, it may not always be possible to assign an exact dollar
+value to an individual agreement.</p>
+
+<p class=MsoNormal>Commission reporting will need to account for all of these
+issues when generating commission reports, and in any event, some amount of
+manual processing will be required to sort out ultimately unavoidable conflicts
+and ambiguities in the reports.</p>
+
+<h2><a name="_Toc158453704">Renewals</a></h2>
+
+<p class=MsoNormal>As a general area of business, management will look at
+reports on renewal rates across several different demographics (product, type
+of school, geographic location, sales rep, etc.). </p>
+
+<h2><a name="_Toc158453705">Deferrals</a></h2>
+
+<p class=MsoNormal>Because this business model offers a subscription based service
+which is not received in its entirety until the full term of the agreement has
+elapsed, the business cannot necessarily record the sale as income, even if the
+accounts receivable is collected before the term of service is completed. 
+Reports are therefore necessarily supplied to accounting, including the terms
+of service and dollar values, to help in determining accruals and deferrals.</p>
+
+<h1><a name="_Toc158453706">Putting it All Together</a></h1>
+
+<h2><a name="_Toc158453707">The Site Based Authentication Data Management
+System</a></h2>
+
+<p class=MsoNormal>The business requires a computer system to support the
+authentication data management task of site based Internet product service
+delivery.  This system must support all of the functionality described so far,
+as well as several other features.</p>
+
+<p class=MsoNormal>In addition, the system should include some functionality
+and organizational considerations which as much as possible minimizes
+duplication of data and other referenced difficulties in the data management.</p>
+
+<h2><a name="_Toc158453708">Authentication Export</a></h2>
+
+<p class=MsoNormal>A main function, in fact the primary task, of the system
+must be the generation and delivery of the authentication data on a daily basis
+in a fashion which supports the actual authentication system responsible for
+managing the delivery of product services to the customers and recording usage
+statistics.  The format for these files and their content is defined by that
+authentication system.</p>
+
+<h2><a name="_Toc158453709">Existing Data Conversion</a></h2>
+
+<p class=MsoNormal>The Grolier Online business currently has a site base
+authentication data management system (labeled the Global GO system).  If that
+business cuts over to use a newly developed, Scholastic wide system, that data
+must be converted.  Such a conversion will necessarily restrict what can
+effectively be implemented in any new system.</p>
+
+</div>
+
+<span style='font-size:12.0pt;font-family:"Goudy Old Style";mso-fareast-font-family:
+"Goudy Old Style";mso-bidi-font-family:"Times New Roman"'><br clear=ALL
+style='page-break-before:right'>
+</span>
+
+<div class=Section3>
+
+<h1><a name="_Toc158453710">Glossary</a></h1>
+
+<table class=MsoTableGrid border=0 cellspacing=0 cellpadding=0
+ style='border-collapse:collapse;mso-yfti-tbllook:191;mso-padding-alt:0in 5.75pt 2.9pt .1in'>
+ <tr style='mso-yfti-irow:0;mso-yfti-firstrow:yes'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Agreement</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>An agreed to list of products, recipient sites, and term
+  of service for a predetermined price.</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:1'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Agreement Term</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>The list of products and the period, defined by a start
+  and end date, over which this particular phase of an agreement is applicable.</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:2'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Authentication</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>The act of determining whether or not site access is
+  allowed for a visitor, and what products (database services) the
+  authenticated customer can access.</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:3'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Authentication Data Management System</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>See “Business System.”</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:4'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Authentication System</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>The system which is supplied by the
+  Business/Authentication Data Management  System with the authentication
+  methods and products for any particular data, and is then responsible for the
+  actual task of authenticating visitors, providing access to product services,
+  and gathering usage statistics.</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:5'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Business System</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>The Authentication Data Management application responsible
+  for tying together the complex web of information surrounding agreements,
+  authentication methods, usage statistics acces, products and product terms.</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:6'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Consortia</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>A collection of schools, sometimes related in some way (for
+  instance all in the same county), and sometimes not, which are engaged
+  together in receiving a service.  </p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:7'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Contract</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>See “Agreement.”</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:8'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Cookie</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>A value which can be stored permanently on a particular
+  workstation.</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:9'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Cookie Username/Password</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>A username and password combination that are used to
+  install a permanent cookie on a workstation, which in turn provides permanent
+  authentication (as long as the cookie is not deleted) for that workstation.</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:10'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Database</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>See “Product Service.”</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:11'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Deferrals</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Sales dollars which cannot be “put on the books” as a sale
+  as soon as the accounts receivable is received, and must instead be deferred
+  and accrued in installments over time.</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:12'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>IP Address</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>The unique Internet address that identifies a particular
+  computer workstation in the Internet.   This value is a 32 bit number, often
+  expressed visually as a series of “octets” such as 123.53.63.21.</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:13'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Permanent Username/Password</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>An actual username and password that is used to
+  authenticate a session.</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:14'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Product</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>See “Product Service.”</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:15'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Product Service</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>An individual Internet service (also termed a product,
+  service or a database) which provides a specific user experience (user
+  interface and available subject information).</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:16'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Proxy</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>A proxy service, as it applies to the problem of
+  authentication, acts as an Internet portal for the visitor, effectively
+  masking the visitor’s actual IP address (any authentication system will only
+  see an IP address for the proxy, not the visitor who originated the request).</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:17'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Proxy IP</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>An IP address associated with a proxy service (which
+  therefore cannot be directly associated with an end customer, but may be used
+  to add further restrictions to non-IP based authentication methods).</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:18'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Referrer URL</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>An Internet address (URL) supplied in a browser request as
+  the page from which the customer linked to the product site, and which
+  therefore can be used as a means of authentication.</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:19'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Remote Setup URL</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>An Internet address (URL) used to authenticate a visit by
+  a user, like a referrer URL, but with the intention of assigning them
+  permanent username and password for future <i style='mso-bidi-font-style:
+  normal'>remote</i> access (meaning access from outside of the customer
+  institution).</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:20'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Service</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>See “Product Service.”</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:21'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Site</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>In the context of this document, a site is a particular
+  customer location which has access to a specific set of products, using a
+  specific set of preferences.  This location may be an entire institution, a
+  building, or even a room or set of rooms within a building.</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:22'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Statistics Reporting System</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>The system which is tasked with compiling and reporting
+  usage statistics to customers.</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:23'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Usage Statistics</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Statistics which show when and how which product services
+  were accessed by visitors from which sites.</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:24'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>Usage Statistics Reporting System</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>See “Statistics Reporting System.”</p>
+  </td>
+ </tr>
+ <tr style='mso-yfti-irow:25;mso-yfti-lastrow:yes'>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>User ID</p>
+  </td>
+  <td valign=top style='border:none;border-bottom:double #EFE7C3 1.5pt;
+  padding:0in 5.75pt 2.9pt .1in'>
+  <p class=MsoNormal>A value supplied by a visitor for the purposes of unique
+  authentication.</p>
+  </td>
+ </tr>
+</table>
+
+<p class=MsoNormal>&nbsp;</p>
+
+</div>
+
+</body>
+
+</html>
