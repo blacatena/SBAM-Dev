@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Feb 11, 2011 6:12:56 PM by Hibernate Tools 3.2.4.GA
+// Generated Feb 11, 2011 8:34:07 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -11,20 +11,22 @@ public class Site implements java.io.Serializable {
 
 	private SiteId id;
 	private String description;
+	private String commissionCode;
+	private char pseudoSite;
 	private Date createdDatetime;
 	private String status;
-	private char pseudoSite;
 
 	public Site() {
 	}
 
-	public Site(SiteId id, String description, Date createdDatetime,
-			String status, char pseudoSite) {
+	public Site(SiteId id, String description, String commissionCode,
+			char pseudoSite, Date createdDatetime, String status) {
 		this.id = id;
 		this.description = description;
+		this.commissionCode = commissionCode;
+		this.pseudoSite = pseudoSite;
 		this.createdDatetime = createdDatetime;
 		this.status = status;
-		this.pseudoSite = pseudoSite;
 	}
 
 	public SiteId getId() {
@@ -43,6 +45,22 @@ public class Site implements java.io.Serializable {
 		this.description = description;
 	}
 
+	public String getCommissionCode() {
+		return this.commissionCode;
+	}
+
+	public void setCommissionCode(String commissionCode) {
+		this.commissionCode = commissionCode;
+	}
+
+	public char getPseudoSite() {
+		return this.pseudoSite;
+	}
+
+	public void setPseudoSite(char pseudoSite) {
+		this.pseudoSite = pseudoSite;
+	}
+
 	public Date getCreatedDatetime() {
 		return this.createdDatetime;
 	}
@@ -57,14 +75,6 @@ public class Site implements java.io.Serializable {
 
 	public void setStatus(String status) {
 		this.status = status;
-	}
-
-	public char getPseudoSite() {
-		return this.pseudoSite;
-	}
-
-	public void setPseudoSite(char pseudoSite) {
-		this.pseudoSite = pseudoSite;
 	}
 
 }
