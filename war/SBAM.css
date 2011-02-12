@@ -86,6 +86,12 @@ background-image: none;
 	padding-left: 50px;
 }
 
+.version {
+	padding: 20px;
+	color: darkgoldenrod;
+	font-size: 20px;
+}
+
 .pdocImage {
 	padding: 5px;
 }

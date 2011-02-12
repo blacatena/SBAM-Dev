@@ -10,6 +10,7 @@ public class VersionDisplay extends Composite {
 	public VersionDisplay() {
 		
 		LayoutContainer layoutContainer = new LayoutContainer();
+		layoutContainer.addStyleName("version");
 		
 		Html version = new Html("<DIV>Version: <B>" + AppConstants.VERSION + "</B></DIV>");
 		Html description = new Html("<DIV>" + AppConstants.VERSION_DESCRIPTION + "</DIV>");
