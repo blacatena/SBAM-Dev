@@ -26,6 +26,7 @@ import com.scholastic.sbam.client.services.ProductListServiceAsync;
 import com.scholastic.sbam.client.services.UpdateProductService;
 import com.scholastic.sbam.client.services.UpdateProductServiceAsync;
 import com.scholastic.sbam.client.util.UiConstants;
+import com.scholastic.sbam.client.util.UiConstants.CommissionTypeTargets;
 import com.scholastic.sbam.shared.objects.ProductInstance;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.validation.CodeValidator;
@@ -73,6 +74,9 @@ public class ProductEditGrid extends BetterFilterEditGrid<ProductInstance> imple
 				UiConstants.getTermTypes(), "termTypeCode", "description", 	null)); //	termTypeCodeValidationService));
 //		columns.add(getComboColumn(			"defaultTermTypeInstance", 		"Default<BR/>Term<BR/>Type",80,		"The term type to initially use for new terms for this product.",	
 //				getTermTypes(), "termTypeCode", "description", 	null)); //	termTypeCodeValidationService));
+
+		columns.add(getComboColumn(			"defaultCommTypeInstance", 		"Default<BR/>Commission<BR/>Type",80,		"The commission type to initially use for this product.",	
+				UiConstants.getCommissionTypes(CommissionTypeTargets.PRODUCT), "commissionCode", "shortName", 	null)); //	termTypeCodeValidationService));
 //		columns.add(getEditColumn(			"defaultTermType", 		"Default<BR/>Term<BR/>Type",50,		"The term type to initially use for new terms for this product.",	new CodeValidator(1), 	termTypeCodeValidationService));
 		columns.add(getEditCheckColumn(		"active",				"Active", 			50,		"Uncheck to deactivate a code value."));
 		columns.add(getDateColumn(			"createdDatetime",		"Created", 			75,		"The date that this row was created."));

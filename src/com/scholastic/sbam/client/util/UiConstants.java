@@ -112,6 +112,8 @@ public class UiConstants {
 
 			public void onSuccess(List<CommissionTypeInstance> list) {
 				commissionTypes.removeAll();
+				if (commissionTypes.getKeyProvider() == null)
+					commissionTypes.setKeyProvider(CommissionTypeInstance.obtainStaticModelKeyProvider());
 				BeanModelFactory factory = null;
 				for (CommissionTypeInstance instance : list) {
 					if (factory == null)
@@ -130,6 +132,7 @@ public class UiConstants {
 	
 	public static ListStore<BeanModel> getCommissionTypes(CommissionTypeTargets target) {
 		ListStore<BeanModel> list = new ListStore<BeanModel>();
+		list.setKeyProvider(CommissionTypeInstance.obtainStaticModelKeyProvider());
 		
 		for (BeanModel model : commissionTypes.getModels()) {
 			CommissionTypeInstance instance = (CommissionTypeInstance) model.getBean();

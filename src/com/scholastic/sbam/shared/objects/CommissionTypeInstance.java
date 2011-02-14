@@ -2,11 +2,15 @@ package com.scholastic.sbam.shared.objects;
 
 import java.util.Date;
 
+import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.data.BeanModelTag;
+import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-public class CommissionTypeInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
+public class CommissionTypeInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable, InherentModelKeyProvider {
 
+	private static ModelKeyProvider<BeanModel> singletonKeyProvider = new SimpleKeyProvider("commissionCode");
+	
 	private String	commissionCode;
 	private String	description;
 	private String	shortName;
@@ -159,6 +163,15 @@ public class CommissionTypeInstance extends BetterRowEditInstance implements Bea
 	}
 
 	public String toString() {
-		return description;
+		return shortName;
+	}
+	
+	public static ModelKeyProvider<BeanModel> obtainStaticModelKeyProvider() {
+		return singletonKeyProvider;
+	}
+
+	@Override
+	public ModelKeyProvider<BeanModel> obtainModelKeyProvider() {
+		return CommissionTypeInstance.singletonKeyProvider;
 	}
 }

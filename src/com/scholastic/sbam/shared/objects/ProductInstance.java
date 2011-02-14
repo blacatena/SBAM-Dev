@@ -16,7 +16,8 @@ public class ProductInstance extends BetterRowEditInstance implements BeanModelT
 	private boolean active;
 	private Date   createdDatetime;
 	
-	private TermTypeInstance defaultTermTypeInstance;
+	private TermTypeInstance		defaultTermTypeInstance;
+	private CommissionTypeInstance	defaultCommTypeInstance;
 	
 	@Override
 	public void markForDeletion() {
@@ -101,9 +102,13 @@ public class ProductInstance extends BetterRowEditInstance implements BeanModelT
 			return;
 		setStatus(active?'A':'I');
 	}
-	
-	public String toString() {
-		return productCode + " / " + description + " / " + shortName + " / " + defaultTermType + " / " + status + " / " + createdDatetime + "/ [" + defaultTermTypeInstance + "]";
+
+	public String getDefaultCommissionCode() {
+		return defaultCommissionCode;
+	}
+
+	public void setDefaultCommissionCode(String defaultCommissionCode) {
+		this.defaultCommissionCode = defaultCommissionCode;
 	}
 
 	public TermTypeInstance getDefaultTermTypeInstance() {
@@ -114,12 +119,17 @@ public class ProductInstance extends BetterRowEditInstance implements BeanModelT
 		this.defaultTermTypeInstance = defaultTermTypeInstance;
 	}
 
-	public String getDefaultCommissionCode() {
-		return defaultCommissionCode;
+	public CommissionTypeInstance getDefaultCommTypeInstance() {
+		return defaultCommTypeInstance;
 	}
 
-	public void setDefaultCommissionCode(String defaultCommissionCode) {
-		this.defaultCommissionCode = defaultCommissionCode;
+	public void setDefaultCommTypeInstance(
+			CommissionTypeInstance defaultCommTypeInstance) {
+		this.defaultCommTypeInstance = defaultCommTypeInstance;
+	}
+	
+	public String toString() {
+		return productCode + " / " + description + " / " + shortName + " / " + defaultTermType + " / " + status + " / " + createdDatetime + "/ [" + defaultTermTypeInstance + "]";
 	}
 
 }
