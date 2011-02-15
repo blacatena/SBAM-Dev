@@ -267,6 +267,22 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 		dirtyListenTimer.scheduleRepeating(200);
 	}
 	
+	protected void setReadOnly(boolean readOnly) {
+		title.setReadOnly(readOnly);
+		expires.setReadOnly(readOnly);
+		active.setReadOnly(readOnly);
+		priority.setReadOnly(readOnly);
+		content.setReadOnly(readOnly);
+	}
+	
+	protected void protectFields() {
+		setReadOnly(true);
+	}
+	
+	protected void openFields() {
+		setReadOnly(false);
+	}
+	
 	protected void bind(SelectionChangedEvent<BeanModel> be) {
 		if (be.getSelection().size() > 0) {
 			bind((BeanModel) be.getSelection().get(0));
@@ -279,6 +295,7 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 		targetModel = model;
 		targetInstance = model.getBean();
 		formSet();
+		openFields();
 	}
 	
 	protected void unbind() {
@@ -304,6 +321,7 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 	protected void formClear() {
 		panel.clear();
 		panel.clearDirtyFields();
+		protectFields();
 	}
 	
 	protected void formSet() {
@@ -398,6 +416,8 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 				content.setValue("");
 				active.setValue(true);
 				priority.setValue(false);
+				
+				openFields();
 				title.focus();
 			}  
 		 
