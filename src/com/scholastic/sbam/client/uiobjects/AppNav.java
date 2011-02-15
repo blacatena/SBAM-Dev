@@ -8,12 +8,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Composite;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.TabItem;
-import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.scholastic.sbam.client.services.WelcomeMessageService;
-import com.scholastic.sbam.client.services.WelcomeMessageServiceAsync;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.security.SecurityManager;
 
@@ -21,14 +16,12 @@ public class AppNav extends Composite implements AppSecurityManager {
 	private TabPanel tabPanel;
 	private TabItem tbtmAdministration;
 	private TabItem tbtmWelcome;
-	private Html htmlWelcome;
-	private Html htmlMessages;
-	private Html htmlLoading;
 	private TabItem tbtmConfiguration;
 	private TabItem tbtmReports;
 	private TabItem tbtmAgreements;
 	private AdminUi adminUi;
 	private ConfigUi configUi;
+	private WelcomeDisplay welcomeDisplay;
 
 	public AppNav() {
 		
@@ -37,15 +30,8 @@ public class AppNav extends Composite implements AppSecurityManager {
 		tbtmWelcome = new TabItem("Welcome");
 		IconSupplier.setIcon(tbtmWelcome, IconSupplier.getWelcomeIconName());
 		
-		htmlWelcome = new Html("<h2><i><b>Welcome</b></i> to the Scholastic Site Based Authentication Management System (SBAM).</h2><hr/>");
-		tbtmWelcome.add(htmlWelcome);
-		
-		htmlMessages = new Html("");
-		tbtmWelcome.add(htmlMessages);
-		
-		htmlLoading = new Html("<i>Loading welcome messages</i>");
-		htmlLoading.addStyleName("loading-indicator");
-		tbtmWelcome.add(htmlLoading);
+		welcomeDisplay = new WelcomeDisplay();
+		tbtmWelcome.add(welcomeDisplay);
 		
 		tabPanel.add(tbtmWelcome);
 		
@@ -78,7 +64,7 @@ public class AppNav extends Composite implements AppSecurityManager {
 		initComponent(tabPanel);
 		
 		applyRoles(SecurityManager.NO_ROLES);
-		loadWelcomeMessages();
+	//	loadWelcomeMessages();
 	}
 	
 	/**
@@ -89,6 +75,7 @@ public class AppNav extends Composite implements AppSecurityManager {
 		tbtmWelcome.addListener(Events.Select, new Listener<ComponentEvent>() {  
 			public void handleEvent(ComponentEvent be) {
 				sleepOthers(tbtmWelcome);
+				awaken(welcomeDisplay);
 			}  
 		}); 
 	
@@ -119,30 +106,6 @@ public class AppNav extends Composite implements AppSecurityManager {
 		}); 
 	}
 	
-	/**
-	 * Load any current welcome messages.
-	 */
-	public void loadWelcomeMessages() {
-
-		final WelcomeMessageServiceAsync welcomeMessageService = GWT.create(WelcomeMessageService.class);
-
-		
-		welcomeMessageService.getWelcomeMessages(
-			new AsyncCallback<String>() {
-				public void onFailure(Throwable caught) {
-					// Show the RPC error message to the user
-					htmlMessages.setHtml("Message load failed.");
-					htmlLoading.setVisible(false);
-				}
-
-				public void onSuccess(String result) {
-					htmlMessages.setHtml(result);
-					htmlLoading.setVisible(false);
-				}
-			});
-		
-	}
-	
 	protected void awaken(AppSleeper target) {
 		target.awaken();
 	}
@@ -157,6 +120,8 @@ public class AppNav extends Composite implements AppSecurityManager {
 			adminUi.sleep();
 		if (exception != tbtmConfiguration)
 			configUi.sleep();
+		if (exception != tbtmWelcome)
+			welcomeDisplay.sleep();
 	}
 	
 	public void setLoggedOut() {
@@ -200,14 +165,6 @@ public class AppNav extends Composite implements AppSecurityManager {
 
 	public void setTbtmWelcome(TabItem tbtmWelcome) {
 		this.tbtmWelcome = tbtmWelcome;
-	}
-
-	public Html getHtmlwelcomeToThe() {
-		return htmlWelcome;
-	}
-
-	public void setHtmlwelcomeToThe(Html htmlwelcomeToThe) {
-		this.htmlWelcome = htmlwelcomeToThe;
 	}
 
 	public TabItem getTbtmConfiguration() {

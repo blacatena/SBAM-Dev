@@ -113,8 +113,10 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		if (iconName != null && iconName.length() > 0)
 			IconSupplier.setIcon(item, iconName);
 	//	item.setClosable(false);
-		if (toolTip != null)
-			item.setToolTip(toolTip);
+//		This doesn't work -- GXT puts the tooltip on the content area, instead of the tab itself
+//		if (toolTip != null) {
+//			item.setToolTip(toolTip);
+//		}
 		item.addStyleName("pad-text");  
 		advanced.add(item);
 		return item;

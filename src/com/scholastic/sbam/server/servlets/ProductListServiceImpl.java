@@ -1,10 +1,10 @@
 package com.scholastic.sbam.server.servlets;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.LoadConfig;
-import com.google.gwt.dev.util.collect.HashMap;
 import com.scholastic.sbam.client.services.ProductListService;
 import com.scholastic.sbam.server.database.codegen.CommissionType;
 import com.scholastic.sbam.server.database.codegen.Product;
