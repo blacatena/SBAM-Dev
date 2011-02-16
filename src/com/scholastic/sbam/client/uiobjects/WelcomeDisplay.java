@@ -40,7 +40,6 @@ public class WelcomeDisplay extends Composite implements AppSecurityManager, App
 	 * Load any current welcome messages.
 	 */
 	public void loadWelcomeMessages() {
-		System.out.println("loading welcome messages");
 		if (htmlLoading != null)
 			htmlLoading.setVisible(true);
 

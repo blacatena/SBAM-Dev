@@ -113,9 +113,7 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 		// loader and store  
 		loader = getLoader();
 		store = new ListStore<BeanModel>(loader);
-	    store.setMonitorChanges(true);   
-		
-		loader.load();
+	    store.setMonitorChanges(true); 
 	
 	    grid = createGrid();
 	    grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
@@ -131,7 +129,8 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 	    panel = createForm();
 	
 	    cp.add(panel, new RowData(640, 1));
-	
+		
+		loader.load();
 	    formClear();
 	    
 	    add(cp);

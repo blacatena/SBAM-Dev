@@ -108,19 +108,40 @@ background-image: none;
 .pdocType img {
 	text-decoration: none;
 	vertical-align: middle;
+	padding: 3px;
 }
 
 a.pdocLink:link, a.pdocLink:active {
 	text-decoration: underline;
 	color:	saddlebrown;
+	background:goldenrod;
+    border: 1px solid darkgoldenrod;
+    padding:3px 10px;
+    -webkit-border-radius:10px;
+    -moz-border-radius:15px;
 }
 
 a.pdocLink:visited {
-	color: darkgoldenrod;
+	color: saddlebrown;
+	background:burlywood;
+    border: 1px solid darkgoldenrod;
+    padding:3px 10px;
+    -webkit-border-radius:10px;
+    -moz-border-radius:15px;
 }
 
 a.pdocLink:hover {
-	color: goldenrod;
+	color: cornsilk;
+	background:darkgoldenrod;
+    border:1px solid darkgoldenrod;
+/*  color:#fff; */
+    -webkit-border-radius:10px;
+    -moz-border-radius:15px;
+}
+
+a.pdocImgLink {
+	background: transparent;
+	border: none;
 }
 
 .pdocDescr {

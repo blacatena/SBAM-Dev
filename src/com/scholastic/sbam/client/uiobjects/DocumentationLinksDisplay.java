@@ -26,23 +26,16 @@ public class DocumentationLinksDisplay extends Composite implements AppSleeper {
 		loading = new Html("<i>Loading documentation links...</i>");
 		loading.addStyleName("loading-indicator");
 		
-		docList = new LayoutContainer(new TableLayout(3));
+		docList = new LayoutContainer(new TableLayout(6));
 		docList.setVisible(false);
 		
 		layoutContainer.add(loading);
 		layoutContainer.add(docList);
 		
 		initComponent(layoutContainer);
-		
-	//	startReload();
 	}
 	
 	public void startReload() {
-		if (docList == null || loading == null)
-			return;
-
-		docList.setVisible(false);
-		loading.setVisible(true);
 		
 		loadDocumentationList();
 	}
@@ -51,6 +44,10 @@ public class DocumentationLinksDisplay extends Composite implements AppSleeper {
 	 * Load any documentation links.
 	 */
 	public void loadDocumentationList() {
+		if (loading != null)
+			loading.setVisible(true);
+		if (docList != null)
+			docList.setVisible(false);
 
 		final DocumentationListServiceAsync documentationListService = GWT.create(DocumentationListService.class);
 
@@ -112,7 +109,7 @@ public class DocumentationLinksDisplay extends Composite implements AppSleeper {
 								contents += getLink(link);
 								contents += ".";
 								contents += docType;
-								contents += "\" target=\"_blank\" class=\"pdocLink\" >";
+								contents += "\" target=\"_blank\" class=\"pdocImgLink\" >";
 								contents += "<img src=\"resources/images/icons/docs/doc_";
 								contents += docType;
 								contents += ".png\" />";
@@ -127,7 +124,7 @@ public class DocumentationLinksDisplay extends Composite implements AppSleeper {
 							}
 							contents += "</div>";
 							html = new Html(contents);
-							html.setWidth(75);
+							html.setWidth(100);
 							docList.add(html);
 						}
 						
