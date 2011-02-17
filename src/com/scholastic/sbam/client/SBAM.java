@@ -46,7 +46,7 @@ public class SBAM implements EntryPoint {
 		rootPanel.add(viewport);
 		
 		//	Start with the user not logged in
-		loginUiManager.show();
+		loginUiManager.show(false);
 		
 		//	Hide the "loading" div which is displayed in the default HTML on startup.
 		if (RootPanel.get("loading-indicator") != null) {

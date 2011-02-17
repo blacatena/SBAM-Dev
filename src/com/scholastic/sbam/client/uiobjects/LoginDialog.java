@@ -5,17 +5,25 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-//import com.extjs.gxt.ui.client.fx.FxConfig;
 import com.extjs.gxt.ui.client.util.IconHelper;
-import com.extjs.gxt.ui.client.widget.Dialog;
+//import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Status;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
-//import com.google.gwt.user.client.Element;
 
-public class LoginDialog extends Dialog {
+/**
+ * A log in dialog to accept a user name and password, and shield the application from use until validated.
+ * 
+ * This class has been trivially modified to extend EffectsDialog, rather than the usual GXT Dialog, so that animate can more easily be applied.
+ * 
+ * To revert to the simpler, more stable, un-animated version, simple change the class inheritance to extend com.extjs.gxt.ui.client.widget.Dialog.
+ * 
+ * @author Bob Lacatena
+ *
+ */
+public class LoginDialog extends EffectsDialog {
 
 	  protected TextField<String> userName;
 	  protected TextField<String> password;
@@ -29,6 +37,7 @@ public class LoginDialog extends Dialog {
 	    layout.setDefaultWidth(155);
 	    setLayout(layout);
 	    
+//	    setAnimCollapse(true);
 	    setButtonAlign(HorizontalAlignment.LEFT);
 	    setButtons("");
 	    setIcon(IconHelper.createStyle("user"));
@@ -98,6 +107,10 @@ public class LoginDialog extends Dialog {
 
 	    
 	  }
+	  
+	  public void show(boolean animate) {
+		  super.show(animate);
+	  }
 
 	  protected boolean hasValue(TextField<String> field) {
 	    return field.getValue() != null && field.getValue().length() > 0;
@@ -119,5 +132,5 @@ public class LoginDialog extends Dialog {
 		public Button getLogin() {
 			return login;
 		}
-
+	  
 	}

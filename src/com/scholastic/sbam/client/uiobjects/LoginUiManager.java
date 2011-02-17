@@ -77,9 +77,11 @@ public class LoginUiManager {
 	}
 	
 	public void show() {
-	//	loginBox.center();
-	//	loginBox.el().fadeToggle(FxConfig.NONE);
 		loginBox.show();
+	}
+	
+	public void show(boolean animate) {
+		loginBox.show(animate);
 	}
 	
 	public LoginDialog getLoginDialog() {

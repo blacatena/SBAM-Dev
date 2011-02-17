@@ -1,4 +1,4 @@
-package com.scholastic.sbam.client.uiobjects;
+package com.scholastic.sbam.client.uiobjects.unused;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
