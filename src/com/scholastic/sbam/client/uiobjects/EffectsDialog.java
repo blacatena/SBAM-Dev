@@ -67,8 +67,10 @@ public class EffectsDialog extends ExtendableDialog {
 						thisDialog.afterAnimateShow();
 					}
 				  }));
-		} else
+		} else {
 			onShow();
+			afterAnimateShow();
+		}
 	}
 	
 	@Override
@@ -127,7 +129,9 @@ public class EffectsDialog extends ExtendableDialog {
 						thisDialog.afterAnimateHide(buttonPressed);
 					}
 				  }));
-		} else
+		} else {
 			onHide();
+			afterAnimateHide(buttonPressed);
+		}
 	}
 }
