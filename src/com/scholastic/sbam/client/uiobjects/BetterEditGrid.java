@@ -40,6 +40,7 @@ import com.extjs.gxt.ui.client.widget.grid.CheckColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridView;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
@@ -184,7 +185,18 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 		grid.setColumnReordering(true);
 		if (autoExpandColumn != null)
 			grid.setAutoExpandColumn(autoExpandColumn);
-		grid.getAriaSupport().setLabelledBy(panel.getHeader().getId() + "-label"); // access for people with disabilities -- ARIA	
+		grid.getAriaSupport().setLabelledBy(panel.getHeader().getId() + "-label"); // access for people with disabilities -- ARIA
+		setGridView();
+	}
+	
+	protected void setGridView() {
+		if (grid.getView() != null)
+			grid.getView().setEmptyText("There is no data to display.");
+		else {
+			GridView gridView= new GridView();
+			gridView.setEmptyText("There is no data to display.");
+			grid.setView(gridView);
+		}
 	}
 	
 	protected ListLoader<ListLoadResult<ModelData>> getLoader() {

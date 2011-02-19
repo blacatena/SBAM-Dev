@@ -22,6 +22,7 @@ public class AppNav extends Composite implements AppSecurityManager {
 	private AdminUi adminUi;
 	private ConfigUi configUi;
 	private WelcomeDisplay welcomeDisplay;
+	private AppPortal appPortal;
 
 	public AppNav() {
 		
@@ -34,9 +35,14 @@ public class AppNav extends Composite implements AppSecurityManager {
 		tbtmWelcome.add(welcomeDisplay);
 		
 		tabPanel.add(tbtmWelcome);
-		
+	
 		tbtmAgreements = new TabItem("Agreements");
+		tbtmAgreements.setLayout(new FitLayout());
 		IconSupplier.setIcon(tbtmAgreements, IconSupplier.getAgreementIconName());
+		
+		appPortal = new AppPortal();
+		tbtmAgreements.add(appPortal);
+		
 		tabPanel.add(tbtmAgreements);
 		
 		tbtmConfiguration = new TabItem("Configuration");
