@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Feb 23, 2011 5:01:45 PM by Hibernate Tools 3.2.4.GA -->
+<hibernate-mapping>
+    <class name="com.scholastic.sbam.server.database.codegen.SysConfig" table="sys_config" catalog="sbam">
+        <id name="id" type="string">
+            <column name="id" length="32" />
+            <generator class="assigned" />
+        </id>
+        <property name="seq" type="int">
+            <column name="seq" not-null="true" />
+        </property>
+        <property name="emailServer" type="string">
+            <column name="email_server" not-null="true" />
+        </property>
+        <property name="emailPort" type="int">
+            <column name="email_port" not-null="true" />
+        </property>
+        <property name="emailUser" type="string">
+            <column name="email_user" not-null="true" />
+        </property>
+        <property name="emailPassword" type="string">
+            <column name="email_password" not-null="true" />
+        </property>
+        <property name="emailAddress" type="string">
+            <column name="email_address" not-null="true" />
+        </property>
+        <property name="emailCc" type="string">
+            <column name="email_cc" length="1024" not-null="true" />
+        </property>
+        <property name="emailBcc" type="string">
+            <column name="email_bcc" length="1024" not-null="true" />
+        </property>
+        <property name="siteUrl" type="string">
+            <column name="site_url" not-null="true" />
+        </property>
+        <property name="techContactName" type="string">
+            <column name="tech_contact_name" not-null="true" />
+        </property>
+        <property name="techContactEmail" type="string">
+            <column name="tech_contact_email" not-null="true" />
+        </property>
+        <property name="executionMode" type="string">
+            <column name="execution_mode" length="32" not-null="true" />
+        </property>
+        <property name="customerLimit" type="int">
+            <column name="customer_limit" not-null="true" />
+        </property>
+        <property name="instConfigInner" type="char">
+            <column name="inst_config_inner" length="1" not-null="true" />
+        </property>
+        <property name="instConfigPairs" type="char">
+            <column name="inst_config_pairs" length="1" not-null="true" />
+        </property>
+        <property name="instConfigMinStr" type="int">
+            <column name="inst_config_min_str" not-null="true" />
+        </property>
+        <property name="instConfigMinInner" type="int">
+            <column name="inst_config_min_inner" not-null="true" />
+        </property>
+        <property name="instConfigMaxPair" type="int">
+            <column name="inst_config_max_pair" not-null="true" />
+        </property>
+        <property name="instConfigMaxList" type="int">
+            <column name="inst_config_max_list" not-null="true" />
+        </property>
+        <property name="instConfigMaxWords" type="int">
+            <column name="inst_config_max_words" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

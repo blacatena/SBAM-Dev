@@ -1,10 +1,13 @@
 package com.scholastic.sbam.client.uiobjects;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.IconButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Header;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -13,10 +16,12 @@ import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.extjs.gxt.ui.client.widget.custom.Portlet;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.google.gwt.user.client.Element;
+import com.scholastic.sbam.client.InstitutionSearchPortlet;
 
-public class AppPortal extends LayoutContainer {
+public class AppPortal extends LayoutContainer implements AppSleeper {
 	
 	int counter = 0;
 	
@@ -101,20 +106,34 @@ public class AppPortal extends LayoutContainer {
 	private void configPanel(final ContentPanel panel) {  
 		panel.setCollapsible(true);
 		panel.setAnimCollapse(false);
-		panel.getHeader().addTool(new ToolButton("x-tool-gear"));
-		panel.getHeader().addTool(  
-			new ToolButton("x-tool-close", new SelectionListener<IconButtonEvent>() {  
-			
-					@Override  
-					public void componentSelected(IconButtonEvent ce) {  
-							panel.removeFromParent();
-						}
-				
-				}));
+		addClosable(panel);
+	//	panel.getHeader().addTool(new ToolButton("x-tool-gear"));
+	}
+	
+	protected void addClosable(final ContentPanel prtltPortlet) {
+		Header head = prtltPortlet.getHeader();
+
+		ToolButton closeBtn = new ToolButton("x-tool-close");
+		if (GXT.isAriaEnabled()) {
+			closeBtn.setTitle(GXT.MESSAGES.messageBox_close());
+		}
+		closeBtn.addListener(Events.Select, new Listener<ComponentEvent>() {
+			public void handleEvent(ComponentEvent ce) {
+				prtltPortlet.removeFromParent();
+			}
+		});
+		head.addTool(closeBtn);
 	}
 	
 	private void addPortlet(Portal portal) { 
 		counter++;
+		
+		if (counter % 3 == 1) {
+			Portlet portlet = new InstitutionSearchPortlet();
+			configPanel(portlet);
+			portal.add(portlet, 0);
+			return;
+		}
 		
 		Portlet portlet = new Portlet();
 		portlet.setHeading("Another Panel " + counter);
@@ -122,6 +141,20 @@ public class AppPortal extends LayoutContainer {
 		portlet.addText("I am portal " + counter);
 		portal.add(portlet, 0);
 		
+	}
+
+	@Override
+	public void awaken() {
+		for (LayoutContainer portlet : portalc.getItems())
+			if (portlet instanceof AppSleeper)
+				((AppSleeper) portlet).awaken();
+	}
+
+	@Override
+	public void sleep() {
+		for (LayoutContainer portlet : portalc.getItems())
+			if (portlet instanceof AppSleeper)
+				((AppSleeper) portlet).sleep();
 	}
 
 }

@@ -249,8 +249,12 @@ public class MailHelper {
 			replacements.put("datetime", new Date().toString());
 		if (!replacements.containsKey("siteurl"))
 			replacements.put("siteurl", AppServerConstants.getSiteUrl());
+		if (!replacements.containsKey("techcontactname"))
+			replacements.put("techcontactname", AppServerConstants.getTechContactName());
+		if (!replacements.containsKey("techcontactemail"))
+			replacements.put("techcontactemail", AppServerConstants.getTechContactName());
 		if (!replacements.containsKey("techcontact"))
-			replacements.put("techcontact", AppServerConstants.getTechContact());
+			replacements.put("techcontact", AppServerConstants.getTechContactName());
 		replacements.put("allparms", replacements.toString());
 		
 		int idx = 0;

@@ -183,6 +183,7 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 		grid.setStripeRows(true);
 		grid.setColumnLines(true);
 		grid.setColumnReordering(true);
+		grid.setLoadMask(true);
 		if (autoExpandColumn != null)
 			grid.setAutoExpandColumn(autoExpandColumn);
 		grid.getAriaSupport().setLabelledBy(panel.getHeader().getId() + "-label"); // access for people with disabilities -- ARIA

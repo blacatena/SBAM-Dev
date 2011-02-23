@@ -4,6 +4,7 @@ import javax.servlet.*;
 
 import javax.servlet.http.HttpServlet;
 
+import com.scholastic.sbam.server.fastSearch.InstitutionCache;
 import com.scholastic.sbam.server.util.AppServerConstants;
 
 public class Initializer extends HttpServlet {
@@ -15,6 +16,7 @@ public class Initializer extends HttpServlet {
 	
 		try {
 			AppServerConstants.init(config.getServletContext().getRealPath("/"));	//, ">>>  ");
+			System.out.println("Institution cache object is " + InstitutionCache.getSingleton(AppServerConstants.getInstCacheConfig()));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

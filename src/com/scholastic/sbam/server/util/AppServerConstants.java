@@ -8,6 +8,11 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.scholastic.sbam.server.database.codegen.SysConfig;
+import com.scholastic.sbam.server.database.objects.DbSysConfig;
+import com.scholastic.sbam.server.database.util.HibernateUtil;
+import com.scholastic.sbam.server.fastSearch.InstitutionCache.InstitutionCacheConfig;
+
 public class AppServerConstants {
 	public static final String REPLACEMENT_START = "[$";
 	public static final String REPLACEMENT_END   = "$]";
@@ -17,6 +22,8 @@ public class AppServerConstants {
     
 	public static final String VERSION					= "1.0b";
 	
+	private static		String	executionMode				=	"?";
+	private static		int		customerLoadLimit			=	-1;
 	private static		String	filesRoot					=	"/";
 	private static		String	emailServer					=	"";
 	private static		int		emailPort					=	25;
@@ -27,9 +34,14 @@ public class AppServerConstants {
 	private static		String	emailBcc					=	"";
 	private static		String	emailFilesRoot				=	"/";
 	private static		String	siteUrl						=	"sbam.scholastic.com";
-	private static		String	techContact					=	"";
+	private static		String	techContactName				=	"";
+	private static		String	techContactEmail			=	"";
+	
+	private static		InstitutionCacheConfig instCacheConfig = new InstitutionCacheConfig();
 	
 	private static final String PROPERTIES					=	"sbam.properties";
+	private static final String PARM_EXECUTION_MODE			=	"EXECUTION_MODE";
+	private static final String PARM_CUSTOMER_LIMIT			=	"CUSTOMER_LIMIT";
 	private static final String PARM_EMAIL_SERVER			=	"EMAIL_SERVER";
 	private static final String PARM_EMAIL_PORT				=	"EMAIL_PORT";
 	private static final String PARM_EMAIL_USER				=	"EMAIL_USER";
@@ -38,20 +50,67 @@ public class AppServerConstants {
 	private static final String PARM_EMAIL_CC				=	"EMAIL_CC";
 	private static final String PARM_EMAIL_BCC				=	"EMAIL_BCC";
 	private static final String PARM_SITE_URL				=	"SITE_URL";
-	private static final String PARM_TECH_CONTACT			=	"TECH_CONTACT";
+	private static final String PARM_TECH_CONTACT_NAME		=	"TECH_CONTACT_NAME";
+	private static final String PARM_TECH_CONTACT_EMAIL		=	"TECH_CONTACT_EMAIL";
 	
     private static final Log log = LogFactory.getLog(AppServerConstants.class);
 	
 	
 	/**
-	 * Initialize the constants first from the application properties file sbam.properties,
+	 * Initialize the constants first from the database, second from the application properties file sbam.properties,
 	 * and then from a configuration properties file in ../conf/sbam.properties, if available.
 	 * @throws Exception
 	 */
 	
 	public static void init(String path) throws Exception {
-		init(path, null);
+		if (!initFromDb()) {
+			init(path, null);
+		}
+	}
+	
+	public static boolean initFromDb() {
+		boolean loaded = false;
+		
+		HibernateUtil.openSession();
+		HibernateUtil.startTransaction();
 
+		try {
+			SysConfig sysConfig = DbSysConfig.getActive();
+			if (sysConfig != null) {
+				executionMode		= sysConfig.getExecutionMode();
+				customerLoadLimit	= sysConfig.getCustomerLimit();
+				emailServer			= sysConfig.getEmailServer();
+				emailPort			= sysConfig.getEmailPort();
+				emailUser			= sysConfig.getEmailUser();
+				emailPassword		= sysConfig.getEmailPassword();
+				emailAddress		= sysConfig.getEmailAddress();
+				emailCc				= sysConfig.getEmailCc();
+				emailBcc			= sysConfig.getEmailBcc();
+				siteUrl				= sysConfig.getSiteUrl();
+				techContactName		= sysConfig.getTechContactName();
+				techContactEmail	= sysConfig.getTechContactEmail();
+				
+				if (sysConfig.getInstConfigMaxList() > 0) {
+					instCacheConfig.setUseInnerStrings(sysConfig.getInstConfigInner() == 'y');
+					instCacheConfig.setUseStringPairs(sysConfig.getInstConfigPairs() == 'y');
+					instCacheConfig.setMinStringLength(sysConfig.getInstConfigMinStr());
+					instCacheConfig.setMinInnerStringLength(sysConfig.getInstConfigMinInner());
+					instCacheConfig.setMaxStringPairLength(sysConfig.getInstConfigMaxPair());
+					instCacheConfig.setMaxListLength(sysConfig.getInstConfigMaxList());
+					instCacheConfig.setMaxWordListLength(sysConfig.getInstConfigMaxWords());
+				}
+				
+				loaded = true;
+				System.out.println("System configuration properties loaded from database configuration entry " + sysConfig.getId());
+			}
+		} catch (Exception exc) {
+			exc.printStackTrace();
+		}
+		
+		HibernateUtil.endTransaction();
+		HibernateUtil.closeSession();
+		
+		return loaded;
 	}
 
 	/**
@@ -63,7 +122,7 @@ public class AppServerConstants {
 	 *  A non-null prompt to precede an echo of property values as they are loaded.
 	 * @throws Exception
 	 */
-	public static void init(String path, String prompt) throws Exception {
+	private static void init(String path, String prompt) throws Exception {
 		filesRoot = path;
 		emailFilesRoot = path + "emails/"; 
 		try {
@@ -152,6 +211,19 @@ public class AppServerConstants {
 //				reportValue(PARM_REPORT_FILES_ROOT, reportLinkRoot, prompt);
 //			}
 
+		
+		//	Execution Mode
+
+		if (props.containsKey(PARM_EXECUTION_MODE)) {
+			executionMode = (String) props.getProperty(PARM_EXECUTION_MODE);
+			reportValue(PARM_EXECUTION_MODE, executionMode, prompt);
+		}
+
+		if (props.containsKey(PARM_CUSTOMER_LIMIT)) {
+			customerLoadLimit = Integer.parseInt((String) props.getProperty(PARM_CUSTOMER_LIMIT));
+			reportValue(PARM_CUSTOMER_LIMIT, customerLoadLimit + "", prompt);
+		}
+		
 		//	Email
 		if (props.containsKey(PARM_EMAIL_SERVER)) {
 			emailServer = (String) props.getProperty(PARM_EMAIL_SERVER);
@@ -194,13 +266,20 @@ public class AppServerConstants {
 				siteUrl = "sbam.scholastic.com";
 			reportValue(PARM_SITE_URL, siteUrl, prompt);
 		}
-		if (props.containsKey(PARM_TECH_CONTACT)) {
-			techContact = (String) props.getProperty(PARM_TECH_CONTACT);
-			if (techContact == null || techContact.trim().length() == 0)
-				techContact = emailAddress;
-			reportValue(PARM_TECH_CONTACT, techContact, prompt);
+		if (props.containsKey(PARM_TECH_CONTACT_NAME)) {
+			techContactName = (String) props.getProperty(PARM_TECH_CONTACT_NAME);
+			if (techContactName == null || techContactName.trim().length() == 0)
+				techContactName = "Tech Contact";
+			reportValue(PARM_TECH_CONTACT_NAME, techContactName, prompt);
 		} else
-			techContact = emailAddress;
+			techContactName = "Tech Contact";
+		if (props.containsKey(PARM_TECH_CONTACT_EMAIL)) {
+			techContactEmail = (String) props.getProperty(PARM_TECH_CONTACT_EMAIL);
+			if (techContactEmail == null || techContactEmail.trim().length() == 0)
+				techContactEmail = emailAddress;
+			reportValue(PARM_TECH_CONTACT_EMAIL, techContactEmail, prompt);
+		} else
+			techContactEmail = emailAddress;
 
 		in.close();
 	}
@@ -310,7 +389,25 @@ public class AppServerConstants {
 		return siteUrl;
 	}
 
-	public static String getTechContact() {
-		return techContact;
+	public static String getExecutionMode() {
+		return executionMode;
 	}
+
+	public static int getCustomerLoadLimit() {
+		return customerLoadLimit;
+	}
+
+	public static String getTechContactName() {
+		return techContactName;
+	}
+
+	public static String getTechContactEmail() {
+		return techContactEmail;
+	}
+
+	public static InstitutionCacheConfig getInstCacheConfig() {
+		return instCacheConfig;
+	}
+	
+	
 }

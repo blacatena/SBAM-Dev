@@ -26,6 +26,11 @@ hr {
   font-size: 16pt;
 }
 
+/* Override from generated theme, to add more color / distinction  FFE1B6 FFF8DC */
+*.x-grid3-row-alt{
+background-color:#F7F5F2;
+}
+
 .x-status-fail {
 background-image:url(resources/themes/xtheme-wheat/images/wheat/shared/warning.gif);
 }

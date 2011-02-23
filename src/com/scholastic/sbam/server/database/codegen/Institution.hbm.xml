@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Feb 23, 2011 5:01:45 PM by Hibernate Tools 3.2.4.GA -->
+<hibernate-mapping>
+    <class name="com.scholastic.sbam.server.database.codegen.Institution" table="institution" catalog="sbam">
+        <id name="ucn" type="int">
+            <column name="ucn" />
+            <generator class="assigned" />
+        </id>
+        <property name="institutionName" type="string">
+            <column name="institution_name" not-null="true" />
+        </property>
+        <property name="address1" type="string">
+            <column name="address1" not-null="true" />
+        </property>
+        <property name="address2" type="string">
+            <column name="address2" />
+        </property>
+        <property name="address3" type="string">
+            <column name="address3" />
+        </property>
+        <property name="city" type="string">
+            <column name="city" not-null="true" />
+        </property>
+        <property name="state" type="string">
+            <column name="state" />
+        </property>
+        <property name="zip" type="string">
+            <column name="zip" />
+        </property>
+        <property name="country" type="string">
+            <column name="country" not-null="true" />
+        </property>
+        <property name="webUrl" type="string">
+            <column name="web_url" length="1024" />
+        </property>
+        <property name="phone" type="string">
+            <column name="phone" />
+        </property>
+        <property name="fax" type="string">
+            <column name="fax" />
+        </property>
+        <property name="mailAddress1" type="string">
+            <column name="mail_address1" />
+        </property>
+        <property name="mailAddress2" type="string">
+            <column name="mail_address2" />
+        </property>
+        <property name="mailAddress3" type="string">
+            <column name="mail_address3" />
+        </property>
+        <property name="mailCity" type="string">
+            <column name="mail_city" />
+        </property>
+        <property name="mailState" type="string">
+            <column name="mail_state" />
+        </property>
+        <property name="mailZip" type="string">
+            <column name="mail_zip" />
+        </property>
+        <property name="mailCountry" type="string">
+            <column name="mail_country" />
+        </property>
+        <property name="status" type="char">
+            <column name="status" length="1" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

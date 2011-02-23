@@ -42,6 +42,10 @@ public class IconSupplier {
 		return "administration.png";
 	}
 	
+	public static String getInstitutionIconName() {
+		return "institution.png";
+	}
+	
 	public static String getProductIconName() {
 		return "product.png";
 	}

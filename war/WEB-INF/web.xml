@@ -107,6 +107,16 @@
   </servlet>
   
   <servlet>
+    <servlet-name>institutionSearchServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.InstitutionSearchServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>institutionWordServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.InstitutionWordServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>preferenceCategoryListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.PreferenceCategoryListServiceImpl</servlet-class>
   </servlet>
@@ -289,6 +299,16 @@
   <servlet-mapping>
     <servlet-name>documentationListServlet</servlet-name>
     <url-pattern>/sbam/getDocumentationLinks</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>institutionSearchServlet</servlet-name>
+    <url-pattern>/sbam/getInstitutions</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>institutionWordServlet</servlet-name>
+    <url-pattern>/sbam/getInstitutionWords</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>
