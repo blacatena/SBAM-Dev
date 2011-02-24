@@ -213,7 +213,9 @@ public class InstitutionCache implements Runnable {
 		
 		System.out.println(this.config);
 		System.out.println("Institution cache thread starting...");
-		new Thread(this).start();
+		Thread initThread = new Thread(this);
+		initThread.setDaemon(true);
+		initThread.start();
 		System.out.println("Institution cache thread running.");
 		return true;
 	}
@@ -376,6 +378,7 @@ public class InstitutionCache implements Runnable {
 		HashSet<String> strings = new HashSet<String>();
 		
 		//  Parse all components of the institution address
+		parseAdd(institution.getUcn() + "", strings);
 		parseAdd(institution.getInstitutionName(), strings);
 		parseAdd(institution.getAddress1(), strings);
 		parseAdd(institution.getAddress2(), strings);

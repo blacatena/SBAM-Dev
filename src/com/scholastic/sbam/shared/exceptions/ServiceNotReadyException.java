@@ -1,6 +1,8 @@
 package com.scholastic.sbam.shared.exceptions;
 
-public class ServiceNotReadyException extends RuntimeException {
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+public class ServiceNotReadyException extends RuntimeException implements IsSerializable {
 	private static final long serialVersionUID = 7430665920747969378L;
 
 	public ServiceNotReadyException() {

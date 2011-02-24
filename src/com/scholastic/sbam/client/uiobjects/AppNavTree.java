@@ -1,12 +1,11 @@
 package com.scholastic.sbam.client.uiobjects;
 
-import java.io.Serializable;  
-  
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.ModelIconProvider;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
+import com.google.gwt.user.client.rpc.IsSerializable;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.scholastic.sbam.client.util.IconSupplier;
 
@@ -59,7 +58,7 @@ public class AppNavTree {
 	}
 
   
-	public static class Folder extends BaseTreeModel implements Serializable {  
+	public static class Folder extends BaseTreeModel implements IsSerializable {  
 		private static final long serialVersionUID = 1L;  
 		private static int ID = 0;  
 		    

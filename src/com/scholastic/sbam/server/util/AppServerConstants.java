@@ -63,6 +63,9 @@ public class AppServerConstants {
 	 */
 	
 	public static void init(String path) throws Exception {
+		filesRoot = path;
+		emailFilesRoot = path + "emails/"; 
+		
 		if (!initFromDb()) {
 			init(path, null);
 		}
