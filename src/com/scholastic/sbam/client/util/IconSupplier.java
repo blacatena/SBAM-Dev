@@ -30,6 +30,10 @@ public class IconSupplier {
 		return "agreement.png";
 	}
 	
+	public static String getAccessMethodIconName() {
+		return "access.png";
+	}
+	
 	public static String getConfigurationIconName() {
 		return "configuration.png";
 	}
@@ -84,6 +88,14 @@ public class IconSupplier {
 	
 	public static String getUsersIconName() {
 		return "users.png";
+	}
+	
+	public static String getContactsIconName() {
+		return "users.png";
+	}
+	
+	public static String getSiteIconName() {
+		return "site.png";
 	}
 	
 	public static String getProgrammingIconName() {
@@ -175,6 +187,10 @@ public class IconSupplier {
 	}
 	
 	public static AbstractImagePrototype getMenuIcon(String iconName) {
+		return getColorfulIcon(iconName);
+	}
+	
+	public static AbstractImagePrototype getAppNavIcon(String iconName) {
 		return getColorfulIcon(iconName);
 	}
 	

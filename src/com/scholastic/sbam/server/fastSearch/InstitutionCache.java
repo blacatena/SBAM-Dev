@@ -164,29 +164,40 @@ public class InstitutionCache implements Runnable {
 		if (singleton == null) {
 			singleton = new InstitutionCache(config);
 		} else {
-			//	This is a special condition... if another call, for another singleton with different parameters is initializing, then this call has failed, and throw an exception
-			 if (!singleton.init()) {
-				 System.out.println("Running   config -- " + singleton.config);
-				 System.out.println("Requested config -- " + config);
-				 if (singleton.config.useInnerStrings != config.useInnerStrings)
-					 throw new InstitutionCacheConflict();
-				 if (singleton.config.useStringPairs != config.useStringPairs)
-					 throw new InstitutionCacheConflict();
-				 if (singleton.config.minStringLength != config.minStringLength)
-					 throw new InstitutionCacheConflict();
-				 if (singleton.config.maxListLength != config.maxListLength)
-					 throw new InstitutionCacheConflict();
-				 if (singleton.config.maxWordListLength != config.maxWordListLength)
-					 throw new InstitutionCacheConflict();
-				 if (singleton.config.minInnerStringLength != config.minInnerStringLength)
-					 throw new InstitutionCacheConflict();
-			 }
+			if (config != null && singleton.config != config && !configsAreEqual(singleton.config, config)) {
+			//	Config has changed, so we need to re-initialize the singleton	
+				if (!singleton.init(config)) {
+					//	If it wouldn't reinitialize because another init was running, then this particular request failed
+					System.out.println("Running   config -- " + singleton.config);
+					System.out.println("Requested config -- " + config);
+					throw new InstitutionCacheConflict();
+				}
+			}
 		}
+		//	In any event, return the singleton we have here
 		return singleton;
 	}
 	
 	private boolean init() {
 		return init(config);
+	}
+	
+	private static boolean configsAreEqual(InstitutionCacheConfig config1, InstitutionCacheConfig config2) {
+		if (config1.useInnerStrings != config2.useInnerStrings)
+			return false;
+		if (config1.useStringPairs != config2.useStringPairs)
+			return false;
+		if (config1.minStringLength != config2.minStringLength)
+			return false;
+		if (config1.minInnerStringLength != config2.minInnerStringLength)
+			return false;
+		if (config1.maxStringPairLength != config2.maxStringPairLength)
+			return false;
+		if (config1.maxListLength != config2.maxListLength)
+			return false;
+		if (config1.maxWordListLength != config2.maxWordListLength)
+			return false;
+		return true;
 	}
 	
 	/**
