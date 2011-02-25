@@ -19,7 +19,7 @@ public class EmailValidator implements Validator {
 	public String validate(String value) {
 		if (value == null || value.length() < 6)
 			return "An email must be at least six characters in length.";
-		if (!value.matches("^[a-zA-Z0-9_\\.]+@[a-zA-Z0-9_\\.]+\\.[a-zA-Z0-9_\\.]+$"))
+		if (!value.matches("^[a-zA-Z0-9_\\.\\-]+@[a-zA-Z0-9_\\.\\-]+\\.[a-zA-Z0-9_\\.]+$"))
 			return "Invalid e-mail address.";
 		return null;
 	}

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Feb 23, 2011 5:01:45 PM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Feb 24, 2011 8:28:34 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.SysConfig" table="sys_config" catalog="sbam">
         <id name="id" type="string">
@@ -44,9 +44,6 @@
         <property name="executionMode" type="string">
             <column name="execution_mode" length="32" not-null="true" />
         </property>
-        <property name="customerLimit" type="int">
-            <column name="customer_limit" not-null="true" />
-        </property>
         <property name="instConfigInner" type="char">
             <column name="inst_config_inner" length="1" not-null="true" />
         </property>
@@ -67,6 +64,15 @@
         </property>
         <property name="instConfigMaxWords" type="int">
             <column name="inst_config_max_words" not-null="true" />
+        </property>
+        <property name="instConfigLoadLimit" type="int">
+            <column name="inst_config_load_limit" not-null="true" />
+        </property>
+        <property name="instConfigLoadWatch" type="int">
+            <column name="inst_config_load_watch" not-null="true" />
+        </property>
+        <property name="instConfigLoadGc" type="int">
+            <column name="inst_config_load_gc" not-null="true" />
         </property>
     </class>
 </hibernate-mapping>

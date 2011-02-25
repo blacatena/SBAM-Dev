@@ -12,7 +12,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import com.scholastic.sbam.server.database.util.HibernateUtil;
-import com.scholastic.sbam.server.util.AppServerConstants;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
 
 /**
@@ -23,8 +22,6 @@ import com.scholastic.sbam.shared.objects.InstitutionInstance;
  */
 public class InstitutionCache implements Runnable {
 	protected static final String INSTITUTION_SQL = "SELECT ucn, institution_name, address1, address2, address3, city, state, zip, country, phone, fax FROM institution WHERE status = 'A'";
-	protected static final int	LOAD_WATCH	= 5000;
-	protected static final int	LOAD_GC 	= 100000;
 	
 	public static class InstitutionCacheNotReady extends Exception {
 		private static final long serialVersionUID = -8657762616708856381L;
@@ -35,6 +32,18 @@ public class InstitutionCache implements Runnable {
 	}
 	
 	public static class InstitutionCacheConfig {
+		/**
+		 * Load garbage collection point
+		 */
+		protected int		loadGcPoint = 100000;
+		/**
+		 * Load garbage collection point
+		 */
+		protected int		loadWatchPoint = 5000;
+		/**
+		 * Load limit (max customers)
+		 */
+		protected int		loadLimit	= -1;
 		/**
 		 * Whether or not inner strings should be used, or only the strings that begin words.
 		 */
@@ -110,6 +119,24 @@ public class InstitutionCache implements Runnable {
 		}
 		public void setMaxWordListLength(int maxWordListLength) {
 			this.maxWordListLength = maxWordListLength;
+		}
+		public int getLoadGcPoint() {
+			return loadGcPoint;
+		}
+		public void setLoadGcPoint(int loadGcPoint) {
+			this.loadGcPoint = loadGcPoint;
+		}
+		public int getLoadWatchPoint() {
+			return loadWatchPoint;
+		}
+		public void setLoadWatchPoint(int loadWatchPoint) {
+			this.loadWatchPoint = loadWatchPoint;
+		}
+		public int getLoadLimit() {
+			return loadLimit;
+		}
+		public void setLoadLimit(int loadLimit) {
+			this.loadLimit = loadLimit;
 		}
 		
 	}
@@ -238,7 +265,6 @@ public class InstitutionCache implements Runnable {
 		HibernateUtil.startTransaction();
 
 		try {
-			int loadLimit = AppServerConstants.getCustomerLoadLimit();
 
 			System.out.println(new Date());
 			System.out.println("Loading institutions...");
@@ -250,18 +276,18 @@ public class InstitutionCache implements Runnable {
 			System.out.println("Parsing institutions...");
 			while (results.next()) {
 				
-				if (loadLimit > -1 && count >= loadLimit) {
+				if (config.loadLimit > -1 && count >= config.loadLimit) {
 					break;
 				}
 
 				count++;
 				parse(getInstance(results));
 				
-				if (LOAD_WATCH > 0 && count % LOAD_WATCH == 0) {
+				if (config.loadWatchPoint > 0 && count % config.loadWatchPoint == 0) {
 					System.out.print(count + " | ");
-					System.out.println(new Date() + "   |   " + searchMap.size() + "   |   "  + countMap.size() + "   |   "+ (Runtime.getRuntime().freeMemory() / 1000000000d) + "Gb  |  " + (Runtime.getRuntime().totalMemory() / 1000000000d) + "Gb");
+					System.out.println(new Date() + "   |   " + searchMap.size() + "   |   "  + countMap.size() + "   |   "+ (Math.round(Runtime.getRuntime().freeMemory() / 1000000d) / 1000d) + "Gb  |  " + (Math.round(Runtime.getRuntime().totalMemory() / 1000000d) / 1000d) + "Gb");
 				}
-				if (LOAD_GC > 0 && count % LOAD_GC == 0)
+				if (config.loadGcPoint > 0 && count % config.loadGcPoint == 0)
 					Runtime.getRuntime().gc();
 				
 				Thread.yield();

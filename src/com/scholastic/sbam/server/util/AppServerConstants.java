@@ -23,7 +23,6 @@ public class AppServerConstants {
 	public static final String VERSION					= "1.0b";
 	
 	private static		String	executionMode				=	"?";
-	private static		int		customerLoadLimit			=	-1;
 	private static		String	filesRoot					=	"/";
 	private static		String	emailServer					=	"";
 	private static		int		emailPort					=	25;
@@ -41,7 +40,6 @@ public class AppServerConstants {
 	
 	private static final String PROPERTIES					=	"sbam.properties";
 	private static final String PARM_EXECUTION_MODE			=	"EXECUTION_MODE";
-	private static final String PARM_CUSTOMER_LIMIT			=	"CUSTOMER_LIMIT";
 	private static final String PARM_EMAIL_SERVER			=	"EMAIL_SERVER";
 	private static final String PARM_EMAIL_PORT				=	"EMAIL_PORT";
 	private static final String PARM_EMAIL_USER				=	"EMAIL_USER";
@@ -81,7 +79,6 @@ public class AppServerConstants {
 			SysConfig sysConfig = DbSysConfig.getActive();
 			if (sysConfig != null) {
 				executionMode		= sysConfig.getExecutionMode();
-				customerLoadLimit	= sysConfig.getCustomerLimit();
 				emailServer			= sysConfig.getEmailServer();
 				emailPort			= sysConfig.getEmailPort();
 				emailUser			= sysConfig.getEmailUser();
@@ -101,6 +98,9 @@ public class AppServerConstants {
 					instCacheConfig.setMaxStringPairLength(sysConfig.getInstConfigMaxPair());
 					instCacheConfig.setMaxListLength(sysConfig.getInstConfigMaxList());
 					instCacheConfig.setMaxWordListLength(sysConfig.getInstConfigMaxWords());
+					instCacheConfig.setLoadLimit(sysConfig.getInstConfigLoadLimit());
+					instCacheConfig.setLoadGcPoint(sysConfig.getInstConfigLoadGc());
+					instCacheConfig.setLoadWatchPoint(sysConfig.getInstConfigLoadWatch());
 				}
 				
 				loaded = true;
@@ -220,11 +220,6 @@ public class AppServerConstants {
 		if (props.containsKey(PARM_EXECUTION_MODE)) {
 			executionMode = (String) props.getProperty(PARM_EXECUTION_MODE);
 			reportValue(PARM_EXECUTION_MODE, executionMode, prompt);
-		}
-
-		if (props.containsKey(PARM_CUSTOMER_LIMIT)) {
-			customerLoadLimit = Integer.parseInt((String) props.getProperty(PARM_CUSTOMER_LIMIT));
-			reportValue(PARM_CUSTOMER_LIMIT, customerLoadLimit + "", prompt);
 		}
 		
 		//	Email
@@ -394,10 +389,6 @@ public class AppServerConstants {
 
 	public static String getExecutionMode() {
 		return executionMode;
-	}
-
-	public static int getCustomerLoadLimit() {
-		return customerLoadLimit;
 	}
 
 	public static String getTechContactName() {
