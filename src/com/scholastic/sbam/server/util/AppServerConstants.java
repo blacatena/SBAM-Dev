@@ -22,6 +22,7 @@ public class AppServerConstants {
     
 	public static final String VERSION					= "1.0b";
 	
+	private static		String	instanceName				=	"Unknown SBAM System";
 	private static		String	executionMode				=	"?";
 	private static		String	filesRoot					=	"/";
 	private static		String	emailServer					=	"";
@@ -39,6 +40,7 @@ public class AppServerConstants {
 	private static		InstitutionCacheConfig instCacheConfig = new InstitutionCacheConfig();
 	
 	private static final String PROPERTIES					=	"sbam.properties";
+	private static final String PARM_INSTANCE_NAME			=	"INSTANCE_NAME";
 	private static final String PARM_EXECUTION_MODE			=	"EXECUTION_MODE";
 	private static final String PARM_EMAIL_SERVER			=	"EMAIL_SERVER";
 	private static final String PARM_EMAIL_PORT				=	"EMAIL_PORT";
@@ -78,6 +80,7 @@ public class AppServerConstants {
 		try {
 			SysConfig sysConfig = DbSysConfig.getActive();
 			if (sysConfig != null) {
+				instanceName		= sysConfig.getInstanceName();
 				executionMode		= sysConfig.getExecutionMode();
 				emailServer			= sysConfig.getEmailServer();
 				emailPort			= sysConfig.getEmailPort();
@@ -216,6 +219,11 @@ public class AppServerConstants {
 
 		
 		//	Execution Mode
+
+		if (props.containsKey(PARM_INSTANCE_NAME)) {
+			instanceName = (String) props.getProperty(PARM_INSTANCE_NAME);
+			reportValue(PARM_INSTANCE_NAME, instanceName, prompt);
+		}
 
 		if (props.containsKey(PARM_EXECUTION_MODE)) {
 			executionMode = (String) props.getProperty(PARM_EXECUTION_MODE);
@@ -401,6 +409,10 @@ public class AppServerConstants {
 
 	public static InstitutionCacheConfig getInstCacheConfig() {
 		return instCacheConfig;
+	}
+
+	public static String getInstanceName() {
+		return instanceName;
 	}
 	
 	

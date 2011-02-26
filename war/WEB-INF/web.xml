@@ -107,6 +107,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>helpTextServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.HelpTextServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>institutionSearchServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.InstitutionSearchServiceImpl</servlet-class>
   </servlet>
@@ -299,6 +304,11 @@
   <servlet-mapping>
     <servlet-name>documentationListServlet</servlet-name>
     <url-pattern>/sbam/getDocumentationLinks</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>helpTextServlet</servlet-name>
+    <url-pattern>/sbam/getHelpText</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

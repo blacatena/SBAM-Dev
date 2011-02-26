@@ -1149,7 +1149,7 @@ protected void endDrag(DragEvent de, boolean canceled) {
   }
 
   protected void initTools() {
-    super.initTools();
+//  super.initTools();
 
     if (GXT.isAriaEnabled()) {
       moveBtn = new ToolButton("x-tool-move");

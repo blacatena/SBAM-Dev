@@ -35,6 +35,7 @@
         <mapping resource="com/scholastic/sbam/server/database/codegen/Documentation.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/AgreementType.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/DeleteReason.hbm.xml" />
+        <mapping resource="com/scholastic/sbam/server/database/codegen/HelpText.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/User.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/CommissionType.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/ProductService.hbm.xml" />

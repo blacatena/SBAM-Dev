@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Feb 25, 2011 10:26:02 AM by Hibernate Tools 3.2.4.GA -->
+<hibernate-mapping>
+    <class name="com.scholastic.sbam.server.database.codegen.HelpText" table="help_text" catalog="sbam">
+        <id name="id" type="string">
+            <column name="id" length="32" />
+            <generator class="assigned" />
+        </id>
+        <property name="parentId" type="string">
+            <column name="parent_id" length="32" not-null="true" />
+        </property>
+        <property name="firstChildId" type="string">
+            <column name="first_child_id" length="32" not-null="true" />
+        </property>
+        <property name="prevSiblingId" type="string">
+            <column name="prev_sibling_id" length="32" not-null="true" />
+        </property>
+        <property name="nextSiblingId" type="string">
+            <column name="next_sibling_id" length="32" not-null="true" />
+        </property>
+        <property name="title" type="string">
+            <column name="title" not-null="true" />
+        </property>
+        <property name="iconName" type="string">
+            <column name="icon_name" not-null="true" />
+        </property>
+        <property name="text" type="string">
+            <column name="text" length="4000" not-null="true" />
+        </property>
+        <property name="relatedIds" type="string">
+            <column name="related_ids" length="1024" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

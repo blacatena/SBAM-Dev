@@ -142,6 +142,10 @@ public class IconSupplier {
 		return "rename.png";
 	}
 	
+	public static String getHelpIconName() {
+		return "help.png";
+	}
+	
 	public static String getNewIconName() {
 		return getInsertIconName();
 	}
@@ -200,5 +204,9 @@ public class IconSupplier {
 	
 	public static AbstractImagePrototype getMonochromeIcon(String iconName) {
 		return IconHelper.create("resources/images/icons/monochrome/" + iconName);
+	}
+	
+	public static AbstractImagePrototype getRawIcon(String iconName) {
+		return IconHelper.create(iconName);
 	}
 }

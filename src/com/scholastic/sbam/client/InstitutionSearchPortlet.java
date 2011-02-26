@@ -15,7 +15,6 @@ import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.custom.Portlet;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
@@ -32,17 +31,19 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.scholastic.sbam.client.services.AppPortlet;
 import com.scholastic.sbam.client.services.InstitutionSearchService;
 import com.scholastic.sbam.client.services.InstitutionSearchServiceAsync;
 import com.scholastic.sbam.client.services.InstitutionWordService;
 import com.scholastic.sbam.client.services.InstitutionWordServiceAsync;
+import com.scholastic.sbam.client.uiobjects.AppPortletIds;
 import com.scholastic.sbam.client.uiobjects.AppSleeper;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.FilterWordInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
 
-public class InstitutionSearchPortlet extends Portlet implements AppSleeper {
+public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 	
 	private final InstitutionSearchServiceAsync institutionSearchService = GWT.create(InstitutionSearchService.class);
 	private final InstitutionWordServiceAsync   institutionWordService   = GWT.create(InstitutionWordService.class);
@@ -55,6 +56,10 @@ public class InstitutionSearchPortlet extends Portlet implements AppSleeper {
 	Timer filterListenTimer;
 	private String filter = "";
 	private PagingLoader<PagingLoadResult<InstitutionInstance>> institutionLoader;
+	
+	public InstitutionSearchPortlet() {
+		super(AppPortletIds.FULL_INSTITUTION_SEARCH.getHelpTextId());
+	}
 
 	@Override  
 	protected void onRender(Element parent, int index) {

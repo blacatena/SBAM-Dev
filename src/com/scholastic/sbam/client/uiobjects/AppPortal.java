@@ -1,67 +1,33 @@
 package com.scholastic.sbam.client.uiobjects;
 
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Header;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
-import com.extjs.gxt.ui.client.widget.custom.Portlet;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
-import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.google.gwt.user.client.Element;
 
 public class AppPortal extends LayoutContainer implements AppSleeper {
 	
 	public static class AppTreeSelectionModel extends TreePanelSelectionModel<ModelData> {
-		Portal portal;
+		AppPortletProvider provider;
 		
-		AppTreeSelectionModel(Portal portal) {
-			this.portal = portal;
+		AppTreeSelectionModel(AppPortletProvider provider) {
+			this.provider = provider;
 		}
 		
 		@Override
 		public void onSelectChange(ModelData model, boolean select) {
 			super.onSelectChange(model, select);
-			if (select && model.get("portlet") != null) {
-				addPortlet(AppPortletProvider.getPortlet((AppPortletProvider.AppPortletIds) model.get("portlet")));
-				this.deselectAll();
+			if (select) {
+				provider.addPortlet(model);
 			}
-		}
-
-		private void configPanel(final ContentPanel panel) {  
-			panel.setCollapsible(true);
-			panel.setAnimCollapse(false);
-			addClosable(panel);
-		//	panel.getHeader().addTool(new ToolButton("x-tool-gear"));
-		}
-		
-		protected void addClosable(final ContentPanel prtltPortlet) {
-			Header head = prtltPortlet.getHeader();
-
-			ToolButton closeBtn = new ToolButton("x-tool-close");
-			if (GXT.isAriaEnabled()) {
-				closeBtn.setTitle(GXT.MESSAGES.messageBox_close());
-			}
-			closeBtn.addListener(Events.Select, new Listener<ComponentEvent>() {
-				public void handleEvent(ComponentEvent ce) {
-					prtltPortlet.removeFromParent();
-				}
-			});
-			head.addTool(closeBtn);
-		}
-		
-		private void addPortlet(Portlet portlet) { 
-			configPanel(portlet);
-			portal.add(portlet, 0);
+			this.deselectAll();
 		}
 	}
 	
@@ -132,7 +98,7 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 		contentPanel.setBorders(true);
 		
 		TreePanel<ModelData> appNavTree = AppNavTree.getTreePanel();
-		appNavTree.setSelectionModel(new AppTreeSelectionModel(portalc));
+		appNavTree.setSelectionModel(new AppTreeSelectionModel(new AppPortletProvider(portalc)));
 		contentPanel.add(appNavTree);
 		
 //		contentPanel.setStyleAttribute("backgroundColor", "cornsilk");
