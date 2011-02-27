@@ -29,6 +29,7 @@ public class DbHelpText extends HibernateAccessor {
 		instance.setTitle(dbInstance.getTitle());
 		instance.setText(dbInstance.getText());
 		instance.setParentId(dbInstance.getParentId());
+		instance.setFirstChildId(dbInstance.getFirstChildId());
 		instance.setNextSiblingId(dbInstance.getNextSiblingId());
 		instance.setPrevSiblingId(dbInstance.getPrevSiblingId());
 		instance.setRelatedIdsList(dbInstance.getRelatedIds());
@@ -79,6 +80,11 @@ public class DbHelpText extends HibernateAccessor {
 		}
 		//	Set this to null so it doesn't get done again by accident
 		instance.setRelatedIdsList(null);
+		// Do child IDs
+		List<HelpText> children = DbHelpText.findChildren(instance.getFirstChildId());
+		for (HelpText child : children) {
+			instance.addChild(child.getId(), child.getTitle(), child.getIconName());
+		}
 		
 	}
 	
@@ -98,10 +104,14 @@ public class DbHelpText extends HibernateAccessor {
 
 	
 	public static List<HelpText> findChildren(HelpText parent) {
+		return findChildren(parent.getFirstChildId());
+	}
+	
+	public static List<HelpText> findChildren(String firstChildId) {
         try
         {
 			List<HelpText> objects = new ArrayList<HelpText>();
-        	String nextSiblingId = parent.getFirstChildId();
+        	String nextSiblingId = firstChildId;
         	while (nextSiblingId != null && nextSiblingId.length() > 0) {
                 HelpText child = getByCode(nextSiblingId);
                 if (child != null) {

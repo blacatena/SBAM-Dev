@@ -19,6 +19,7 @@ public class HelpTextInstance implements IsSerializable, BeanModelTag {
 	private String parentId;
 	private String nextSiblingId;
 	private String prevSiblingId;
+	private String firstChildId;
 	private String relatedIdsList;
 	
 	private List<String> relatedIds			=	new ArrayList<String>();
@@ -33,6 +34,10 @@ public class HelpTextInstance implements IsSerializable, BeanModelTag {
 
 	private String parentTitle;
 	private String parentIconName;
+	
+	private List<String> childIds			=	new ArrayList<String>();
+	private List<String> childTitles		=	new ArrayList<String>();
+	private List<String> childIconNames		=	new ArrayList<String>();
 	
 	/**
 	 * Parse a string of related help text IDs into individual (non-empty) IDs. 
@@ -70,7 +75,29 @@ public class HelpTextInstance implements IsSerializable, BeanModelTag {
 		return relatedTitles.get(index);
 	}
 	public String extractRelatedIconName(int index) {
-		return relatedTitles.get(index);
+		return relatedIconNames.get(index);
+	}
+	/**
+	 * Add a single related ID and title to the list.
+	 * @param id
+	 * @param title
+	 */
+	public void addChild(String id, String title, String iconName) {
+		childIds.add(id);
+		childTitles.add(title);
+		childIconNames.add(iconName);
+	}
+	public int getChildIdCount() {
+		return childIds.size();
+	}
+	public String extractChildId(int index) {
+		return childIds.get(index);
+	}
+	public String extractChildTitle(int index) {
+		return childTitles.get(index);
+	}
+	public String extractChildIconName(int index) {
+		return childIconNames.get(index);
 	}
 	public String getIconName() {
 		return iconName;
@@ -173,6 +200,30 @@ public class HelpTextInstance implements IsSerializable, BeanModelTag {
 	}
 	public void setRelatedIdsList(String relatedIdsList) {
 		this.relatedIdsList = relatedIdsList;
+	}
+	public String getFirstChildId() {
+		return firstChildId;
+	}
+	public void setFirstChildId(String firstChildId) {
+		this.firstChildId = firstChildId;
+	}
+	public List<String> getChildIds() {
+		return childIds;
+	}
+	public void setChildIds(List<String> childIds) {
+		this.childIds = childIds;
+	}
+	public List<String> getChildTitles() {
+		return childTitles;
+	}
+	public void setChildTitles(List<String> childTitles) {
+		this.childTitles = childTitles;
+	}
+	public List<String> getChildIconNames() {
+		return childIconNames;
+	}
+	public void setChildIconNames(List<String> childIconNames) {
+		this.childIconNames = childIconNames;
 	}
 	
 }

@@ -5,7 +5,6 @@ import com.scholastic.sbam.server.database.codegen.HelpText;
 import com.scholastic.sbam.server.database.objects.DbHelpText;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.objects.HelpTextInstance;
-import com.scholastic.sbam.shared.security.SecurityManager;
 
 /**
  * The server side implementation of the RPC service.
@@ -16,7 +15,7 @@ public class HelpTextServiceImpl extends AuthenticatedServiceServlet implements 
 	@Override
 	public HelpTextInstance getHelpText(String id) throws IllegalArgumentException {
 		
-		authenticate("list delete reasons", SecurityManager.ROLE_CONFIG);
+		authenticate("get help text");	//, SecurityManager.ROLE_CONFIG);
 		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();

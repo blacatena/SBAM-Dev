@@ -154,6 +154,66 @@ public class IconSupplier {
 		return getRemoveIconName();
 	}
 	
+	public static String getFirstIconName() {
+		return "first.png";
+	}
+	
+	public static String getLastIconName() {
+		return "last.png";
+	}
+	
+	public static String getBackwardIconName() {
+		return "back.png";
+	}
+	
+	public static String getForwardIconName() {
+		return "forward.png";
+	}
+	
+	public static String getSearchIconName() {
+		return getFindIconName();
+	}
+	
+	public static String getFindIconName() {
+		return "find.png";
+	}
+	
+	public static String getHelpIndexIconName() {
+		return "help_index.png";
+	}
+	
+	public static String getHelpParentIconName() {
+		return getHelpUpIconName();
+	}
+	
+	public static String getHelpUpIconName() {
+		return "help_up.png";
+	}
+	
+	public static String getHelpChidrenIconName() {
+		return getHelpMoreIconName();
+	}
+	
+	public static String getHelpMoreIconName() {
+		return "help_more.png";
+	}
+	
+	public static String getHelpRelatedIconName() {
+		return "help_related.png";
+	}
+	
+	public static String getHelpPrevIconName() {
+		return "help_prev.png";
+	}
+	
+	public static String getHelpNextIconName() {
+		return "help_next.png";
+	}
+
+	public static String getHelpMainIconName() {
+		return "help_main.png";
+	}
+	
 	public static void setIcon(TabItem tabItem, String iconName) {
 		if (TAB_ICONS && tabItem != null && iconName != null && iconName.length() > 0) {
 			tabItem.setIcon(getTabIcon(iconName));
@@ -166,9 +226,29 @@ public class IconSupplier {
 		}
 	}
 	
+	/**
+	 * Set button icons... application wide use of button icons can be toggled on and off by setting the BUTTON_ICONS constant.
+	 * 
+	 * Icons will be used, despite any BUTTON_ICONS setting, if the button has no label.
+	 * 
+	 * @param button
+	 * @param iconName
+	 */
 	public static void setIcon(Button button, String iconName) {
-		if (BUTTON_ICONS && button != null && iconName != null && iconName.length() > 0) {
-			button.setIcon(getButtonIcon(iconName));
+		if (button != null && iconName != null && iconName.length() > 0) {
+			if (BUTTON_ICONS || button.getText() == null || button.getText().length() == 0)
+				button.setIcon(getButtonIcon(iconName, button.isEnabled()));
+		}
+	}
+	
+	/**
+	 * Force (set) button icons.  This method ignores the application wide BUTTON_ICONS constant, and always applies the icons if supplied.
+	 * @param button
+	 * @param iconName
+	 */
+	public static void forceIcon(Button button, String iconName) {
+		if (button != null && iconName != null && iconName.length() > 0) {
+			button.setIcon(getButtonIcon(iconName, button.isEnabled()));
 		}
 	}
 	
@@ -183,7 +263,14 @@ public class IconSupplier {
 	}
 	
 	public static AbstractImagePrototype getButtonIcon(String iconName) {
-		return getMonochromeIcon(iconName);
+		return getButtonIcon(iconName, true);
+	}
+	
+	public static AbstractImagePrototype getButtonIcon(String iconName, boolean enabled) {
+		if (enabled)
+			return getColorfulIcon(iconName);
+		else
+			return getMonochromeIcon(iconName);
 	}
 	
 	public static AbstractImagePrototype getTabIcon(String iconName) {
