@@ -18,6 +18,7 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 		AppPortletProvider provider;
 		
 		AppTreeSelectionModel(AppPortletProvider provider) {
+			super();
 			this.provider = provider;
 		}
 		

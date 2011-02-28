@@ -12,6 +12,7 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.CardPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -20,12 +21,14 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.SplitButton;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.HelpTextService;
@@ -39,7 +42,7 @@ import com.scholastic.sbam.shared.objects.HelpTextInstance;
  * @author Bob Lacatena
  *
  */
-public class HelpTextDialog extends EffectsDialog {
+public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor {
 	private final int DEFAULT_WIDTH		= 650;
 	private final int DEFAULT_HEIGHT	= 500;
 	
@@ -122,6 +125,11 @@ public class HelpTextDialog extends EffectsDialog {
 		
 	}
 	
+	/**
+	 * This class encapsulates a MenuItem that will perform jumps to spots in history.
+	 * @author Bob Lacatena
+	 *
+	 */
 	protected class JumpMenuItem extends MenuItem {
 		private String jumpId;
 		private int    histIndex;
@@ -155,6 +163,9 @@ public class HelpTextDialog extends EffectsDialog {
 	
 	protected Html					text = new Html();
 	protected LayoutContainer		content;
+	protected CardLayout			cards;
+	protected CardPanel				textCard;
+	protected CardPanel				indexCard;
 	protected Button				done;
 	protected Status				status;
 	// Navigation toolbars
@@ -184,6 +195,8 @@ public class HelpTextDialog extends EffectsDialog {
 	protected List<String>			historyIconNames = new ArrayList<String>();
 	protected int					histIndex;
 	
+	protected TreePanel<ModelData>	indexTree = null;
+	
 
 	public HelpTextDialog(String helpTextId) {
 		this.helpTextId = helpTextId;
@@ -196,8 +209,6 @@ public class HelpTextDialog extends EffectsDialog {
 
 	public void init() {
 		FlowLayout layout = new FlowLayout();
-//		layout.setLabelWidth(90);
-//		layout.setDefaultWidth(450);
 		setLayout(layout);
 	
 //		setAnimCollapse(true);
@@ -222,7 +233,14 @@ public class HelpTextDialog extends EffectsDialog {
 		bottomToolBar = getHistoryToolBar();
 		
 		content = new LayoutContainer();
-		content.add(text);
+
+		cards = new CardLayout();
+		content.setLayout(cards);
+		
+		textCard = new CardPanel();
+		textCard.add(text);
+		content.add(textCard);
+//		content.add(text);
 		
 		setTopComponent(topToolBar);
 		
@@ -234,18 +252,13 @@ public class HelpTextDialog extends EffectsDialog {
 			jumpTo(helpTextId);
 		else
 			formatBlankPage();
-		
-//		KeyListener keyListener = new KeyListener() {
-//		public void componentKeyUp(ComponentEvent event) {
-//		validate();
-//		}
-//	
-//		};
-
-//		setFocusWidget(userName);
 
 	}
 	
+	/**
+	 * Create the navigation toolbar.
+	 * @return
+	 */
 	protected ToolBar getNavigationToolBar() {
 		ToolBar toolBar = new ToolBar();
 		toolBar.setAlignment(HorizontalAlignment.LEFT);
@@ -265,6 +278,12 @@ public class HelpTextDialog extends EffectsDialog {
 		
 		indexButton = new Button("Index");
 		IconSupplier.forceIcon(indexButton, IconSupplier.getHelpIndexIconName());
+		indexButton.addListener(Events.Select,  new SelectionListener<ButtonEvent>() {
+				@Override
+				public void componentSelected(ButtonEvent ce) {
+					formatIndex();
+				}
+			});
 
 		childrenButton = new Button("More");
 		childrenButton.disable();
@@ -307,6 +326,10 @@ public class HelpTextDialog extends EffectsDialog {
 		return toolBar;
 	}
 	
+	/**
+	 * 
+	 * @return
+	 */
 	protected ListStore<ModelData> getSearchStore() {
 	
 		List<ModelData> list = new ArrayList<ModelData>();
@@ -319,6 +342,10 @@ public class HelpTextDialog extends EffectsDialog {
 		return searchStore;
 	}
 	
+	/**
+	 * Create the history navigation toolbar.
+	 * @return
+	 */
 	protected ToolBar getHistoryToolBar() {
 		ToolBar toolBar = new ToolBar();
 		toolBar.setAlignment(HorizontalAlignment.CENTER);
@@ -373,45 +400,48 @@ public class HelpTextDialog extends EffectsDialog {
 		
 		return toolBar;
 	}
-
-//	@Override
-//	protected void createButtons() {
-//		super.createButtons();
-////		status = new Status();
-////		status.setBusy("Loading...");
-////		status.hide();
-////		status.setAutoWidth(true);
-////		getButtonBar().add(status);
-//		
-//		getButtonBar().add(new FillToolItem());
-//		
-//		done = new Button("Done");
-//		done.addSelectionListener(new SelectionListener<ButtonEvent>() {
-//				public void componentSelected(ButtonEvent ce) {
-//					hide(null);
-//				}
-//		
-//			});
-//	
-//		addButton(done);
-//	}
 	
+	/**
+	 * Show the dialog.
+	 */
 	public void show(boolean animate) {
-		super.show(animate);
+		super.show(false);
 	}
 	
+	/**
+	 * Load a particular page by ID, possibly already at a particular location in history
+	 * @param id
+	 * @param histIndex
+	 */
 	protected void jumpTo(String id, int histIndex) {
 		if (id != null && id.length() > 0) {
 			loadHelpText(id, histIndex);
 		}
 	}
 	
+	/**
+	 * Jump to a point in history, by index
+	 * @param histIndex
+	 */
 	protected void jumpTo(int histIndex) {
+		// If this index is displayed, re-show the text
+		if (cards.getActiveItem() == indexCard) {
+			cards.setActiveItem(textCard);
+			//	If this index was displayed, and we're not going back to the beginning of a history chain (i.e. a "first") then just stay where we are
+			//		(which is the same as "going back from the index")
+			if (histIndex > 0 || historyIds.size() <= 1) {
+				adjustHistoryNavigation();
+				return;
+			}
+		}
 		if (histIndex >= 0 && histIndex < historyIds.size())
 			jumpTo(historyIds.get(histIndex), histIndex);
 	}
 	
-	protected void jumpTo(String id) {
+	/**
+	 * Jump to a new page, by ID
+	 */
+	public void jumpTo(String id) {
 		jumpTo(id, -1);
 	}
 	
@@ -444,6 +474,9 @@ public class HelpTextDialog extends EffectsDialog {
 		adjustHistoryNavigation();
 	}
 	
+	/**
+	 * Adjust the history navigation buttons to match the state of the history and the current position.
+	 */
 	protected void adjustHistoryNavigation() {
 		if (histIndex + 1 < historyIds.size()) {
 			histForwButton.enable();
@@ -462,7 +495,9 @@ public class HelpTextDialog extends EffectsDialog {
 			IconSupplier.forceIcon(histLastButton, IconSupplier.getLastIconName());
 			histForwMenu.removeAll();
 		}
-		if (histIndex > 0) {
+
+		if (histIndex > 0 && historyIds.size() > 0) {
+			System.out.println("enable");
 			histBackButton.enable();
 			IconSupplier.forceIcon(histBackButton, IconSupplier.getBackwardIconName());
 			histFirstButton.enable();
@@ -473,6 +508,7 @@ public class HelpTextDialog extends EffectsDialog {
 				histBackMenu.add(item);
 			}
 		} else {
+			System.out.println("disable()");
 			histBackButton.disable();
 			IconSupplier.forceIcon(histBackButton, IconSupplier.getBackwardIconName());
 			histFirstButton.disable();
@@ -507,25 +543,28 @@ public class HelpTextDialog extends EffectsDialog {
 			});
 	}
 	
+	/**
+	 * Format a page of Help Text
+	 */
 	private void formatPage() {
 		if (helpText == null) {
 			formatBlankPage();
 			return;
 		}
 		
+		// Set the heading
 		this.setHeading(helpText.getTitle());
 		if (helpText.getIconName() != null && helpText.getIconName().length() > 0)
 			IconSupplier.setIcon(this, helpText.getIconName());
 		else
 			IconSupplier.setIcon(this, IconSupplier.getHelpIconName());
 		
+		// Set the text
 		StringBuffer sb = new StringBuffer();
-		
 		sb.append(helpText.getText());
-		
 		text.setHtml(sb.toString());
 		
-		//	Set buttons
+		//	Set navigation buttons
 		prevPageButton.setJump(helpText.getPrevSiblingId(), helpText.getPrevSiblingTitle(),		helpText.getPrevSiblingIconName());
 		nextPageButton.setJump(helpText.getNextSiblingId(), helpText.getNextSiblingTitle(),		helpText.getNextSiblingIconName());
 		parentButton.setJump(helpText.getParentId(),      	helpText.getParentTitle(),			helpText.getParentIconName());
@@ -559,12 +598,48 @@ public class HelpTextDialog extends EffectsDialog {
 				relatedMenu.add(item);
 			}
 		}
+		
+		//	Make sure the text is displayed (in case another card is active)
+		if (cards.getActiveItem() != textCard) {
+			cards.setActiveItem(textCard);
+		}
 	}
 	
-	private void formatBlankPage() {
+	/**
+	 * Format a blank page... used when no Help Text is unexpectedly returned.
+	 */
+	protected void formatBlankPage() {
 		text.setHtml("<em>This page intentionally left blank.</em>");
+		
+		if (cards.getActiveItem() != textCard) {
+			cards.setActiveItem(textCard);
+		}
 	}
 	
+	/**
+	 * Show the index.
+	 */
+	protected void formatIndex() {
+		//	If the index hasn't been shown yet, create it
+		if (indexCard == null) {
+			indexTree = HelpIndexTree.getTreePanel(this);
+			indexCard = new CardPanel();
+			indexCard.add(indexTree);
+			content.add(indexCard);
+		}
+		//	Make the index active
+		cards.setActiveItem(indexCard);
+		//	Set the nav buttons for going back to the last page (or first page)
+		histFirstButton.enable();
+		IconSupplier.forceIcon(histFirstButton,IconSupplier.getFirstIconName());
+		histBackButton.enable();
+		IconSupplier.forceIcon(histBackButton, IconSupplier.getBackwardIconName());
+	}
+	
+	/**
+	 * Set the help text and format the page to contain it.
+	 * @param helpText
+	 */
 	public void setHelpText(HelpTextInstance helpText) {
 		if(helpText != null)
 			this.helpTextId = helpText.getId();	//	Can't use the setter here of all places, because it will trigger an infinite loop of reloads
@@ -576,6 +651,10 @@ public class HelpTextDialog extends EffectsDialog {
 		return helpTextId;
 	}
 
+	/**
+	 * Set the help text to a particular ID (loading and displaying the page for that ID).
+	 * @param helpTextId
+	 */
 	public void setHelpTextId(String helpTextId) {
 		this.helpTextId = helpTextId;
 		loadHelpText(helpTextId, -1);
