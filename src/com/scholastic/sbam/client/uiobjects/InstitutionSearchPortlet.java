@@ -1,4 +1,4 @@
-package com.scholastic.sbam.client;
+package com.scholastic.sbam.client.uiobjects;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +44,8 @@ import com.scholastic.sbam.shared.objects.FilterWordInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
 
 public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
+	
+	private static final int FILTER_LISTEN_PERIOD = 250;
 	
 	private final InstitutionSearchServiceAsync institutionSearchService = GWT.create(InstitutionSearchService.class);
 	private final InstitutionWordServiceAsync   institutionWordService   = GWT.create(InstitutionWordService.class);
@@ -164,7 +166,7 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 			  }
 			};
 
-			filterListenTimer.scheduleRepeating(200);
+			filterListenTimer.scheduleRepeating(FILTER_LISTEN_PERIOD);
 	}
 	
 	protected void addGrid() {
@@ -394,7 +396,7 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 	public void awaken() {
 		if (this.isExpanded())
 			if (filterListenTimer != null)
-				filterListenTimer.scheduleRepeating(250);
+				filterListenTimer.scheduleRepeating(FILTER_LISTEN_PERIOD);
 	}
 
 	/**

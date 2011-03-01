@@ -4,8 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.Style.SortDir;
+import com.extjs.gxt.ui.client.data.BasePagingLoader;
+import com.extjs.gxt.ui.client.data.BeanModelReader;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.data.PagingLoadConfig;
+import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.extjs.gxt.ui.client.data.PagingLoader;
+import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -13,6 +19,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.CardPanel;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -20,21 +27,38 @@ import com.extjs.gxt.ui.client.widget.Status;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.SplitButton;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.extjs.gxt.ui.client.widget.grid.LiveGridView;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.extjs.gxt.ui.client.widget.layout.MarginData;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.LiveToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.scholastic.sbam.client.services.HelpTextSearchService;
+import com.scholastic.sbam.client.services.HelpTextSearchServiceAsync;
 import com.scholastic.sbam.client.services.HelpTextService;
 import com.scholastic.sbam.client.services.HelpTextServiceAsync;
+import com.scholastic.sbam.client.services.HelpTextWordService;
+import com.scholastic.sbam.client.services.HelpTextWordServiceAsync;
 import com.scholastic.sbam.client.util.IconSupplier;
+import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
+import com.scholastic.sbam.shared.objects.FilterWordInstance;
 import com.scholastic.sbam.shared.objects.HelpTextInstance;
+import com.scholastic.sbam.shared.objects.SearchResultInstance;
 
 /**
  * A dialog window to display and navigate help text.
@@ -43,8 +67,9 @@ import com.scholastic.sbam.shared.objects.HelpTextInstance;
  *
  */
 public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor {
-	private final int DEFAULT_WIDTH		= 650;
-	private final int DEFAULT_HEIGHT	= 500;
+	private 	  boolean	DYNAMIC_NAV_ICONS	= false;
+	private final int		DEFAULT_WIDTH		= 650;
+	private final int		DEFAULT_HEIGHT		= 500;
 	
 	/**
 	 * A button designed specifically to jump to another page.
@@ -114,7 +139,7 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 		}
 		public void setJumpIconName(String jumpIconName) {
 			this.jumpIconName = jumpIconName;
-			if (jumpIconName != null && jumpIconName.length() > 0) {
+			if (DYNAMIC_NAV_ICONS && jumpIconName != null && jumpIconName.length() > 0) {
 				IconSupplier.forceIcon(this, jumpIconName);
 			} else if (defaultIconName != null && defaultIconName.length() > 0) {
 				IconSupplier.forceIcon(this, defaultIconName);
@@ -155,7 +180,9 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 		}
 	}
 	
-	private final HelpTextServiceAsync helpTextService = GWT.create(HelpTextService.class);
+	private final HelpTextServiceAsync			helpTextService			= GWT.create(HelpTextService.class);
+	private final HelpTextWordServiceAsync		helpTextWordService		= GWT.create(HelpTextWordService.class);
+	private final HelpTextSearchServiceAsync	helpTextSearchService	= GWT.create(HelpTextSearchService.class);
 	
 	
 	private	String 				helpTextId;
@@ -166,6 +193,7 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 	protected CardLayout			cards;
 	protected CardPanel				textCard;
 	protected CardPanel				indexCard;
+	protected CardPanel				searchCard;
 	protected Button				done;
 	protected Status				status;
 	// Navigation toolbars
@@ -181,7 +209,6 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 	protected Menu					childrenMenu;
 	protected JumpButton			parentButton;
 	protected ComboBox<ModelData>	searchBox;
-	protected ListStore<ModelData>	searchStore;
 	// History navigation buttons
 	protected Button				histFirstButton;
 	protected Button				histLastButton;
@@ -196,6 +223,16 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 	protected int					histIndex;
 	
 	protected TreePanel<ModelData>	indexTree = null;
+	
+	protected Timer					filterListenTimer;
+	protected String				filter = "";
+
+	private ContentPanel			searchGridContainer;
+	private ToolBar					searchToolBar;
+	private Grid<ModelData>			searchResultsGrid;
+	private LiveGridView			liveView;
+	ListStore<ModelData>			searchStore;
+	private PagingLoader<PagingLoadResult<SearchResultInstance>> searchLoader;
 	
 
 	public HelpTextDialog(String helpTextId) {
@@ -218,7 +255,8 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 		setHeading("SBAM Help");
 		setModal(true);
 		setBodyBorder(true);
-		setBodyStyle("padding: 8px;background: none");
+//		setBodyStyle("padding: 8px;background: none");
+		setLayoutData(new MarginData(8));
 		setWidth(DEFAULT_WIDTH);
 		setHeight(DEFAULT_HEIGHT);
 		setResizable(true);
@@ -236,8 +274,10 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 
 		cards = new CardLayout();
 		content.setLayout(cards);
+//		content.setLayoutData(new FitData(0));
 		
 		textCard = new CardPanel();
+//		textCard.setLayout(new FlowLayout());
 		textCard.add(text);
 		content.add(textCard);
 //		content.add(text);
@@ -253,6 +293,28 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 		else
 			formatBlankPage();
 
+	}
+	
+//	@Override
+//	public void onRender(Element el, int index) {
+//		super.onRender(el, index);
+//		//	We have to do this so that the content gets size properly, for scrollbars
+//		content.setHeight(getInnerHeight());
+//	}
+	
+	@Override
+	public void onResize(int width, int height) {
+		super.onResize(width, height);
+		// We have to do this so that the content gets sized properly, for scrollbars
+		content.setSize(this.getInnerWidth(), this.getInnerHeight());
+		// We have to do this so that the search grid gets sized properly, for scrollbars
+		setSearchGridSize(width);
+	}
+	
+	private void setSearchGridSize(int width) {
+		if (searchResultsGrid != null) {
+			searchResultsGrid.setSize(width, this.getInnerHeight() - searchToolBar.getHeight());
+		}
 	}
 	
 	/**
@@ -295,16 +357,17 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 		
 		parentButton = new JumpButton("Up", IconSupplier.getHelpUpIconName());
 		
-		searchStore = getSearchStore();
+//		searchStore = getSearchStore();
 		
-		searchBox = new ComboBox<ModelData>();  
-		searchBox.setFieldLabel("Search");  
-		searchBox.setDisplayField("title");  
-		searchBox.setName("id");  
-		searchBox.setValueField("id");  
-		searchBox.setForceSelection(true);  
-		searchBox.setStore(searchStore);  
-		searchBox.setTriggerAction(TriggerAction.ALL);
+		searchBox = getFilterBox();
+//		searchBox = new ComboBox<ModelData>();  
+//		searchBox.setFieldLabel("Search");  
+//		searchBox.setDisplayField("title");  
+//		searchBox.setName("id");  
+//		searchBox.setValueField("id");  
+//		searchBox.setForceSelection(true);  
+//		searchBox.setStore(searchStore);  
+//		searchBox.setTriggerAction(TriggerAction.ALL);
 	
 		toolBar.add(prevPageButton);
 		toolBar.add(nextPageButton); 
@@ -326,21 +389,76 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 		return toolBar;
 	}
 	
-	/**
-	 * 
-	 * @return
-	 */
-	protected ListStore<ModelData> getSearchStore() {
-	
-		List<ModelData> list = new ArrayList<ModelData>();
-		ModelData model = new BaseModelData(); model.set("id", "X"); model.set("title", "Mr. X"); list.add(model);
-		model = new BaseModelData(); model.set("id", "Y"); model.set("title", "Mr. Y"); list.add(model);
-		model = new BaseModelData(); model.set("id", "Z"); model.set("title", "Mr. Z"); list.add(model);
-		ListStore<ModelData> searchStore = new ListStore<ModelData>();  
-		searchStore.add(list);
+	protected ComboBox<ModelData> getFilterBox() {
+
+		PagingLoader<PagingLoadResult<FilterWordInstance>> loader = getWordLoader(); 
 		
-		return searchStore;
+		ListStore<ModelData> wordStore = new ListStore<ModelData>(loader);  
+		
+		ComboBox<ModelData> combo = new ComboBox<ModelData>();  
+		combo.setWidth(250); 
+		combo.setDisplayField("word");  
+		combo.setEmptyText("Enter search criteria here...");
+		combo.setStore(wordStore);
+		combo.setMinChars(1);
+		combo.setHideTrigger(true);  
+		combo.setPageSize(10);
+		combo.setAllowBlank(true);
+		combo.setEditable(true);
+//		combo.setTypeAhead(true);
+		
+//		addComboListeners();			// This method sends messages by listening for keypresses
+		
+		setFilterListenTimer(combo);	// This method sends messages using a timer... it is less responsive, but so bothers the server less, and is a little more reliable
+		
+		return combo;
 	}
+	
+	protected void setFilterListenTimer(final ComboBox<ModelData> combo) {
+		filterListenTimer = new Timer() {
+			  @Override
+			  public void run() {
+				  String value = (combo.getRawValue() == null)?"":combo.getRawValue().trim();
+				  if (value.length() == 0) {
+					  // If no search terms, flip back to the content card
+					  if (cards.getActiveItem() == searchCard) {
+						  cards.setActiveItem(textCard);
+					  }
+				  } else if (!value.equals(filter)) {
+					  if (!value.equals(filter.trim()))
+						  doSearch(combo.getRawValue());
+					  // else do nothing, the filter hasn't changed
+				  }
+			  }
+			};
+
+			filterListenTimer.scheduleRepeating(200);
+	}
+	
+	protected void doSearch(String filter) {
+		this.filter = filter;
+		if (this.filter.length() > 2) {
+			addSearchResultsGrid();
+			searchLoader.load(0, 200);
+			cards.setActiveItem(searchCard);
+		}
+	}
+	
+//	/**
+//	 * 
+//	 * @return
+//	 */
+//	protected ListStore<ModelData> getSearchStore() {
+//	
+//		List<ModelData> list = new ArrayList<ModelData>();
+//		ModelData model = new BaseModelData(); model.set("id", "X"); model.set("title", "Mr. X"); list.add(model);
+//		model = new BaseModelData(); model.set("id", "Y"); model.set("title", "Mr. Y"); list.add(model);
+//		model = new BaseModelData(); model.set("id", "Z"); model.set("title", "Mr. Z"); list.add(model);
+//		ListStore<ModelData> searchStore = new ListStore<ModelData>();  
+//		searchStore.add(list);
+//		
+//		return searchStore;
+//	}
 	
 	/**
 	 * Create the history navigation toolbar.
@@ -497,7 +615,6 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 		}
 
 		if (histIndex > 0 && historyIds.size() > 0) {
-			System.out.println("enable");
 			histBackButton.enable();
 			IconSupplier.forceIcon(histBackButton, IconSupplier.getBackwardIconName());
 			histFirstButton.enable();
@@ -508,7 +625,6 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 				histBackMenu.add(item);
 			}
 		} else {
-			System.out.println("disable()");
 			histBackButton.disable();
 			IconSupplier.forceIcon(histBackButton, IconSupplier.getBackwardIconName());
 			histFirstButton.disable();
@@ -524,7 +640,9 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 					public void onFailure(Throwable caught) {
 						setHelpText(null);
 						// Show the RPC error message to the user
-						if (caught instanceof IllegalArgumentException)
+						if (caught instanceof ServiceNotReadyException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else if (caught instanceof IllegalArgumentException)
 							MessageBox.alert("Alert", caught.getMessage(), null);
 						else {
 							MessageBox.alert("Alert", "Help text access failed unexpectedly.", null);
@@ -637,6 +755,52 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 	}
 	
 	/**
+	 * Construct and return a loader to return a list of words.
+	 * 
+	 * @return
+	 */
+	protected PagingLoader<PagingLoadResult<FilterWordInstance>> getWordLoader() {
+		// proxy and reader  
+		RpcProxy<PagingLoadResult<FilterWordInstance>> proxy = new RpcProxy<PagingLoadResult<FilterWordInstance>>() {  
+			@Override  
+			public void load(Object loadConfig, final AsyncCallback<PagingLoadResult<FilterWordInstance>> callback) {
+		    	
+				// This could be as simple as calling userListService.getUsers and passing the callback
+				// Instead, here the callback is overridden so that it can catch errors and alert the users.  Then the original callback is told of the failure.
+				// On success, the original callback is just passed the onSuccess message, and the response (the list).
+				
+				AsyncCallback<PagingLoadResult<FilterWordInstance>> myCallback = new AsyncCallback<PagingLoadResult<FilterWordInstance>>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else if (caught instanceof ServiceNotReadyException)
+								MessageBox.alert("Alert", "The " + caught.getMessage() + " is not available at this time.  Please try again in a few minutes.", null);
+						else {
+							MessageBox.alert("Alert", "Word load failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+						callback.onFailure(caught);
+					}
+
+					public void onSuccess(PagingLoadResult<FilterWordInstance> result) {
+						callback.onSuccess(result);
+					}
+				};
+
+				helpTextWordService.getHelpTextWords((PagingLoadConfig) loadConfig, myCallback);
+				
+		    }  
+		};
+		BeanModelReader reader = new BeanModelReader();
+		
+		// loader and store  
+		PagingLoader<PagingLoadResult<FilterWordInstance>> loader = new BasePagingLoader<PagingLoadResult<FilterWordInstance>>(proxy, reader);
+		return loader;
+	}
+	
+	/**
 	 * Set the help text and format the page to contain it.
 	 * @param helpText
 	 */
@@ -663,5 +827,137 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 	public HelpTextInstance getHelpText() {
 		return helpText;
 	}
+
 	
+	/**
+	 * Construct and return a loader to handle returning a list of institutions.
+	 * @return
+	 */
+	protected PagingLoader<PagingLoadResult<SearchResultInstance>> getSearchLoader() {
+		// proxy and reader  
+		RpcProxy<PagingLoadResult<SearchResultInstance>> proxy = new RpcProxy<PagingLoadResult<SearchResultInstance>>() {  
+			@Override  
+			public void load(Object loadConfig, final AsyncCallback<PagingLoadResult<SearchResultInstance>> callback) {
+		    	
+				// This could be as simple as calling userListService.getUsers and passing the callback
+				// Instead, here the callback is overridden so that it can catch errors and alert the users.  Then the original callback is told of the failure.
+				// On success, the original callback is just passed the onSuccess message, and the response (the list).
+				
+				AsyncCallback<PagingLoadResult<SearchResultInstance>> myCallback = new AsyncCallback<PagingLoadResult<SearchResultInstance>>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else if (caught instanceof ServiceNotReadyException)
+								MessageBox.alert("Alert", "The " + caught.getMessage() + " is not available at this time.  Please try again in a few minutes.", null);
+						else {
+							MessageBox.alert("Alert", "Help text search failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+						callback.onFailure(caught);
+					}
+
+					public void onSuccess(PagingLoadResult<SearchResultInstance> result) {
+						if ( result == null || result.getData() == null || result.getData().size() == 0 ) {
+							liveView.setEmptyText("No pages were found referencing your criteria.");
+						}
+						callback.onSuccess(result);
+					}
+				};
+
+				helpTextSearchService.searchHelpText((PagingLoadConfig) loadConfig, filter, myCallback);
+				
+		    }  
+		};
+		BeanModelReader reader = new BeanModelReader();
+		
+		// loader and store  
+		PagingLoader<PagingLoadResult<SearchResultInstance>> loader = new BasePagingLoader<PagingLoadResult<SearchResultInstance>>(proxy, reader);
+		return loader;
+	}
+	
+	protected void createSearchLoader() {
+		if (searchLoader != null)
+			return;
+		
+		searchLoader = getSearchLoader();
+		searchLoader.setSortDir(SortDir.DESC);  
+		searchLoader.setSortField("score");  
+		searchLoader.setRemoteSort(true);
+
+		searchStore = new ListStore<ModelData>(searchLoader);  
+	}
+	
+	protected void addSearchResultsGrid() {
+		if (searchResultsGrid != null)
+			return;
+		
+		createSearchLoader();
+ 
+		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();  
+
+		ColumnConfig id	  = new ColumnConfig("id", "ID", 10);
+		id.setHidden(true);
+		columns.add(id);
+		
+		ColumnConfig title = new ColumnConfig("title", "Title", 150);  
+		title.setRenderer(new GridCellRenderer<ModelData>() {
+
+		  public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,  
+		      ListStore<ModelData> store, Grid<ModelData> grid) {  
+		    return "<b>"  
+		        + model.get("title")  
+		        + "</b>";  
+		  }  
+
+		});  
+		columns.add(title);  
+		columns.add(new ColumnConfig("text",	"Text", 350));  
+//		ColumnConfig score = new ColumnConfig("score100",	"Score", 50);
+//		score.setNumberFormat(NumberFormat.getFormat("####"));
+//		columns.add(score); 
+
+		ColumnModel cm = new ColumnModel(columns);
+
+		searchResultsGrid = new Grid<ModelData>(searchStore, cm);  
+		searchResultsGrid.setBorders(true);
+		searchResultsGrid.setAutoWidth(true);
+		searchResultsGrid.setAutoExpandColumn("text");  
+		searchResultsGrid.setLoadMask(true);  
+		searchResultsGrid.setStripeRows(true);
+		searchResultsGrid.setColumnReordering(false);
+		searchResultsGrid.setColumnLines(false);
+		searchResultsGrid.setHideHeaders(true);
+
+		liveView = new LiveGridView();  
+		liveView.setEmptyText("Enter filter criteria to search for help entries.");
+		searchResultsGrid.setView(liveView);
+		searchResultsGrid.getAriaSupport().setLabelledBy(this.getHeader().getId() + "-label");
+		
+		// This is necessary because the grid doesn't size itself properly to start (in order to get scroll bars)
+		final ContentPanel container = this;
+		searchToolBar = new ToolBar() {
+			@Override
+			public void onRender(Element el, int index) {
+				super.onRender(el, index);
+				setSearchGridSize(container.getInnerWidth());
+			}
+		};
+		searchToolBar.setAlignment(HorizontalAlignment.LEFT);
+		searchToolBar.getAriaSupport().setLabel("Search Results");
+
+		LiveToolItem item = new LiveToolItem();  
+		item.bindGrid(searchResultsGrid);
+		searchToolBar.add(item);
+		
+		searchCard = new CardPanel();
+		searchGridContainer = new ContentPanel();
+		searchGridContainer.setHeaderVisible(false);
+		searchGridContainer.add(searchResultsGrid);
+		searchGridContainer.setTopComponent(searchToolBar);
+		searchCard.add(searchGridContainer);
+		
+		content.add(searchCard);
+	}
 }

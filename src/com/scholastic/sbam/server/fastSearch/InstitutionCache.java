@@ -1,5 +1,6 @@
 package com.scholastic.sbam.server.fastSearch;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -268,7 +269,8 @@ public class InstitutionCache implements Runnable {
 
 			System.out.println(new Date());
 			System.out.println("Loading institutions...");
-			Statement sqlStmt = HibernateUtil.getConnection().createStatement();
+			Connection conn   = HibernateUtil.getConnection();
+			Statement sqlStmt = conn.createStatement();
 			ResultSet results = sqlStmt.executeQuery(INSTITUTION_SQL);
 			
 			int count = 0;
@@ -285,7 +287,7 @@ public class InstitutionCache implements Runnable {
 				
 				if (config.loadWatchPoint > 0 && count % config.loadWatchPoint == 0) {
 					System.out.print(count + " | ");
-					System.out.println(new Date() + "   |   " + searchMap.size() + "   |   "  + countMap.size() + "   |   "+ (Math.round(Runtime.getRuntime().freeMemory() / 1000000d) / 1000d) + "Gb  |  " + (Math.round(Runtime.getRuntime().totalMemory() / 1000000d) / 1000d) + "Gb");
+					System.out.println(new Date() + "   |   " + searchMap.size() + " tags  |   "  + countMap.size() + " counts  |   "+ (Math.round(Runtime.getRuntime().freeMemory() / 1000000d) / 1000d) + "Gb Free  |  " + (Math.round(Runtime.getRuntime().totalMemory() / 1000000d) / 1000d) + "Gb Total  |   " + (Math.round(Runtime.getRuntime().maxMemory() / 1000000d) / 1000d) + "Gb Max   ");
 				}
 				if (config.loadGcPoint > 0 && count % config.loadGcPoint == 0)
 					Runtime.getRuntime().gc();
@@ -296,6 +298,7 @@ public class InstitutionCache implements Runnable {
 			
 			results.close();
 			sqlStmt.close();
+			conn.close();
 			
 			//	Clean up the map words (remove anything that had too many entries)
 			int wordCount = 0;

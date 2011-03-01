@@ -4,7 +4,7 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.extjs.gxt.ui.client.widget.custom.Portlet;
-import com.scholastic.sbam.client.InstitutionSearchPortlet;
+import com.scholastic.sbam.client.uiobjects.InstitutionSearchPortlet;
 import com.scholastic.sbam.client.services.AppPortlet;
 
 /**

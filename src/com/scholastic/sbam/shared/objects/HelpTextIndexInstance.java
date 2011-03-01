@@ -39,6 +39,8 @@ public class HelpTextIndexInstance implements BeanModelTag, IsSerializable {
 	public void setChildren(List<HelpTextIndexInstance> children) {
 		this.children = children;
 	}
-	
+	public String toString() {
+		return id;
+	}
 	
 }

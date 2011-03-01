@@ -35,6 +35,9 @@ public class AppConstants {
 																	"Zero", "Ten", "Twenty", "Thirty", "Fourty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"
 																};
 	
+	public static final char	STRICT_BOOLEAN_SEARCH_FLAG		= '!';
+	public static final char	LOOSE_BOOLEAN_SEARCH_FLAG		= '?';
+	public static final char	QUERY_EXPANSION_SEARCH_FLAG		= '~';
 	
     
     public static boolean isLetter(char chr) {

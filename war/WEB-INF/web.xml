@@ -117,6 +117,16 @@
   </servlet>
   
   <servlet>
+    <servlet-name>helpTextWordServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.HelpTextWordServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>helpTextSearchServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.HelpTextSearchServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>institutionSearchServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.InstitutionSearchServiceImpl</servlet-class>
   </servlet>
@@ -319,6 +329,16 @@
   <servlet-mapping>
     <servlet-name>helpTextIndexServlet</servlet-name>
     <url-pattern>/sbam/getHelpTextIndex</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>helpTextWordServlet</servlet-name>
+    <url-pattern>/sbam/getHelpTextWords</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>helpTextSearchServlet</servlet-name>
+    <url-pattern>/sbam/searchHelpText</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>
