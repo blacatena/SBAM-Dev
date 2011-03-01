@@ -32,6 +32,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.LiveGridView;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
@@ -44,7 +45,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -177,6 +177,24 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 		
 		public JumpMenuItem(int histIndex) {
 			this(historyIds.get(histIndex), historyTitles.get(histIndex), historyIconNames.get(histIndex), histIndex);
+		}
+	}
+	
+	public static class SearchGridSelectionModel extends GridSelectionModel<ModelData> {
+		HelpIndexTreeActor actor;
+		
+		SearchGridSelectionModel(HelpIndexTreeActor actor) {
+			super();
+			this.actor = actor;
+		}
+		
+		@Override
+		public void onSelectChange(ModelData model, boolean select) {
+			super.onSelectChange(model, select);
+			if (select) {
+				actor.jumpTo(model.get("id").toString());
+			}
+			this.deselectAll();
 		}
 	}
 	
@@ -929,6 +947,7 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 		searchResultsGrid.setColumnReordering(false);
 		searchResultsGrid.setColumnLines(false);
 		searchResultsGrid.setHideHeaders(true);
+		searchResultsGrid.setSelectionModel(new SearchGridSelectionModel(this));
 
 		liveView = new LiveGridView();  
 		liveView.setEmptyText("Enter filter criteria to search for help entries.");
