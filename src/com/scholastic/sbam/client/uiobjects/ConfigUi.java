@@ -21,12 +21,14 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 	private TabItem  tbtmDeleteReasons;
 	private TabItem  tbtmCancelReasons;
 	private TabItem  tbtmCommissionTypes;
+	private TabItem  tbtmAgreementTypes;
 	
 	private DeleteReasonEditGrid		deleteReasonEditGrid;
 	private CancelReasonEditGrid		cancelReasonEditGrid;
 	private ServiceEditGrid 			serviceEditGrid;
 	private TermTypeEditGrid 			termTypeEditGrid;
 	private CommissionTypeEditGrid		commissionTypeEditGrid;
+	private AgreementTypeEditGrid		agreementTypeEditGrid;
 //	private PreferenceCategoryEditGrid 	preferenceCategoryEditGrid;
 	private DualEditGridContainer		preferenceEditGridContainer;
 	private DualEditGridContainer		productEditGridContainer;
@@ -53,6 +55,7 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		tbtmDeleteReasons	=	addTab("Delete Reasons",IconSupplier.getDeleteReasonIconName());
 		tbtmCancelReasons	=	addTab("Cancel Reasons",IconSupplier.getCancelReasonIconName());
 		tbtmCommissionTypes	=	addTab("Commission Types",IconSupplier.getCommissionTypeIconName());
+		tbtmAgreementTypes	=	addTab("Agreemeny Types",IconSupplier.getAgreementTypeIconName());
 		
 		deleteReasonEditGrid = new DeleteReasonEditGrid();
 		tbtmDeleteReasons.add(deleteReasonEditGrid);
@@ -68,6 +71,9 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		
 		commissionTypeEditGrid = new CommissionTypeEditGrid();
 		tbtmCommissionTypes.add(commissionTypeEditGrid);
+		
+		agreementTypeEditGrid = new AgreementTypeEditGrid();
+		tbtmAgreementTypes.add(agreementTypeEditGrid);
 		
 		PreferenceCategoryEditGrid preferenceCategoryEditGrid = new PreferenceCategoryEditGrid();
 		preferenceCategoryEditGrid.setAutoExpandColumn("description");
@@ -129,6 +135,7 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 			tbtmServices.enable();
 			tbtmTermTypes.enable();
 			tbtmCommissionTypes.enable();
+			tbtmAgreementTypes.enable();
 			tbtmPreferences.enable();
 			tbtmProducts.enable();
 		} else {
@@ -137,6 +144,7 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 			tbtmServices.disable();
 			tbtmTermTypes.disable();
 			tbtmCommissionTypes.disable();
+			tbtmAgreementTypes.disable();
 			tbtmPreferences.disable();
 			tbtmProducts.disable();
 		}
@@ -148,6 +156,7 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		serviceEditGrid.sleep();
 		termTypeEditGrid.sleep();
 		commissionTypeEditGrid.sleep();
+		agreementTypeEditGrid.sleep();
 	//	preferenceCategoryEditGrid.sleep();
 		preferenceEditGridContainer.sleep();
 		productEditGridContainer.sleep();
@@ -162,6 +171,8 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 			serviceEditGrid.awaken();
 		} else if (advanced.getSelectedItem() == tbtmCommissionTypes) {
 			commissionTypeEditGrid.awaken();
+		} else if (advanced.getSelectedItem() == tbtmAgreementTypes) {
+			agreementTypeEditGrid.awaken();
 		} else if (advanced.getSelectedItem() == tbtmTermTypes) {
 			termTypeEditGrid.awaken();
 		} else if (advanced.getSelectedItem() == tbtmPreferences) {
@@ -234,6 +245,14 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 
 	public void setTbtmCommissionTypes(TabItem tbtmCommissionTypes) {
 		this.tbtmCommissionTypes = tbtmCommissionTypes;
+	}
+
+	public TabItem getTbtmAgreementTypes() {
+		return tbtmAgreementTypes;
+	}
+
+	public void setTbtmAgreementTypes(TabItem tbtmAgreementTypes) {
+		this.tbtmAgreementTypes = tbtmAgreementTypes;
 	}
 	
 }

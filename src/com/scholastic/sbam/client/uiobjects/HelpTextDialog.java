@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.BeanModelReader;
@@ -14,6 +15,7 @@ import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -23,9 +25,9 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.Status;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.SplitButton;
+import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
@@ -213,7 +215,7 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 	protected CardPanel				indexCard;
 	protected CardPanel				searchCard;
 	protected Button				done;
-	protected Status				status;
+	protected LayoutContainer		textContainer;
 	// Navigation toolbars
 	protected ToolBar				topToolBar;
 	protected ToolBar				bottomToolBar;
@@ -284,6 +286,7 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 //		setAutoHide(true);
 		this.removeFromParentOnHide = true;
 		
+		addPanelButtons();
 		
 		topToolBar = getNavigationToolBar();
 		bottomToolBar = getHistoryToolBar();
@@ -296,7 +299,11 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 		
 		textCard = new CardPanel();
 //		textCard.setLayout(new FlowLayout());
-		textCard.add(text);
+		textContainer = new LayoutContainer(new FlowLayout(20));
+		textContainer.setScrollMode(Scroll.AUTO);
+		textContainer.add(text);
+		text.setAutoHeight(true);
+		textCard.add(textContainer);
 		content.add(textCard);
 //		content.add(text);
 		
@@ -312,21 +319,36 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 			formatBlankPage();
 
 	}
-	
-//	@Override
-//	public void onRender(Element el, int index) {
-//		super.onRender(el, index);
-//		//	We have to do this so that the content gets size properly, for scrollbars
-//		content.setHeight(getInnerHeight());
-//	}
+
+	private void addPanelButtons() {
+
+		
+		ToolButton printBtn = new ToolButton("x-tool-print");
+//		if (GXT.isAriaEnabled()) {
+//			helpBtn.setTitle(GXT.MESSAGES.pagingToolBar_beforePageText());
+//		}
+		printBtn.addListener(Events.Select, new Listener<ComponentEvent>() {
+			public void handleEvent(ComponentEvent ce) {
+				MessageBox.alert("Print", "Not yet implemented.", null);
+			}
+		});
+		head.addTool(printBtn);
+	}
 	
 	@Override
 	public void onResize(int width, int height) {
 		super.onResize(width, height);
 		// We have to do this so that the content gets sized properly, for scrollbars
 		content.setSize(this.getInnerWidth(), this.getInnerHeight());
+		// We have to do this so that the text content gets scroll bars
+		setTextContainerSize();
 		// We have to do this so that the search grid gets sized properly, for scrollbars
 		setSearchGridSize(width);
+	}
+	
+	private void setTextContainerSize() {
+		if (textContainer != null)
+			textContainer.setSize(this.getInnerWidth() - 32, this.getInnerHeight()); // Subtract 32 for scroll bar
 	}
 	
 	private void setSearchGridSize(int width) {
@@ -760,6 +782,7 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 		if (indexCard == null) {
 			indexTree = HelpIndexTree.getTreePanel(this);
 			indexCard = new CardPanel();
+			indexCard.setLayout(new FlowLayout(20));
 			indexCard.add(indexTree);
 			content.add(indexCard);
 		}

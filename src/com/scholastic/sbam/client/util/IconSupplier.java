@@ -78,6 +78,10 @@ public class IconSupplier {
 		return "cancelreason.png";
 	}
 	
+	public static String getAgreementTypeIconName() {
+		return "agreement.png";
+	}
+	
 	public static String getCommissionTypeIconName() {
 		return "commissions.png";
 	}

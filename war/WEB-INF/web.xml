@@ -57,6 +57,21 @@
   </servlet>
   
   <servlet>
+    <servlet-name>agreementTypeListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.AgreementTypeListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updateAgreementTypeServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateAgreementTypeServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>agreementCodeValidationServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.AgreementTypeCodeValidationServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>cancelReasonListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.CancelReasonListServiceImpl</servlet-class>
   </servlet>
@@ -269,6 +284,21 @@
   <servlet-mapping>
     <servlet-name>userNameValidationServlet</servlet-name>
     <url-pattern>/sbam/validateUserName</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>agreementTypeListServlet</servlet-name>
+    <url-pattern>/sbam/getAgreementTypes</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateAgreementTypeServlet</servlet-name>
+    <url-pattern>/sbam/updateAgreementType</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>agreementCodeValidationServlet</servlet-name>
+    <url-pattern>/sbam/validateAgreementCode</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>
