@@ -5,7 +5,6 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.extjs.gxt.ui.client.widget.custom.Portlet;
 import com.scholastic.sbam.client.uiobjects.InstitutionSearchPortlet;
-import com.scholastic.sbam.client.services.AppPortlet;
 
 /**
  * This class creates specific standard application portlets and adds them to a portal.

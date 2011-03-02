@@ -31,7 +31,6 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.scholastic.sbam.client.services.AppPortlet;
 import com.scholastic.sbam.client.services.InstitutionSearchService;
 import com.scholastic.sbam.client.services.InstitutionSearchServiceAsync;
 import com.scholastic.sbam.client.services.InstitutionWordService;
