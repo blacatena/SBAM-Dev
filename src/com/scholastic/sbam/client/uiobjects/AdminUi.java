@@ -19,9 +19,11 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 	private ContentPanel cntntpnlMessages;
 	private ContentPanel cntntpnlVersion;
 	private ContentPanel cntntpnlProgramming;
+	private ContentPanel cntntpnlCacheControl;
 	private UserEditGrid userEditGrid;
 	private DocumentationLinksDisplay docLinksDisplay;
 	private WelcomeMessageEditGrid welcomeMessageEditGrid;
+	private CacheControlPanel cacheControlPanel;
 
 	public AdminUi() {
 		
@@ -113,6 +115,22 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
             }
         });
 		
+		/*
+		 * Cache Control
+		 */
+
+		cntntpnlCacheControl = new ContentPanel();
+		cntntpnlCacheControl.setHeading("Cache Control");
+		cntntpnlCacheControl.setCollapsible(true);
+		IconSupplier.setIcon(cntntpnlCacheControl, IconSupplier.getCacheIconName());
+		cacheControlPanel = new CacheControlPanel();
+		cntntpnlCacheControl.add(cacheControlPanel);
+		layoutContainer.add(cntntpnlCacheControl);
+
+		/*
+		 * Finish up
+		 */
+		
 		initComponent(layoutContainer);
 		layoutContainer.setBorders(true);
 	}
@@ -123,11 +141,13 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 			cntntpnlMessages.enable();
 			cntntpnlVersion.enable();
 			cntntpnlProgramming.enable();
+			cntntpnlCacheControl.enable();
 		} else {
 			cntntpnlUsers.disable();
 			cntntpnlMessages.disable();
 			cntntpnlVersion.disable();
 			cntntpnlProgramming.disable();
+			cntntpnlCacheControl.disable();
 		}
 	}
 	
@@ -135,6 +155,8 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 		if (userEditGrid != null) 			userEditGrid.sleep();
 		if (docLinksDisplay != null) 		docLinksDisplay.sleep();
 		if (welcomeMessageEditGrid != null) welcomeMessageEditGrid.sleep();
+//		if (cntntpnlProgramming != null) 	cntntpnlProgramming.sleep();
+		if (cntntpnlCacheControl != null) 	cacheControlPanel.sleep();
 	}
 	
 	public void awaken() {
@@ -146,6 +168,12 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 		}
 		if (!cntntpnlMessages.isCollapsed() && welcomeMessageEditGrid != null) {
 			welcomeMessageEditGrid.awaken();
+		}
+//		if (!cntntpnlProgramming.isCollapsed() && cntntpnlProgramming != null) {
+//			cntntpnlProgramming.awaken();
+//		}
+		if (!cntntpnlCacheControl.isCollapsed() && cacheControlPanel != null) {
+			cacheControlPanel.awaken();
 		}
 	}
 	

@@ -56,8 +56,12 @@ public class InstitutionSearchServiceImpl extends AuthenticatedServiceServlet im
 					if (qualifyInstitution(dbInstance, filters)) {
 						totSize++;
 						//	Paging... start from where asked, and don't return more than requested
-						if (i >= loadConfig.getOffset() && list.size() < loadConfig.getLimit())
-							list.add(DbInstitution.getInstance(dbInstance));
+						if (i >= loadConfig.getOffset() && list.size() < loadConfig.getLimit()) {
+							InstitutionInstance instance = DbInstitution.getInstance(dbInstance);
+							instance.setTypeDescription(InstitutionCache.getSingleton().getInstitutionType(instance.getTypeCode()).getDescription());
+							instance.setGroupDescription(InstitutionCache.getSingleton().getInstitutionGroup(instance.getGroupCode()).getDescription());
+							list.add(instance);
+						}
 						i++;
 					}
 				}

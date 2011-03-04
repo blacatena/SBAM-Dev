@@ -106,6 +106,10 @@ public class IconSupplier {
 		return "programming.png";
 	}
 	
+	public static String getCacheIconName() {
+		return "cache.png";
+	}
+	
 	public static String getVersionIconName() {
 		return "version.png";
 	}

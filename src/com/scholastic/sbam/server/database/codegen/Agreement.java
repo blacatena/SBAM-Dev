@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Feb 25, 2011 10:26:02 AM by Hibernate Tools 3.2.4.GA
+// Generated Mar 3, 2011 5:21:42 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -10,8 +10,9 @@ import java.util.Date;
 public class Agreement implements java.io.Serializable {
 
 	private Integer id;
-	private char idCheckDigit;
+	private int idCheckDigit;
 	private int billUcn;
+	private String billUcnSuffix;
 	private String agreementTypeCode;
 	private String commissionCode;
 	private String deleteReasonCode;
@@ -21,11 +22,12 @@ public class Agreement implements java.io.Serializable {
 	public Agreement() {
 	}
 
-	public Agreement(char idCheckDigit, int billUcn, String agreementTypeCode,
-			String commissionCode, String deleteReasonCode,
-			Date createdDatetime, char status) {
+	public Agreement(int idCheckDigit, int billUcn, String billUcnSuffix,
+			String agreementTypeCode, String commissionCode,
+			String deleteReasonCode, Date createdDatetime, char status) {
 		this.idCheckDigit = idCheckDigit;
 		this.billUcn = billUcn;
+		this.billUcnSuffix = billUcnSuffix;
 		this.agreementTypeCode = agreementTypeCode;
 		this.commissionCode = commissionCode;
 		this.deleteReasonCode = deleteReasonCode;
@@ -41,11 +43,11 @@ public class Agreement implements java.io.Serializable {
 		this.id = id;
 	}
 
-	public char getIdCheckDigit() {
+	public int getIdCheckDigit() {
 		return this.idCheckDigit;
 	}
 
-	public void setIdCheckDigit(char idCheckDigit) {
+	public void setIdCheckDigit(int idCheckDigit) {
 		this.idCheckDigit = idCheckDigit;
 	}
 
@@ -55,6 +57,14 @@ public class Agreement implements java.io.Serializable {
 
 	public void setBillUcn(int billUcn) {
 		this.billUcn = billUcn;
+	}
+
+	public String getBillUcnSuffix() {
+		return this.billUcnSuffix;
+	}
+
+	public void setBillUcnSuffix(String billUcnSuffix) {
+		this.billUcnSuffix = billUcnSuffix;
 	}
 
 	public String getAgreementTypeCode() {

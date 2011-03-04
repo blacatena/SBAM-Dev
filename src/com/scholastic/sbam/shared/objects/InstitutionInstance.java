@@ -16,6 +16,11 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable {
 	private	String	webUrl;
 	private	String	phone;
 	private	String	fax;
+	private String  typeCode;
+	private String  typeDescription;
+	private String	groupCode;
+	private String  groupDescription;
+	private String	alternateIds;
 	public int getUcn() {
 		return ucn;
 	}
@@ -87,6 +92,36 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable {
 	}
 	public void setFax(String fax) {
 		this.fax = fax;
+	}
+	public String getTypeCode() {
+		return typeCode;
+	}
+	public void setTypeCode(String typeCode) {
+		this.typeCode = typeCode;
+	}
+	public String getTypeDescription() {
+		return typeDescription;
+	}
+	public void setTypeDescription(String typeDescription) {
+		this.typeDescription = typeDescription;
+	}
+	public String getGroupCode() {
+		return groupCode;
+	}
+	public void setGroupCode(String groupCode) {
+		this.groupCode = groupCode;
+	}
+	public String getGroupDescription() {
+		return groupDescription;
+	}
+	public void setGroupDescription(String groupDescription) {
+		this.groupDescription = groupDescription;
+	}
+	public String getAlternateIds() {
+		return alternateIds;
+	}
+	public void setAlternateIds(String alternateIds) {
+		this.alternateIds = alternateIds;
 	}
 	
 }

@@ -37,6 +37,9 @@ public class DbInstitution extends HibernateAccessor {
 		instance.setPhone(dbInstance.getPhone());
 		instance.setFax(dbInstance.getFax());
 		instance.setWebUrl(dbInstance.getWebUrl());
+		instance.setTypeCode(dbInstance.getTypeCode());
+		instance.setGroupCode(dbInstance.getGroupCode());
+		instance.setAlternateIds(dbInstance.getAlternateIds());
 		
 		return instance;
 	}

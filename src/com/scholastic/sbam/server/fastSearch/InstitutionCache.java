@@ -12,8 +12,14 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import com.scholastic.sbam.server.database.codegen.InstitutionGroup;
+import com.scholastic.sbam.server.database.codegen.InstitutionType;
+import com.scholastic.sbam.server.database.objects.DbInstitutionGroup;
+import com.scholastic.sbam.server.database.objects.DbInstitutionType;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
+import com.scholastic.sbam.shared.objects.InstitutionGroupInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
+import com.scholastic.sbam.shared.objects.InstitutionTypeInstance;
 
 /**
  * This class acts as a cache, to speed institution searches and sorting.
@@ -22,7 +28,7 @@ import com.scholastic.sbam.shared.objects.InstitutionInstance;
  *
  */
 public class InstitutionCache implements Runnable {
-	protected static final String INSTITUTION_SQL = "SELECT ucn, institution_name, address1, address2, address3, city, state, zip, country, phone, fax FROM institution WHERE status = 'A'";
+	protected static final String INSTITUTION_SQL = "SELECT ucn, institution_name, address1, address2, address3, city, state, zip, country, phone, fax, alternate_ids FROM institution WHERE status = 'A'";
 	
 	public static class InstitutionCacheNotReady extends Exception {
 		private static final long serialVersionUID = -8657762616708856381L;
@@ -162,6 +168,11 @@ public class InstitutionCache implements Runnable {
 	protected HashMap<String, List<Integer>>		searchMap = new HashMap<String, List<Integer>>();
 	protected HashMap<String, Integer>				countMap  = new HashMap<String, Integer>();
 	
+	// These can just be server side, because they only change when the institutions change (i.e. its externally defined data)
+	protected HashMap<String, InstitutionGroupInstance>	groups	= new HashMap<String, InstitutionGroupInstance>();
+	protected HashMap<String, InstitutionTypeInstance>	types	= new HashMap<String, InstitutionTypeInstance>();
+	
+	
 	private InstitutionCache() {
 		config = new InstitutionCacheConfig();
 		init();
@@ -266,6 +277,8 @@ public class InstitutionCache implements Runnable {
 		HibernateUtil.startTransaction();
 
 		try {
+			
+			loadCodes();
 
 			System.out.println(new Date());
 			System.out.println("Loading institutions...");
@@ -357,6 +370,19 @@ public class InstitutionCache implements Runnable {
 		dumpWordStats();
 	}
 	
+	private void loadCodes() {
+		types.clear();
+		groups.clear();
+		
+		List<InstitutionType> typeList = DbInstitutionType.findAll();
+		for (InstitutionType type : typeList)
+			types.put(type.getTypeCode(), DbInstitutionType.getInstance(type));
+		
+		List<InstitutionGroup> groupList = DbInstitutionGroup.findAll();
+		for (InstitutionGroup group : groupList)
+			groups.put(group.getGroupCode(), DbInstitutionGroup.getInstance(group));
+	}
+	
 	/**
 	 * Output the word map statistics for debugging or performance analysis
 	 */
@@ -383,6 +409,7 @@ public class InstitutionCache implements Runnable {
 		InstitutionInstance instance = new InstitutionInstance();
 		
 		instance.setUcn(results.getInt("ucn"));
+		instance.setAlternateIds(results.getString("alternate_ids"));
 		instance.setInstitutionName(results.getString("institution_name"));
 		instance.setAddress1(results.getString("address1"));
 		instance.setAddress2(results.getString("address2"));
@@ -408,6 +435,7 @@ public class InstitutionCache implements Runnable {
 		
 		//  Parse all components of the institution address
 		parseAdd(institution.getUcn() + "", strings);
+		parseAdd(institution.getAlternateIds(), strings);
 		parseAdd(institution.getInstitutionName(), strings);
 		parseAdd(institution.getAddress1(), strings);
 		parseAdd(institution.getAddress2(), strings);
@@ -740,5 +768,48 @@ public class InstitutionCache implements Runnable {
 		else
 			return new String [] {};
 	}
+
+	public HashMap<String, InstitutionGroupInstance> getGroups() {
+		return groups;
+	}
+
+	public void setGroups(HashMap<String, InstitutionGroupInstance> groups) {
+		this.groups = groups;
+	}
+
+	public HashMap<String, InstitutionTypeInstance> getTypes() {
+		return types;
+	}
+
+	public void setTypes(HashMap<String, InstitutionTypeInstance> types) {
+		this.types = types;
+	}
 	
+	public InstitutionTypeInstance getInstitutionType(String typeCode) {
+		if (types.containsKey(typeCode))
+			return types.get(typeCode);
+		
+		InstitutionTypeInstance unknown = new InstitutionTypeInstance();
+		unknown.setTypeCode(typeCode);
+		unknown.setDescription("Unknown Type " + typeCode);
+		
+		//	Just so we don't have to keep making this every time
+		types.put(typeCode, unknown);
+		
+		return unknown;
+	}
+	
+	public InstitutionGroupInstance getInstitutionGroup(String groupCode) {
+		if (groups.containsKey(groupCode))
+			return groups.get(groupCode);
+		
+		InstitutionGroupInstance unknown = new InstitutionGroupInstance();
+		unknown.setGroupCode(groupCode);
+		unknown.setDescription("Unknown Group" + groupCode);
+		
+		//	Just so we don't have to keep making this every time
+		groups.put(groupCode, unknown);
+		
+		return unknown;
+	}
 }

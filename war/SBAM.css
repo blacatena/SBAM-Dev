@@ -161,6 +161,11 @@ a.pdocImgLink {
   opacity: .6;
 }
 
+/* Special style to replace forms with white backgrounds with something more subtle */
+.x-portlet .x-panel-body .subtle-form {
+	background-color: #FBEBDB  !important;
+}
+
 /* These are necessary, because the theme doesn't "take" -- change these if the theme changes */
 /* Managed now by adding the style "x-panel" wherever needed
 .x-border {

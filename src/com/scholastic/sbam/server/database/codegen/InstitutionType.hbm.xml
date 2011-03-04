@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 3, 2011 5:21:42 PM by Hibernate Tools 3.2.4.GA -->
+<hibernate-mapping>
+    <class name="com.scholastic.sbam.server.database.codegen.InstitutionType" table="institution_type" catalog="sbam">
+        <id name="typeCode" type="string">
+            <column name="type_code" length="16" />
+            <generator class="assigned" />
+        </id>
+        <property name="description" type="string">
+            <column name="description" not-null="true" />
+        </property>
+        <property name="longDescription" type="string">
+            <column name="long_description" length="4000" not-null="true" />
+        </property>
+        <property name="groupCode" type="string">
+            <column name="group_code" length="16" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

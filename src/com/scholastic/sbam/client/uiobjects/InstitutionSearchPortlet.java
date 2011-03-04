@@ -4,25 +4,39 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
+import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.data.BeanModelReader;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.LiveGridView;
+import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LiveToolItem;
@@ -44,19 +58,30 @@ import com.scholastic.sbam.shared.objects.InstitutionInstance;
 
 public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 	
-	private static final int FILTER_LISTEN_PERIOD = 250;
+	protected static final int FILTER_LISTEN_PERIOD = 250;
 	
-	private final InstitutionSearchServiceAsync institutionSearchService = GWT.create(InstitutionSearchService.class);
-	private final InstitutionWordServiceAsync   institutionWordService   = GWT.create(InstitutionWordService.class);
+	protected final InstitutionSearchServiceAsync institutionSearchService = GWT.create(InstitutionSearchService.class);
+	protected final InstitutionWordServiceAsync   institutionWordService   = GWT.create(InstitutionWordService.class);
 	
-	private ContentPanel container;
-	private Grid<ModelData> grid;
-	private LiveGridView liveView;
-	ListStore<ModelData> store;
-	ComboBox<ModelData> combo;
-	Timer filterListenTimer;
-	private String filter = "";
-	private PagingLoader<PagingLoadResult<InstitutionInstance>> institutionLoader;
+	protected CardLayout   cards;
+	protected ContentPanel searchPanel;
+//	protected CardPanel	 searchCard;
+	protected FormPanel	 displayCard;
+	protected Grid<ModelData> grid;
+	protected LiveGridView liveView;
+	
+	protected ListStore<ModelData> store;
+	protected ComboBox<ModelData> combo;
+	protected Timer filterListenTimer;
+	protected String filter = "";
+	
+	protected PagingLoader<PagingLoadResult<InstitutionInstance>> institutionLoader;
+
+	protected LabelField ucn;
+	protected LabelField address;
+	protected LabelField type;
+//	protected LabelField group;
+	protected LabelField altIds;
 	
 	public InstitutionSearchPortlet() {
 		super(AppPortletIds.FULL_INSTITUTION_SEARCH.getHelpTextId());
@@ -68,20 +93,121 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 		
 		setTitle("Full Institution Search");
 		setHeading("Full Institution Search");
-
 		
-		//	We need this to be able to put the toolbar into
-		container = new ContentPanel(new FitLayout());
-		container.setHeaderVisible(false);
-		container.setBorders(false);
-		container.setHeight(540);
+		setLayout(new FitLayout());
+		LayoutContainer outerContainer = new LayoutContainer();
+		add(outerContainer);
+		
+		cards = new CardLayout();
+		outerContainer.setLayout(cards);
+		
+		//	We need this to be able to put the tool bar into the top
+		searchPanel = new ContentPanel(new FitLayout());
+		searchPanel.setHeaderVisible(false);
+		searchPanel.setBorders(false);
+		searchPanel.setHeight(540);
 		
 		setThis();
 		addGrid();
 		setFilter();
 		
-		add(container);
+		outerContainer.add(searchPanel);
+		
+		createDisplayCard();
+		outerContainer.add(displayCard);
 	}
+	
+	private void createDisplayCard() {
+		FormData formData = new FormData("100%");
+		displayCard = new FormPanel();
+
+		displayCard.setPadding(40);  
+		displayCard.setFrame(true); 
+		displayCard.setHeaderVisible(false);  
+		displayCard.setBodyBorder(true);
+		displayCard.setBodyStyleName("subtle-form");
+		displayCard.setButtonAlign(HorizontalAlignment.CENTER);
+		displayCard.setLabelAlign(LabelAlign.RIGHT);
+		displayCard.setLabelWidth(200);
+
+		//		displayCard.setLayout(new FlowLayout());
+		//		displayCard.add(new Html("<b>Let's just display this, okay?</b>"));
+
+		ucn = new LabelField();  
+		ucn.setFieldLabel("UCN :");
+		displayCard.add(ucn, formData);
+		
+		address = new LabelField(); 
+//		address.setFieldLabel("");
+		displayCard.add(address, formData); 
+		
+		altIds = new LabelField(); 
+		altIds.setFieldLabel("Alternate IDs :");
+		displayCard.add(altIds, formData); 
+		
+		type = new LabelField(); 
+		type.setFieldLabel("Type :");
+		displayCard.add(type, formData); 
+		
+//		group = new LabelField(); 
+//		group.setFieldLabel("");
+//		displayCard.add(group, formData); 
+		
+		Button returnButton = new Button("Return");
+		returnButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+				@Override  
+					public void componentSelected(ButtonEvent ce) {
+						cards.setActiveItem(searchPanel);
+					}  
+			});
+		displayCard.addButton(returnButton);
+	}
+	
+	protected String plusIfNotEmpty(String value, String prefix) {
+		if (value == null || value.length() == 0)
+			return "";
+		return prefix + value;
+	}
+	
+	protected String brIfNotEmpty(String value) {
+		return plusIfNotEmpty(value, "<br/>");
+	}
+	
+	protected String commaIfNotEmpty(String value) {
+		return plusIfNotEmpty(value, ", ");
+	}
+	
+	protected String spaceIfNotEmpty(String value) {
+		return plusIfNotEmpty(value, "&nbsp;&nbsp;&nbsp;");
+	}
+	
+	protected String brIfNotUsa(String value) {
+		if (value == null || value.length() == 0)
+			return "";
+		if (value.equalsIgnoreCase("USA"))
+			return "";
+		return "<br/>" + value;
+	}
+	
+	protected void showInstitution(BeanModel model) {
+		InstitutionInstance instance = model.getBean();
+
+		ucn.setValue(instance.getUcn());
+		address.setValue("<b>" + instance.getInstitutionName() + "</b><br/>" +
+				instance.getAddress1() + brIfNotEmpty(instance.getAddress2()) + brIfNotEmpty(instance.getAddress3()) + "<br/>" +
+				instance.getCity() + commaIfNotEmpty(instance.getState()) + spaceIfNotEmpty(instance.getZip()) + 
+				brIfNotUsa(instance.getCountry()));
+		
+		if (instance.getAlternateIds() == null || instance.getAlternateIds().length() == 0)
+			altIds.setValue("None");
+		else
+			altIds.setValue(instance.getAlternateIds().replace(",", ", "));
+		type.setValue(instance.getGroupDescription() + " &rArr; " + instance.getTypeDescription());
+//		group.setValue(instance.getGroupDescription());
+		
+		cards.setActiveItem(displayCard);
+	}
+	
 	
 	protected void setFilter() {
 		
@@ -101,7 +227,7 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 		filter.getAriaSupport().setLabelledBy(toolBar.getItem(0).getId());
 		toolBar.add(filter);  
 		
-		container.setTopComponent(toolBar);
+		searchPanel.setTopComponent(toolBar);
 	}
 	
 	protected ComboBox<ModelData> getFilterBox() {
@@ -191,7 +317,8 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 		store = new ListStore<ModelData>(institutionLoader);  
  
 		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();  
-
+		   
+		columns.add(getHiddenColumn("ucn",		"UCN", 		80));  
 		ColumnConfig name = new ColumnConfig("institutionName", "Name", 250);  
 		name.setRenderer(new GridCellRenderer<ModelData>() {  
 
@@ -204,10 +331,15 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 
 		});  
 		columns.add(name);  
-		columns.add(new ColumnConfig("address1",	"Street", 150));  
-		columns.add(new ColumnConfig("city",		"City", 100));  
-		columns.add(new ColumnConfig("state",		"State", 30));   
-		columns.add(new ColumnConfig("zip",			"Zip", 50));   
+		columns.add(new ColumnConfig("address1",			"Street",			150));  
+		columns.add(new ColumnConfig("city",				"City",				100));  
+		columns.add(new ColumnConfig("state",				"State",			30));   
+		columns.add(new ColumnConfig("zip",					"Zip",				50));      
+		columns.add(getHiddenColumn("typeCode",				"Type Code", 		50));
+		columns.add(getHiddenColumn("typeDescription",		"Type", 			100));    
+		columns.add(getHiddenColumn("groupCode",			"Type Group Code", 	50));  
+		columns.add(getHiddenColumn("groupDescription",		"Type Group", 		100)); 
+		columns.add(getHiddenColumn("alternateIds",			"Alternate IDs", 	100));    
 
 //		ColumnConfig last = new ColumnConfig("lastpost", "Last Post", 200);  
 //		last.setRenderer(new GridCellRenderer<ModelData>() {  
@@ -226,7 +358,18 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 		grid.setBorders(true);  
 		grid.setAutoExpandColumn("institutionName");  
 		grid.setLoadMask(true);  
-		grid.setStripeRows(true);  
+		grid.setStripeRows(true);
+		
+		//	Switch to the display card when a row is selected
+		grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);  
+		grid.getSelectionModel().addListener(Events.SelectionChange,  
+				new Listener<SelectionChangedEvent<ModelData>>() {  
+					public void handleEvent(SelectionChangedEvent<ModelData> be) {  
+						if (be.getSelection().size() > 0) {
+							showInstitution((BeanModel) be.getSelectedItem());
+						} 
+					}  
+			});  
 
 		liveView = new LiveGridView();  
 		liveView.setEmptyText("Enter filter criteria to search for institutions.");
@@ -234,8 +377,14 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 		grid.setView(liveView);
 //		grid.setHeight(550);
 		grid.getAriaSupport().setLabelledBy(this.getHeader().getId() + "-label"); 
-		container.add(grid);   
+		searchPanel.add(grid);   
 		  
+	}
+	
+	protected ColumnConfig getHiddenColumn(String column, String heading, int size) {
+		ColumnConfig cc = new ColumnConfig(column,		heading, 		size);
+		cc.setHidden(true);
+		return cc;
 	}
 	
 	protected void setThis() {

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Feb 25, 2011 10:26:02 AM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Mar 3, 2011 5:21:42 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.AuthUserId" table="auth_user_id" catalog="sbam">
         <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.AuthUserIdId">
@@ -10,6 +10,9 @@
             </key-property>
             <key-property name="ucn" type="int">
                 <column name="ucn" />
+            </key-property>
+            <key-property name="ucnSuffix" type="string">
+                <column name="ucn_suffix" length="4" />
             </key-property>
             <key-property name="siteLocCode" type="string">
                 <column name="site_loc_code" length="32" />
