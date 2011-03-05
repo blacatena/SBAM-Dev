@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Mar 3, 2011 5:21:42 PM by Hibernate Tools 3.2.4.GA
+// Generated Mar 4, 2011 3:03:09 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -11,20 +11,27 @@ public class ExportAuthUnit implements java.io.Serializable {
 
 	private Integer id;
 	private int siteUcn;
+	private int siteUcnSuffix;
 	private String siteLocCode;
 	private int billUcn;
+	private int billUcnSuffix;
 	private int siteParentUcn;
+	private int siteParentUcnSuffix;
 	private Date createdDatetime;
 
 	public ExportAuthUnit() {
 	}
 
-	public ExportAuthUnit(int siteUcn, String siteLocCode, int billUcn,
-			int siteParentUcn, Date createdDatetime) {
+	public ExportAuthUnit(int siteUcn, int siteUcnSuffix, String siteLocCode,
+			int billUcn, int billUcnSuffix, int siteParentUcn,
+			int siteParentUcnSuffix, Date createdDatetime) {
 		this.siteUcn = siteUcn;
+		this.siteUcnSuffix = siteUcnSuffix;
 		this.siteLocCode = siteLocCode;
 		this.billUcn = billUcn;
+		this.billUcnSuffix = billUcnSuffix;
 		this.siteParentUcn = siteParentUcn;
+		this.siteParentUcnSuffix = siteParentUcnSuffix;
 		this.createdDatetime = createdDatetime;
 	}
 
@@ -44,6 +51,14 @@ public class ExportAuthUnit implements java.io.Serializable {
 		this.siteUcn = siteUcn;
 	}
 
+	public int getSiteUcnSuffix() {
+		return this.siteUcnSuffix;
+	}
+
+	public void setSiteUcnSuffix(int siteUcnSuffix) {
+		this.siteUcnSuffix = siteUcnSuffix;
+	}
+
 	public String getSiteLocCode() {
 		return this.siteLocCode;
 	}
@@ -60,12 +75,28 @@ public class ExportAuthUnit implements java.io.Serializable {
 		this.billUcn = billUcn;
 	}
 
+	public int getBillUcnSuffix() {
+		return this.billUcnSuffix;
+	}
+
+	public void setBillUcnSuffix(int billUcnSuffix) {
+		this.billUcnSuffix = billUcnSuffix;
+	}
+
 	public int getSiteParentUcn() {
 		return this.siteParentUcn;
 	}
 
 	public void setSiteParentUcn(int siteParentUcn) {
 		this.siteParentUcn = siteParentUcn;
+	}
+
+	public int getSiteParentUcnSuffix() {
+		return this.siteParentUcnSuffix;
+	}
+
+	public void setSiteParentUcnSuffix(int siteParentUcnSuffix) {
+		this.siteParentUcnSuffix = siteParentUcnSuffix;
 	}
 
 	public Date getCreatedDatetime() {

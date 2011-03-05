@@ -3,8 +3,8 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated Mar 4, 2011 3:03:09 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
-    <class name="com.scholastic.sbam.server.database.codegen.Site" table="site" catalog="sbam">
-        <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.SiteId">
+    <class name="com.scholastic.sbam.server.database.codegen.SitePreference" table="site_preference" catalog="sbam">
+        <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.SitePreferenceId">
             <key-property name="ucn" type="int">
                 <column name="ucn" />
             </key-property>
@@ -14,15 +14,12 @@
             <key-property name="siteLocCode" type="string">
                 <column name="site_loc_code" length="32" />
             </key-property>
+            <key-property name="prefCatCode" type="string">
+                <column name="pref_cat_code" length="32" />
+            </key-property>
         </composite-id>
-        <property name="description" type="string">
-            <column name="description" not-null="true" />
-        </property>
-        <property name="commissionCode" type="string">
-            <column name="commission_code" length="32" not-null="true" />
-        </property>
-        <property name="pseudoSite" type="char">
-            <column name="pseudo_site" length="1" not-null="true" />
+        <property name="prefSelCode" type="string">
+            <column name="pref_sel_code" length="1024" not-null="true" />
         </property>
         <property name="createdDatetime" type="timestamp">
             <column name="created_datetime" length="19" not-null="true" />

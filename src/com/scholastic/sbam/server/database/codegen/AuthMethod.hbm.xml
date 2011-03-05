@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Mar 3, 2011 5:21:42 PM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Mar 4, 2011 3:03:09 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.AuthMethod" table="auth_method" catalog="sbam">
         <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.AuthMethodId">
@@ -11,8 +11,8 @@
             <key-property name="ucn" type="int">
                 <column name="ucn" />
             </key-property>
-            <key-property name="ucnSuffix" type="string">
-                <column name="ucn_suffix" length="4" />
+            <key-property name="ucnSuffix" type="int">
+                <column name="ucn_suffix" />
             </key-property>
             <key-property name="siteLocCode" type="string">
                 <column name="site_loc_code" length="32" />

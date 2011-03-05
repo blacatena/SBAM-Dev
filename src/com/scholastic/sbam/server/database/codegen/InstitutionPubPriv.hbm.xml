@@ -3,11 +3,14 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated Mar 4, 2011 3:03:09 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
-    <class name="com.scholastic.sbam.server.database.codegen.InstitutionGroup" table="institution_group" catalog="sbam">
-        <id name="groupCode" type="string">
-            <column name="group_code" length="16" />
+    <class name="com.scholastic.sbam.server.database.codegen.InstitutionPubPriv" table="institution_pub_priv" catalog="sbam">
+        <id name="pubPrivCode" type="string">
+            <column name="pub_priv_code" length="16" />
             <generator class="assigned" />
         </id>
+        <property name="shortName" type="string">
+            <column name="short_name" not-null="true" />
+        </property>
         <property name="description" type="string">
             <column name="description" not-null="true" />
         </property>

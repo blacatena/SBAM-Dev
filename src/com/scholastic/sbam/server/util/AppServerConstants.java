@@ -104,6 +104,7 @@ public class AppServerConstants {
 					instCacheConfig.setLoadLimit(sysConfig.getInstConfigLoadLimit());
 					instCacheConfig.setLoadGcPoint(sysConfig.getInstConfigLoadGc());
 					instCacheConfig.setLoadWatchPoint(sysConfig.getInstConfigLoadWatch());
+					instCacheConfig.setLoadStatusList(sysConfig.getInstConfigLoadStatus());
 				}
 				
 				loaded = true;

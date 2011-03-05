@@ -1,5 +1,7 @@
 package com.scholastic.sbam.shared.objects;
 
+import java.util.Date;
+
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -20,7 +22,12 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable {
 	private String  typeDescription;
 	private String	groupCode;
 	private String  groupDescription;
+	private String	publicPrivateCode;
+	private String  publicPrivateDescription;
 	private String	alternateIds;
+	private Date	createdDate;
+	private Date	closedDate;
+	
 	public int getUcn() {
 		return ucn;
 	}
@@ -122,6 +129,30 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable {
 	}
 	public void setAlternateIds(String alternateIds) {
 		this.alternateIds = alternateIds;
+	}
+	public String getPublicPrivateCode() {
+		return publicPrivateCode;
+	}
+	public void setPublicPrivateCode(String publicPrivateCode) {
+		this.publicPrivateCode = publicPrivateCode;
+	}
+	public String getPublicPrivateDescription() {
+		return publicPrivateDescription;
+	}
+	public void setPublicPrivateDescription(String publicPrivateDescription) {
+		this.publicPrivateDescription = publicPrivateDescription;
+	}
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
+	}
+	public Date getClosedDate() {
+		return closedDate;
+	}
+	public void setClosedDate(Date closedDate) {
+		this.closedDate = closedDate;
 	}
 	
 }

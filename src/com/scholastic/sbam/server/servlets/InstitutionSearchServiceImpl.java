@@ -60,6 +60,7 @@ public class InstitutionSearchServiceImpl extends AuthenticatedServiceServlet im
 							InstitutionInstance instance = DbInstitution.getInstance(dbInstance);
 							instance.setTypeDescription(InstitutionCache.getSingleton().getInstitutionType(instance.getTypeCode()).getDescription());
 							instance.setGroupDescription(InstitutionCache.getSingleton().getInstitutionGroup(instance.getGroupCode()).getDescription());
+							instance.setPublicPrivateDescription(InstitutionCache.getSingleton().getInstitutionPubPriv(instance.getPublicPrivateCode()).getDescription());
 							list.add(instance);
 						}
 						i++;
@@ -103,7 +104,9 @@ public class InstitutionSearchServiceImpl extends AuthenticatedServiceServlet im
 			&&  dbInstance.getAddress3().toUpperCase().indexOf(filter) < 0
 			&&  dbInstance.getCountry().toUpperCase().indexOf(filter) < 0
 			&&  dbInstance.getPhone().toUpperCase().indexOf(filter) < 0
-			&&  dbInstance.getFax().toUpperCase().indexOf(filter) < 0)
+			&&  dbInstance.getFax().toUpperCase().indexOf(filter) < 0
+			&&  dbInstance.getUcn() + "".indexOf(filter) < 0
+			&&  dbInstance.getAlternateIds().toUpperCase().indexOf(filter) < 0)
 				return false;
 		}
 		return true;

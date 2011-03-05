@@ -15,15 +15,18 @@ import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
@@ -40,8 +43,10 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LiveToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -55,6 +60,7 @@ import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.FilterWordInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
+import com.scholastic.sbam.shared.util.AppConstants;
 
 public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 	
@@ -128,17 +134,27 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 		displayCard.setBodyStyleName("subtle-form");
 		displayCard.setButtonAlign(HorizontalAlignment.CENTER);
 		displayCard.setLabelAlign(LabelAlign.RIGHT);
-		displayCard.setLabelWidth(200);
-
-		//		displayCard.setLayout(new FlowLayout());
-		//		displayCard.add(new Html("<b>Let's just display this, okay?</b>"));
+		displayCard.setLabelWidth(200); 
+		
+		ToolButton returnTool = new ToolButton("x-tool-left") {
+				@Override
+				protected void onClick(ComponentEvent ce) {
+					cards.setActiveItem(searchPanel);
+				}
+			};
+		returnTool.enable();
+		
+		ToolBar displayBar = new ToolBar();
+		displayBar.add(returnTool);
+		displayBar.add(new SeparatorToolItem());
+		displayBar.add(new Html("<b>Selected Institution</b>"));
+		displayCard.setTopComponent(displayBar);
 
 		ucn = new LabelField();  
 		ucn.setFieldLabel("UCN :");
 		displayCard.add(ucn, formData);
 		
 		address = new LabelField(); 
-//		address.setFieldLabel("");
 		displayCard.add(address, formData); 
 		
 		altIds = new LabelField(); 
@@ -148,10 +164,6 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 		type = new LabelField(); 
 		type.setFieldLabel("Type :");
 		displayCard.add(type, formData); 
-		
-//		group = new LabelField(); 
-//		group.setFieldLabel("");
-//		displayCard.add(group, formData); 
 		
 		Button returnButton = new Button("Return");
 		returnButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
@@ -202,7 +214,7 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 			altIds.setValue("None");
 		else
 			altIds.setValue(instance.getAlternateIds().replace(",", ", "));
-		type.setValue(instance.getGroupDescription() + " &rArr; " + instance.getTypeDescription());
+		type.setValue(instance.getPublicPrivateDescription() + " / " + instance.getGroupDescription() + " &rArr; " + instance.getTypeDescription());
 //		group.setValue(instance.getGroupDescription());
 		
 		cards.setActiveItem(displayCard);
@@ -295,20 +307,8 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 	}
 	
 	protected void addGrid() {
-		institutionLoader = getInstitutionLoader();  
+		institutionLoader = getInstitutionLoader(); 
 
-//		institutionLoader.addListener(Loader.BeforeLoad, new Listener<LoadEvent>() {  
-//		  public void handleEvent(LoadEvent be) {  
-//		    BasePagingLoadConfig m = be.<BasePagingLoadConfig> getConfig();  
-//		    m.set("start", m.get("offset"));  
-//		    m.set("ext", "js");  
-//		    m.set("lightWeight", true);  
-//		    m.set("sort", (m.get("sortField") == null) ? "" : m.get("sortField"));  
-//		    m.set("dir", (m.get("sortDir") == null || (m.get("sortDir") != null && m.<SortDir> get("sortDir").equals(  
-//		        SortDir.NONE))) ? "" : m.get("sortDir"));  
-//
-//		  }  
-//		});  
 		institutionLoader.setSortDir(SortDir.ASC);  
 		institutionLoader.setSortField("institutionName");  
 
@@ -338,19 +338,12 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 		columns.add(getHiddenColumn("typeCode",				"Type Code", 		50));
 		columns.add(getHiddenColumn("typeDescription",		"Type", 			100));    
 		columns.add(getHiddenColumn("groupCode",			"Type Group Code", 	50));  
-		columns.add(getHiddenColumn("groupDescription",		"Type Group", 		100)); 
-		columns.add(getHiddenColumn("alternateIds",			"Alternate IDs", 	100));    
-
-//		ColumnConfig last = new ColumnConfig("lastpost", "Last Post", 200);  
-//		last.setRenderer(new GridCellRenderer<ModelData>() {  
-//
-//		  public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,  
-//		      ListStore<ModelData> store, Grid<ModelData> grid) {  
-//		    return model.get("lastpost") + "<br/>by " + model.get("lastposter");  
-//		  }  
-//
-//		});  
-//		columns.add(last);  
+		columns.add(getHiddenColumn("groupDescription",		"Type Group", 		100));    
+		columns.add(getHiddenColumn("publicPrivateCode",	"Public/Private", 	50));  
+		columns.add(getHiddenColumn("publicPrivateDescription",	"Public/Private Desc", 	100)); 
+		columns.add(getHiddenColumn("createdDate",			"Created",		 	70,		AppConstants.APP_DATE_TIME_FORMAT)); 
+		columns.add(getHiddenColumn("closedDate",			"Closed",		 	70,		AppConstants.APP_DATE_TIME_FORMAT)); 
+		columns.add(getHiddenColumn("alternateIds",			"Alternate IDs", 	100)); 
 
 		ColumnModel cm = new ColumnModel(columns);  
 
@@ -382,8 +375,14 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 	}
 	
 	protected ColumnConfig getHiddenColumn(String column, String heading, int size) {
+		return getHiddenColumn(column, heading, size, null);
+	}
+	
+	protected ColumnConfig getHiddenColumn(String column, String heading, int size, DateTimeFormat format) {
 		ColumnConfig cc = new ColumnConfig(column,		heading, 		size);
-		cc.setHidden(true);
+		cc.setHidden(true); 
+		if (format != null)
+			cc.setDateTimeFormat(format);
 		return cc;
 	}
 	

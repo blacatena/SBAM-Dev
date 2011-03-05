@@ -13,12 +13,15 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import com.scholastic.sbam.server.database.codegen.InstitutionGroup;
+import com.scholastic.sbam.server.database.codegen.InstitutionPubPriv;
 import com.scholastic.sbam.server.database.codegen.InstitutionType;
 import com.scholastic.sbam.server.database.objects.DbInstitutionGroup;
+import com.scholastic.sbam.server.database.objects.DbInstitutionPubPriv;
 import com.scholastic.sbam.server.database.objects.DbInstitutionType;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.objects.InstitutionGroupInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
+import com.scholastic.sbam.shared.objects.InstitutionPubPrivInstance;
 import com.scholastic.sbam.shared.objects.InstitutionTypeInstance;
 
 /**
@@ -28,7 +31,7 @@ import com.scholastic.sbam.shared.objects.InstitutionTypeInstance;
  *
  */
 public class InstitutionCache implements Runnable {
-	protected static final String INSTITUTION_SQL = "SELECT ucn, institution_name, address1, address2, address3, city, state, zip, country, phone, fax, alternate_ids FROM institution WHERE status = 'A'";
+	protected static final String INSTITUTION_SQL = "SELECT ucn, institution_name, address1, address2, address3, city, state, zip, country, phone, fax, alternate_ids FROM institution ";
 	
 	public static class InstitutionCacheNotReady extends Exception {
 		private static final long serialVersionUID = -8657762616708856381L;
@@ -79,10 +82,11 @@ public class InstitutionCache implements Runnable {
 		 * The maximum number of words to list for a prefix.  Anything over this is removed from the list.
 		 */
 		protected int		maxWordListLength	= 500;
+		protected String	loadStatusList;
 		
 		public String toString() {
 			return "Institution Cache Config : [Inner = " + useInnerStrings + ", Pairs = " + useStringPairs + ", min len = " + minStringLength + ", min inner = " + minInnerStringLength + 
-					", max pair = " + maxStringPairLength + ", max ucn list = " + maxListLength + ", max word list = " + maxWordListLength + "]";
+					", max pair = " + maxStringPairLength + ", max ucn list = " + maxListLength + ", max word list = " + maxWordListLength + ", load statuses " + loadStatusList + "]";
 		}
 		
 		public boolean isUseInnerStrings() {
@@ -145,6 +149,14 @@ public class InstitutionCache implements Runnable {
 		public void setLoadLimit(int loadLimit) {
 			this.loadLimit = loadLimit;
 		}
+
+		public String getLoadStatusList() {
+			return loadStatusList;
+		}
+
+		public void setLoadStatusList(String loadStatusList) {
+			this.loadStatusList = loadStatusList;
+		}
 		
 	}
 	
@@ -169,8 +181,9 @@ public class InstitutionCache implements Runnable {
 	protected HashMap<String, Integer>				countMap  = new HashMap<String, Integer>();
 	
 	// These can just be server side, because they only change when the institutions change (i.e. its externally defined data)
-	protected HashMap<String, InstitutionGroupInstance>	groups	= new HashMap<String, InstitutionGroupInstance>();
-	protected HashMap<String, InstitutionTypeInstance>	types	= new HashMap<String, InstitutionTypeInstance>();
+	protected HashMap<String, InstitutionGroupInstance>	groups		= new HashMap<String, InstitutionGroupInstance>();
+	protected HashMap<String, InstitutionTypeInstance>	types		= new HashMap<String, InstitutionTypeInstance>();
+	protected HashMap<String, InstitutionPubPrivInstance>	pubPrivs= new HashMap<String, InstitutionPubPrivInstance>();
 	
 	
 	private InstitutionCache() {
@@ -281,10 +294,10 @@ public class InstitutionCache implements Runnable {
 			loadCodes();
 
 			System.out.println(new Date());
-			System.out.println("Loading institutions...");
+			System.out.println("Loading institutions (statuses " + config.loadStatusList + ")...");
 			Connection conn   = HibernateUtil.getConnection();
 			Statement sqlStmt = conn.createStatement();
-			ResultSet results = sqlStmt.executeQuery(INSTITUTION_SQL);
+			ResultSet results = sqlStmt.executeQuery(getSqlStatement());
 			
 			int count = 0;
 			System.out.println(new Date());
@@ -370,9 +383,36 @@ public class InstitutionCache implements Runnable {
 		dumpWordStats();
 	}
 	
+	private String getSqlStatement() {
+		StringBuffer sb = new StringBuffer(INSTITUTION_SQL);
+		if (config.loadStatusList != null && config.loadStatusList.length() > 0) {
+			for (int i = 0; i < config.loadStatusList.length(); i++) {
+				char status = config.loadStatusList.charAt(i);
+				if (i == 0) {
+					if (status == '~') {
+						sb.append(" WHERE `status` not in (");
+					} else {
+						sb.append(" WHERE `status` in (");
+					}
+				}
+				if (status != '~' && status != '=') {
+					if (i > 1 || (i > 0 && config.loadStatusList.charAt(0) != '~' && config.loadStatusList.charAt(0) != '='))
+						sb.append(",");
+					sb.append("'");
+					sb.append(status);
+					sb.append("'");
+				}
+			}
+			sb.append(")");
+		}
+		
+		return sb.toString();
+	}
+	
 	private void loadCodes() {
 		types.clear();
 		groups.clear();
+		pubPrivs.clear();
 		
 		List<InstitutionType> typeList = DbInstitutionType.findAll();
 		for (InstitutionType type : typeList)
@@ -381,6 +421,10 @@ public class InstitutionCache implements Runnable {
 		List<InstitutionGroup> groupList = DbInstitutionGroup.findAll();
 		for (InstitutionGroup group : groupList)
 			groups.put(group.getGroupCode(), DbInstitutionGroup.getInstance(group));
+		
+		List<InstitutionPubPriv> pubPrivList = DbInstitutionPubPriv.findAll();
+		for (InstitutionPubPriv pubPriv : pubPrivList)
+			pubPrivs.put(pubPriv.getPubPrivCode(), DbInstitutionPubPriv.getInstance(pubPriv));
 	}
 	
 	/**
@@ -785,6 +829,14 @@ public class InstitutionCache implements Runnable {
 		this.types = types;
 	}
 	
+	public HashMap<String, InstitutionPubPrivInstance> getPubPrivs() {
+		return pubPrivs;
+	}
+
+	public void setPubPrivs(HashMap<String, InstitutionPubPrivInstance> pubPrivs) {
+		this.pubPrivs = pubPrivs;
+	}
+
 	public InstitutionTypeInstance getInstitutionType(String typeCode) {
 		if (types.containsKey(typeCode))
 			return types.get(typeCode);
@@ -809,6 +861,20 @@ public class InstitutionCache implements Runnable {
 		
 		//	Just so we don't have to keep making this every time
 		groups.put(groupCode, unknown);
+		
+		return unknown;
+	}
+	
+	public InstitutionPubPrivInstance getInstitutionPubPriv(String pubPrivCode) {
+		if (pubPrivs.containsKey(pubPrivCode))
+			return pubPrivs.get(pubPrivCode);
+		
+		InstitutionPubPrivInstance unknown = new InstitutionPubPrivInstance();
+		unknown.setPublicPrivateCode(pubPrivCode);
+		unknown.setDescription("Unknown Public Private code " + pubPrivCode);
+		
+		//	Just so we don't have to keep making this every time
+		pubPrivs.put(pubPrivCode, unknown);
 		
 		return unknown;
 	}
