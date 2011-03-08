@@ -13,6 +13,7 @@ import org.hibernate.criterion.Restrictions;
 import com.scholastic.sbam.server.database.codegen.Agreement;
 import com.scholastic.sbam.server.database.codegen.AgreementTerm;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
+import com.scholastic.sbam.shared.objects.AgreementInstance;
 import com.scholastic.sbam.shared.objects.AgreementSummaryInstance;
 import com.scholastic.sbam.shared.util.AppConstants;
 
@@ -25,6 +26,23 @@ import com.scholastic.sbam.shared.util.AppConstants;
 public class DbAgreement extends HibernateAccessor {
 	
 	static String objectName = Agreement.class.getSimpleName();
+	
+	public static AgreementInstance getInstance(Agreement dbInstance) {
+		AgreementInstance instance = new AgreementInstance();
+		
+		instance.setId(dbInstance.getId());
+		instance.setBillUcn(dbInstance.getBillUcn());
+		instance.setBillUcnSuffix(dbInstance.getBillUcnSuffix());
+		instance.setAgreementTypeCode(dbInstance.getAgreementTypeCode());
+		instance.setCommissionCode(dbInstance.getCommissionCode());
+		instance.setDeleteReasonCode(instance.getDeleteReasonCode());
+		instance.setOrgPath(dbInstance.getOrgPath());
+		instance.setNote(dbInstance.getNote());
+		instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
+		instance.setStatus(dbInstance.getStatus());
+		
+		return instance;
+	}
 	
 	public static Agreement getById(String id) {
 		return (Agreement) DbAgreement.getById(getObjectReference(objectName), id);

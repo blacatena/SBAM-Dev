@@ -5,6 +5,7 @@ import com.scholastic.sbam.client.util.IconSupplier;
 public enum AppPortletIds {
  
 	FULL_INSTITUTION_SEARCH	("Full Institution Search", 	IconSupplier.getInstitutionIconName(),		"InstitutionSearch"),
+	AGREEMENT_DISPLAY		("Agreement Display", 			IconSupplier.getAgreementIconName(),		"AgreementDisplay"),
 	UNKNOWN_PORTLET			("The Unknown Portlet", 		null,										"UnknownPortlet");
 	
 	String name;

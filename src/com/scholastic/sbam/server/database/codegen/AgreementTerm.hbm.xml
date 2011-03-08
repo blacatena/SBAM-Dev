@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Mar 7, 2011 3:54:31 PM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Mar 8, 2011 3:29:34 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.AgreementTerm" table="agreement_term" catalog="sbam">
         <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.AgreementTermId">
@@ -71,6 +71,9 @@
             <column name="primary" length="1" not-null="true">
                 <comment>Flag (y/n) to determine if a product term, within a group of terms, represents the primary (reporting) dates for that group</comment>
             </column>
+        </property>
+        <property name="note" type="string">
+            <column name="note" length="4000" not-null="true" />
         </property>
         <property name="createdDatetime" type="timestamp">
             <column name="created_datetime" length="19" not-null="true" />

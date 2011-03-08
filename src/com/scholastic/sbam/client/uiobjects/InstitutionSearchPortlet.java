@@ -8,26 +8,21 @@ import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.BeanModel;
-import com.extjs.gxt.ui.client.data.BeanModelFactory;
-import com.extjs.gxt.ui.client.data.BeanModelLookup;
 import com.extjs.gxt.ui.client.data.BeanModelReader;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
@@ -49,7 +44,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.LiveToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
@@ -67,35 +61,34 @@ import com.scholastic.sbam.shared.objects.AgreementSummaryInstance;
 import com.scholastic.sbam.shared.objects.FilterWordInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
 
-public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
+public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummaryInstance> implements AppSleeper {
 	
 	protected static final int FILTER_LISTEN_PERIOD = 250;
 	
 	protected final InstitutionSearchServiceAsync institutionSearchService = GWT.create(InstitutionSearchService.class);
 	protected final InstitutionWordServiceAsync   institutionWordService   = GWT.create(InstitutionWordService.class);
 	
-	protected CardLayout   cards;
-	protected ContentPanel searchPanel;
-//	protected CardPanel	 searchCard;
-	protected FormPanel	 displayCard;
-	protected Grid<ModelData> grid;
-	protected LiveGridView liveView;
+	protected CardLayout			cards;
+	protected ContentPanel			searchPanel;
+	protected FormPanel				displayCard;
+	protected Grid<ModelData>		grid;
+	protected LiveGridView			liveView;
 	
-	protected ListStore<ModelData> store;
-	protected ComboBox<ModelData> combo;
-	protected Timer filterListenTimer;
-	protected String filter = "";
+	protected ListStore<ModelData>	store;
+	protected ComboBox<ModelData>	combo;
+	protected Timer					filterListenTimer;
+	protected String				filter = "";
 	
 	protected PagingLoader<PagingLoadResult<InstitutionInstance>> institutionLoader;
 
-	protected LabelField ucn;
-	protected LabelField address;
-	protected LabelField type;
-//	protected LabelField group;
-	protected LabelField altIds;
-//	protected ListField<ModelData> agreements;
-	protected ListStore<ModelData> agreementsStore;
-	protected Grid<ModelData> agreementsGrid;
+	protected LabelField			ucn;
+	protected LabelField			address;
+	protected LabelField			type;
+	protected LabelField			altIds;
+	protected ListStore<ModelData>	agreementsStore;
+	protected Grid<ModelData>		agreementsGrid;
+	
+	
 	
 	public InstitutionSearchPortlet() {
 		super(AppPortletIds.FULL_INSTITUTION_SEARCH.getHelpTextId());
@@ -105,7 +98,6 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 	protected void onRender(Element parent, int index) {
 		super.onRender(parent, index);
 		
-//		setTitle("Full Institution Search");
 		setHeading("Full Institution Search");
 		setToolTip(UiConstants.getQuickTip("Use the Full Institution Search to find any institution available in the customer database, regardless of activity."));
 		
@@ -176,14 +168,14 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 		
 		addAgreementsGrid(formData);
 		
-		Button returnButton = new Button("Return");
-		returnButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
-				@Override  
-					public void componentSelected(ButtonEvent ce) {
-						cards.setActiveItem(searchPanel);
-					}  
-			});
-		displayCard.addButton(returnButton);
+//		Button returnButton = new Button("Return");
+//		returnButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+//				@Override  
+//					public void componentSelected(ButtonEvent ce) {
+//						cards.setActiveItem(searchPanel);
+//					}  
+//			});
+//		displayCard.addButton(returnButton);
 	}
 	
 
@@ -207,9 +199,7 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 		agreementsStore = new ListStore<ModelData>();
 		
 		agreementsGrid = new Grid<ModelData>(agreementsStore, cm);  
-		agreementsGrid.setBorders(true);  
-//		agreementsGrid.setAutoExpandColumn("firstStartDate");  
-//		agreementsGrid.setLoadMask(true);
+		agreementsGrid.setBorders(true);
 		agreementsGrid.setHeight(200);
 		agreementsGrid.setStripeRows(true);
 		agreementsGrid.setColumnLines(true);
@@ -226,10 +216,8 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 						} 
 					}  
 			});
-		agreementsGrid.addStyleName("padLeft");
 	
 		FieldSet fieldSet = new FieldSet();
-		fieldSet.addStyleName("padLeft");
 		fieldSet.setBorders(true);
 		fieldSet.setHeading("Existing Agreements");// 		displayCard.add(new LabelField("<br/><i>Existing Agreements</i>"));
 		fieldSet.setCollapsible(true);
@@ -238,32 +226,6 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 		
 		displayCard.add(new LabelField(""));	// Used as a spacer
 		displayCard.add(fieldSet, new FormData("95%")); // new FormData(cm.getTotalWidth() + 20, 200));
-	}
-	
-	protected String plusIfNotEmpty(String value, String prefix) {
-		if (value == null || value.length() == 0)
-			return "";
-		return prefix + value;
-	}
-	
-	protected String brIfNotEmpty(String value) {
-		return plusIfNotEmpty(value, "<br/>");
-	}
-	
-	protected String commaIfNotEmpty(String value) {
-		return plusIfNotEmpty(value, ", ");
-	}
-	
-	protected String spaceIfNotEmpty(String value) {
-		return plusIfNotEmpty(value, "&nbsp;&nbsp;&nbsp;");
-	}
-	
-	protected String brIfNotUsa(String value) {
-		if (value == null || value.length() == 0)
-			return "";
-		if (value.equalsIgnoreCase("USA"))
-			return "";
-		return "<br/>" + value;
 	}
 	
 	protected void showInstitution(BeanModel model) {
@@ -291,10 +253,9 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 		cards.setActiveItem(displayCard);
 	}
 
-	
-	private BeanModel getModel(AgreementSummaryInstance instance) {
-		BeanModelFactory factory = BeanModelLookup.get().getFactory(instance.getClass());
-		BeanModel model = factory.createModel(instance);
+	@Override
+	protected BeanModel getModel(AgreementSummaryInstance instance) {
+		BeanModel model = super.getModel(instance);
 		String display = "<b>" + instance.getId() + "</b> : " + instance.getLastStartDate() + " &ndash; " + instance.getEndDate();
 		if (!instance.getFirstStartDate().equals(instance.getLastStartDate()))
 			display += " (since " + instance.getFirstStartDate() + ")";
@@ -464,81 +425,6 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 		  
 	}
 	
-	protected ColumnConfig getDisplayColumn(String column, String heading, int size) {
-		return getGridColumn(column, heading, size, false, true, null, null);
-	}
-	
-	protected ColumnConfig getDisplayColumn(String column, String heading, int size, String toolTip) {
-		return getGridColumn(column, heading, size, false, true, null, null, toolTip);
-	}
-	
-	protected ColumnConfig getDisplayColumn(String column, String heading, int size, boolean sortable) {
-		return getGridColumn(column, heading, size, false, sortable, null, null);
-	}
-	
-	protected ColumnConfig getDisplayColumn(String column, String heading, int size, boolean sortable, DateTimeFormat dateFormat) {
-		return getGridColumn(column, heading, size, false, sortable, dateFormat, null);
-	}
-	
-	protected ColumnConfig getDisplayColumn(String column, String heading, int size, boolean sortable, NumberFormat numberFormat) {
-		return getGridColumn(column, heading, size, false, sortable, null, numberFormat);
-	}
-	
-	protected ColumnConfig getDisplayColumn(String column, String heading, int size, boolean sortable, DateTimeFormat dateFormat, String toolTip) {
-		return getGridColumn(column, heading, size, false, sortable, dateFormat, null, toolTip);
-	}
-	
-	protected ColumnConfig getDisplayColumn(String column, String heading, int size, boolean sortable, NumberFormat numberFormat, String toolTip) {
-		return getGridColumn(column, heading, size, false, sortable, null, numberFormat, toolTip);
-	}
-	
-	protected ColumnConfig getHiddenColumn(String column, String heading, int size) {
-		return getGridColumn(column, heading, size, true, true, null, null);
-	}
-	
-	protected ColumnConfig getHiddenColumn(String column, String heading, int size, boolean sortable) {
-		return getGridColumn(column, heading, size, true, sortable, null, null);
-	}
-	
-	protected ColumnConfig getHiddenColumn(String column, String heading, int size, boolean sortable, DateTimeFormat dateFormat) {
-		return getGridColumn(column, heading, size, true, sortable, dateFormat, null);
-	}
-	
-	protected ColumnConfig getHiddenColumn(String column, String heading, int size, boolean sortable, NumberFormat numberFormat) {
-		return getGridColumn(column, heading, size, true, sortable, null, numberFormat);
-	}
-	
-	protected ColumnConfig getGridColumn(String column, String heading, int size, boolean hidden, boolean sortable, DateTimeFormat dateFormat, NumberFormat numberFormat) {
-		return getGridColumn(column, heading, size, hidden, sortable, dateFormat, numberFormat, null);
-	}
-	
-	protected ColumnConfig getGridColumn(String column, String heading, int size, boolean hidden, boolean sortable, DateTimeFormat dateFormat, NumberFormat numberFormat, String toolTip) {
-		ColumnConfig cc = new ColumnConfig(column,		heading, 		size);
-		cc.setHidden(hidden);
-		cc.setSortable(sortable);
-		if (toolTip != null)
-			cc.setToolTip(toolTip);
-		if (dateFormat != null)
-			cc.setDateTimeFormat(dateFormat);
-		if (numberFormat != null) {
-			cc.setAlignment(HorizontalAlignment.RIGHT);
-			if (numberFormat.getPattern().equals("BWZ")) {
-				// Special implementation for blank when zero
-				cc.setRenderer(new GridCellRenderer<ModelData>() {  
-				  public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,  
-				      ListStore<ModelData> store, Grid<ModelData> grid) {
-					  if (model.get(property).toString().equals("0"))
-						  return "";
-					  return model.get(property);
-				  }  
-				});
-			} else {
-				cc.setNumberFormat(numberFormat);
-			}
-		}
-		return cc;
-	}
-	
 	protected void setThis() {
 //		this.setFrame(true);  
 //		this.setCollapsible(true);  
@@ -669,24 +555,6 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 		// loader and store  
 		PagingLoader<PagingLoadResult<FilterWordInstance>> loader = new BasePagingLoader<PagingLoadResult<FilterWordInstance>>(proxy, reader);
 		return loader;
-	}
-
-	/**
-	 * Go to sleep when collapsed.
-	 */
-	@Override
-	public void onCollapse() {
-		super.onCollapse();
-		sleep();
-	}
-	
-	/**
-	 * Wake up when expanded.
-	 */
-	@Override
-	public void onExpand() {
-		super.onExpand();
-		awaken();
 	}
 	
 	/**

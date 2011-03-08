@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Mar 7, 2011 3:54:30 PM by Hibernate Tools 3.2.4.GA
+// Generated Mar 8, 2011 3:29:34 PM by Hibernate Tools 3.2.4.GA
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -29,6 +29,7 @@ public class AgreementTerm implements java.io.Serializable {
 	private String orgPath;
 	private String primaryOrgPath;
 	private char primary;
+	private String note;
 	private Date createdDatetime;
 	private char status;
 
@@ -39,8 +40,8 @@ public class AgreementTerm implements java.io.Serializable {
 			String termType, BigDecimal dollarValue, int workstations,
 			int buildings, int population, int enrollment, String poNumber,
 			int referenceSaId, String commissionCode, String orgPath,
-			String primaryOrgPath, char primary, Date createdDatetime,
-			char status) {
+			String primaryOrgPath, char primary, String note,
+			Date createdDatetime, char status) {
 		this.id = id;
 		this.productCode = productCode;
 		this.termType = termType;
@@ -55,6 +56,7 @@ public class AgreementTerm implements java.io.Serializable {
 		this.orgPath = orgPath;
 		this.primaryOrgPath = primaryOrgPath;
 		this.primary = primary;
+		this.note = note;
 		this.createdDatetime = createdDatetime;
 		this.status = status;
 	}
@@ -64,7 +66,7 @@ public class AgreementTerm implements java.io.Serializable {
 			String cancelReasonCode, Date cancelDate, BigDecimal dollarValue,
 			int workstations, int buildings, int population, int enrollment,
 			String poNumber, int referenceSaId, String commissionCode,
-			String orgPath, String primaryOrgPath, char primary,
+			String orgPath, String primaryOrgPath, char primary, String note,
 			Date createdDatetime, char status) {
 		this.id = id;
 		this.productCode = productCode;
@@ -85,6 +87,7 @@ public class AgreementTerm implements java.io.Serializable {
 		this.orgPath = orgPath;
 		this.primaryOrgPath = primaryOrgPath;
 		this.primary = primary;
+		this.note = note;
 		this.createdDatetime = createdDatetime;
 		this.status = status;
 	}
@@ -239,6 +242,14 @@ public class AgreementTerm implements java.io.Serializable {
 
 	public void setPrimary(char primary) {
 		this.primary = primary;
+	}
+
+	public String getNote() {
+		return this.note;
+	}
+
+	public void setNote(String note) {
+		this.note = note;
 	}
 
 	public Date getCreatedDatetime() {
