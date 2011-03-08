@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Mar 4, 2011 3:03:09 PM by Hibernate Tools 3.2.4.GA
+// Generated Mar 7, 2011 3:54:30 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -16,6 +16,7 @@ public class Agreement implements java.io.Serializable {
 	private String agreementTypeCode;
 	private String commissionCode;
 	private String deleteReasonCode;
+	private String orgPath;
 	private Date createdDatetime;
 	private char status;
 
@@ -24,13 +25,15 @@ public class Agreement implements java.io.Serializable {
 
 	public Agreement(int idCheckDigit, int billUcn, int billUcnSuffix,
 			String agreementTypeCode, String commissionCode,
-			String deleteReasonCode, Date createdDatetime, char status) {
+			String deleteReasonCode, String orgPath, Date createdDatetime,
+			char status) {
 		this.idCheckDigit = idCheckDigit;
 		this.billUcn = billUcn;
 		this.billUcnSuffix = billUcnSuffix;
 		this.agreementTypeCode = agreementTypeCode;
 		this.commissionCode = commissionCode;
 		this.deleteReasonCode = deleteReasonCode;
+		this.orgPath = orgPath;
 		this.createdDatetime = createdDatetime;
 		this.status = status;
 	}
@@ -89,6 +92,14 @@ public class Agreement implements java.io.Serializable {
 
 	public void setDeleteReasonCode(String deleteReasonCode) {
 		this.deleteReasonCode = deleteReasonCode;
+	}
+
+	public String getOrgPath() {
+		return this.orgPath;
+	}
+
+	public void setOrgPath(String orgPath) {
+		this.orgPath = orgPath;
 	}
 
 	public Date getCreatedDatetime() {

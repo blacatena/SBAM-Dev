@@ -1,25 +1,40 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Mar 4, 2011 3:03:09 PM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Mar 7, 2011 3:54:31 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.AgreementSite" table="agreement_site" catalog="sbam">
         <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.AgreementSiteId">
             <key-property name="agreementId" type="int">
                 <column name="agreement_id" />
             </key-property>
-            <key-property name="id" type="int">
-                <column name="id" />
+            <key-property name="siteUcn" type="int">
+                <column name="site_ucn" />
+            </key-property>
+            <key-property name="siteUcnSuffix" type="int">
+                <column name="site_ucn_suffix" />
             </key-property>
         </composite-id>
-        <property name="siteUcn" type="int">
-            <column name="site_ucn" not-null="true" />
-        </property>
-        <property name="siteUcnSuffix" type="int">
-            <column name="site_ucn_suffix" not-null="true" />
-        </property>
         <property name="commissionCode" type="string">
             <column name="commission_code" length="32" not-null="true" />
+        </property>
+        <property name="orgPath" type="string">
+            <column name="org_path" length="1024" not-null="true" />
+        </property>
+        <property name="note" type="string">
+            <column name="note" length="4000" not-null="true" />
+        </property>
+        <property name="activeDate" type="date">
+            <column name="active_date" length="10" />
+        </property>
+        <property name="inactiveDate" type="date">
+            <column name="inactive_date" length="10" />
+        </property>
+        <property name="createdDatetime" type="timestamp">
+            <column name="created_datetime" length="19" not-null="true" />
+        </property>
+        <property name="status" type="char">
+            <column name="status" length="1" not-null="true" />
         </property>
     </class>
 </hibernate-mapping>

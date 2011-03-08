@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Mar 4, 2011 3:03:09 PM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Mar 7, 2011 3:54:31 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.AgreementTerm" table="agreement_term" catalog="sbam">
         <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.AgreementTermId">
@@ -16,13 +16,13 @@
             <column name="product_code" length="32" not-null="true" />
         </property>
         <property name="startDate" type="date">
-            <column name="start_date" length="10" not-null="true" />
+            <column name="start_date" length="10" />
         </property>
         <property name="endDate" type="date">
-            <column name="end_date" length="10" not-null="true" />
+            <column name="end_date" length="10" />
         </property>
         <property name="terminateDate" type="date">
-            <column name="terminate_date" length="10" not-null="true" />
+            <column name="terminate_date" length="10" />
         </property>
         <property name="termType" type="string">
             <column name="term_type" length="32" not-null="true" />
@@ -34,31 +34,43 @@
             <column name="cancel_date" length="10" />
         </property>
         <property name="dollarValue" type="big_decimal">
-            <column name="dollar_value" precision="12" />
+            <column name="dollar_value" precision="12" not-null="true" />
         </property>
-        <property name="workstations" type="java.lang.Integer">
-            <column name="workstations" />
+        <property name="workstations" type="int">
+            <column name="workstations" not-null="true" />
         </property>
-        <property name="buildings" type="java.lang.Integer">
-            <column name="buildings" />
+        <property name="buildings" type="int">
+            <column name="buildings" not-null="true" />
         </property>
-        <property name="population" type="java.lang.Integer">
-            <column name="population" />
+        <property name="population" type="int">
+            <column name="population" not-null="true" />
         </property>
-        <property name="enrollment" type="java.lang.Integer">
-            <column name="enrollment" />
+        <property name="enrollment" type="int">
+            <column name="enrollment" not-null="true" />
         </property>
         <property name="poNumber" type="string">
-            <column name="po_number" />
+            <column name="po_number" not-null="true" />
         </property>
-        <property name="contractGroup" type="java.lang.Integer">
-            <column name="contract_group" />
-        </property>
-        <property name="referenceSaId" type="java.lang.Integer">
-            <column name="reference_sa_id" />
+        <property name="referenceSaId" type="int">
+            <column name="reference_sa_id" not-null="true" />
         </property>
         <property name="commissionCode" type="string">
             <column name="commission_code" length="32" not-null="true" />
+        </property>
+        <property name="orgPath" type="string">
+            <column name="org_path" length="1024" not-null="true">
+                <comment>A folder hierarchy used for data organization/presentation within an agreement</comment>
+            </column>
+        </property>
+        <property name="primaryOrgPath" type="string">
+            <column name="primary_org_path" length="1024" not-null="true">
+                <comment>The subset of the org path to be used for primary reporting purposes (i.e. group all terms together to determine main start/end dates)</comment>
+            </column>
+        </property>
+        <property name="primary" type="char">
+            <column name="primary" length="1" not-null="true">
+                <comment>Flag (y/n) to determine if a product term, within a group of terms, represents the primary (reporting) dates for that group</comment>
+            </column>
         </property>
         <property name="createdDatetime" type="timestamp">
             <column name="created_datetime" length="19" not-null="true" />

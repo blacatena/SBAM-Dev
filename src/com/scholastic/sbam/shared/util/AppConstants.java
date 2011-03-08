@@ -1,18 +1,14 @@
 package com.scholastic.sbam.shared.util;
 
-import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
-
 public class AppConstants {
 	public static final String VERSION = "0.0.4dev";
 	public static final String VERSION_DESCRIPTION = "In Development.";
-	
-	public static final DateTimeFormat APP_DATE_TIME_FORMAT = DateTimeFormat.getFormat(PredefinedFormat.DATE_MEDIUM);	//	DateTimeFormat.getFormat("MM/dd/yy");
 	
 	public static final char STATUS_ACTIVE		= 'A';
 	public static final char STATUS_INACTIVE	= 'I';
 	public static final char STATUS_DELETED		= 'X';
 	public static final char STATUS_EXPIRED		= 'E';
+	public static final char STATUS_ANY_NONE	= (char) 0;
 	
 	public static final char PATH_DELIMITER		= '/';
 	public static final char PATH_ESCAPE		= '\\';
@@ -38,6 +34,8 @@ public class AppConstants {
 	public static final char	STRICT_BOOLEAN_SEARCH_FLAG		= '!';
 	public static final char	LOOSE_BOOLEAN_SEARCH_FLAG		= '?';
 	public static final char	QUERY_EXPANSION_SEARCH_FLAG		= '~';
+	
+	public static final int[][] CC_SUM_TABLE = {{0,1,2,3,4,5,6,7,8,9},{0,2,4,6,8,1,3,5,7,9}};
 	
     
     public static boolean isLetter(char chr) {
@@ -98,5 +96,35 @@ public class AppConstants {
 	
 	public static String getNumberWordLower(int number) {
 		return getNumberWord(number).toLowerCase();
+	}
+	
+	public static boolean isValidCheckDigit(int num) {
+		return isValidCheckDigit(num + "");
+	}
+	
+	public static boolean isValidCheckDigit(String num) {
+	    int sum = 0, flip = 0;
+	 
+	    for (int i = num.length() - 1; i >= 0; i--)
+	    	sum += CC_SUM_TABLE[flip++ & 0x1][Character.digit(num.charAt(i), 10)];
+	    return sum % 10 == 0;
+	}
+	
+	public static int appendCheckDigit(int num) {
+		return (num * 10) + getCheckDigit(num);
+	}
+	
+	public static int getCheckDigit(int num) {
+		return getCheckDigit(num + "");
+	}
+	
+	public static int getCheckDigit(String num) {
+	    int sum = 0, flip = 1;
+	 
+	    for (int i = num.length() - 1; i >= 0; i--)
+	    	sum += CC_SUM_TABLE[flip++ & 0x1][Character.digit(num.charAt(i), 10)];
+	    if (sum % 10 == 0)
+	    	return 0;
+	    return (10 - (sum % 10));
 	}
 }

@@ -8,11 +8,13 @@ import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.scholastic.sbam.client.services.InstitutionSearchService;
 import com.scholastic.sbam.server.database.codegen.Institution;
+import com.scholastic.sbam.server.database.objects.DbAgreement;
 import com.scholastic.sbam.server.database.objects.DbInstitution;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.server.fastSearch.InstitutionCache;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
+import com.scholastic.sbam.shared.util.AppConstants;
 
 /**
  * The server side implementation of the RPC service.
@@ -62,6 +64,8 @@ public class InstitutionSearchServiceImpl extends AuthenticatedServiceServlet im
 							instance.setGroupDescription(InstitutionCache.getSingleton().getInstitutionGroup(instance.getGroupCode()).getDescription());
 							instance.setPublicPrivateDescription(InstitutionCache.getSingleton().getInstitutionPubPriv(instance.getPublicPrivateCode()).getDescription());
 							list.add(instance);
+							
+							instance.setAgreementSummaryList(DbAgreement.findAgreementSummaries(instance.getUcn(), false, (char) 0, AppConstants.STATUS_DELETED));
 						}
 						i++;
 					}

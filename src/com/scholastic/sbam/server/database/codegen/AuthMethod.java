@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Mar 4, 2011 3:03:09 PM by Hibernate Tools 3.2.4.GA
+// Generated Mar 7, 2011 3:54:30 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -10,7 +10,6 @@ import java.util.Date;
 public class AuthMethod implements java.io.Serializable {
 
 	private AuthMethodId id;
-	private Integer ipTo;
 	private String password;
 	private Integer proxyId;
 	private Character userType;
@@ -30,8 +29,7 @@ public class AuthMethod implements java.io.Serializable {
 
 	public AuthMethod(AuthMethodId id, char remote, char approved,
 			char validated, char activated, String note, Date createdDatetime,
-			Date updatedDatetime, Date activatedDatetime,
-			Date deactivatedDatetime, Date reactivatedDatetime) {
+			Date updatedDatetime) {
 		this.id = id;
 		this.remote = remote;
 		this.approved = approved;
@@ -40,18 +38,14 @@ public class AuthMethod implements java.io.Serializable {
 		this.note = note;
 		this.createdDatetime = createdDatetime;
 		this.updatedDatetime = updatedDatetime;
-		this.activatedDatetime = activatedDatetime;
-		this.deactivatedDatetime = deactivatedDatetime;
-		this.reactivatedDatetime = reactivatedDatetime;
 	}
 
-	public AuthMethod(AuthMethodId id, Integer ipTo, String password,
-			Integer proxyId, Character userType, char remote, char approved,
-			char validated, char activated, String note, Date createdDatetime,
+	public AuthMethod(AuthMethodId id, String password, Integer proxyId,
+			Character userType, char remote, char approved, char validated,
+			char activated, String note, Date createdDatetime,
 			Date updatedDatetime, Date activatedDatetime,
 			Date deactivatedDatetime, Date reactivatedDatetime) {
 		this.id = id;
-		this.ipTo = ipTo;
 		this.password = password;
 		this.proxyId = proxyId;
 		this.userType = userType;
@@ -73,14 +67,6 @@ public class AuthMethod implements java.io.Serializable {
 
 	public void setId(AuthMethodId id) {
 		this.id = id;
-	}
-
-	public Integer getIpTo() {
-		return this.ipTo;
-	}
-
-	public void setIpTo(Integer ipTo) {
-		this.ipTo = ipTo;
 	}
 
 	public String getPassword() {

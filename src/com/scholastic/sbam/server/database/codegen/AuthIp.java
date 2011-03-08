@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Mar 4, 2011 3:03:09 PM by Hibernate Tools 3.2.4.GA
+// Generated Mar 7, 2011 3:54:30 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -10,7 +10,7 @@ import java.util.Date;
 public class AuthIp implements java.io.Serializable {
 
 	private AuthIpId id;
-	private int ipTo;
+	private long ipHi;
 	private char remote;
 	private char approved;
 	private char validated;
@@ -25,12 +25,12 @@ public class AuthIp implements java.io.Serializable {
 	public AuthIp() {
 	}
 
-	public AuthIp(AuthIpId id, int ipTo, char remote, char approved,
+	public AuthIp(AuthIpId id, long ipHi, char remote, char approved,
 			char validated, char activated, String note, Date createdDatetime,
 			Date activatedDatetime, Date deactivatedDatetime,
 			Date reactivatedDatetime) {
 		this.id = id;
-		this.ipTo = ipTo;
+		this.ipHi = ipHi;
 		this.remote = remote;
 		this.approved = approved;
 		this.validated = validated;
@@ -42,12 +42,12 @@ public class AuthIp implements java.io.Serializable {
 		this.reactivatedDatetime = reactivatedDatetime;
 	}
 
-	public AuthIp(AuthIpId id, int ipTo, char remote, char approved,
+	public AuthIp(AuthIpId id, long ipHi, char remote, char approved,
 			char validated, char activated, String note, Date createdDatetime,
 			Date updatedDatetime, Date activatedDatetime,
 			Date deactivatedDatetime, Date reactivatedDatetime) {
 		this.id = id;
-		this.ipTo = ipTo;
+		this.ipHi = ipHi;
 		this.remote = remote;
 		this.approved = approved;
 		this.validated = validated;
@@ -68,12 +68,12 @@ public class AuthIp implements java.io.Serializable {
 		this.id = id;
 	}
 
-	public int getIpTo() {
-		return this.ipTo;
+	public long getIpHi() {
+		return this.ipHi;
 	}
 
-	public void setIpTo(int ipTo) {
-		this.ipTo = ipTo;
+	public void setIpHi(long ipHi) {
+		this.ipHi = ipHi;
 	}
 
 	public char getRemote() {

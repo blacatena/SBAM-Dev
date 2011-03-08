@@ -8,6 +8,8 @@ import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.BeanModel;
+import com.extjs.gxt.ui.client.data.BeanModelFactory;
+import com.extjs.gxt.ui.client.data.BeanModelLookup;
 import com.extjs.gxt.ui.client.data.BeanModelReader;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
@@ -28,6 +30,7 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
@@ -47,6 +50,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -57,10 +61,11 @@ import com.scholastic.sbam.client.services.InstitutionWordServiceAsync;
 import com.scholastic.sbam.client.uiobjects.AppPortletIds;
 import com.scholastic.sbam.client.uiobjects.AppSleeper;
 import com.scholastic.sbam.client.util.IconSupplier;
+import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
+import com.scholastic.sbam.shared.objects.AgreementSummaryInstance;
 import com.scholastic.sbam.shared.objects.FilterWordInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
-import com.scholastic.sbam.shared.util.AppConstants;
 
 public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 	
@@ -88,6 +93,9 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 	protected LabelField type;
 //	protected LabelField group;
 	protected LabelField altIds;
+//	protected ListField<ModelData> agreements;
+	protected ListStore<ModelData> agreementsStore;
+	protected Grid<ModelData> agreementsGrid;
 	
 	public InstitutionSearchPortlet() {
 		super(AppPortletIds.FULL_INSTITUTION_SEARCH.getHelpTextId());
@@ -97,8 +105,9 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 	protected void onRender(Element parent, int index) {
 		super.onRender(parent, index);
 		
-		setTitle("Full Institution Search");
+//		setTitle("Full Institution Search");
 		setHeading("Full Institution Search");
+		setToolTip(UiConstants.getQuickTip("Use the Full Institution Search to find any institution available in the customer database, regardless of activity."));
 		
 		setLayout(new FitLayout());
 		LayoutContainer outerContainer = new LayoutContainer();
@@ -134,7 +143,7 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 		displayCard.setBodyStyleName("subtle-form");
 		displayCard.setButtonAlign(HorizontalAlignment.CENTER);
 		displayCard.setLabelAlign(LabelAlign.RIGHT);
-		displayCard.setLabelWidth(200); 
+		displayCard.setLabelWidth(100); 
 		
 		ToolButton returnTool = new ToolButton("x-tool-left") {
 				@Override
@@ -163,7 +172,9 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 		
 		type = new LabelField(); 
 		type.setFieldLabel("Type :");
-		displayCard.add(type, formData); 
+		displayCard.add(type, formData);
+		
+		addAgreementsGrid(formData);
 		
 		Button returnButton = new Button("Return");
 		returnButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
@@ -173,6 +184,60 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 					}  
 			});
 		displayCard.addButton(returnButton);
+	}
+	
+
+	
+	protected void addAgreementsGrid(FormData formData) {
+		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
+		
+		columns.add(getDisplayColumn("idCheckDigit",		"Agreement ID",				100,	true, NumberFormat.getFormat("#"),
+					"This is the ID number for the agreement."));
+		columns.add(getDisplayColumn("lastStartDate",		"Start",					80,		true, UiConstants.APP_DATE_TIME_FORMAT,
+					"This is the most recent service start date for a product term under this agreement."));
+		columns.add(getDisplayColumn("endDate",				"End",						80,		true, UiConstants.APP_DATE_TIME_FORMAT,
+					"This is the latest service end date for a product term under this agreement."));
+		columns.add(getDisplayColumn("firstStartDate",		"Original Start",			80,		true, UiConstants.APP_DATE_TIME_FORMAT,
+					"This is the earliest service start date for a product term under this agreement."));
+		columns.add(getDisplayColumn("billUcn",				"Bill UCN",					100,	true, NumberFormat.getFormat("#"),
+					"This is the UCN which is being billed for this agreement."));
+		
+		ColumnModel cm = new ColumnModel(columns);  
+
+		agreementsStore = new ListStore<ModelData>();
+		
+		agreementsGrid = new Grid<ModelData>(agreementsStore, cm);  
+		agreementsGrid.setBorders(true);  
+//		agreementsGrid.setAutoExpandColumn("firstStartDate");  
+//		agreementsGrid.setLoadMask(true);
+		agreementsGrid.setHeight(200);
+		agreementsGrid.setStripeRows(true);
+		agreementsGrid.setColumnLines(true);
+		agreementsGrid.setHideHeaders(false);
+		agreementsGrid.setWidth(cm.getTotalWidth() + 5);
+		
+		//	Switch to the display card when a row is selected
+		agreementsGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);  
+		agreementsGrid.getSelectionModel().addListener(Events.SelectionChange,  
+				new Listener<SelectionChangedEvent<ModelData>>() {  
+					public void handleEvent(SelectionChangedEvent<ModelData> be) {  
+						if (be.getSelection().size() > 0) {
+							System.out.println("Agreement " + ((BeanModel) be.getSelectedItem()).get("idCheckDigit"));
+						} 
+					}  
+			});
+		agreementsGrid.addStyleName("padLeft");
+	
+		FieldSet fieldSet = new FieldSet();
+		fieldSet.addStyleName("padLeft");
+		fieldSet.setBorders(true);
+		fieldSet.setHeading("Existing Agreements");// 		displayCard.add(new LabelField("<br/><i>Existing Agreements</i>"));
+		fieldSet.setCollapsible(true);
+		fieldSet.setToolTip(UiConstants.getQuickTip("These are the existing agreements for which this institution is either the buyer or a listed site.  Click an agreement to review or edit."));
+		fieldSet.add(agreementsGrid, new FormData(cm.getTotalWidth() + 10, 200));
+		
+		displayCard.add(new LabelField(""));	// Used as a spacer
+		displayCard.add(fieldSet, new FormData("95%")); // new FormData(cm.getTotalWidth() + 20, 200));
 	}
 	
 	protected String plusIfNotEmpty(String value, String prefix) {
@@ -217,9 +282,25 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 		type.setValue(instance.getPublicPrivateDescription() + " / " + instance.getGroupDescription() + " &rArr; " + instance.getTypeDescription());
 //		group.setValue(instance.getGroupDescription());
 		
+		ListStore<ModelData> store = agreementsStore;
+		store.removeAll();
+		for (AgreementSummaryInstance agreement : instance.getAgreementSummaryList().values()) {
+			store.add(getModel(agreement));
+		}
+		
 		cards.setActiveItem(displayCard);
 	}
+
 	
+	private BeanModel getModel(AgreementSummaryInstance instance) {
+		BeanModelFactory factory = BeanModelLookup.get().getFactory(instance.getClass());
+		BeanModel model = factory.createModel(instance);
+		String display = "<b>" + instance.getId() + "</b> : " + instance.getLastStartDate() + " &ndash; " + instance.getEndDate();
+		if (!instance.getFirstStartDate().equals(instance.getLastStartDate()))
+			display += " (since " + instance.getFirstStartDate() + ")";
+		model.set("display", display);
+		return model;
+	}
 	
 	protected void setFilter() {
 		
@@ -295,11 +376,8 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 			  @Override
 			  public void run() {
 				  String value = (combo.getRawValue() == null)?"":combo.getRawValue().trim();
-				  if (!value.equals(filter)) {
-					  if (!value.equals(filter.trim()))
-						  loadFiltered(combo.getRawValue());
-					  // else do nothing, the filter hasn't changed
-				  }
+				  if (!value.equals(filter.trim()))
+					  loadFiltered(combo.getRawValue());
 			  }
 			};
 
@@ -319,7 +397,7 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();  
 		   
 		columns.add(getHiddenColumn("ucn",		"UCN", 		80));  
-		ColumnConfig name = new ColumnConfig("institutionName", "Name", 250);  
+		ColumnConfig name = new ColumnConfig("institutionName", "Name", 200);  
 		name.setRenderer(new GridCellRenderer<ModelData>() {  
 
 		  public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,  
@@ -329,29 +407,40 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 		        + "</b>";  
 		  }  
 
-		});  
+		});
+		
+		//	Address columns
 		columns.add(name);  
-		columns.add(new ColumnConfig("address1",			"Street",			150));  
-		columns.add(new ColumnConfig("city",				"City",				100));  
-		columns.add(new ColumnConfig("state",				"State",			30));   
-		columns.add(new ColumnConfig("zip",					"Zip",				50));      
+		columns.add(getDisplayColumn("address1",			"Street",			150));  
+		columns.add(getDisplayColumn("city",				"City",				100));  
+		columns.add(getDisplayColumn("state",				"State",			30));   
+		columns.add(getDisplayColumn("zip",					"Zip",				50));   
+		
+		//	Hidden institution columns
+		columns.add(getHiddenColumn("country",				"Country",			50));    
 		columns.add(getHiddenColumn("typeCode",				"Type Code", 		50));
 		columns.add(getHiddenColumn("typeDescription",		"Type", 			100));    
 		columns.add(getHiddenColumn("groupCode",			"Type Group Code", 	50));  
 		columns.add(getHiddenColumn("groupDescription",		"Type Group", 		100));    
 		columns.add(getHiddenColumn("publicPrivateCode",	"Public/Private", 	50));  
 		columns.add(getHiddenColumn("publicPrivateDescription",	"Public/Private Desc", 	100)); 
-		columns.add(getHiddenColumn("createdDate",			"Created",		 	70,		AppConstants.APP_DATE_TIME_FORMAT)); 
-		columns.add(getHiddenColumn("closedDate",			"Closed",		 	70,		AppConstants.APP_DATE_TIME_FORMAT)); 
-		columns.add(getHiddenColumn("alternateIds",			"Alternate IDs", 	100)); 
+		columns.add(getHiddenColumn("createdDate",			"Created",		 	70,		true, UiConstants.APP_DATE_TIME_FORMAT)); 
+		columns.add(getHiddenColumn("closedDate",			"Closed",		 	70,		true, UiConstants.APP_DATE_TIME_FORMAT)); 
+		columns.add(getHiddenColumn("alternateIds",			"Alternate IDs", 	100,	true));
+		
+		//	Agreement Summary columns
+		columns.add(getDisplayColumn("agreements",			"Agreements",		70,		false, NumberFormat.getFormat("BWZ")));
+		columns.add(getHiddenColumn("activeAgreements",		"Active Agreements",70,		false, NumberFormat.getFormat("BWZ")));
+		columns.add(getDisplayColumn("lastServiceDate",		"Expires",			70,		false, UiConstants.APP_DATE_TIME_FORMAT));
 
 		ColumnModel cm = new ColumnModel(columns);  
 
 		grid = new Grid<ModelData>(store, cm);  
 		grid.setBorders(true);  
 		grid.setAutoExpandColumn("institutionName");  
-		grid.setLoadMask(true);  
+		grid.setLoadMask(true);
 		grid.setStripeRows(true);
+		grid.setColumnLines(true);
 		
 		//	Switch to the display card when a row is selected
 		grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);  
@@ -366,6 +455,7 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 
 		liveView = new LiveGridView();  
 		liveView.setEmptyText("Enter filter criteria to search for institutions.");
+		liveView.setCacheSize(100);
 //		liveView.setRowHeight(32);
 		grid.setView(liveView);
 //		grid.setHeight(550);
@@ -374,15 +464,78 @@ public class InstitutionSearchPortlet extends AppPortlet implements AppSleeper {
 		  
 	}
 	
-	protected ColumnConfig getHiddenColumn(String column, String heading, int size) {
-		return getHiddenColumn(column, heading, size, null);
+	protected ColumnConfig getDisplayColumn(String column, String heading, int size) {
+		return getGridColumn(column, heading, size, false, true, null, null);
 	}
 	
-	protected ColumnConfig getHiddenColumn(String column, String heading, int size, DateTimeFormat format) {
+	protected ColumnConfig getDisplayColumn(String column, String heading, int size, String toolTip) {
+		return getGridColumn(column, heading, size, false, true, null, null, toolTip);
+	}
+	
+	protected ColumnConfig getDisplayColumn(String column, String heading, int size, boolean sortable) {
+		return getGridColumn(column, heading, size, false, sortable, null, null);
+	}
+	
+	protected ColumnConfig getDisplayColumn(String column, String heading, int size, boolean sortable, DateTimeFormat dateFormat) {
+		return getGridColumn(column, heading, size, false, sortable, dateFormat, null);
+	}
+	
+	protected ColumnConfig getDisplayColumn(String column, String heading, int size, boolean sortable, NumberFormat numberFormat) {
+		return getGridColumn(column, heading, size, false, sortable, null, numberFormat);
+	}
+	
+	protected ColumnConfig getDisplayColumn(String column, String heading, int size, boolean sortable, DateTimeFormat dateFormat, String toolTip) {
+		return getGridColumn(column, heading, size, false, sortable, dateFormat, null, toolTip);
+	}
+	
+	protected ColumnConfig getDisplayColumn(String column, String heading, int size, boolean sortable, NumberFormat numberFormat, String toolTip) {
+		return getGridColumn(column, heading, size, false, sortable, null, numberFormat, toolTip);
+	}
+	
+	protected ColumnConfig getHiddenColumn(String column, String heading, int size) {
+		return getGridColumn(column, heading, size, true, true, null, null);
+	}
+	
+	protected ColumnConfig getHiddenColumn(String column, String heading, int size, boolean sortable) {
+		return getGridColumn(column, heading, size, true, sortable, null, null);
+	}
+	
+	protected ColumnConfig getHiddenColumn(String column, String heading, int size, boolean sortable, DateTimeFormat dateFormat) {
+		return getGridColumn(column, heading, size, true, sortable, dateFormat, null);
+	}
+	
+	protected ColumnConfig getHiddenColumn(String column, String heading, int size, boolean sortable, NumberFormat numberFormat) {
+		return getGridColumn(column, heading, size, true, sortable, null, numberFormat);
+	}
+	
+	protected ColumnConfig getGridColumn(String column, String heading, int size, boolean hidden, boolean sortable, DateTimeFormat dateFormat, NumberFormat numberFormat) {
+		return getGridColumn(column, heading, size, hidden, sortable, dateFormat, numberFormat, null);
+	}
+	
+	protected ColumnConfig getGridColumn(String column, String heading, int size, boolean hidden, boolean sortable, DateTimeFormat dateFormat, NumberFormat numberFormat, String toolTip) {
 		ColumnConfig cc = new ColumnConfig(column,		heading, 		size);
-		cc.setHidden(true); 
-		if (format != null)
-			cc.setDateTimeFormat(format);
+		cc.setHidden(hidden);
+		cc.setSortable(sortable);
+		if (toolTip != null)
+			cc.setToolTip(toolTip);
+		if (dateFormat != null)
+			cc.setDateTimeFormat(dateFormat);
+		if (numberFormat != null) {
+			cc.setAlignment(HorizontalAlignment.RIGHT);
+			if (numberFormat.getPattern().equals("BWZ")) {
+				// Special implementation for blank when zero
+				cc.setRenderer(new GridCellRenderer<ModelData>() {  
+				  public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,  
+				      ListStore<ModelData> store, Grid<ModelData> grid) {
+					  if (model.get(property).toString().equals("0"))
+						  return "";
+					  return model.get(property);
+				  }  
+				});
+			} else {
+				cc.setNumberFormat(numberFormat);
+			}
+		}
 		return cc;
 	}
 	

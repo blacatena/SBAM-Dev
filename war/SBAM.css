@@ -166,6 +166,11 @@ a.pdocImgLink {
 	background-color: #FBEBDB  !important;
 }
 
+/* Pad left */
+.padleft {
+	padding-left: 50px;
+}
+
 /* These are necessary, because the theme doesn't "take" -- change these if the theme changes */
 /* Managed now by adding the style "x-panel" wherever needed
 .x-border {

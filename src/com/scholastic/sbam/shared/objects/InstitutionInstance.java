@@ -1,6 +1,7 @@
 package com.scholastic.sbam.shared.objects;
 
 import java.util.Date;
+import java.util.SortedMap;
 
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
@@ -27,6 +28,11 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable {
 	private String	alternateIds;
 	private Date	createdDate;
 	private Date	closedDate;
+	
+	private int		agreements;
+	private int		activeAgreements;
+	private Date	lastServiceDate;
+	private SortedMap<Integer, AgreementSummaryInstance> agreementSummaryList;
 	
 	public int getUcn() {
 		return ucn;
@@ -153,6 +159,46 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable {
 	}
 	public void setClosedDate(Date closedDate) {
 		this.closedDate = closedDate;
+	}
+	
+	public int getAgreements() {
+		return agreements;
+	}
+	public void setAgreements(int agreements) {
+		this.agreements = agreements;
+	}
+	public int getActiveAgreements() {
+		return activeAgreements;
+	}
+	public void setActiveAgreements(int activeAgreements) {
+		this.activeAgreements = activeAgreements;
+	}
+	public Date getLastServiceDate() {
+		return lastServiceDate;
+	}
+	public void setLastServiceDate(Date lastServiceDate) {
+		this.lastServiceDate = lastServiceDate;
+	}
+	public SortedMap<Integer, AgreementSummaryInstance> getAgreementSummaryList() {
+		return agreementSummaryList;
+	}
+	public void setAgreementSummaryList(SortedMap<Integer, AgreementSummaryInstance> agreementSummaryList) {
+		this.agreementSummaryList = agreementSummaryList;
+		agreements = 0;
+		activeAgreements = 0;
+		lastServiceDate = null;
+		Date today = new Date();
+		if (this.agreementSummaryList != null) {
+			for (AgreementSummaryInstance instance : agreementSummaryList.values()) {
+				agreements++;
+				if (instance.getTerminateDate() != null && instance.getTerminateDate().after(today)) {
+					activeAgreements++;
+					if (lastServiceDate == null || ( instance.getEndDate() != null && instance.getEndDate().after(lastServiceDate)) )
+						lastServiceDate = (Date) instance.getEndDate().clone();
+				}
+			}
+		//	System.out.println("UCN " + ucn + " agreements " + agreements + ", active " + activeAgreements + ", last date " + lastServiceDate);
+		}
 	}
 	
 }

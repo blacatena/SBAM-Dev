@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Mar 4, 2011 3:03:09 PM by Hibernate Tools 3.2.4.GA
+// Generated Mar 7, 2011 3:54:30 PM by Hibernate Tools 3.2.4.GA
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -19,14 +19,16 @@ public class AgreementTerm implements java.io.Serializable {
 	private String cancelReasonCode;
 	private Date cancelDate;
 	private BigDecimal dollarValue;
-	private Integer workstations;
-	private Integer buildings;
-	private Integer population;
-	private Integer enrollment;
+	private int workstations;
+	private int buildings;
+	private int population;
+	private int enrollment;
 	private String poNumber;
-	private Integer contractGroup;
-	private Integer referenceSaId;
+	private int referenceSaId;
 	private String commissionCode;
+	private String orgPath;
+	private String primaryOrgPath;
+	private char primary;
 	private Date createdDatetime;
 	private char status;
 
@@ -34,15 +36,25 @@ public class AgreementTerm implements java.io.Serializable {
 	}
 
 	public AgreementTerm(AgreementTermId id, String productCode,
-			Date startDate, Date endDate, Date terminateDate, String termType,
-			String commissionCode, Date createdDatetime, char status) {
+			String termType, BigDecimal dollarValue, int workstations,
+			int buildings, int population, int enrollment, String poNumber,
+			int referenceSaId, String commissionCode, String orgPath,
+			String primaryOrgPath, char primary, Date createdDatetime,
+			char status) {
 		this.id = id;
 		this.productCode = productCode;
-		this.startDate = startDate;
-		this.endDate = endDate;
-		this.terminateDate = terminateDate;
 		this.termType = termType;
+		this.dollarValue = dollarValue;
+		this.workstations = workstations;
+		this.buildings = buildings;
+		this.population = population;
+		this.enrollment = enrollment;
+		this.poNumber = poNumber;
+		this.referenceSaId = referenceSaId;
 		this.commissionCode = commissionCode;
+		this.orgPath = orgPath;
+		this.primaryOrgPath = primaryOrgPath;
+		this.primary = primary;
 		this.createdDatetime = createdDatetime;
 		this.status = status;
 	}
@@ -50,10 +62,10 @@ public class AgreementTerm implements java.io.Serializable {
 	public AgreementTerm(AgreementTermId id, String productCode,
 			Date startDate, Date endDate, Date terminateDate, String termType,
 			String cancelReasonCode, Date cancelDate, BigDecimal dollarValue,
-			Integer workstations, Integer buildings, Integer population,
-			Integer enrollment, String poNumber, Integer contractGroup,
-			Integer referenceSaId, String commissionCode, Date createdDatetime,
-			char status) {
+			int workstations, int buildings, int population, int enrollment,
+			String poNumber, int referenceSaId, String commissionCode,
+			String orgPath, String primaryOrgPath, char primary,
+			Date createdDatetime, char status) {
 		this.id = id;
 		this.productCode = productCode;
 		this.startDate = startDate;
@@ -68,9 +80,11 @@ public class AgreementTerm implements java.io.Serializable {
 		this.population = population;
 		this.enrollment = enrollment;
 		this.poNumber = poNumber;
-		this.contractGroup = contractGroup;
 		this.referenceSaId = referenceSaId;
 		this.commissionCode = commissionCode;
+		this.orgPath = orgPath;
+		this.primaryOrgPath = primaryOrgPath;
+		this.primary = primary;
 		this.createdDatetime = createdDatetime;
 		this.status = status;
 	}
@@ -147,35 +161,35 @@ public class AgreementTerm implements java.io.Serializable {
 		this.dollarValue = dollarValue;
 	}
 
-	public Integer getWorkstations() {
+	public int getWorkstations() {
 		return this.workstations;
 	}
 
-	public void setWorkstations(Integer workstations) {
+	public void setWorkstations(int workstations) {
 		this.workstations = workstations;
 	}
 
-	public Integer getBuildings() {
+	public int getBuildings() {
 		return this.buildings;
 	}
 
-	public void setBuildings(Integer buildings) {
+	public void setBuildings(int buildings) {
 		this.buildings = buildings;
 	}
 
-	public Integer getPopulation() {
+	public int getPopulation() {
 		return this.population;
 	}
 
-	public void setPopulation(Integer population) {
+	public void setPopulation(int population) {
 		this.population = population;
 	}
 
-	public Integer getEnrollment() {
+	public int getEnrollment() {
 		return this.enrollment;
 	}
 
-	public void setEnrollment(Integer enrollment) {
+	public void setEnrollment(int enrollment) {
 		this.enrollment = enrollment;
 	}
 
@@ -187,19 +201,11 @@ public class AgreementTerm implements java.io.Serializable {
 		this.poNumber = poNumber;
 	}
 
-	public Integer getContractGroup() {
-		return this.contractGroup;
-	}
-
-	public void setContractGroup(Integer contractGroup) {
-		this.contractGroup = contractGroup;
-	}
-
-	public Integer getReferenceSaId() {
+	public int getReferenceSaId() {
 		return this.referenceSaId;
 	}
 
-	public void setReferenceSaId(Integer referenceSaId) {
+	public void setReferenceSaId(int referenceSaId) {
 		this.referenceSaId = referenceSaId;
 	}
 
@@ -209,6 +215,30 @@ public class AgreementTerm implements java.io.Serializable {
 
 	public void setCommissionCode(String commissionCode) {
 		this.commissionCode = commissionCode;
+	}
+
+	public String getOrgPath() {
+		return this.orgPath;
+	}
+
+	public void setOrgPath(String orgPath) {
+		this.orgPath = orgPath;
+	}
+
+	public String getPrimaryOrgPath() {
+		return this.primaryOrgPath;
+	}
+
+	public void setPrimaryOrgPath(String primaryOrgPath) {
+		this.primaryOrgPath = primaryOrgPath;
+	}
+
+	public char getPrimary() {
+		return this.primary;
+	}
+
+	public void setPrimary(char primary) {
+		this.primary = primary;
 	}
 
 	public Date getCreatedDatetime() {

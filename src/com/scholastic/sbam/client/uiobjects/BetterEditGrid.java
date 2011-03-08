@@ -49,9 +49,9 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.FieldValidationServiceAsync;
 import com.scholastic.sbam.client.util.IconSupplier;
+import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.client.validation.AsyncTextField;
 import com.scholastic.sbam.shared.objects.BetterRowEditInstance;
-import com.scholastic.sbam.shared.util.AppConstants;
 
 public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends LayoutContainer implements AppSleeper {
 	
@@ -501,7 +501,7 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	 * @return
 	 */
 	protected ColumnConfig getDateColumn(String name, String header, int width, String toolTip) {
-		return getDateColumn(name, header, width, toolTip, AppConstants.APP_DATE_TIME_FORMAT);
+		return getDateColumn(name, header, width, toolTip, UiConstants.APP_DATE_TIME_FORMAT);
 	}
 
 
@@ -520,7 +520,7 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	 */
 	protected ColumnConfig getDateColumn(String name, String header, int width, String toolTip, DateTimeFormat format) {
 		DateField dateField = new DateField();  
-		dateField.getPropertyEditor().setFormat(AppConstants.APP_DATE_TIME_FORMAT);
+		dateField.getPropertyEditor().setFormat(UiConstants.APP_DATE_TIME_FORMAT);
 		dateField.setReadOnly(true);
 		
 		ColumnConfig column = getColumn(name, header, width, toolTip);
@@ -619,11 +619,11 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	
 	protected ColumnConfig getEditDateColumn(String name, String header, int width, String toolTip, Validator validator) {
 		DateField dateField = new DateField();  
-		dateField.getPropertyEditor().setFormat(AppConstants.APP_DATE_TIME_FORMAT);  
+		dateField.getPropertyEditor().setFormat(UiConstants.APP_DATE_TIME_FORMAT);  
 		
 		ColumnConfig column = getColumn(name, header, width, toolTip);  
 		column.setEditor(new CellEditor(dateField));  
-		column.setDateTimeFormat(AppConstants.APP_DATE_TIME_FORMAT);
+		column.setDateTimeFormat(UiConstants.APP_DATE_TIME_FORMAT);
 		return column;
 	}
 	

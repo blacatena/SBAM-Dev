@@ -7,7 +7,10 @@ import com.extjs.gxt.ui.client.data.BeanModelFactory;
 import com.extjs.gxt.ui.client.data.BeanModelLookup;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.CommissionTypeListService;
@@ -18,6 +21,10 @@ import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
 import com.scholastic.sbam.shared.objects.TermTypeInstance;
 
 public class UiConstants {
+	
+	public static final int				QUICK_TOOL_TIP_DELAY = 3000;
+	public static final DateTimeFormat APP_DATE_TIME_FORMAT = DateTimeFormat.getFormat(PredefinedFormat.DATE_MEDIUM);	//	DateTimeFormat.getFormat("MM/dd/yy");
+	
 	public enum CommissionTypeTargets {
 		PRODUCT, SITE, AGREEMENT, AGREEMENT_TERM;
 	}
@@ -147,5 +154,15 @@ public class UiConstants {
 		}
 		
 		return list;
+	}
+
+	public static ToolTipConfig getQuickTip(String toolTip) {
+		ToolTipConfig config = new ToolTipConfig();
+		config.setText(toolTip);
+		config.setDismissDelay(QUICK_TOOL_TIP_DELAY);
+		config.setAnchor("right");
+		config.setAnchorOffset(20);
+		config.setAnchorToTarget(true);
+		return config;
 	}
 }

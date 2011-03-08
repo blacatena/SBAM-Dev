@@ -1,19 +1,19 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Mar 4, 2011 3:03:09 PM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Mar 7, 2011 3:54:31 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.UcnConversion" table="ucn_conversion" catalog="sbam">
         <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.UcnConversionId">
             <key-property name="ucn" type="int">
                 <column name="ucn" />
             </key-property>
-            <key-property name="ucnConversionSuffix" type="int">
-                <column name="ucn_conversion_suffix" />
+            <key-property name="ucnSuffix" type="int">
+                <column name="ucn_suffix" />
             </key-property>
         </composite-id>
         <property name="oldCustomerCode" type="string">
-            <column name="old_customer_code" length="16" not-null="true" />
+            <column name="old_customer_code" length="16" not-null="true" unique="true" />
         </property>
     </class>
 </hibernate-mapping>

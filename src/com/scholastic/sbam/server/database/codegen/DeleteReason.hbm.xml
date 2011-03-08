@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Mar 4, 2011 3:03:09 PM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Mar 7, 2011 3:54:31 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.DeleteReason" table="delete_reason" catalog="sbam">
         <id name="deleteReasonCode" type="string">
