@@ -57,6 +57,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>agreementGetServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.AgreementGetServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>agreementTypeListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.AgreementTypeListServiceImpl</servlet-class>
   </servlet>
@@ -139,6 +144,11 @@
   <servlet>
     <servlet-name>helpTextSearchServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.HelpTextSearchServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>institutionGetServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.InstitutionGetServiceImpl</servlet-class>
   </servlet>
   
   <servlet>
@@ -287,6 +297,11 @@
   </servlet-mapping>
   
   <servlet-mapping>
+    <servlet-name>agreementGetServlet</servlet-name>
+    <url-pattern>/sbam/getAgreement</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
     <servlet-name>agreementTypeListServlet</servlet-name>
     <url-pattern>/sbam/getAgreementTypes</url-pattern>
   </servlet-mapping>
@@ -369,6 +384,11 @@
   <servlet-mapping>
     <servlet-name>helpTextSearchServlet</servlet-name>
     <url-pattern>/sbam/searchHelpText</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>institutionGetServlet</servlet-name>
+    <url-pattern>/sbam/getInstitution</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

@@ -45,11 +45,11 @@ public class DbAgreement extends HibernateAccessor {
 	}
 	
 	public static Agreement getById(String id) {
-		return (Agreement) DbAgreement.getById(getObjectReference(objectName), id);
+		return (Agreement) DbAgreement.getById(objectName, id);
 	}
 	
 	public static Agreement getById(int id) {
-		return (Agreement) DbAgreement.getById(getObjectReference(objectName), id);
+		return (Agreement) DbAgreement.getById(objectName, id);
 	}
 	
 	public static List<Agreement> findAll() {

@@ -275,6 +275,29 @@ public class HibernateAccessor
         catch(Exception e)
         {
             System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+	public static Object getByField(String objectName, String fieldName, int fieldValue, String sortField)
+    {
+        try
+        {
+        	Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
+            crit.add(Restrictions.eq(fieldName, fieldValue));
+            if (sortField != null && sortField.length() > 0)
+            	crit.addOrder(Order.asc(sortField));
+            List<Object> objects = crit.list();
+            if (objects.size() > 0)
+            	return objects.get(0);
+            return null;
+        }
+        catch(Exception e)
+        {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }
@@ -301,6 +324,7 @@ public class HibernateAccessor
         catch(Exception e)
         {
             System.out.println(e.getMessage());
+            e.printStackTrace();
         }
         return new ArrayList<Object>();
     }

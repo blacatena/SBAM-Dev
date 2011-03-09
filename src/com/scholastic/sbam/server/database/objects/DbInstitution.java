@@ -48,11 +48,11 @@ public class DbInstitution extends HibernateAccessor {
 	}
 	
 	public static Institution getByCode(String code) {
-		return (Institution) getByField(objectName, "Ucn", code, "institutionName");
+		return (Institution) getByField(objectName, "ucn", Integer.parseInt(code), "institutionName");
 	}
 	
 	public static Institution getByCode(int code) {
-		return (Institution) getByField(objectName, "Ucn", code + "", "institutionName");
+		return (Institution) getByField(objectName, "ucn", code, "institutionName");
 	}
 	
 	public static List<Institution> findAll() {
@@ -73,7 +73,7 @@ public class DbInstitution extends HibernateAccessor {
         {
             Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
             if (ucn != null)
-            	crit.add(Restrictions.like("ucn", ucn));
+            	crit.add(Restrictions.eq("ucn", ucn));
             if (institutionName != null && institutionName.length() > 0)
             	crit.add(Restrictions.like("institutionName", institutionName));
             if (city != null && city.length() > 0)

@@ -24,6 +24,7 @@ import com.scholastic.sbam.server.database.objects.DbTermType;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.objects.AgreementInstance;
 import com.scholastic.sbam.shared.objects.AgreementTermInstance;
+import com.scholastic.sbam.shared.security.SecurityManager;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 /**
@@ -35,7 +36,7 @@ public class AgreementGetServiceImpl extends AuthenticatedServiceServlet impleme
 	@Override
 	public AgreementInstance getAgreement(int agreementId, boolean allTerms) throws IllegalArgumentException {
 		
-		authenticate("list term types");	//	SecurityManager.ROLE_CONFIG);
+		authenticate("get agreement", SecurityManager.ROLE_QUERY);
 		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();
@@ -68,32 +69,30 @@ public class AgreementGetServiceImpl extends AuthenticatedServiceServlet impleme
 
 				}
 				
-				if (!allTerms) {
-					//	Keep either the chosen org path, or the oldest end date less a year
-					if (chosenPath != null) {
-						chosenDate = null;
-					} else if (chosenDate != null) {
-						chosenDate.add(Calendar.YEAR, -1);
-					}
-					
+				//	Keep either the chosen org path, or the oldest end date less a year
+				if (chosenPath != null && chosenPath.length() > 0) {
+					chosenDate = null;	// Ignore the date, and pick anything in the same path as the latest end date
+				} else if (chosenDate != null) {
+					chosenPath = null;
+					chosenDate.add(Calendar.YEAR, -1);	//	Set the last date back one year, and choose within that
+				}
 
-					List<AgreementTermInstance> list = new ArrayList<AgreementTermInstance>();
-					for (AgreementTerm termInstance : termInstances) {
-						if (allTerms) {
-							list.add(DbAgreementTerm.getInstance(termInstance));
-						} else if (chosenPath == null && chosenDate == null) {
-							list.add(DbAgreementTerm.getInstance(termInstance));
-						} else if (chosenPath != null && chosenPath.equals(termInstance.getPrimaryOrgPath())) {
-							list.add(DbAgreementTerm.getInstance(termInstance));
-						} else if (chosenDate != null && chosenDate.before(termInstance.getEndDate())) {
-							list.add(DbAgreementTerm.getInstance(termInstance));
-						}
+				List<AgreementTermInstance> list = new ArrayList<AgreementTermInstance>();
+				for (AgreementTerm termInstance : termInstances) {
+					if (allTerms) {
+						list.add(DbAgreementTerm.getInstance(termInstance));
+					} else if (chosenPath == null && chosenDate == null) {
+						list.add(DbAgreementTerm.getInstance(termInstance));
+					} else if (chosenPath != null && chosenPath.equals(termInstance.getPrimaryOrgPath())) {
+						list.add(DbAgreementTerm.getInstance(termInstance));
+					} else if (chosenDate != null && chosenDate.getTime().before(termInstance.getEndDate())) {
+						list.add(DbAgreementTerm.getInstance(termInstance));
 					}
-					
-					agreement.setAgreementTerms(list);
-					for (AgreementTermInstance term : list) {
-						setDescriptions(term);
-					}
+				}
+				
+				agreement.setAgreementTerms(list);
+				for (AgreementTermInstance term : list) {
+					setDescriptions(term);
 				}
 			}
 

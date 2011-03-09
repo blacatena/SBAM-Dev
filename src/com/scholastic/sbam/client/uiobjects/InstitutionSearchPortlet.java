@@ -14,15 +14,18 @@ import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
@@ -61,7 +64,7 @@ import com.scholastic.sbam.shared.objects.AgreementSummaryInstance;
 import com.scholastic.sbam.shared.objects.FilterWordInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
 
-public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummaryInstance> implements AppSleeper {
+public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummaryInstance> implements AppSleeper, AppPortletRequester {
 	
 	protected static final int FILTER_LISTEN_PERIOD = 250;
 	
@@ -88,7 +91,7 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 	protected ListStore<ModelData>	agreementsStore;
 	protected Grid<ModelData>		agreementsGrid;
 	
-	
+	protected AppPortletProvider	portletProvider;
 	
 	public InstitutionSearchPortlet() {
 		super(AppPortletIds.FULL_INSTITUTION_SEARCH.getHelpTextId());
@@ -167,6 +170,7 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 		displayCard.add(type, formData);
 		
 		addAgreementsGrid(formData);
+		addButtons(formData);
 		
 //		Button returnButton = new Button("Return");
 //		returnButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
@@ -200,19 +204,23 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 		
 		agreementsGrid = new Grid<ModelData>(agreementsStore, cm);  
 		agreementsGrid.setBorders(true);
-		agreementsGrid.setHeight(200);
+		agreementsGrid.setHeight(140);
 		agreementsGrid.setStripeRows(true);
 		agreementsGrid.setColumnLines(true);
 		agreementsGrid.setHideHeaders(false);
 		agreementsGrid.setWidth(cm.getTotalWidth() + 5);
 		
-		//	Switch to the display card when a row is selected
+		//	Open a new portlet to display an agreement when a row is selected
 		agreementsGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);  
 		agreementsGrid.getSelectionModel().addListener(Events.SelectionChange,  
 				new Listener<SelectionChangedEvent<ModelData>>() {  
 					public void handleEvent(SelectionChangedEvent<ModelData> be) {  
 						if (be.getSelection().size() > 0) {
-							System.out.println("Agreement " + ((BeanModel) be.getSelectedItem()).get("idCheckDigit"));
+						//	System.out.println("Agreement " + ((BeanModel) be.getSelectedItem()).get("idCheckDigit"));
+							AgreementSummaryInstance agreement = (AgreementSummaryInstance) ((BeanModel) be.getSelectedItem()).getBean();
+							AgreementPortlet portlet = (AgreementPortlet) portletProvider.getPortlet(AppPortletIds.AGREEMENT_DISPLAY);
+							portlet.setAgreementId(agreement.getId());
+							portletProvider.addPortlet(portlet, 1);
 						} 
 					}  
 			});
@@ -226,6 +234,44 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 		
 		displayCard.add(new LabelField(""));	// Used as a spacer
 		displayCard.add(fieldSet, new FormData("95%")); // new FormData(cm.getTotalWidth() + 20, 200));
+		
+	}
+	
+	protected void addButtons(FormData formData) {
+		
+		ToolBar toolBar = new ToolBar();
+		toolBar.setAlignment(HorizontalAlignment.CENTER);
+		toolBar.setToolTip("Use these buttons to access detailed information for this institution.");
+		
+//		FieldSet buttonSet = new FieldSet();
+//		buttonSet.setBorders(true);
+//		buttonSet.setHeading(null);// 		displayCard.add(new LabelField("<br/><i>Existing Agreements</i>"));
+//		buttonSet.setCollapsible(false);
+		
+		Button newAgreementButton = new Button("New Agreement");
+		newAgreementButton.setHeight(20);
+		IconSupplier.forceIcon(newAgreementButton, IconSupplier.getNewIconName());
+		newAgreementButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+				@Override
+				public void componentSelected(ButtonEvent ce) {
+					AgreementPortlet portlet = (AgreementPortlet) portletProvider.getPortlet(AppPortletIds.AGREEMENT_DISPLAY);
+					portlet.setAgreementId(0);
+					portletProvider.addPortlet(portlet, 1);
+				}  
+			});
+		toolBar.add(newAgreementButton);
+		
+		Button contactButton = new Button("Contacts");
+		contactButton.setHeight(20);
+		IconSupplier.forceIcon(contactButton, IconSupplier.getContactsIconName());
+		contactButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+				@Override
+				public void componentSelected(ButtonEvent ce) {
+				}  
+			});
+		toolBar.add(contactButton);
+		
+		displayCard.add(toolBar);
 	}
 	
 	protected void showInstitution(BeanModel model) {
@@ -575,6 +621,11 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 		if (filterListenTimer != null) {
 			filterListenTimer.cancel();
 		}
+	}
+
+	@Override
+	public void setAppPortletProvider(AppPortletProvider portletProvider) {
+		this.portletProvider = portletProvider;
 	}
 
 }

@@ -14,6 +14,7 @@ import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.server.fastSearch.InstitutionCache;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
+import com.scholastic.sbam.shared.security.SecurityManager;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 /**
@@ -25,7 +26,7 @@ public class InstitutionSearchServiceImpl extends AuthenticatedServiceServlet im
 	@Override
 	public PagingLoadResult<InstitutionInstance> getInstitutions(PagingLoadConfig loadConfig, String filter) throws IllegalArgumentException, ServiceNotReadyException {
 		
-		authenticate("search institutions");	//	SecurityManager.ROLE_CONFIG);
+		authenticate("search institutions", SecurityManager.ROLE_QUERY);
 
 		BasePagingLoadResult<InstitutionInstance> result = null;
 		try {

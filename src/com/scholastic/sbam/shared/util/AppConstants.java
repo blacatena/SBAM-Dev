@@ -127,4 +127,13 @@ public class AppConstants {
 	    	return 0;
 	    return (10 - (sum % 10));
 	}
+	
+	public static String getStatusDescription(char status) {
+		if (status == STATUS_ACTIVE)		return "Active";
+		if (status == STATUS_INACTIVE)		return "Inactive";
+		if (status == STATUS_DELETED)		return "Deleted";
+		if (status == STATUS_EXPIRED)		return "Expired";
+		if (status == STATUS_ANY_NONE)		return "Unknown";
+		return "Bad Status " + status;
+	}
 }

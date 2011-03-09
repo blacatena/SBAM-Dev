@@ -96,7 +96,8 @@ public class DbAgreementTerm extends HibernateAccessor {
             	crit.add(Restrictions.like("status", status));
             if (neStatus != 0)
             	crit.add(Restrictions.ne("status", neStatus));
-            crit.addOrder(Order.asc("description"));
+            crit.addOrder(Order.asc("orgPath"));
+            crit.addOrder(Order.asc("endDate"));
             @SuppressWarnings("unchecked")
 			List<AgreementTerm> objects = crit.list();
             return objects;
