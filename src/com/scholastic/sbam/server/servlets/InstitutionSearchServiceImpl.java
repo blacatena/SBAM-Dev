@@ -110,7 +110,7 @@ public class InstitutionSearchServiceImpl extends AuthenticatedServiceServlet im
 			&&  dbInstance.getCountry().toUpperCase().indexOf(filter) < 0
 			&&  dbInstance.getPhone().toUpperCase().indexOf(filter) < 0
 			&&  dbInstance.getFax().toUpperCase().indexOf(filter) < 0
-			&&  dbInstance.getUcn() + "".indexOf(filter) < 0
+			&&  (dbInstance.getUcn() + "").indexOf(filter) < 0
 			&&  dbInstance.getAlternateIds().toUpperCase().indexOf(filter) < 0)
 				return false;
 		}

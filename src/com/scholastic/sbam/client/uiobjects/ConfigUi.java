@@ -55,7 +55,7 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		tbtmDeleteReasons	=	addTab("Delete Reasons",IconSupplier.getDeleteReasonIconName());
 		tbtmCancelReasons	=	addTab("Cancel Reasons",IconSupplier.getCancelReasonIconName());
 		tbtmCommissionTypes	=	addTab("Commission Types",IconSupplier.getCommissionTypeIconName());
-		tbtmAgreementTypes	=	addTab("Agreemeny Types",IconSupplier.getAgreementTypeIconName());
+		tbtmAgreementTypes	=	addTab("Agreement Types",IconSupplier.getAgreementTypeIconName());
 		
 		deleteReasonEditGrid = new DeleteReasonEditGrid();
 		tbtmDeleteReasons.add(deleteReasonEditGrid);

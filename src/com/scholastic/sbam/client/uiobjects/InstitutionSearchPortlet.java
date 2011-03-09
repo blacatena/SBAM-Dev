@@ -221,6 +221,7 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 							AgreementPortlet portlet = (AgreementPortlet) portletProvider.getPortlet(AppPortletIds.AGREEMENT_DISPLAY);
 							portlet.setAgreementId(agreement.getId());
 							portletProvider.addPortlet(portlet, 1);
+							agreementsGrid.getSelectionModel().deselectAll();
 						} 
 					}  
 			});
@@ -382,6 +383,8 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 		filterListenTimer = new Timer() {
 			  @Override
 			  public void run() {
+			//	  System.out.println("Filter: " + filter);
+			//	  System.out.println(combo.getRawValue() +  " / " + combo.getValue() + " / " + combo.getOriginalValue());
 				  String value = (combo.getRawValue() == null)?"":combo.getRawValue().trim();
 				  if (!value.equals(filter.trim()))
 					  loadFiltered(combo.getRawValue());
@@ -426,11 +429,11 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 		//	Hidden institution columns
 		columns.add(getHiddenColumn("country",				"Country",			50));    
 		columns.add(getHiddenColumn("typeCode",				"Type Code", 		50));
-		columns.add(getHiddenColumn("typeDescription",		"Type", 			100));    
+		columns.add(getHiddenColumn("typeDescription",		"Type", 			100,			false));    
 		columns.add(getHiddenColumn("groupCode",			"Type Group Code", 	50));  
-		columns.add(getHiddenColumn("groupDescription",		"Type Group", 		100));    
+		columns.add(getHiddenColumn("groupDescription",		"Type Group", 		100,			false));    
 		columns.add(getHiddenColumn("publicPrivateCode",	"Public/Private", 	50));  
-		columns.add(getHiddenColumn("publicPrivateDescription",	"Public/Private Desc", 	100)); 
+		columns.add(getHiddenColumn("publicPrivateDescription",	"Public/Private Desc", 	100,	false)); 
 		columns.add(getHiddenColumn("createdDate",			"Created",		 	70,		true, UiConstants.APP_DATE_TIME_FORMAT)); 
 		columns.add(getHiddenColumn("closedDate",			"Closed",		 	70,		true, UiConstants.APP_DATE_TIME_FORMAT)); 
 		columns.add(getHiddenColumn("alternateIds",			"Alternate IDs", 	100,	true));

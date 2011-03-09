@@ -1,7 +1,7 @@
 package com.scholastic.sbam.shared.util;
 
 public class AppConstants {
-	public static final String VERSION = "0.0.4dev";
+	public static final String VERSION = "0.0.5dev";
 	public static final String VERSION_DESCRIPTION = "In Development.";
 	
 	public static final char STATUS_ACTIVE		= 'A';

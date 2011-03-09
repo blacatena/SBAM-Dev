@@ -380,7 +380,9 @@ public class InstitutionCache implements Runnable {
 		
 		initRunning = false;
 		
-		dumpWordStats();
+//		dumpWordStats();
+//		for (String mapped : searchMap.keySet())
+//			if (mapped.indexOf(' ') >= 0) System.out.println(mapped);
 	}
 	
 	private String getSqlStatement() {
@@ -511,11 +513,12 @@ public class InstitutionCache implements Runnable {
 			HashSet<String> stringPairs = new HashSet<String>();
 			for (String first : strings) {
 				for (String second : strings) {
-					if (!first.equals(second))
+					if (!first.equals(second)) {
 						stringPairs.add(getFilterPair(first, second));
+					}
 				}
 			}
-		//	strings.addAll(stringPairs);
+			strings.addAll(stringPairs);
 		}
 		
 		//  Add them all to the search maps
@@ -569,6 +572,7 @@ public class InstitutionCache implements Runnable {
 	 * @param strings
 	 */
 	private void parseAdd(String string, HashSet<String> strings) {
+		string = string.toUpperCase();
 		StringBuffer word = new StringBuffer();
 		for (int i = 0; i < string.length(); i++) {
 			if ( (string.charAt(i) >= 'a' && string.charAt(i) <= 'z')
@@ -595,10 +599,10 @@ public class InstitutionCache implements Runnable {
 		if (word == null || word.length() == 0)
 			return;
 		String mapWord;
-		if (word.length() == 1)
+//		if (word.length() == 1)
 			mapWord = word.toString().toUpperCase();
-		else 
-			mapWord = word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase();
+//		else 
+//			mapWord = word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase();
 		for (int i = 1; i <= word.length(); i++) {
 			String string = word.substring(0, i).toUpperCase();
 			if (wordMap.containsKey(string)) {
@@ -640,6 +644,7 @@ public class InstitutionCache implements Runnable {
 	}
 	
 	public String [] parseFilter(String filter) {
+		filter = filter.toUpperCase();
 		HashSet<String> terms = new HashSet<String>();
 		if (filter != null) {
 			StringBuffer word = new StringBuffer();
@@ -714,7 +719,7 @@ public class InstitutionCache implements Runnable {
 				}
 			}
 		}
-			
+
 		return ucns;
 	}
 	

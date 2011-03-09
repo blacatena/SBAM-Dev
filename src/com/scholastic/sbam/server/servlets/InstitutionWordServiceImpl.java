@@ -20,7 +20,7 @@ public class InstitutionWordServiceImpl extends AuthenticatedServiceServlet impl
 	@Override
 	public PagingLoadResult<FilterWordInstance> getInstitutionWords(PagingLoadConfig loadConfig) throws IllegalArgumentException, ServiceNotReadyException {
 		
-		authenticate("Word institutions");	//	SecurityManager.ROLE_CONFIG);
+		authenticate("institution word list");	//	SecurityManager.ROLE_CONFIG);
 
 		BasePagingLoadResult<FilterWordInstance> result = null;
 		try {
@@ -30,18 +30,18 @@ public class InstitutionWordServiceImpl extends AuthenticatedServiceServlet impl
 
 			List<FilterWordInstance> list = new ArrayList<FilterWordInstance>();
 			
-			//	Filtering... only get the words for the first term listed, using the cache
+			//	Filtering... only get the words for the last term listed, using the cache
 			String query = loadConfig.get("query").toString();
-			String filters [] = InstitutionCache.getSingleton().parseFilter(query);
+			String search = getLastWord(query.toUpperCase());
 			int wordCount = 0;
-			if (filters.length > 0  && query.endsWith(filters [filters.length - 1])) {
-				String search = filters [filters.length - 1];
+			// The point of this test is to make sure the user has started typing a new word, i.e. isn't at something like "Space " or "Dash-"
+			if (search.length() > 0) {
 				String prefix = query.substring(0, query.length() - search.length());
 				String [] words = InstitutionCache.getSingleton().getWords(search);
 				wordCount = words.length;
 				for (int i = loadConfig.getOffset(); i < words.length; i++) {
 					FilterWordInstance word = new FilterWordInstance();
-					word.setWord(prefix + words [i]);
+					word.setWord(prefix + toTitleCase(words [i]));
 					list.add(word);
 					if (list.size() >= loadConfig.getLimit())
 						break;
@@ -60,5 +60,36 @@ public class InstitutionWordServiceImpl extends AuthenticatedServiceServlet impl
 		}
 		
 		return result;
+	}
+	
+	/**
+	 * Extract the last word from the search phrase.
+	 * @param phrase
+	 * @return
+	 */
+	protected String getLastWord(String phrase) {
+		for (int i = phrase.length() - 1; i >= 0; i--) {
+			if ( (phrase.charAt(i) >= '0' && phrase.charAt(i) <= '9')
+			||	 (phrase.charAt(i) >= 'A' && phrase.charAt(i) <= 'Z')
+			||	 (phrase.charAt(i) >= 'a' && phrase.charAt(i) <= 'z') )
+				continue;
+			else if (i < phrase.length() - 1) {
+				return phrase.substring(i + 1);
+			} else
+				return "";
+		}
+		// Never found a word break
+		return phrase;
+	}
+	
+	/**
+	 * Convert a word to title case
+	 * @param word
+	 * @return
+	 */
+	protected String toTitleCase(String word) {
+		if (word.length() <= 1)
+			return word.toUpperCase();
+		return word.substring(0,1).toUpperCase() + word.substring(1).toLowerCase();
 	}
 }
