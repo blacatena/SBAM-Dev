@@ -54,6 +54,8 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	
 	protected int					agreementId;
 	protected AgreementInstance		agreement;
+	protected InstitutionInstance	billToInstitution;
+	protected String				identificationTip;
 	
 	protected CardLayout			cards;
 	protected FormPanel				displayCard;
@@ -84,18 +86,37 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	public void setAgreementId(int agreementId) {
 		this.agreementId = agreementId;
 	}
+	
+	public String getIdentificationTip() {
+		return identificationTip;
+	}
 
+	public void setIdentificationTip(String identificationTip) {
+		this.identificationTip = identificationTip;
+	}
+
+	protected void setPortletHeading() {
+		String heading = "";
+		if (agreementId <= 0) {
+			heading = "Create New Agreement";
+		} else {
+			heading = "Agreement #" + agreementId;
+		}
+		if (billToInstitution != null) {
+			heading += " &nbsp;&nbsp;&nbsp; &mdash; <i>" + billToInstitution.getInstitutionName() + "</i>";
+		}
+		setHeading(heading);
+	}
+	
 	@Override  
 	protected void onRender(Element parent, int index) {
 		super.onRender(parent, index);
 		
 		if (agreementId == 0) {
-			setHeading("Create Agreement");
 			setToolTip(UiConstants.getQuickTip("Use this panel to create a new agreement."));
-		} else {
-			setHeading("Agreement #" + agreementId);
-//			setToolTip(UiConstants.getQuickTip(""));
 		}
+
+		setPortletHeading();
 		
 		setLayout(new FitLayout());
 		LayoutContainer outerContainer = new LayoutContainer();
@@ -227,11 +248,11 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		
 		ToolBar toolBar = new ToolBar();
 		toolBar.setAlignment(HorizontalAlignment.CENTER);
-		toolBar.setToolTip("Use these buttons to access detailed information for this agreement.");
+		toolBar.setToolTip(UiConstants.getQuickTip("Use these buttons to access detailed information for this agreement."));
 		
 		Button termsButton = new Button("Terms");
-		termsButton.setHeight(20);
-		IconSupplier.forceIcon(termsButton, IconSupplier.getProductIconName());
+		termsButton.setToolTip(UiConstants.getQuickTip("Define and edit product terms for this agreement."));
+		IconSupplier.forceIcon(termsButton, IconSupplier.getAgreementTermIconName());
 		termsButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
 				@Override
 				public void componentSelected(ButtonEvent ce) {
@@ -240,7 +261,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		toolBar.add(termsButton);
 		
 		Button sitesButton = new Button("Sites");
-		sitesButton.setHeight(20);
+		sitesButton.setToolTip(UiConstants.getQuickTip("Define and edit the list of sites for this agreement."));
 		IconSupplier.forceIcon(sitesButton, IconSupplier.getSiteIconName());
 		sitesButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
 				@Override
@@ -250,7 +271,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		toolBar.add(sitesButton);
 		
 		Button methodsButton = new Button("Access");
-		methodsButton.setHeight(20);
+		methodsButton.setToolTip(UiConstants.getQuickTip("Define and edit access methods for this agreement."));
 		IconSupplier.forceIcon(methodsButton, IconSupplier.getAccessMethodIconName());
 		methodsButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
 				@Override
@@ -258,6 +279,16 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 				}
 			});
 		toolBar.add(methodsButton);
+		
+		Button contactsButton = new Button("Contacts");
+		contactsButton.setToolTip(UiConstants.getQuickTip("View, define and edit the contacts for this agreement."));
+		IconSupplier.forceIcon(contactsButton, IconSupplier.getContactsIconName());
+		contactsButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+				@Override
+				public void componentSelected(ButtonEvent ce) {
+				}
+			});
+		toolBar.add(contactsButton);
 		
 		displayCard.add(toolBar);
 	}
@@ -275,11 +306,16 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	
 	protected void set(AgreementInstance agreement) {
 		this.agreement = agreement;
+		setPortletHeading();
 
 		if (agreement == null) {
 			MessageBox.alert("Agreement not found.", "The requested agreement was not found.", null);
 		} else {
-			agreementIdDisplay.setValue(agreement.getIdCheckDigit());
+			if (identificationTip == null)
+				agreementIdDisplay.setValue(agreement.getIdCheckDigit());
+			else
+				agreementIdDisplay.setValue(agreement.getIdCheckDigit() +  "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<i>" + identificationTip + "</i>");
+			
 			ucnDisplay.setValue(agreement.getBillUcn());
 			
 			ListStore<ModelData> store = termsStore;
@@ -304,6 +340,9 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	}
 	
 	protected void set(InstitutionInstance instance) {
+		billToInstitution = instance;
+		setPortletHeading();
+		
 		if (instance == null) {
 			MessageBox.alert("Institution Not Found", "The Institution for the agreement was not found.", null);
 			addressDisplay.setValue("");

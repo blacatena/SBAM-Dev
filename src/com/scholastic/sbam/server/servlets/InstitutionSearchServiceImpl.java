@@ -3,9 +3,7 @@ package com.scholastic.sbam.server.servlets;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.scholastic.sbam.client.services.InstitutionSearchService;
 import com.scholastic.sbam.server.database.codegen.Institution;
 import com.scholastic.sbam.server.database.objects.DbAgreement;
@@ -14,6 +12,7 @@ import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.server.fastSearch.InstitutionCache;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
+import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
 import com.scholastic.sbam.shared.security.SecurityManager;
 import com.scholastic.sbam.shared.util.AppConstants;
 
@@ -24,11 +23,12 @@ import com.scholastic.sbam.shared.util.AppConstants;
 public class InstitutionSearchServiceImpl extends AuthenticatedServiceServlet implements InstitutionSearchService {
 
 	@Override
-	public PagingLoadResult<InstitutionInstance> getInstitutions(PagingLoadConfig loadConfig, String filter) throws IllegalArgumentException, ServiceNotReadyException {
+	public SynchronizedPagingLoadResult<InstitutionInstance> getInstitutions(PagingLoadConfig loadConfig, String filter, long syncId) throws IllegalArgumentException, ServiceNotReadyException {
 		
 		authenticate("search institutions", SecurityManager.ROLE_QUERY);
 
-		BasePagingLoadResult<InstitutionInstance> result = null;
+		// This is just a BasePagingLoadResult,but it has a synchronization tag to make sure old, slow, late search results don't overwrite newer, better results
+		SynchronizedPagingLoadResult<InstitutionInstance> result = null;
 		try {
 			List<InstitutionInstance> list = new ArrayList<InstitutionInstance>();
 			
@@ -44,7 +44,7 @@ public class InstitutionSearchServiceImpl extends AuthenticatedServiceServlet im
 				int bestCount = InstitutionCache.getSingleton().getFilteredUcnCount(filters);
 				
 				//	This is an "error" result with no data, but the count of how many might have qualified
-				result = new BasePagingLoadResult<InstitutionInstance>(list, loadConfig.getOffset(), bestCount);
+				result = new SynchronizedPagingLoadResult<InstitutionInstance>(list, loadConfig.getOffset(), bestCount, syncId);
 			} else {
 				
 				HibernateUtil.openSession();
@@ -71,7 +71,7 @@ public class InstitutionSearchServiceImpl extends AuthenticatedServiceServlet im
 						i++;
 					}
 				}
-				result = new BasePagingLoadResult<InstitutionInstance>(list, loadConfig.getOffset(), totSize);
+				result = new SynchronizedPagingLoadResult<InstitutionInstance>(list, loadConfig.getOffset(), totSize, syncId);
 				
 				HibernateUtil.endTransaction();
 				HibernateUtil.closeSession();

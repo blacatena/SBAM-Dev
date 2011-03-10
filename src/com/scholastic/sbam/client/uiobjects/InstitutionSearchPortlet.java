@@ -63,6 +63,7 @@ import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.AgreementSummaryInstance;
 import com.scholastic.sbam.shared.objects.FilterWordInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
+import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
 
 public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummaryInstance> implements AppSleeper, AppPortletRequester {
 	
@@ -92,6 +93,10 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 	protected Grid<ModelData>		agreementsGrid;
 	
 	protected AppPortletProvider	portletProvider;
+	
+	private InstitutionInstance		focusInstitution;
+	
+	private long					searchSyncId = 0;
 	
 	public InstitutionSearchPortlet() {
 		super(AppPortletIds.FULL_INSTITUTION_SEARCH.getHelpTextId());
@@ -220,6 +225,12 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 							AgreementSummaryInstance agreement = (AgreementSummaryInstance) ((BeanModel) be.getSelectedItem()).getBean();
 							AgreementPortlet portlet = (AgreementPortlet) portletProvider.getPortlet(AppPortletIds.AGREEMENT_DISPLAY);
 							portlet.setAgreementId(agreement.getId());
+							if (focusInstitution != null) {
+								String foundFor = focusInstitution.getInstitutionName() != null && focusInstitution.getInstitutionName().length() > 0 ? 
+													focusInstitution.getInstitutionName() : 
+													"UCN " + focusInstitution.getUcn();
+								portlet.setIdentificationTip("Found for " + foundFor + "");
+							}
 							portletProvider.addPortlet(portlet, 1);
 							agreementsGrid.getSelectionModel().deselectAll();
 						} 
@@ -242,7 +253,7 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 		
 		ToolBar toolBar = new ToolBar();
 		toolBar.setAlignment(HorizontalAlignment.CENTER);
-		toolBar.setToolTip("Use these buttons to access detailed information for this institution.");
+		toolBar.setToolTip(UiConstants.getQuickTip("Use these buttons to access detailed information for this institution."));
 		
 //		FieldSet buttonSet = new FieldSet();
 //		buttonSet.setBorders(true);
@@ -250,7 +261,7 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 //		buttonSet.setCollapsible(false);
 		
 		Button newAgreementButton = new Button("New Agreement");
-		newAgreementButton.setHeight(20);
+		newAgreementButton.setToolTip(UiConstants.getQuickTip("Use this button to create a new agreement billed to this institution."));
 		IconSupplier.forceIcon(newAgreementButton, IconSupplier.getNewIconName());
 		newAgreementButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
 				@Override
@@ -262,38 +273,38 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 			});
 		toolBar.add(newAgreementButton);
 		
-		Button contactButton = new Button("Contacts");
-		contactButton.setHeight(20);
-		IconSupplier.forceIcon(contactButton, IconSupplier.getContactsIconName());
-		contactButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+		Button contactsButton = new Button("Contacts");
+		contactsButton.setToolTip(UiConstants.getQuickTip("Use this button to view and edit contacts associated with this institution."));
+		IconSupplier.forceIcon(contactsButton, IconSupplier.getContactsIconName());
+		contactsButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
 				@Override
 				public void componentSelected(ButtonEvent ce) {
 				}  
 			});
-		toolBar.add(contactButton);
+		toolBar.add(contactsButton);
 		
 		displayCard.add(toolBar);
 	}
 	
 	protected void showInstitution(BeanModel model) {
-		InstitutionInstance instance = model.getBean();
+		focusInstitution = model.getBean();
 
-		ucn.setValue(instance.getUcn());
-		address.setValue("<b>" + instance.getInstitutionName() + "</b><br/>" +
-				instance.getAddress1() + brIfNotEmpty(instance.getAddress2()) + brIfNotEmpty(instance.getAddress3()) + "<br/>" +
-				instance.getCity() + commaIfNotEmpty(instance.getState()) + spaceIfNotEmpty(instance.getZip()) + 
-				brIfNotUsa(instance.getCountry()));
+		ucn.setValue(focusInstitution.getUcn());
+		address.setValue("<b>" + focusInstitution.getInstitutionName() + "</b><br/>" +
+				focusInstitution.getAddress1() + brIfNotEmpty(focusInstitution.getAddress2()) + brIfNotEmpty(focusInstitution.getAddress3()) + "<br/>" +
+				focusInstitution.getCity() + commaIfNotEmpty(focusInstitution.getState()) + spaceIfNotEmpty(focusInstitution.getZip()) + 
+				brIfNotUsa(focusInstitution.getCountry()));
 		
-		if (instance.getAlternateIds() == null || instance.getAlternateIds().length() == 0)
+		if (focusInstitution.getAlternateIds() == null || focusInstitution.getAlternateIds().length() == 0)
 			altIds.setValue("None");
 		else
-			altIds.setValue(instance.getAlternateIds().replace(",", ", "));
-		type.setValue(instance.getPublicPrivateDescription() + " / " + instance.getGroupDescription() + " &rArr; " + instance.getTypeDescription());
+			altIds.setValue(focusInstitution.getAlternateIds().replace(",", ", "));
+		type.setValue(focusInstitution.getPublicPrivateDescription() + " / " + focusInstitution.getGroupDescription() + " &rArr; " + focusInstitution.getTypeDescription());
 //		group.setValue(instance.getGroupDescription());
 		
 		ListStore<ModelData> store = agreementsStore;
 		store.removeAll();
-		for (AgreementSummaryInstance agreement : instance.getAgreementSummaryList().values()) {
+		for (AgreementSummaryInstance agreement : focusInstitution.getAgreementSummaryList().values()) {
 			store.add(getModel(agreement));
 		}
 		
@@ -521,7 +532,7 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 				// Instead, here the callback is overridden so that it can catch errors and alert the users.  Then the original callback is told of the failure.
 				// On success, the original callback is just passed the onSuccess message, and the response (the list).
 				
-				AsyncCallback<PagingLoadResult<InstitutionInstance>> myCallback = new AsyncCallback<PagingLoadResult<InstitutionInstance>>() {
+				AsyncCallback<SynchronizedPagingLoadResult<InstitutionInstance>> myCallback = new AsyncCallback<SynchronizedPagingLoadResult<InstitutionInstance>>() {
 					public void onFailure(Throwable caught) {
 						// Show the RPC error message to the user
 						if (caught instanceof IllegalArgumentException)
@@ -536,7 +547,11 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 						callback.onFailure(caught);
 					}
 
-					public void onSuccess(PagingLoadResult<InstitutionInstance> result) {
+					public void onSuccess(SynchronizedPagingLoadResult<InstitutionInstance> syncResult) {
+						if(syncResult.getSyncId() != searchSyncId)
+							return;
+						
+						PagingLoadResult<InstitutionInstance> result = syncResult.getResult();
 						if ( result.getData() == null || result.getData().size() == 0 ) {
 							if (result.getTotalLength() > 0)
 								liveView.setEmptyText(result.getTotalLength() + " institutions qualify (too many to display).<br/>Please enter filter criteria to narrow your search.");
@@ -549,7 +564,8 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 					}
 				};
 
-				institutionSearchService.getInstitutions((PagingLoadConfig) loadConfig, filter, myCallback);
+				searchSyncId = System.currentTimeMillis();
+				institutionSearchService.getInstitutions((PagingLoadConfig) loadConfig, filter, searchSyncId, myCallback);
 				
 		    }  
 		};

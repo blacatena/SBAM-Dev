@@ -82,6 +82,10 @@ public class IconSupplier {
 		return "agreement.png";
 	}
 	
+	public static String getAgreementTermIconName() {
+		return "calendar.png";
+	}
+	
 	public static String getCommissionTypeIconName() {
 		return "commissions.png";
 	}
@@ -95,7 +99,7 @@ public class IconSupplier {
 	}
 	
 	public static String getContactsIconName() {
-		return "users.png";
+		return "contact.png";
 	}
 	
 	public static String getSiteIconName() {

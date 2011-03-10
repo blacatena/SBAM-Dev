@@ -23,10 +23,10 @@ import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
 import com.scholastic.sbam.shared.objects.TermTypeInstance;
 
 public class UiConstants {
-	
-	public static final int				QUICK_TOOL_TIP_DELAY	= 2000;
-	public static final DateTimeFormat	APP_DATE_TIME_FORMAT	= DateTimeFormat.getFormat(PredefinedFormat.DATE_MEDIUM);	//	DateTimeFormat.getFormat("MM/dd/yy");
-	public static final CurrencyData	US_DOLLARS				=	new DefaultCurrencyData("840", "$");;
+	public static final int				QUICK_TOOL_TIP_SHOW_DELAY		= 3000;
+	public static final int				QUICK_TOOL_TIP_DISMISS_DELAY	= 2000;
+	public static final DateTimeFormat	APP_DATE_TIME_FORMAT			= DateTimeFormat.getFormat(PredefinedFormat.DATE_MEDIUM);	//	DateTimeFormat.getFormat("MM/dd/yy");
+	public static final CurrencyData	US_DOLLARS						=	new DefaultCurrencyData("840", "$");;
 	
 	public enum CommissionTypeTargets {
 		PRODUCT, SITE, AGREEMENT, AGREEMENT_TERM;
@@ -162,7 +162,8 @@ public class UiConstants {
 	public static ToolTipConfig getQuickTip(String toolTip) {
 		ToolTipConfig config = new ToolTipConfig();
 		config.setText(toolTip);
-		config.setDismissDelay(QUICK_TOOL_TIP_DELAY);
+		config.setShowDelay(QUICK_TOOL_TIP_SHOW_DELAY);
+		config.setDismissDelay(QUICK_TOOL_TIP_DISMISS_DELAY);
 		config.setAnchor("right");
 		config.setAnchorOffset(20);
 		config.setAnchorToTarget(true);
