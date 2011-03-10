@@ -217,5 +217,21 @@ public class AgreementSummaryInstance implements BeanModelTag, IsSerializable {
 		this.id = idCheckDigit / 10;
 	}
 	
+	public boolean hasExpired() {
+		return hasExpired(new Date());
+	}
 	
+	public boolean hasExpired(Date today) {
+		if (terminateDate != null && terminateDate.before(today))
+			return true;
+		if (terminateDate == null && endDate != null && endDate.before(today))
+			return true;
+		return false;
+	}
+	
+	public Date extractExpireDate() {
+		if (terminateDate != null)
+			return terminateDate;
+		return endDate;
+	}
 }

@@ -35,7 +35,7 @@ public class InstitutionGetServiceImpl extends AuthenticatedServiceServlet imple
 				result.setTypeDescription(InstitutionCache.getSingleton().getInstitutionType(result.getTypeCode()).getDescription());
 				result.setGroupDescription(InstitutionCache.getSingleton().getInstitutionGroup(result.getGroupCode()).getDescription());
 				result.setPublicPrivateDescription(InstitutionCache.getSingleton().getInstitutionPubPriv(result.getPublicPrivateCode()).getDescription());
-//					result.setAgreementSummaryList(DbAgreement.findAgreementSummaries(instance.getUcn(), false, (char) 0, AppConstants.STATUS_DELETED));
+//				result.setAgreementSummaryList(DbAgreement.findAgreementSummaries(instance.getUcn(), false, (char) 0, AppConstants.STATUS_DELETED));
 					
 			}
 			

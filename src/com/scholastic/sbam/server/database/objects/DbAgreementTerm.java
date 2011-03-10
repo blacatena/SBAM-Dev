@@ -26,7 +26,7 @@ public class DbAgreementTerm extends HibernateAccessor {
 		AgreementTermInstance instance = new AgreementTermInstance();
 
 		instance.setAgreementId(dbInstance.getId().getAgreementId());
-		instance.setId(dbInstance.getId().getId());
+		instance.setId(dbInstance.getId().getTermId());
 		
 		instance.setProductCode(dbInstance.getProductCode());
 		instance.setStartDate(dbInstance.getStartDate());
@@ -58,10 +58,10 @@ public class DbAgreementTerm extends HibernateAccessor {
 		return instance;
 	}
 	
-	public static AgreementTerm getById(int agreementId, int id) {
+	public static AgreementTerm getById(int agreementId, int termId) {
 		AgreementTermId aid = new AgreementTermId();
 		aid.setAgreementId(agreementId);
-		aid.setId(id);
+		aid.setTermId(termId);
 		try {
 			AgreementTerm instance = (AgreementTerm) sessionFactory.getCurrentSession().get(getObjectReference(objectName), aid);
 //			if (instance == null) {

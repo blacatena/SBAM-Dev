@@ -118,20 +118,26 @@ public class AppNavTree {
 	  agreeSrch.add(new SelectionTreeNode("Notes", IconSupplier.getNoteIconName()));
 	  agreeSrch.add(new SelectionTreeNode("Contacts", IconSupplier.getContactsIconName()));
 	  
+	  Folder recentSrch = new Folder("Recent");
+	  recentSrch.add(new SelectionTreeNode("Agreements", IconSupplier.getAgreementIconName()));
+	  recentSrch.add(new SelectionTreeNode("Customers", IconSupplier.getInstitutionIconName()));
+	  
 	  searches.add(custSrch);
 	  searches.add(agreeSrch);
+	  searches.add(recentSrch);
 	  
-	  Folder agreements = new Folder("Agreements");
-	  agreements.add(new SelectionTreeNode("Create New", IconSupplier.getNewIconName()));
-	  agreements.add(new SelectionTreeNode("Agreement", IconSupplier.getAgreementIconName()));
-	  agreements.add(new SelectionTreeNode("Product Terms", IconSupplier.getProductIconName()));
-	  agreements.add(new SelectionTreeNode("Sites", IconSupplier.getSiteIconName()));
-	  agreements.add(new SelectionTreeNode("Contacts", IconSupplier.getContactsIconName()));
-	  agreements.add(new SelectionTreeNode("Methods", IconSupplier.getAccessMethodIconName()));
+//	  Folder agreements = new Folder("Agreements");
+//	  agreements.add(new SelectionTreeNode("Create New", IconSupplier.getNewIconName()));
+//	  agreements.add(new SelectionTreeNode("Agreement", IconSupplier.getAgreementIconName()));
+//	  agreements.add(new SelectionTreeNode("Product Terms", IconSupplier.getProductIconName()));
+//	  agreements.add(new SelectionTreeNode("Sites", IconSupplier.getSiteIconName()));
+//	  agreements.add(new SelectionTreeNode("Contacts", IconSupplier.getContactsIconName()));
+//	  agreements.add(new SelectionTreeNode("Methods", IconSupplier.getAccessMethodIconName()));
 
 	  Folder root = new Folder("root");
+	  root.add(new SelectionTreeNode("New Agreement", IconSupplier.getNewIconName(), AppPortletIds.AGREEMENT_DISPLAY));
 	  root.add(searches);
-	  root.add(agreements);
+//	  root.add(agreements);
 
 	  return root;
 	}

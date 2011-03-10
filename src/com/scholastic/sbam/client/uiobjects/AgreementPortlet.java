@@ -22,6 +22,8 @@ import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
+import com.extjs.gxt.ui.client.widget.form.NumberField;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -67,7 +69,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected PagingLoader<PagingLoadResult<InstitutionInstance>> institutionLoader;
 
 	protected LabelField			agreementIdDisplay;
-	protected LabelField			ucnDisplay;
+	protected NumberField			ucnDisplay;
 	protected LabelField			addressDisplay;
 	protected LabelField			typeDisplay;
 	protected LabelField			statusDisplay;
@@ -165,7 +167,15 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		agreementIdDisplay.setFieldLabel("Agreement # :");
 		displayCard.add(agreementIdDisplay, formData);
 
-		ucnDisplay = new LabelField();  
+		ucnDisplay = new NumberField();
+		ucnDisplay.setReadOnly(true);
+		ucnDisplay.setFormat(NumberFormat.getFormat("#"));
+		ucnDisplay.setAllowDecimals(false);
+		ucnDisplay.setAllowNegative(false);
+		ucnDisplay.setEnabled(false);
+//		ucnDisplay.setMessageTarget(messageTarget)
+//		ucnDisplay.setMessages(messages);
+//		ucnDisplay.setImages(images);
 		ucnDisplay.setFieldLabel("Bill Institution :");
 		displayCard.add(ucnDisplay, formData);
 		

@@ -191,11 +191,11 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable {
 		if (this.agreementSummaryList != null) {
 			for (AgreementSummaryInstance instance : agreementSummaryList.values()) {
 				agreements++;
-				if (instance.getTerminateDate() != null && instance.getTerminateDate().after(today)) {
+				if (instance.hasExpired(today)) {
 					activeAgreements++;
-					if (lastServiceDate == null || ( instance.getEndDate() != null && instance.getEndDate().after(lastServiceDate)) )
-						lastServiceDate = (Date) instance.getEndDate().clone();
 				}
+				if (lastServiceDate == null || ( instance.getEndDate() != null && instance.getEndDate().after(lastServiceDate)) )
+					lastServiceDate = (Date) instance.getEndDate().clone();
 			}
 		//	System.out.println("UCN " + ucn + " agreements " + agreements + ", active " + activeAgreements + ", last date " + lastServiceDate);
 		}

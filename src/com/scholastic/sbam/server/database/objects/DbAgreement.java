@@ -63,7 +63,7 @@ public class DbAgreement extends HibernateAccessor {
 	public static List<Agreement> findByUcn(int ucn) {
         try
         {
-            Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
+            Criteria crit = sessionFactory.getCurrentSession().createCriteria(Agreement.class);
             if (ucn > 0)
             	crit.add(Restrictions.like("ucn", ucn));
             crit.addOrder(Order.asc("ucn"));
@@ -107,15 +107,23 @@ public class DbAgreement extends HibernateAccessor {
 	}
 	
 	public static SortedMap<Integer, AgreementSummaryInstance> findSiteAgreementSummaries(int ucn, List<Integer> ucns, boolean primary, char status, char neStatus) throws Exception {
+		/*
+		 * IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT 
+		 * 
+		 * Because of the way Hibernate works, it is critical that the SQL below be constructed with {} around the column names, 
+		 * and then the appropriate entity references be explicitly add where this query is used.  Without this, Hibernate gets confused about the
+		 * column names so when the same name appears in both tables (such as STATUS and CREATED_DATETIME) then both table entities
+		 * will get the values of the first occurrence of the column name (i.e. the value from the first table).
+		 */
 		String sqlQuery = getSiteSummarySql(ucn, null, primary, status, neStatus);
             
-        SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery);           
-        query.addEntity(getObjectReference(objectName));
-        query.addEntity(getObjectReference(AgreementTerm.class.getSimpleName()));
+        SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery);            
+        query.addEntity("agreement", Agreement.class);
+        query.addEntity("agreement_term", AgreementTerm.class);
         
         @SuppressWarnings("unchecked")
 		List<Object []> objects = query.list();
-        
+
 		return getAgreementSummaryList(objects, primary, true);
 	}
 	
@@ -130,21 +138,38 @@ public class DbAgreement extends HibernateAccessor {
 	}
 	
 	public static SortedMap<Integer, AgreementSummaryInstance> findBillAgreementSummaries(int ucn, List<Integer> ucns, boolean primary, char status, char neStatus) throws Exception {
+		/*
+		 * IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT 
+		 * 
+		 * Because of the way Hibernate works, it is critical that the SQL below be constructed with {} around the column names, 
+		 * and then the appropriate entity references be explicitly add where this query is used.  Without this, Hibernate gets confused about the
+		 * column names so when the same name appears in both tables (such as STATUS and CREATED_DATETIME) then both table entities
+		 * will get the values of the first occurrence of the column name (i.e. the value from the first table).
+		 */
     	String sqlQuery = getBillSummarySql(ucn, null, primary, status, neStatus);
         
-        SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery);           
-        query.addEntity(getObjectReference(objectName));
-        query.addEntity(getObjectReference(AgreementTerm.class.getSimpleName()));
-        
+        SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery);            
+        query.addEntity("agreement", Agreement.class);
+        query.addEntity("agreement_term", AgreementTerm.class);
+             
         @SuppressWarnings("unchecked")
 		List<Object []> objects = query.list();
-        
+
 		return getAgreementSummaryList(objects, primary, false);
 	}
 	
 	
 	protected static String getBillSummarySql(int ucn, List<Integer> ucns, boolean primary, char status, char neStatus) throws Exception {
-		String sqlQuery = "SELECT agreement.*, agreement_term.* FROM agreement, agreement_term WHERE ";
+		/*
+		 * IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT 
+		 * 
+		 * Because of the way Hibernate works, it is critical that the SQL below be constructed with {} around the column names, 
+		 * and then the appropriate entity references be explicitly add where this query is used.  Without this, Hibernate gets confused about the
+		 * column names so when the same name appears in both tables (such as STATUS and CREATED_DATETIME) then both table entities
+		 * will get the values of the first occurrence of the column name (i.e. the value from the first table).
+		 */
+		
+		String sqlQuery = "SELECT {agreement.*}, {agreement_term.*} FROM agreement, agreement_term WHERE ";
 		if (ucn > 0)
 			sqlQuery += " agreement.bill_ucn = " + ucn;
 		else if (ucns != null && ucns.size() > 0) {
@@ -175,7 +200,16 @@ public class DbAgreement extends HibernateAccessor {
 	}
 	
 	protected static String getSiteSummarySql(int ucn, List<Integer> ucns, boolean primary, char status, char neStatus) throws Exception {
-		String sqlQuery = "SELECT agreement.*, agreement_term.* FROM agreement, agreement_term, agreement_site WHERE ";
+		/*
+		 * IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT 
+		 * 
+		 * Because of the way Hibernate works, it is critical that the SQL below be constructed with {} around the column names, 
+		 * and then the appropriate entity references be explicitly add where this query is used.  Without this, Hibernate gets confused about the
+		 * column names so when the same name appears in both tables (such as STATUS and CREATED_DATETIME) then both table entities
+		 * will get the values of the first occurrence of the column name (i.e. the value from the first table).
+		 */
+		
+		String sqlQuery = "SELECT {agreement.*}, {agreement_term.*} FROM agreement, agreement_term, agreement_site WHERE ";
 		sqlQuery += " agreement_site.agreement_id = agreement.id ";
 		sqlQuery += " and agreement_site.status = '" + AppConstants.STATUS_ACTIVE + "' "; 
 		if (ucn > 0)
@@ -250,6 +284,7 @@ public class DbAgreement extends HibernateAccessor {
 	}
 	
 	protected static void applyAgreementTerm(AgreementSummaryInstance instance, AgreementTerm agreementTerm) {
+		
 		if (agreementTerm.getStartDate() != null) {
 			if (instance.getFirstStartDate() == null || instance.getFirstStartDate().after(agreementTerm.getStartDate())) {
 				instance.setFirstStartDate(agreementTerm.getStartDate());
@@ -268,12 +303,6 @@ public class DbAgreement extends HibernateAccessor {
 		if (agreementTerm.getTerminateDate() != null) {
 			if (instance.getTerminateDate() == null || instance.getTerminateDate().before(agreementTerm.getTerminateDate())) {
 				instance.setTerminateDate(agreementTerm.getTerminateDate());
-			}
-		}
-
-		if (agreementTerm.getEndDate() != null) {
-			if (instance.getEndDate() == null || instance.getEndDate().before(agreementTerm.getEndDate())) {
-				instance.setEndDate(agreementTerm.getEndDate());
 			}
 		}
 	}
