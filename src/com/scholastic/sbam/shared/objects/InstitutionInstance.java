@@ -6,7 +6,7 @@ import java.util.SortedMap;
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-public class InstitutionInstance implements BeanModelTag, IsSerializable {
+public class InstitutionInstance implements BeanModelTag, IsSerializable, UserCacheTarget {
 	private	int 	ucn;
 	private	String	institutionName;
 	private	String	address1;
@@ -33,6 +33,10 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable {
 	private int		activeAgreements;
 	private Date	lastServiceDate;
 	private SortedMap<Integer, AgreementSummaryInstance> agreementSummaryList;
+	
+	private int		cacheColumn;
+	private int		cacheRow;
+	private char	cacheState;
 	
 	public int getUcn() {
 		return ucn;
@@ -200,5 +204,42 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable {
 		//	System.out.println("UCN " + ucn + " agreements " + agreements + ", active " + activeAgreements + ", last date " + lastServiceDate);
 		}
 	}
-	
+
+
+	@Override
+	public String userCacheCategory() {
+		return "Institution";
+	}
+
+	@Override
+	public String userCacheStringKey() {
+		return null;
+	}
+
+	@Override
+	public int userCacheIntegerKey() {
+		return ucn;
+	}
+
+	@Override
+	public int userCacheColumn() {
+		return cacheColumn;
+	}
+
+	@Override
+	public int userCacheRow() {
+		return cacheRow;
+	}
+
+	@Override
+	public char userCacheState() {
+		return cacheState;
+	}
+
+	@Override
+	public void storeCacheState(int row, int column, char state) {
+		cacheColumn = column;
+		cacheRow	= row;
+		cacheState	= state;
+	}
 }

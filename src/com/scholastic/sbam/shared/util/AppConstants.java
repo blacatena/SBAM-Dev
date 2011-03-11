@@ -10,6 +10,10 @@ public class AppConstants {
 	public static final char STATUS_EXPIRED		= 'E';
 	public static final char STATUS_ANY_NONE	= (char) 0;
 	
+	public static final char RESTORE_NO			= 'n';
+	public static final char RESTORE_MINIMIZED	= 'm';
+	public static final char RESTORE_YES		= 'y';
+	
 	public static final char PATH_DELIMITER		= '/';
 	public static final char PATH_ESCAPE		= '\\';
 	

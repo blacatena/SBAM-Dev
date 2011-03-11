@@ -167,10 +167,28 @@ a.pdocImgLink {
 }
 
 /* Override display for disabled fields */
-div.x-item-disabled input.x-form-field {
+/*div.x-item-disabled input.x-form-field { use this to apply to all fields, below for only selected */
+div.x-item-disabled.field-or-label {
+	color: 	black	!important;
+}
+
+div.x-form-readonly.field-or-label input.x-form-field {
 	border: none !important;
-	color: 	#381C08	!important;
+	color: 	black	!important;
 	background-color: #FBEBDB  !important;
+	background-image: none !important;
+	opacity:1  !important;
+	-moz-opacity:1  !important;
+	filter:alpha(opacity = 100 )  !important;
+}
+div.x-item-disabled.field-or-label input.x-form-field {
+	border: none !important;
+	color: 	black	!important;
+	background-color: #FBEBDB  !important;
+	background-image: none !important;
+	opacity:1  !important;
+	-moz-opacity:1  !important;
+	filter:alpha(opacity = 100 )  !important;
 }
 
 /* These are necessary, because the theme doesn't "take" -- change these if the theme changes */

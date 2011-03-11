@@ -7,7 +7,7 @@ import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
 import com.scholastic.sbam.shared.util.AppConstants;
 
-public class AgreementInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
+public class AgreementInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable, UserCacheTarget {
 
 	private int		id;
 	private int		idCheckDigit;
@@ -26,6 +26,10 @@ public class AgreementInstance extends BetterRowEditInstance implements BeanMode
 	private Date	createdDatetime;
 	
 	private List<AgreementTermInstance> agreementTerms;
+	
+	private int		cacheColumn;
+	private int		cacheRow;
+	private char	cacheState;
 	
 	@Override
 	public void markForDeletion() {
@@ -188,4 +192,43 @@ public class AgreementInstance extends BetterRowEditInstance implements BeanMode
 	public String toString() {
 		return "Agreement " + idCheckDigit;
 	}
+
+	@Override
+	public String userCacheCategory() {
+		return "Agreement";
+	}
+
+	@Override
+	public String userCacheStringKey() {
+		return null;
+	}
+
+	@Override
+	public int userCacheIntegerKey() {
+		return id;
+	}
+
+	@Override
+	public int userCacheColumn() {
+		return cacheColumn;
+	}
+
+	@Override
+	public int userCacheRow() {
+		return cacheRow;
+	}
+
+	@Override
+	public char userCacheState() {
+		return cacheState;
+	}
+
+	@Override
+	public void storeCacheState(int row, int column, char state) {
+		cacheColumn = column;
+		cacheRow	= row;
+		cacheState	= state;
+	}
+	
+	
 }

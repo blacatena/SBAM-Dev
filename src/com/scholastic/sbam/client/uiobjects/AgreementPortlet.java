@@ -47,6 +47,7 @@ import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.AgreementInstance;
 import com.scholastic.sbam.shared.objects.AgreementTermInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
+import com.scholastic.sbam.shared.objects.UserCacheTarget;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> implements AppSleeper {
@@ -69,7 +70,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected PagingLoader<PagingLoadResult<InstitutionInstance>> institutionLoader;
 
 	protected LabelField			agreementIdDisplay;
-	protected NumberField			ucnDisplay;
+	protected LabelField			ucnDisplay;
 	protected LabelField			addressDisplay;
 	protected LabelField			typeDisplay;
 	protected LabelField			statusDisplay;
@@ -102,7 +103,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		if (agreementId <= 0) {
 			heading = "Create New Agreement";
 		} else {
-			heading = "Agreement #" + agreementId;
+			heading = "Agreement #" + AppConstants.appendCheckDigit(agreementId);
 		}
 		if (billToInstitution != null) {
 			heading += " &nbsp;&nbsp;&nbsp; &mdash; <i>" + billToInstitution.getInstitutionName() + "</i>";
@@ -167,15 +168,21 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		agreementIdDisplay.setFieldLabel("Agreement # :");
 		displayCard.add(agreementIdDisplay, formData);
 
-		ucnDisplay = new NumberField();
-		ucnDisplay.setReadOnly(true);
-		ucnDisplay.setFormat(NumberFormat.getFormat("#"));
-		ucnDisplay.setAllowDecimals(false);
-		ucnDisplay.setAllowNegative(false);
-		ucnDisplay.setEnabled(false);
-//		ucnDisplay.setMessageTarget(messageTarget)
-//		ucnDisplay.setMessages(messages);
-//		ucnDisplay.setImages(images);
+		// ucnDisplay as NumberField
+//		ucnDisplay = new NumberField();
+//		ucnDisplay.setReadOnly(true);
+//		ucnDisplay.setFormat(NumberFormat.getFormat("#"));
+//		ucnDisplay.setAllowDecimals(false);
+//		ucnDisplay.setAllowNegative(false);
+////		ucnDisplay.setEnabled(false);
+//		ucnDisplay.addStyleName("field-or-label");
+////		ucnDisplay.setMessageTarget(messageTarget)
+////		ucnDisplay.setMessages(messages);
+////		ucnDisplay.setImages(images);
+//		ucnDisplay.setFieldLabel("Bill Institution ");
+//		displayCard.add(ucnDisplay, formData);
+		
+		ucnDisplay = new LabelField();
 		ucnDisplay.setFieldLabel("Bill Institution :");
 		displayCard.add(ucnDisplay, formData);
 		
@@ -316,6 +323,11 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	
 	protected void set(AgreementInstance agreement) {
 		this.agreement = agreement;
+		if (agreement == null)
+			this.agreementId = -1;
+		else
+			this.agreementId = agreement.getId();
+		registerUserCache();
 		setPortletHeading();
 
 		if (agreement == null) {
@@ -423,6 +435,11 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	 */
 	@Override
 	public void sleep() {
+	}
+
+	@Override
+	public UserCacheTarget getUserCacheTarget() {
+		return agreement;
 	}
 
 }

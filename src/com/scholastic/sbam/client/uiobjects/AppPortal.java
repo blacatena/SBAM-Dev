@@ -87,7 +87,7 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 //		eastData.setSplit(true);
 //		eastData.setMargins(new Margins(5));
 		
-		portalc = new Portal(2);
+		portalc = new AppPortalWithCache(2);
 		portalc.setColumnWidth(0, .5);
 		portalc.setColumnWidth(1, .5);
 		BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);

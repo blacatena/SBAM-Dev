@@ -2,5 +2,5 @@
 
 <p>The Scholastic SBAM user [$username$] has been created for you with the password [$password$].</p>
 
-<p>&mdash; The Scholastic SBAM System</p>
+<p>&mdash; <a href="[$siteurl$]">The Scholastic SBAM System</a></p>
 </body></html>

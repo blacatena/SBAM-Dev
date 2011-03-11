@@ -52,6 +52,16 @@
   </servlet>
   
   <servlet>
+    <servlet-name>updateUserCacheServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateUserCacheServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>userCacheListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UserCacheListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>userNameValidationServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.UserNameValidationServiceImpl</servlet-class>
   </servlet>
@@ -289,6 +299,16 @@
   <servlet-mapping>
     <servlet-name>updateUserServlet</servlet-name>
     <url-pattern>/sbam/updateUser</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateUserCacheServlet</servlet-name>
+    <url-pattern>/sbam/updateUserCache</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>userCacheListServlet</servlet-name>
+    <url-pattern>/sbam/getUserCacheTargets</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

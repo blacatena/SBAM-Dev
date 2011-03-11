@@ -3,8 +3,6 @@ package com.scholastic.sbam.client.uiobjects;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
-import com.extjs.gxt.ui.client.widget.custom.Portlet;
-import com.scholastic.sbam.client.uiobjects.InstitutionSearchPortlet;
 
 /**
  * This class creates specific standard application portlets and adds them to a portal.
@@ -31,12 +29,16 @@ public class AppPortletProvider {
 		return false;
 	}
 	
-	public void addPortlet(Portlet portlet) { 
+	public void addPortlet(AppPortlet portlet) { 
 		addPortlet(portlet, 0);
 	}
 	
-	public void addPortlet(Portlet portlet, int column) { 
+	public void addPortlet(AppPortlet portlet, int column) { 
 		portal.add(portlet, column);
+	}
+	
+	public void insertPortlet(AppPortlet portlet, int index, int column) { 
+		portal.insert(portlet, index, column);
 	}
 	
 	private void configPanel(final ContentPanel panel, final AppPortletIds id) {  
@@ -45,14 +47,14 @@ public class AppPortletProvider {
 	//	panel.getHeader().addTool(new ToolButton("x-tool-gear"));
 	}
 	
-	public Portlet getPortlet(AppPortletIds id) {
-		Portlet portlet;
+	public AppPortlet getPortlet(AppPortletIds id) {
+		AppPortlet portlet;
 		if (id == AppPortletIds.FULL_INSTITUTION_SEARCH)
 			portlet = new InstitutionSearchPortlet();
 		else if (id == AppPortletIds.AGREEMENT_DISPLAY)
 			portlet = new AgreementPortlet();
 		else {
-			portlet = new AppPortlet(id.helpTextId);
+			portlet = new UnknownPortlet(id.helpTextId);
 			portlet.setHeading("Unknown Portlet Request");
 			portlet.addText("This portlet was created in response to a request for unmapped ID '" + id.name + "'.");
 		}
