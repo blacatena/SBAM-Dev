@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Mar 10, 2011 6:14:02 PM by Hibernate Tools 3.2.4.GA
+// Generated Mar 10, 2011 8:44:26 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -11,13 +11,15 @@ public class UserCache implements java.io.Serializable {
 
 	private UserCacheId id;
 	private Date accessDatetime;
+	private String restoreTab;
 
 	public UserCache() {
 	}
 
-	public UserCache(UserCacheId id, Date accessDatetime) {
+	public UserCache(UserCacheId id, Date accessDatetime, String restoreTab) {
 		this.id = id;
 		this.accessDatetime = accessDatetime;
+		this.restoreTab = restoreTab;
 	}
 
 	public UserCacheId getId() {
@@ -34,6 +36,14 @@ public class UserCache implements java.io.Serializable {
 
 	public void setAccessDatetime(Date accessDatetime) {
 		this.accessDatetime = accessDatetime;
+	}
+
+	public String getRestoreTab() {
+		return this.restoreTab;
+	}
+
+	public void setRestoreTab(String restoreTab) {
+		this.restoreTab = restoreTab;
 	}
 
 }

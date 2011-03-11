@@ -19,6 +19,7 @@ public class AppNav extends Composite implements AppSecurityManager {
 	private TabItem tbtmConfiguration;
 	private TabItem tbtmReports;
 	private TabItem tbtmAgreements;
+	private TabItem tbtmProfile;
 	private AdminUi adminUi;
 	private ConfigUi configUi;
 	private WelcomeDisplay welcomeDisplay;
@@ -64,6 +65,13 @@ public class AppNav extends Composite implements AppSecurityManager {
 		adminUi = new AdminUi();
 		tbtmAdministration.add(adminUi);
 		tabPanel.add(tbtmAdministration);
+
+		
+		tbtmProfile = new TabItem("Profile");
+		IconSupplier.setIcon(tbtmProfile, IconSupplier.getProfileIconName());
+		tbtmProfile.setLayout(new FitLayout());
+		
+		tabPanel.add(tbtmProfile);
 		
 		addSleepListeners();
 		

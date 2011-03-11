@@ -98,6 +98,10 @@ public class IconSupplier {
 		return "users.png";
 	}
 	
+	public static String getProfileIconName() {
+		return "profile.png";
+	}
+	
 	public static String getContactsIconName() {
 		return "contact.png";
 	}
@@ -156,6 +160,10 @@ public class IconSupplier {
 	
 	public static String getHelpIconName() {
 		return "help.png";
+	}
+	
+	public static String getPortletsIconName() {
+		return "portlets.png";
 	}
 	
 	public static String getNewIconName() {
