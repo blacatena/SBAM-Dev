@@ -20,7 +20,7 @@ import com.scholastic.sbam.shared.security.SecurityManager;
 public class UserCacheListServiceImpl extends AuthenticatedServiceServlet implements UserCacheListService {
 
 	@Override
-	public List<UserCacheInstance> getUserCacheTargets(LoadConfig loadConfig, String userName, String category, Date fromDate, int maxCount, boolean restoreOnly) throws IllegalArgumentException {
+	public List<UserCacheInstance> getUserCacheTargets(LoadConfig loadConfig, String userName, String category, Date fromDate, int maxCount) throws IllegalArgumentException {
 		
 		Authentication auth = authenticate("list user cache",	SecurityManager.ROLE_QUERY);
 		
@@ -38,17 +38,9 @@ public class UserCacheListServiceImpl extends AuthenticatedServiceServlet implem
 		try {
 			
 			List<UserCache> dbInstances;
-			if (restoreOnly)
-				dbInstances = DbUserCache.findByUserName(userName, category, fromDate);
-			else
-				dbInstances = DbUserCache.findToRestore(userName);
+			dbInstances = DbUserCache.findByUserName(userName, category, fromDate);
 
-			UserCache prevInstance = null;
 			for (UserCache dbInstance : dbInstances) {
-				// If doing a restore, load only the most recent access at a particular portlet position (in case one active portlet registered multiple keys) 
-				if (restoreOnly && prevInstance != null && prevInstance.getRestoreColumn() == dbInstance.getRestoreColumn() && prevInstance.getRestoreRow() == dbInstance.getRestoreRow())
-					continue;
-				prevInstance = dbInstance;
 				
 				// Return this instance
 				list.add(DbUserCache.getInstance(dbInstance));

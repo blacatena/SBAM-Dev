@@ -13,5 +13,5 @@ import com.scholastic.sbam.shared.objects.UserCacheInstance;
  */
 @RemoteServiceRelativePath("getUserCaches")
 public interface UserCacheListService extends RemoteService {
-	List<UserCacheInstance> getUserCacheTargets(LoadConfig loadConfig, String userName, String category, Date fromDate, int maxCount, boolean restoreOnly) throws IllegalArgumentException;
+	List<UserCacheInstance> getUserCacheTargets(LoadConfig loadConfig, String userName, String category, Date fromDate, int maxCount) throws IllegalArgumentException;
 }

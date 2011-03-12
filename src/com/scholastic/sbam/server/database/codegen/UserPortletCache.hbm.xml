@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 12, 2011 2:07:15 PM by Hibernate Tools 3.2.4.GA -->
+<hibernate-mapping>
+    <class name="com.scholastic.sbam.server.database.codegen.UserPortletCache" table="user_portlet_cache" catalog="sbam">
+        <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.UserPortletCacheId">
+            <key-property name="userName" type="string">
+                <column name="user_name" length="32" />
+            </key-property>
+            <key-property name="portletId" type="int">
+                <column name="portlet_id" />
+            </key-property>
+        </composite-id>
+        <property name="portletType" type="string">
+            <column name="portlet_type" not-null="true" />
+        </property>
+        <property name="restoreColumn" type="int">
+            <column name="restore_column" not-null="true" />
+        </property>
+        <property name="restoreRow" type="int">
+            <column name="restore_row" not-null="true" />
+        </property>
+        <property name="minimized" type="char">
+            <column name="minimized" length="1" not-null="true" />
+        </property>
+        <property name="keyData" type="string">
+            <column name="key_data" length="4000" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

@@ -4,15 +4,14 @@ public class AppConstants {
 	public static final String VERSION = "0.0.5dev";
 	public static final String VERSION_DESCRIPTION = "In Development.";
 	
+	public static 		boolean USER_PORTLET_CACHE_ACTIVE = true;	//	Use this to turn on/off the portlet cache service
+	public static 		boolean USER_ACCESS_CACHE_ACTIVE  = true;	//	Use this to turn on/off the access cache service
+	
 	public static final char STATUS_ACTIVE		= 'A';
 	public static final char STATUS_INACTIVE	= 'I';
 	public static final char STATUS_DELETED		= 'X';
 	public static final char STATUS_EXPIRED		= 'E';
 	public static final char STATUS_ANY_NONE	= (char) 0;
-	
-	public static final char RESTORE_NO			= 'n';
-	public static final char RESTORE_MINIMIZED	= 'm';
-	public static final char RESTORE_YES		= 'y';
 	
 	public static final char PATH_DELIMITER		= '/';
 	public static final char PATH_ESCAPE		= '\\';

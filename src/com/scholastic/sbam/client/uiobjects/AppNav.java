@@ -138,8 +138,21 @@ public class AppNav extends Composite implements AppSecurityManager {
 			welcomeDisplay.sleep();
 	}
 	
+	/**
+	 * On log in, reset things for the user's roles, and load his cached portlets
+	 * @param roleNames
+	 */
+	public void setLoggedIn(List<String> roleNames) {
+		applyRoles(roleNames);
+		appPortal.setLoggedIn();
+	}
+	
+	/**
+	 * On log out, remove all portlets, and reset security to "NONE"
+	 */
 	public void setLoggedOut() {
 		tabPanel.setSelection(tbtmWelcome);
+		appPortal.setLoggedOut();
 		applyRoles(SecurityManager.NO_ROLES);
 	}
 

@@ -27,10 +27,6 @@ public class AgreementInstance extends BetterRowEditInstance implements BeanMode
 	
 	private List<AgreementTermInstance> agreementTerms;
 	
-	private int		cacheColumn;
-	private int		cacheRow;
-	private char	cacheState;
-	
 	@Override
 	public void markForDeletion() {
 		setStatus('X');
@@ -206,28 +202,6 @@ public class AgreementInstance extends BetterRowEditInstance implements BeanMode
 	@Override
 	public int userCacheIntegerKey() {
 		return id;
-	}
-
-	@Override
-	public int userCacheColumn() {
-		return cacheColumn;
-	}
-
-	@Override
-	public int userCacheRow() {
-		return cacheRow;
-	}
-
-	@Override
-	public char userCacheState() {
-		return cacheState;
-	}
-
-	@Override
-	public void storeCacheState(int row, int column, char state) {
-		cacheColumn = column;
-		cacheRow	= row;
-		cacheState	= state;
 	}
 	
 	

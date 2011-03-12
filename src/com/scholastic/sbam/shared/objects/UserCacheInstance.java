@@ -8,9 +8,7 @@ public class UserCacheInstance  implements BeanModelTag, IsSerializable {
 	private String	category;
 	private int		intKey;
 	private String	strKey;
-	private int		restoreColumn;
-	private int		restoreRow;
-	private char	restoreState;
+	private String	hint;
 	
 	public String getUserName() {
 		return userName;
@@ -36,24 +34,10 @@ public class UserCacheInstance  implements BeanModelTag, IsSerializable {
 	public void setStrKey(String strKey) {
 		this.strKey = strKey;
 	}
-	public int getRestoreColumn() {
-		return restoreColumn;
+	public String getHint() {
+		return hint;
 	}
-	public void setRestoreColumn(int restoreColumn) {
-		this.restoreColumn = restoreColumn;
+	public void setHint(String hint) {
+		this.hint = hint;
 	}
-	public int getRestoreRow() {
-		return restoreRow;
-	}
-	public void setRestoreRow(int restoreRow) {
-		this.restoreRow = restoreRow;
-	}
-	public char getRestoreState() {
-		return restoreState;
-	}
-	public void setRestoreState(char restoreState) {
-		this.restoreState = restoreState;
-	}
-	
-	
 }

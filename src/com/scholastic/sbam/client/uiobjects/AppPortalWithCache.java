@@ -12,6 +12,8 @@ import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.extjs.gxt.ui.client.widget.custom.Portlet;
 
 public class AppPortalWithCache extends Portal {
+	
+	protected int nextPortalId = 0;
 
 	public AppPortalWithCache(int numColumns) {
 		super(numColumns);
@@ -27,8 +29,11 @@ public class AppPortalWithCache extends Portal {
 	@Override
 	public void insert(Portlet portlet, int index, int column) {
 		super.insert(portlet, index, column);
-		if (portlet instanceof AppPortlet)
-			((AppPortlet) portlet).registerUserCache(index, column);
+		if (portlet instanceof AppPortlet) {
+			AppPortlet appPortlet = (AppPortlet) portlet;
+			appPortlet.registerUserPortlet(nextPortalId, index, column);
+		}
+		nextPortalId++;
 	}
 	
 	public void addDragListener() {
@@ -38,20 +43,22 @@ public class AppPortalWithCache extends Portal {
 				if (pe.getEventTypeInt() == Events.Drop.getEventCode()) {
 					// It's necessary to refresh everything, to account not only for this move, but how it affected all other portlets in the from and to columns
 					// This could be optimized to only update those two columns (startColumn, column), but why bother?
-					refreshAllRegistrations();
+					refreshAllPortletStates();
 				}
 			}
 		});
 	}
 	
-	public void refreshAllRegistrations() {
+	public void refreshAllPortletStates() {
 		
 		for (int col = 0; col < this.getItemCount(); col++) {
 		    LayoutContainer con = getItem(col);
 		    List<Component> list = new ArrayList<Component>(con.getItems());
 		    for (int row = 0; row < list.size(); row++) {
-		    	if (list.get(row) instanceof AppPortlet)
-					((AppPortlet) list.get(row)).registerUserCache(row, col);
+		    	if (list.get(row) instanceof AppPortlet) {
+					AppPortlet appPortlet = (AppPortlet) list.get(row);
+					appPortlet.updateUserPortlet(row, col);
+		    	}
 		    }
 		}
 	}

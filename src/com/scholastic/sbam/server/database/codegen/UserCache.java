@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Mar 11, 2011 8:38:10 AM by Hibernate Tools 3.2.4.GA
+// Generated Mar 12, 2011 2:07:15 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -10,21 +10,16 @@ import java.util.Date;
 public class UserCache implements java.io.Serializable {
 
 	private UserCacheId id;
+	private String hint;
 	private Date accessDatetime;
-	private int restoreColumn;
-	private int restoreRow;
-	private char restoreState;
 
 	public UserCache() {
 	}
 
-	public UserCache(UserCacheId id, Date accessDatetime, int restoreColumn,
-			int restoreRow, char restoreState) {
+	public UserCache(UserCacheId id, String hint, Date accessDatetime) {
 		this.id = id;
+		this.hint = hint;
 		this.accessDatetime = accessDatetime;
-		this.restoreColumn = restoreColumn;
-		this.restoreRow = restoreRow;
-		this.restoreState = restoreState;
 	}
 
 	public UserCacheId getId() {
@@ -35,36 +30,20 @@ public class UserCache implements java.io.Serializable {
 		this.id = id;
 	}
 
+	public String getHint() {
+		return this.hint;
+	}
+
+	public void setHint(String hint) {
+		this.hint = hint;
+	}
+
 	public Date getAccessDatetime() {
 		return this.accessDatetime;
 	}
 
 	public void setAccessDatetime(Date accessDatetime) {
 		this.accessDatetime = accessDatetime;
-	}
-
-	public int getRestoreColumn() {
-		return this.restoreColumn;
-	}
-
-	public void setRestoreColumn(int restoreColumn) {
-		this.restoreColumn = restoreColumn;
-	}
-
-	public int getRestoreRow() {
-		return this.restoreRow;
-	}
-
-	public void setRestoreRow(int restoreRow) {
-		this.restoreRow = restoreRow;
-	}
-
-	public char getRestoreState() {
-		return this.restoreState;
-	}
-
-	public void setRestoreState(char restoreState) {
-		this.restoreState = restoreState;
 	}
 
 }

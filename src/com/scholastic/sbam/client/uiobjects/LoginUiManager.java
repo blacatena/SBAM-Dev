@@ -23,7 +23,6 @@ import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.Authentication;
 import com.scholastic.sbam.shared.objects.UserMessageCollection;
 import com.scholastic.sbam.shared.objects.UserMessageInstance;
-import com.scholastic.sbam.shared.security.SecurityManager;
 
 public class LoginUiManager {
 	
@@ -135,17 +134,13 @@ public class LoginUiManager {
 						loginBox.getPassword().setValue("");
 						loginBox.status.clearStatus("");
 						loginBox.status.hide();
-						//  Give them what they deserve
-						applyRoles(auth);
-						//	Show who's logged on, and show the logout button
-						setLoggedIn(auth.getDisplayName());
+						setLoggedIn(auth);
 						//	Hide the login dialog
 					//	loginBox.el().fadeOut(FxConfig.NONE);
 						loginBox.hide();
 						loadUserMessages();
 					} else {
 						loggedInUserName = null;
-						noRoles();
 						loginBox.getUserName().forceInvalid(auth.getMessage());
 						loginBox.status.setStatus("Failed.", "x-status-fail");
 						loginBox.status.show();
@@ -192,14 +187,18 @@ public class LoginUiManager {
 		});
 	}
 	
-	public void noRoles() {
-		if (theApp != null)
-			theApp.applyRoles(SecurityManager.NO_ROLES);
-	}
-	
-	public void applyRoles(Authentication auth) {
-		if (theApp != null)
-			theApp.applyRoles(auth.getRoleNames());
+	public void setLoggedIn(Authentication auth) {		
+		//	Initialize application UI constants
+		UiConstants.init();
+		
+		//	Set logged in UI controls and values
+		if (displayName != null)
+			displayName.setHtml(auth.getDisplayName());
+		if (logoutButton != null)
+			logoutButton.setVisible(true);
+		
+		// Tell the app to set things up
+		theApp.setLoggedIn(auth.getRoleNames());
 	}
 	
 	public void setLoggedOut() {
@@ -215,17 +214,6 @@ public class LoginUiManager {
 			displayName.setHtml(DISPLAY_NOT_LOGGED_IN);
 		if (logoutButton != null)
 			logoutButton.setVisible(false);
-	}
-	
-	public void setLoggedIn(String loggedInName) {		
-		//	Initialize application UI constants
-		UiConstants.init();
-		
-		//	Set logged in UI controls and values
-		if (displayName != null)
-			displayName.setHtml(loggedInName);
-		if (logoutButton != null)
-			logoutButton.setVisible(true);
 	}
 	
 	public void createStickyNote(UserMessageInstance message) {

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Mar 11, 2011 8:38:10 AM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Mar 12, 2011 2:07:15 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.UserCache" table="user_cache" catalog="sbam">
         <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.UserCacheId">
@@ -18,17 +18,11 @@
                 <column name="str_key" />
             </key-property>
         </composite-id>
+        <property name="hint" type="string">
+            <column name="hint" length="1024" not-null="true" />
+        </property>
         <property name="accessDatetime" type="timestamp">
             <column name="access_datetime" length="19" not-null="true" />
-        </property>
-        <property name="restoreColumn" type="int">
-            <column name="restore_column" not-null="true" />
-        </property>
-        <property name="restoreRow" type="int">
-            <column name="restore_row" not-null="true" />
-        </property>
-        <property name="restoreState" type="char">
-            <column name="restore_state" length="1" not-null="true" />
         </property>
     </class>
 </hibernate-mapping>

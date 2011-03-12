@@ -64,7 +64,6 @@ import com.scholastic.sbam.shared.objects.AgreementSummaryInstance;
 import com.scholastic.sbam.shared.objects.FilterWordInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
-import com.scholastic.sbam.shared.objects.UserCacheTarget;
 
 public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummaryInstance> implements AppSleeper, AppPortletRequester {
 	
@@ -289,7 +288,7 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 	
 	protected void showInstitution(BeanModel model) {
 		focusInstitution = model.getBean();
-		registerUserCache();
+		registerUserCache(focusInstitution, filter);
 
 		ucn.setValue(focusInstitution.getUcn());
 		address.setValue("<b>" + focusInstitution.getInstitutionName() + "</b><br/>" +
@@ -649,9 +648,22 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 		this.portletProvider = portletProvider;
 	}
 
+//	@Override
+//	public UserCacheTarget getUserCacheTarget() {
+//		return focusInstitution;
+//	}
+
 	@Override
-	public UserCacheTarget getUserCacheTarget() {
-		return focusInstitution;
+	public void setFromKeyData(String keyData) {
+		
+	}
+
+	@Override
+	public String getKeyData() {
+		if (focusInstitution == null)
+			return ":" + filter;
+		else
+			return focusInstitution.getUcn() + ":" + filter;
 	}
 
 }

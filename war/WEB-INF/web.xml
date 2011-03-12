@@ -112,6 +112,16 @@
   </servlet>
   
   <servlet>
+    <servlet-name>updateUserPortletCacheServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateUserPortletCacheServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>userPortletCacheListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UserPortletCacheListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>commissionCodeValidationServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.CommissionCodeValidationServiceImpl</servlet-class>
   </servlet>
@@ -309,6 +319,16 @@
   <servlet-mapping>
     <servlet-name>userCacheListServlet</servlet-name>
     <url-pattern>/sbam/getUserCacheTargets</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateUserPortletCacheServlet</servlet-name>
+    <url-pattern>/sbam/updateUserPortletCache</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>userPortletCacheListServlet</servlet-name>
+    <url-pattern>/sbam/getUserPortlets</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

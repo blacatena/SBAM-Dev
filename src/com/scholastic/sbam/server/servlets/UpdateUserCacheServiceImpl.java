@@ -19,7 +19,7 @@ import com.scholastic.sbam.shared.security.SecurityManager;
 public class UpdateUserCacheServiceImpl extends AuthenticatedServiceServlet implements UpdateUserCacheService {
 
 	@Override
-	public String updateUserCache(UserCacheTarget instance) throws IllegalArgumentException {
+	public String updateUserCache(UserCacheTarget instance, String hint) throws IllegalArgumentException {
 		
 		UserCache dbInstance = null;
 		
@@ -56,13 +56,9 @@ public class UpdateUserCacheServiceImpl extends AuthenticatedServiceServlet impl
 			
 			dbInstance.setAccessDatetime(new Date());
 			
-			// Set restore state if requested
-			if (instance.userCacheState() != 0)
-				dbInstance.setRestoreState(instance.userCacheState());
-			if (instance.userCacheColumn() >= 0)
-				dbInstance.setRestoreColumn(instance.userCacheColumn());
-			if (instance.userCacheRow() >= 0)
-				dbInstance.setRestoreRow(instance.userCacheRow());
+			if (hint == null)
+				hint = "";
+			dbInstance.setHint(hint);
 			
 			//	Persist in database
 			DbUserCache.persist(dbInstance);

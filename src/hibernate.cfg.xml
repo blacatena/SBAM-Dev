@@ -31,6 +31,7 @@
         <mapping resource="com/scholastic/sbam/server/database/codegen/StatsAdmin.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/AgreementTerm.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/Site.hbm.xml" />
+        <mapping resource="com/scholastic/sbam/server/database/codegen/UserPortletCache.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/Service.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/AuthUrl.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/PreferenceCode.hbm.xml" />

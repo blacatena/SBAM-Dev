@@ -9,6 +9,6 @@ import com.scholastic.sbam.shared.objects.UserCacheInstance;
 
 public interface UserCacheListServiceAsync {
 
-	void getUserCacheTargets(LoadConfig loadConfig, String userName, String category, Date fromDate, int maxCount, boolean restoreOnly, AsyncCallback<List<UserCacheInstance>> callback);
+	void getUserCacheTargets(LoadConfig loadConfig, String userName, String category, Date fromDate, int maxCount, AsyncCallback<List<UserCacheInstance>> callback);
 
 }

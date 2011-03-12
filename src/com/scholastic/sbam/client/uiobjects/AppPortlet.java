@@ -13,8 +13,11 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.UpdateUserCacheService;
 import com.scholastic.sbam.client.services.UpdateUserCacheServiceAsync;
+import com.scholastic.sbam.client.services.UpdateUserPortletCacheService;
+import com.scholastic.sbam.client.services.UpdateUserPortletCacheServiceAsync;
 import com.scholastic.sbam.client.uiobjects.HelpTextDialog;
 import com.scholastic.sbam.shared.objects.UserCacheTarget;
+import com.scholastic.sbam.shared.objects.UserPortletCacheInstance;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 public abstract class AppPortlet extends Portlet {
@@ -26,7 +29,10 @@ public abstract class AppPortlet extends Portlet {
 	protected int		portalColumn = -1;
 	protected int		portalRow	 = -1;
 	
+	protected int		portletId;
+	
 	protected final UpdateUserCacheServiceAsync userCacheUpdateService = GWT.create(UpdateUserCacheService.class);
+	protected final UpdateUserPortletCacheServiceAsync userPortletCacheUpdateService = GWT.create(UpdateUserPortletCacheService.class);
 	
 	public AppPortlet(String helpTextId) {
 		super();
@@ -42,8 +48,6 @@ public abstract class AppPortlet extends Portlet {
 			resizer.setMaxWidth(this.getWidth());
 			resizer.setMinWidth(this.getWidth());
 		}
-		//	Note that this is done automatically here, to give objects time to set any values needed (i.e. before the portlet is displayed/rendered)
-		registerUserCache();
 	}
 
 	@Override
@@ -88,7 +92,7 @@ public abstract class AppPortlet extends Portlet {
 		closeBtn.addListener(Events.Select, new Listener<ComponentEvent>() {
 			public void handleEvent(ComponentEvent ce) {
 				removeFromParent();
-				registerUserCache();
+				updateUserPortlet();
 			}
 		});
 		head.addTool(closeBtn);
@@ -115,37 +119,22 @@ public abstract class AppPortlet extends Portlet {
 	@Override
 	public void onCollapse() {
 		super.onCollapse();
-		registerUserCache();
+		updateUserPortlet();
 	}
 	
 	@Override
 	public void onExpand() {
 		super.onExpand();
-		registerUserCache();
+		updateUserPortlet();
 	}
 	
-	public void registerUserCache() {
-		registerUserCache(portalRow, portalColumn, getParent() == null, this.isCollapsed());
-	}
-	
-	public void registerUserCache(int row, int col) {
-		registerUserCache(row, col, getParent() == null, this.isCollapsed());
-	}
-	
-	public void registerUserCache(int row, int col, boolean closed, boolean minimized) {
-		portalRow = row;
-		portalColumn = col;
+	public void registerUserCache(UserCacheTarget target, String hint) {
 		
-		UserCacheTarget target = getUserCacheTarget();
+		if (!AppConstants.USER_ACCESS_CACHE_ACTIVE)
+			return;
 		
 		if (target != null) {
-			if (closed)
-				target.storeCacheState(row, col, AppConstants.RESTORE_NO);
-			else if (minimized)
-				target.storeCacheState(row, col, AppConstants.RESTORE_MINIMIZED);
-			else
-				target.storeCacheState(row, col, AppConstants.RESTORE_YES);
-			userCacheUpdateService.updateUserCache(target,
+			userCacheUpdateService.updateUserCache(target, hint,
 					new AsyncCallback<String>() {
 						public void onFailure(Throwable caught) {
 							// In production, this might all be removed, and treated as something users don't care about
@@ -166,6 +155,60 @@ public abstract class AppPortlet extends Portlet {
 		}
 	}
 	
+	public void registerUserPortlet(int portletId, int row, int col) {
+		this.portletId = portletId;
+		updateUserPortlet(row, col, getParent() == null, this.isCollapsed());
+	}
+	
+	public void updateUserPortlet() {
+		updateUserPortlet(portalRow, portalColumn, getParent() == null, this.isCollapsed());
+	}
+	
+	public void updateUserPortlet(int row, int col) {
+		updateUserPortlet(row, col, getParent() == null, this.isCollapsed());
+	}
+	
+	public void updateUserPortlet(int row, int col, boolean closed, boolean minimized) {
+		portalRow = row;
+		portalColumn = col;
+		
+		if (!AppConstants.USER_PORTLET_CACHE_ACTIVE)
+			return;
+		
+		UserPortletCacheInstance cacheInstance = new UserPortletCacheInstance();
+		
+		cacheInstance.setPortletId(portletId);
+		cacheInstance.setPortletType(getClass().getName());
+		cacheInstance.setKeyData(getKeyData());
+		if (closed) {
+			cacheInstance.setRestoreColumn(-1);
+			cacheInstance.setRestoreRow(-1);
+		} else {
+			cacheInstance.setRestoreColumn(col);
+			cacheInstance.setRestoreRow(row);
+		}
+		cacheInstance.storeMinimized(minimized);
+		
+		userPortletCacheUpdateService.updateUserPortletCache(cacheInstance,
+				new AsyncCallback<String>() {
+					public void onFailure(Throwable caught) {
+						// In production, this might all be removed, and treated as something users don't care about
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "User portlet cache update failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+					}
+
+					public void onSuccess(String result) {
+						//	Do nothing
+					}
+			});
+	}
+	
 	public int getPortalColumn() {
 		return portalColumn;
 	}
@@ -182,5 +225,15 @@ public abstract class AppPortlet extends Portlet {
 		this.portalRow = portalRow;
 	}
 
-	public abstract UserCacheTarget getUserCacheTarget();
+	public int getPortletId() {
+		return portletId;
+	}
+
+	public void setPortletId(int portletId) {
+		this.portletId = portletId;
+	}
+
+	public abstract void setFromKeyData(String keyData);
+
+	public abstract String getKeyData();
 }

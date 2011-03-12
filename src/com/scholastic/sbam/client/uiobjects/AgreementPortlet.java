@@ -47,7 +47,6 @@ import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.AgreementInstance;
 import com.scholastic.sbam.shared.objects.AgreementTermInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
-import com.scholastic.sbam.shared.objects.UserCacheTarget;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> implements AppSleeper {
@@ -327,7 +326,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 			this.agreementId = -1;
 		else
 			this.agreementId = agreement.getId();
-		registerUserCache();
+		registerUserCache(agreement, identificationTip);
 		setPortletHeading();
 
 		if (agreement == null) {
@@ -438,8 +437,13 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	}
 
 	@Override
-	public UserCacheTarget getUserCacheTarget() {
-		return agreement;
+	public void setFromKeyData(String keyData) {
+		
+	}
+
+	@Override
+	public String getKeyData() {
+		return agreementId + "";
 	}
 
 }

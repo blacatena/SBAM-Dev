@@ -9,5 +9,5 @@ import com.scholastic.sbam.shared.objects.UserCacheTarget;
  */
 @RemoteServiceRelativePath("updateUserCache")
 public interface UpdateUserCacheService extends RemoteService {
-	String updateUserCache(UserCacheTarget target) throws IllegalArgumentException;
+	String updateUserCache(UserCacheTarget target, String hint) throws IllegalArgumentException;
 }

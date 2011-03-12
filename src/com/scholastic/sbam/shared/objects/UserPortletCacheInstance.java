@@ -1,0 +1,65 @@
+package com.scholastic.sbam.shared.objects;
+
+import com.extjs.gxt.ui.client.data.BeanModelTag;
+import com.google.gwt.user.client.rpc.IsSerializable;
+
+public class UserPortletCacheInstance  implements BeanModelTag, IsSerializable {
+	private String	userName;
+	private int		portletId;
+	private String	portletType;
+	private int		restoreColumn;
+	private int		restoreRow;
+	private char	minimized;
+	private String	keyData;
+	
+	public String getUserName() {
+		return userName;
+	}
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+	public int getPortletId() {
+		return portletId;
+	}
+	public void setPortletId(int portletId) {
+		this.portletId = portletId;
+	}
+	public String getPortletType() {
+		return portletType;
+	}
+	public void setPortletType(String portletType) {
+		this.portletType = portletType;
+	}
+	public int getRestoreColumn() {
+		return restoreColumn;
+	}
+	public void setRestoreColumn(int restoreColumn) {
+		this.restoreColumn = restoreColumn;
+	}
+	public int getRestoreRow() {
+		return restoreRow;
+	}
+	public void setRestoreRow(int restoreRow) {
+		this.restoreRow = restoreRow;
+	}
+	public char getMinimized() {
+		return minimized;
+	}
+	public void setMinimized(char minimized) {
+		this.minimized = minimized;
+	}
+	/**
+	 * This is just a setter for minimized that takes a boolean argument
+	 * @param minimized
+	 */
+	public void storeMinimized(boolean minimized) {	// A setting with a boolean argument for minimized
+		this.minimized = minimized?'y':'n';
+	}
+	public String getKeyData() {
+		return keyData;
+	}
+	public void setKeyData(String keyData) {
+		this.keyData = keyData;
+	}
+	
+}

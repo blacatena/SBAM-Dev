@@ -34,10 +34,6 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable, UserCa
 	private Date	lastServiceDate;
 	private SortedMap<Integer, AgreementSummaryInstance> agreementSummaryList;
 	
-	private int		cacheColumn;
-	private int		cacheRow;
-	private char	cacheState;
-	
 	public int getUcn() {
 		return ucn;
 	}
@@ -219,27 +215,5 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable, UserCa
 	@Override
 	public int userCacheIntegerKey() {
 		return ucn;
-	}
-
-	@Override
-	public int userCacheColumn() {
-		return cacheColumn;
-	}
-
-	@Override
-	public int userCacheRow() {
-		return cacheRow;
-	}
-
-	@Override
-	public char userCacheState() {
-		return cacheState;
-	}
-
-	@Override
-	public void storeCacheState(int row, int column, char state) {
-		cacheColumn = column;
-		cacheRow	= row;
-		cacheState	= state;
 	}
 }
