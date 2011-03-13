@@ -6,6 +6,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.Style.SortDir;
+import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.data.BeanModelReader;
@@ -51,6 +52,8 @@ import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.scholastic.sbam.client.services.InstitutionGetService;
+import com.scholastic.sbam.client.services.InstitutionGetServiceAsync;
 import com.scholastic.sbam.client.services.InstitutionSearchService;
 import com.scholastic.sbam.client.services.InstitutionSearchServiceAsync;
 import com.scholastic.sbam.client.services.InstitutionWordService;
@@ -71,6 +74,7 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 	
 	protected final InstitutionSearchServiceAsync institutionSearchService = GWT.create(InstitutionSearchService.class);
 	protected final InstitutionWordServiceAsync   institutionWordService   = GWT.create(InstitutionWordService.class);
+	protected final InstitutionGetServiceAsync    institutionGetService    = GWT.create(InstitutionGetService.class);
 	
 	protected CardLayout			cards;
 	protected ContentPanel			searchPanel;
@@ -94,6 +98,7 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 	
 	protected AppPortletProvider	portletProvider;
 	
+	private int						focusUcn;
 	private InstitutionInstance		focusInstitution;
 	
 	private long					searchSyncId = 0;
@@ -125,11 +130,23 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 		setThis();
 		addGrid();
 		setFilter();
+		initializeFilter();
 		
 		outerContainer.add(searchPanel);
 		
 		createDisplayCard();
 		outerContainer.add(displayCard);
+		
+		if (focusUcn > 0)
+			loadInstitution(focusUcn);
+	}
+	
+	private void initializeFilter() {
+		if (filter.length() > 0) {
+			ModelData model = new BaseModelData();
+			model.set("word", filter);
+			combo.setValue(model);
+		}
 	}
 	
 	private void createDisplayCard() {
@@ -287,8 +304,17 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 	}
 	
 	protected void showInstitution(BeanModel model) {
-		focusInstitution = model.getBean();
+		showInstitution((InstitutionInstance) model.getBean());
+	}
+	
+	protected void showInstitution(InstitutionInstance instance) {
+		focusInstitution = instance;
+		
+		if (instance == null)
+			return;
+		
 		registerUserCache(focusInstitution, filter);
+		updateUserPortlet();
 
 		ucn.setValue(focusInstitution.getUcn());
 		address.setValue("<b>" + focusInstitution.getInstitutionName() + "</b><br/>" +
@@ -305,9 +331,10 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 		
 		ListStore<ModelData> store = agreementsStore;
 		store.removeAll();
-		for (AgreementSummaryInstance agreement : focusInstitution.getAgreementSummaryList().values()) {
-			store.add(getModel(agreement));
-		}
+		if (focusInstitution != null && focusInstitution.getAgreementSummaryList() != null)
+			for (AgreementSummaryInstance agreement : focusInstitution.getAgreementSummaryList().values()) {
+				store.add(getModel(agreement));
+			}
 		
 		cards.setActiveItem(displayCard);
 	}
@@ -338,7 +365,8 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 		
 		ComboBox<ModelData> filter = getFilterBox();
 		filter.getAriaSupport().setLabelledBy(toolBar.getItem(0).getId());
-		toolBar.add(filter);  
+//		filter.setRawValue(filter);
+		toolBar.add(filter);
 		
 		searchPanel.setTopComponent(toolBar);
 	}
@@ -516,6 +544,7 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 	 */
 	protected void loadFiltered(String filter) {
 		this.filter = filter;
+		updateUserPortlet();
 		institutionLoader.load();
 	}
 	
@@ -622,6 +651,26 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 		PagingLoader<PagingLoadResult<FilterWordInstance>> loader = new BasePagingLoader<PagingLoadResult<FilterWordInstance>>(proxy, reader);
 		return loader;
 	}
+
+	protected void loadInstitution(final int ucn) {
+		institutionGetService.getInstitution(ucn, true,
+				new AsyncCallback<InstitutionInstance>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "Institution access failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+					}
+
+					public void onSuccess(InstitutionInstance institution) {
+						showInstitution(institution);
+					}
+			});
+	}
 	
 	/**
 	 * Turn on the listener timer when waking up.
@@ -655,7 +704,28 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 
 	@Override
 	public void setFromKeyData(String keyData) {
+		if (keyData == null)
+			return;
 		
+		String oldFilter = null;
+		String oldUcn    = null;
+		
+		if (keyData.indexOf(':') >= 0) {
+			oldUcn = keyData.substring(0, keyData.indexOf(':'));
+			oldFilter = keyData.substring(keyData.indexOf(':') + 1);
+		}
+		if (oldFilter != null && oldFilter.trim().length() > 0) {
+			filter = oldFilter.trim();
+//			loadFiltered(parts [1]);
+		}
+		
+		if (oldUcn != null && oldUcn.length() > 0) {
+			try {
+				focusUcn = Integer.parseInt(oldUcn);
+			} catch (NumberFormatException e) {
+				return;
+			}
+		}
 	}
 
 	@Override

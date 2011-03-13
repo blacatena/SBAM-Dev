@@ -37,15 +37,15 @@ public class UpdateUserPortletCacheServiceImpl extends AuthenticatedServiceServl
 			
 			//	If none found, create new
 			if (dbInstance == null && instance.getRestoreColumn() >= 0 && instance.getRestoreRow() >= 0) {
-				System.out.println("Not found.");
 				dbInstance = new UserPortletCache();
 				UserPortletCacheId dbId = new UserPortletCacheId();
 				dbId.setUserName(auth.getUserName());
 				dbId.setPortletId(instance.getPortletId());
 				dbInstance.setId(dbId);
-			} else System.out.println("Found");
+			}
 			
-			dbInstance.setPortletType(instance.getPortletType());
+			if (instance.getPortletType() != null)
+				dbInstance.setPortletType(instance.getPortletType());
 			dbInstance.setMinimized(instance.getMinimized());
 			dbInstance.setRestoreColumn(instance.getRestoreColumn());
 			dbInstance.setRestoreRow(instance.getRestoreRow());

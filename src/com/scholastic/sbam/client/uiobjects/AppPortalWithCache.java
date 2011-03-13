@@ -21,7 +21,7 @@ public class AppPortalWithCache extends Portal {
 	}
 
 	/**
-	 * This method is necessary so the location of the portlet can be recorded.
+	 * Add a portlet to the portal and register it in the portlet cache.
 	 * @param portlet
 	 * @param index
 	 * @param column
@@ -34,6 +34,24 @@ public class AppPortalWithCache extends Portal {
 			appPortlet.registerUserPortlet(nextPortalId, index, column);
 		}
 		nextPortalId++;
+	}
+	
+	/**
+	 * Add a portlet to the portal without registering it (because it came from the portlet cache to begin with).
+	 * @param portlet
+	 * @param index
+	 * @param column
+	 */
+	public void reinsert(Portlet portlet, int index, int column) {
+		super.insert(portlet, index, column);
+		if (portlet instanceof AppPortlet) {
+			AppPortlet appPortlet = (AppPortlet) portlet;
+		//	appPortlet.registerUserPortlet(appPortlet.getPortletId(), index, column);
+			appPortlet.setPortalColumn(column);
+			appPortlet.setPortalRow(index);
+			if (appPortlet.getPortletId() >= nextPortalId)
+				nextPortalId = appPortlet.getPortletId() + 1;
+		}
 	}
 	
 	public void addDragListener() {
@@ -49,6 +67,9 @@ public class AppPortalWithCache extends Portal {
 		});
 	}
 	
+	/**
+	 * Update the position and state of all porlets.
+	 */
 	public void refreshAllPortletStates() {
 		
 		for (int col = 0; col < this.getItemCount(); col++) {

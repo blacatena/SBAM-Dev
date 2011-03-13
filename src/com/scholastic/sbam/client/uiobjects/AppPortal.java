@@ -8,14 +8,19 @@ import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.custom.Portal;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.custom.Portlet;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.scholastic.sbam.client.services.UserPortletCacheListService;
+import com.scholastic.sbam.client.services.UserPortletCacheListServiceAsync;
+import com.scholastic.sbam.shared.objects.UserPortletCacheInstance;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 public class AppPortal extends LayoutContainer implements AppSleeper {
@@ -38,8 +43,9 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 		}
 	}
 	
-	private Portal thePortal;
-	private AppPortletProvider portletProvider;
+	//	These must be instantiated now, not on render
+	private AppPortalWithCache thePortal		=	new AppPortalWithCache(2);;
+	private AppPortletProvider portletProvider	=	new AppPortletProvider(thePortal);;
 
 	@Override  
 	protected void onRender(Element parent, int index) {  
@@ -47,7 +53,7 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 		super.onRender(parent, index);
 		setLayout(new BorderLayout());
 		
-		thePortal = new AppPortalWithCache(2);
+	//	thePortal = new AppPortalWithCache(2);
 		thePortal.setColumnWidth(0, .5);
 		thePortal.setColumnWidth(1, .5);
 		BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
@@ -59,7 +65,7 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 		contentPanel.setBorders(true);
 		
 		TreePanel<ModelData> appNavTree = AppNavTree.getTreePanel();
-		portletProvider = new AppPortletProvider(thePortal);
+	//	portletProvider = new AppPortletProvider(thePortal);
 		appNavTree.setSelectionModel(new AppTreeSelectionModel(portletProvider));
 		contentPanel.add(appNavTree);
 		
@@ -75,12 +81,46 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 	
 	public void setLoggedIn() {
 		if (AppConstants.USER_PORTLET_CACHE_ACTIVE)
-			System.out.println("Restore portlets here.");
+			restorePortlets();
 	}
 	
 	public void setLoggedOut() {
 //		On logout, remove all portlets
 		removeAllPortlets();
+	}
+	
+	/**
+	 * Restore all portlets for this user from the user portlet cache.
+	 */
+	public void restorePortlets() {
+		final UserPortletCacheListServiceAsync userPortletCacheUpdateService = GWT.create(UserPortletCacheListService.class);
+
+		userPortletCacheUpdateService.getUserPortlets(null, null,
+				new AsyncCallback<List<UserPortletCacheInstance>>() {
+					public void onFailure(Throwable caught) {
+						// In production, this might all be removed, and treated as something users don't care about
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "User cache update failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+					}
+
+					public void onSuccess(List<UserPortletCacheInstance> list) {
+						//	First, create and add the portlets
+						for (UserPortletCacheInstance instance : list) {
+							AppPortlet portlet = portletProvider.getPortlet(instance.getPortletType());
+							portlet.setPortletId(instance.getPortletId());
+							portlet.setFromKeyData(instance.getKeyData());
+							if (instance.isMinimized())
+								portlet.collapse();
+							thePortal.reinsert(portlet, instance.getRestoreRow(), instance.getRestoreColumn());
+						}
+					}
+			});
 	}
 
 	/**

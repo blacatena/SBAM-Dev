@@ -400,7 +400,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	}
 
 	protected void loadInstitution(final int ucn) {
-		institutionGetService.getInstitution(ucn,
+		institutionGetService.getInstitution(ucn, false,
 				new AsyncCallback<InstitutionInstance>() {
 					public void onFailure(Throwable caught) {
 						// Show the RPC error message to the user
@@ -438,12 +438,33 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 
 	@Override
 	public void setFromKeyData(String keyData) {
+		if (keyData == null)
+			return;
 		
+		String oldTip = null;
+		String oldAid = null;
+		
+		if (keyData.indexOf(':') >= 0) {
+			oldAid = keyData.substring(0, keyData.indexOf(':'));
+			oldTip = keyData.substring(keyData.indexOf(':') + 1);
+		}
+		if (oldTip != null)
+			identificationTip = oldTip;
+		if (oldAid != null && oldAid.length() > 0) {
+			try {
+				agreementId = Integer.parseInt(oldAid);
+			} catch (NumberFormatException e) {
+				return;
+			}
+		}
 	}
 
 	@Override
 	public String getKeyData() {
-		return agreementId + "";
+		if (identificationTip == null)
+			return agreementId + ":";
+		else
+			return agreementId + ":" + identificationTip;
 	}
 
 }

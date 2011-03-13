@@ -2,11 +2,13 @@ package com.scholastic.sbam.server.servlets;
 
 import com.scholastic.sbam.client.services.InstitutionGetService;
 import com.scholastic.sbam.server.database.codegen.Institution;
+import com.scholastic.sbam.server.database.objects.DbAgreement;
 import com.scholastic.sbam.server.database.objects.DbInstitution;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.server.fastSearch.InstitutionCache;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
+import com.scholastic.sbam.shared.util.AppConstants;
 
 /**
  * The server side implementation of the RPC service.
@@ -15,7 +17,7 @@ import com.scholastic.sbam.shared.security.SecurityManager;
 public class InstitutionGetServiceImpl extends AuthenticatedServiceServlet implements InstitutionGetService {
 
 	@Override
-	public InstitutionInstance getInstitution(int ucn) throws IllegalArgumentException {
+	public InstitutionInstance getInstitution(int ucn, boolean loadSummary) throws IllegalArgumentException {
 		authenticate("get institution", SecurityManager.ROLE_QUERY);
 
 		if (ucn <= 0)
@@ -35,7 +37,8 @@ public class InstitutionGetServiceImpl extends AuthenticatedServiceServlet imple
 				result.setTypeDescription(InstitutionCache.getSingleton().getInstitutionType(result.getTypeCode()).getDescription());
 				result.setGroupDescription(InstitutionCache.getSingleton().getInstitutionGroup(result.getGroupCode()).getDescription());
 				result.setPublicPrivateDescription(InstitutionCache.getSingleton().getInstitutionPubPriv(result.getPublicPrivateCode()).getDescription());
-//				result.setAgreementSummaryList(DbAgreement.findAgreementSummaries(instance.getUcn(), false, (char) 0, AppConstants.STATUS_DELETED));
+				if (loadSummary)
+					result.setAgreementSummaryList(DbAgreement.findAgreementSummaries(ucn, false, (char) 0, AppConstants.STATUS_DELETED));
 					
 			}
 			

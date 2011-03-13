@@ -10,5 +10,5 @@ import com.scholastic.sbam.shared.objects.InstitutionInstance;
  */
 @RemoteServiceRelativePath("getInstitution")
 public interface InstitutionGetService extends RemoteService {
-	InstitutionInstance getInstitution(int ucn) throws IllegalArgumentException, ServiceNotReadyException;
+	InstitutionInstance getInstitution(int ucn, boolean loadSummary) throws IllegalArgumentException, ServiceNotReadyException;
 }

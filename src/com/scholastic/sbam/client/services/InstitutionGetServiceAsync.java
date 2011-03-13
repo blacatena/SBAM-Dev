@@ -5,6 +5,6 @@ import com.scholastic.sbam.shared.objects.InstitutionInstance;
 
 public interface InstitutionGetServiceAsync {
 
-	void getInstitution(int ucn, AsyncCallback<InstitutionInstance> callback);
+	void getInstitution(int ucn, boolean loadSummary, AsyncCallback<InstitutionInstance> callback);
 
 }

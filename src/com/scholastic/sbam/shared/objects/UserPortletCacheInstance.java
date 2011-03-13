@@ -48,12 +48,11 @@ public class UserPortletCacheInstance  implements BeanModelTag, IsSerializable {
 	public void setMinimized(char minimized) {
 		this.minimized = minimized;
 	}
-	/**
-	 * This is just a setter for minimized that takes a boolean argument
-	 * @param minimized
-	 */
-	public void storeMinimized(boolean minimized) {	// A setting with a boolean argument for minimized
+	public void setMinimized(boolean minimized) {
 		this.minimized = minimized?'y':'n';
+	}
+	public boolean isMinimized() {
+		return minimized == 'y';
 	}
 	public String getKeyData() {
 		return keyData;

@@ -187,7 +187,7 @@ public abstract class AppPortlet extends Portlet {
 			cacheInstance.setRestoreColumn(col);
 			cacheInstance.setRestoreRow(row);
 		}
-		cacheInstance.storeMinimized(minimized);
+		cacheInstance.setMinimized(minimized);
 		
 		userPortletCacheUpdateService.updateUserPortletCache(cacheInstance,
 				new AsyncCallback<String>() {

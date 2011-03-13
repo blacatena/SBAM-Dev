@@ -47,6 +47,17 @@ public class AppPortletProvider {
 	//	panel.getHeader().addTool(new ToolButton("x-tool-gear"));
 	}
 	
+	public AppPortletIds getAppPortletId(String className) {
+		for (AppPortletIds id : AppPortletIds.values())
+			if (id.getClassName().equals(className))
+				return id;
+		return AppPortletIds.UNKNOWN_PORTLET;
+	}
+	
+	public AppPortlet getPortlet(String className) {
+		return getPortlet(getAppPortletId(className));
+	}
+	
 	public AppPortlet getPortlet(AppPortletIds id) {
 		AppPortlet portlet;
 		if (id == AppPortletIds.FULL_INSTITUTION_SEARCH)
