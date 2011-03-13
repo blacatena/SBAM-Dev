@@ -24,8 +24,10 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.extjs.gxt.ui.client.widget.grid.filters.DateFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
 import com.extjs.gxt.ui.client.widget.grid.filters.NumericFilter;
+import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.core.client.GWT;
@@ -156,6 +158,10 @@ public class RecentInstitutionsPortlet extends GridSupportPortlet<InstitutionIns
 		filters.setLocal(true);
 		
 		filters.addFilter(new NumericFilter("intKey"));
+		filters.addFilter(new DateFilter("accessDatetime"));
+		filters.addFilter(new StringFilter("hint"));
+		
+		institutionsGrid.addPlugin(filters);
 	}
 	
 	/**
