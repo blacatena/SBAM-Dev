@@ -32,6 +32,10 @@ public class AppNavTree {
 	 		this(portletId.name, portletId.iconName, portletId);
 	 	}
 
+	 	public SelectionTreeNode(String name, AppPortletIds portletId) {
+	 		this(name, portletId.iconName, portletId);
+	 	}
+
 	 	public SelectionTreeNode(String name, String iconName) {
 	 		this(name, iconName, AppPortletIds.UNKNOWN_PORTLET);
 	 	}
@@ -105,7 +109,7 @@ public class AppNavTree {
 	  Folder searches = new Folder("Searches");
 	  
 	  Folder custSrch = new Folder("Customers");
-	  custSrch.add(new SelectionTreeNode("Full Institution List", IconSupplier.getInstitutionIconName(), AppPortletIds.FULL_INSTITUTION_SEARCH));
+	  custSrch.add(new SelectionTreeNode("Full Institution List",	AppPortletIds.FULL_INSTITUTION_SEARCH));
 	  custSrch.add(new SelectionTreeNode("Customer List", IconSupplier.getInstitutionIconName()));
 	  custSrch.add(new SelectionTreeNode("Site List", IconSupplier.getSiteIconName()));
 	  custSrch.add(new SelectionTreeNode("Contacts", IconSupplier.getContactsIconName()));
@@ -119,8 +123,8 @@ public class AppNavTree {
 	  agreeSrch.add(new SelectionTreeNode("Contacts", IconSupplier.getContactsIconName()));
 	  
 	  Folder recentSrch = new Folder("Recent");
-	  recentSrch.add(new SelectionTreeNode("Agreements", IconSupplier.getAgreementIconName()));
-	  recentSrch.add(new SelectionTreeNode("Customers", IconSupplier.getInstitutionIconName()));
+	  recentSrch.add(new SelectionTreeNode("Agreements",	AppPortletIds.RECENT_AGREEMENTS_DISPLAY));
+	  recentSrch.add(new SelectionTreeNode("Customers",		AppPortletIds.RECENT_INSTITUTIONS_DISPLAY));
 	  
 	  searches.add(custSrch);
 	  searches.add(agreeSrch);

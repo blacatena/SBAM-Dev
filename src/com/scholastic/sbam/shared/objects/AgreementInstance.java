@@ -188,10 +188,14 @@ public class AgreementInstance extends BetterRowEditInstance implements BeanMode
 	public String toString() {
 		return "Agreement " + idCheckDigit;
 	}
+	
+	public static String getUserCacheCategory() {
+		return "Agreement";
+	}
 
 	@Override
 	public String userCacheCategory() {
-		return "Agreement";
+		return getUserCacheCategory();
 	}
 
 	@Override

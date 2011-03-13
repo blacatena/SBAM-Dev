@@ -201,10 +201,13 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable, UserCa
 		}
 	}
 
+	public static String getUserCacheCategory() {
+		return "Institution";
+	}
 
 	@Override
 	public String userCacheCategory() {
-		return "Institution";
+		return getUserCacheCategory();
 	}
 
 	@Override

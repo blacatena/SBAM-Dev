@@ -30,6 +30,7 @@ public class DbUserCache extends HibernateAccessor {
 		instance.setIntKey(dbInstance.getId().getIntKey());
 		instance.setStrKey(dbInstance.getId().getStrKey());
 		instance.setHint(dbInstance.getHint());
+		instance.setAccessDatetime(dbInstance.getAccessDatetime());
 		
 		return instance;
 	}

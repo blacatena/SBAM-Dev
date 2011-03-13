@@ -13,6 +13,7 @@ import com.google.gwt.i18n.client.CurrencyData;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.i18n.client.DefaultCurrencyData;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.CommissionTypeListService;
@@ -26,7 +27,9 @@ public class UiConstants {
 	public static final int				QUICK_TOOL_TIP_SHOW_DELAY		= 3000;
 	public static final int				QUICK_TOOL_TIP_DISMISS_DELAY	= 2000;
 	public static final DateTimeFormat	APP_DATE_TIME_FORMAT			= DateTimeFormat.getFormat(PredefinedFormat.DATE_MEDIUM);	//	DateTimeFormat.getFormat("MM/dd/yy");
-	public static final CurrencyData	US_DOLLARS						=	new DefaultCurrencyData("840", "$");;
+	public static final DateTimeFormat	APP_DATE_PLUS_TIME_FORMAT		= DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_MEDIUM);
+	public static final CurrencyData	US_DOLLARS						= new DefaultCurrencyData("840", "$");
+	public static final NumberFormat	INTEGER_FORMAT					= NumberFormat.getFormat("#");
 	
 	public enum CommissionTypeTargets {
 		PRODUCT, SITE, AGREEMENT, AGREEMENT_TERM;

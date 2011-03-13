@@ -1,5 +1,7 @@
 package com.scholastic.sbam.shared.objects;
 
+import java.util.Date;
+
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
@@ -9,6 +11,7 @@ public class UserCacheInstance  implements BeanModelTag, IsSerializable {
 	private int		intKey;
 	private String	strKey;
 	private String	hint;
+	private Date	accessDatetime;
 	
 	public String getUserName() {
 		return userName;
@@ -39,5 +42,11 @@ public class UserCacheInstance  implements BeanModelTag, IsSerializable {
 	}
 	public void setHint(String hint) {
 		this.hint = hint;
+	}
+	public Date getAccessDatetime() {
+		return accessDatetime;
+	}
+	public void setAccessDatetime(Date accessDatetime) {
+		this.accessDatetime = accessDatetime;
 	}
 }

@@ -313,7 +313,7 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 		if (instance == null)
 			return;
 		
-		registerUserCache(focusInstitution, filter);
+		registerUserCache(focusInstitution, focusInstitution.getInstitutionName());
 		updateUserPortlet();
 
 		ucn.setValue(focusInstitution.getUcn());
@@ -697,10 +697,21 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 		this.portletProvider = portletProvider;
 	}
 
-//	@Override
-//	public UserCacheTarget getUserCacheTarget() {
-//		return focusInstitution;
-//	}
+	public int getFocusUcn() {
+		return focusUcn;
+	}
+
+	public void setFocusUcn(int focusUcn) {
+		this.focusUcn = focusUcn;
+	}
+
+	public String getFilter() {
+		return filter;
+	}
+
+	public void setFilter(String filter) {
+		this.filter = filter;
+	}
 
 	@Override
 	public void setFromKeyData(String keyData) {

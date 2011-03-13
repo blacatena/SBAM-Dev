@@ -1,14 +1,14 @@
 package com.scholastic.sbam.client.services;
 
 import java.util.Date;
-import java.util.List;
 
-import com.extjs.gxt.ui.client.data.LoadConfig;
+import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
 import com.scholastic.sbam.shared.objects.UserCacheInstance;
 
 public interface UserCacheListServiceAsync {
 
-	void getUserCacheTargets(LoadConfig loadConfig, String userName, String category, Date fromDate, int maxCount, AsyncCallback<List<UserCacheInstance>> callback);
+	void getUserCacheTargets(PagingLoadConfig loadConfig, String userName, String category, Date fromDate, int maxCount, long syncId, AsyncCallback<SynchronizedPagingLoadResult<UserCacheInstance>> callback);
 
 }

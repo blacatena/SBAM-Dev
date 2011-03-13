@@ -13,6 +13,15 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 
+/**
+ * A base class which provides useful helper methods for any portlet that will be using grids.
+ * 
+ * Classes include methods for creating grid columns and for constructing addresses in HTML.
+ * 
+ * @author Bob Lacatena
+ *
+ * @param <I>
+ */
 public abstract class GridSupportPortlet<I> extends AppPortlet {
 	
 	public GridSupportPortlet(String helpTextId) {
