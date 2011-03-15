@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Mar 12, 2011 2:07:15 PM by Hibernate Tools 3.2.4.GA
+// Generated Mar 14, 2011 8:15:15 AM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -12,9 +12,9 @@ public class AgreementSite implements java.io.Serializable {
 	private AgreementSiteId id;
 	private String commissionCode;
 	private String orgPath;
-	private String note;
 	private Date activeDate;
 	private Date inactiveDate;
+	private String note;
 	private Date createdDatetime;
 	private char status;
 
@@ -32,14 +32,14 @@ public class AgreementSite implements java.io.Serializable {
 	}
 
 	public AgreementSite(AgreementSiteId id, String commissionCode,
-			String orgPath, String note, Date activeDate, Date inactiveDate,
+			String orgPath, Date activeDate, Date inactiveDate, String note,
 			Date createdDatetime, char status) {
 		this.id = id;
 		this.commissionCode = commissionCode;
 		this.orgPath = orgPath;
-		this.note = note;
 		this.activeDate = activeDate;
 		this.inactiveDate = inactiveDate;
+		this.note = note;
 		this.createdDatetime = createdDatetime;
 		this.status = status;
 	}
@@ -68,14 +68,6 @@ public class AgreementSite implements java.io.Serializable {
 		this.orgPath = orgPath;
 	}
 
-	public String getNote() {
-		return this.note;
-	}
-
-	public void setNote(String note) {
-		this.note = note;
-	}
-
 	public Date getActiveDate() {
 		return this.activeDate;
 	}
@@ -90,6 +82,14 @@ public class AgreementSite implements java.io.Serializable {
 
 	public void setInactiveDate(Date inactiveDate) {
 		this.inactiveDate = inactiveDate;
+	}
+
+	public String getNote() {
+		return this.note;
+	}
+
+	public void setNote(String note) {
+		this.note = note;
 	}
 
 	public Date getCreatedDatetime() {

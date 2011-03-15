@@ -110,6 +110,10 @@ public class IconSupplier {
 		return "site.png";
 	}
 	
+	public static String getRemoteIconName() {
+		return "remote.png";
+	}
+	
 	public static String getProgrammingIconName() {
 		return "programming.png";
 	}
@@ -278,6 +282,14 @@ public class IconSupplier {
 		}
 	}
 	
+	public static String getColorfulIconPath(String iconName) {
+		return "resources/images/icons/colorful/" + iconName;
+	}
+	
+	public static String getMonochromeIconPath(String iconName) {
+		return "resources/images/icons/monochrome/" + iconName;
+	}
+	
 	public static AbstractImagePrototype getHeaderIcon(String iconName) {
 		return getColorfulIcon(iconName);
 	}
@@ -306,11 +318,11 @@ public class IconSupplier {
 	}
 	
 	public static AbstractImagePrototype getColorfulIcon(String iconName) {
-		return IconHelper.create("resources/images/icons/colorful/" + iconName);
+		return IconHelper.create(getColorfulIconPath(iconName));
 	}
 	
 	public static AbstractImagePrototype getMonochromeIcon(String iconName) {
-		return IconHelper.create("resources/images/icons/monochrome/" + iconName);
+		return IconHelper.create(getMonochromeIconPath(iconName));
 	}
 	
 	public static AbstractImagePrototype getRawIcon(String iconName) {

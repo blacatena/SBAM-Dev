@@ -24,10 +24,14 @@ import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.grid.CellSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.LiveGridView;
+import com.extjs.gxt.ui.client.widget.grid.RowExpander;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
@@ -69,7 +73,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected PagingLoader<PagingLoadResult<InstitutionInstance>> institutionLoader;
 
 	protected LabelField			agreementIdDisplay;
-	protected LabelField			ucnDisplay;
+	protected NumberField			ucnDisplay;
 	protected LabelField			addressDisplay;
 	protected LabelField			typeDisplay;
 	protected LabelField			statusDisplay;
@@ -168,24 +172,25 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		displayCard.add(agreementIdDisplay, formData);
 
 		// ucnDisplay as NumberField
+		ucnDisplay = getIntegerField("Bill Institution");
 //		ucnDisplay = new NumberField();
-//		ucnDisplay.setReadOnly(true);
+////		ucnDisplay.setReadOnly(true);
 //		ucnDisplay.setFormat(NumberFormat.getFormat("#"));
 //		ucnDisplay.setAllowDecimals(false);
 //		ucnDisplay.setAllowNegative(false);
-////		ucnDisplay.setEnabled(false);
+//		ucnDisplay.setEnabled(false);
 //		ucnDisplay.addStyleName("field-or-label");
 ////		ucnDisplay.setMessageTarget(messageTarget)
 ////		ucnDisplay.setMessages(messages);
 ////		ucnDisplay.setImages(images);
 //		ucnDisplay.setFieldLabel("Bill Institution ");
-//		displayCard.add(ucnDisplay, formData);
-		
-		ucnDisplay = new LabelField();
-		ucnDisplay.setFieldLabel("Bill Institution :");
 		displayCard.add(ucnDisplay, formData);
 		
-		addressDisplay = new LabelField(); 
+//		ucnDisplay = new LabelField();
+//		ucnDisplay.setFieldLabel("Bill Institution :");
+//		displayCard.add(ucnDisplay, formData);
+		
+		addressDisplay = new LabelField();
 		displayCard.add(addressDisplay, formData); 
 		
 		typeDisplay = new LabelField();
@@ -219,31 +224,54 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 					"This is the value of the service."));
 		columns.add(getDisplayColumn("termTypeDescription",		"Type",						80,
 					"This is the type of service."));
+
+//		ColumnConfig noteColumn = getDisplayColumn("junk",		"",							24,		false);
+//		final GridCellRenderer<BeanModel> noteRenderer = new GridCellRenderer<BeanModel>() {
+//				@Override
+//				public Object render(final BeanModel model, final String property, final ColumnData config, final int rowIndex,
+//						final int colIndex, final ListStore<BeanModel> store, final Grid<BeanModel> grid) {
+//					boolean hasNote = (model.get("note") != null && model.get("note").toString().length() > 0);
+//					config.style = "";
+//					if (hasNote) {
+//						config.style = "background: url(" + IconSupplier.getColorfulIconPath(IconSupplier.getNoteIconName()) +
+//										") no-repeat center center !important;";
+//					}
+//					return "";
+//				}
+//			};
+//		noteColumn.setRenderer(noteRenderer);
+//		columns.add(noteColumn);
+		RowExpander expander = getNoteExpander();
+		columns.add(expander);
 		
 		ColumnModel cm = new ColumnModel(columns);  
 
 		termsStore = new ListStore<ModelData>();
 		
-		termsGrid = new Grid<ModelData>(termsStore, cm);  
-		termsGrid.setBorders(true);  
+		termsGrid = new Grid<ModelData>(termsStore, cm); 
+		termsGrid.addPlugin(expander);
+		termsGrid.setBorders(false);  
 //		termsGrid.setAutoExpandColumn("firstStartDate");  
 //		termsGrid.setLoadMask(true);
 		termsGrid.setHeight(200);
 		termsGrid.setStripeRows(true);
-		termsGrid.setColumnLines(true);
+		termsGrid.setColumnLines(false);
 		termsGrid.setHideHeaders(false);
 		termsGrid.setWidth(cm.getTotalWidth() + 20);
 		
+		addRowListener(termsGrid);
+		
 		//	Switch to the display card when a row is selected
-		termsGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);  
-		termsGrid.getSelectionModel().addListener(Events.SelectionChange,  
-				new Listener<SelectionChangedEvent<ModelData>>() {  
-					public void handleEvent(SelectionChangedEvent<ModelData> be) {  
-						if (be.getSelection().size() > 0) {
-							System.out.println("Agreement Term" + ((BeanModel) be.getSelectedItem()).get("id"));
-						} 
-					}  
-			});
+		termsGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+//		termsGrid.getSelectionModel().addListener(Events.SelectionChange,  
+//				new Listener<SelectionChangedEvent<ModelData>>() {
+//					public void handleEvent(SelectionChangedEvent<ModelData> be) {  
+//						if (be.getSelection().size() > 0) {
+//							System.out.println("Agreement Term" + ((BeanModel) be.getSelectedItem()).get("id"));
+//							System.out.println(be.getSource().toString() + " / " + be.getSource().getClass().getName());
+//						} 
+//					}  
+//			});
 	
 		FieldSet fieldSet = new FieldSet();
 		fieldSet.setBorders(true);
@@ -295,6 +323,16 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 				}
 			});
 		toolBar.add(methodsButton);
+		
+		Button remoteButton = new Button("Remote Setup");
+		remoteButton.setToolTip(UiConstants.getQuickTip("Define and edit any remote setup for this agreement."));
+		IconSupplier.forceIcon(remoteButton, IconSupplier.getRemoteIconName());
+		remoteButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+				@Override
+				public void componentSelected(ButtonEvent ce) {
+				}
+			});
+		toolBar.add(remoteButton);
 		
 		Button contactsButton = new Button("Contacts");
 		contactsButton.setToolTip(UiConstants.getQuickTip("View, define and edit the contacts for this agreement."));

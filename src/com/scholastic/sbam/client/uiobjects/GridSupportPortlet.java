@@ -1,17 +1,23 @@
 package com.scholastic.sbam.client.uiobjects;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.core.XTemplate;
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.data.BeanModelFactory;
 import com.extjs.gxt.ui.client.data.BeanModelLookup;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.GridEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.extjs.gxt.ui.client.widget.grid.RowExpander;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
+import com.scholastic.sbam.client.util.IconSupplier;
 
 /**
  * A base class which provides useful helper methods for any portlet that will be using grids.
@@ -22,36 +28,10 @@ import com.google.gwt.i18n.client.NumberFormat;
  *
  * @param <I>
  */
-public abstract class GridSupportPortlet<I> extends AppPortlet {
+public abstract class GridSupportPortlet<I> extends FieldSupportPortlet {
 	
 	public GridSupportPortlet(String helpTextId) {
 		super(helpTextId);
-	}
-
-	protected String plusIfNotEmpty(String value, String prefix) {
-		if (value == null || value.length() == 0)
-			return "";
-		return prefix + value;
-	}
-	
-	protected String brIfNotEmpty(String value) {
-		return plusIfNotEmpty(value, "<br/>");
-	}
-	
-	protected String commaIfNotEmpty(String value) {
-		return plusIfNotEmpty(value, ", ");
-	}
-	
-	protected String spaceIfNotEmpty(String value) {
-		return plusIfNotEmpty(value, "&nbsp;&nbsp;&nbsp;");
-	}
-	
-	protected String brIfNotUsa(String value) {
-		if (value == null || value.length() == 0)
-			return "";
-		if (value.equalsIgnoreCase("USA"))
-			return "";
-		return "<br/>" + value;
 	}
 
 	
@@ -135,27 +115,68 @@ public abstract class GridSupportPortlet<I> extends AppPortlet {
 		}
 		return cc;
 	}
+	
+	protected RowExpander getNoteExpander() {
+		XTemplate tpl = XTemplate.create("<p style=\"padding: 10px\"><b>Note:</b> {note}</p>");  
 
-	/**
-	 * Go to sleep when collapsed.
-	 */
-	@Override
-	public void onCollapse() {
-		super.onCollapse();
-		sleep();
+		RowExpander noteExpander = new RowExpander() {
+			@Override
+			protected void onMouseDown(GridEvent<?> e) {
+				if (e.getModel() != null && e.getModel().get("note") != null && e.getModel().get("note").toString().length() > 0) {
+					super.onMouseDown(e);
+				}
+			}
+		};
+		noteExpander.setTemplate(tpl);
+		
+		/**
+		 * This renderer must replace the one set up by RowExpander, so it must do the same thing, as well as add the Note icon
+		 */
+		final GridCellRenderer<BeanModel> noteRenderer = new GridCellRenderer<BeanModel>() {
+			@Override
+			public Object render(final BeanModel model, final String property, final ColumnData config, final int rowIndex,
+					final int colIndex, final ListStore<BeanModel> store, final Grid<BeanModel> grid) {
+				boolean hasNote = (model.get("note") != null && model.get("note").toString().length() > 0);
+				config.style = "";
+				if (hasNote) {
+					config.cellAttr = "rowspan='2'";
+					config.style = "background: url(" + IconSupplier.getColorfulIconPath(IconSupplier.getNoteIconName()) +
+									") no-repeat 10px 2px !important;";
+			        return "<div class='x-grid3-row-expander'>&#160;</div>";
+				}
+				return "";
+			}
+		};
+		noteExpander.setWidth(32);
+		noteExpander.setRenderer(noteRenderer);
+		noteExpander.setToolTip("Click the notes icon to expand or collapse the row to display any notes.");
+//		noteExpander.setId("showNotes");
+
+		return noteExpander;
+	}
+	
+	protected void addRowListener(Grid<?> grid) {
+		grid.addListener(Events.RowClick, new Listener<GridEvent<?>>() {
+		      public void handleEvent(GridEvent<?> be) {
+		        onRowSelected(be);
+		      }
+		    });
+	}
+	
+	protected boolean hasNote(ModelData model) {
+		return model != null && model.get("note") != null && model.get("note").toString().length() > 0;
+	}
+	
+	protected void onRowSelected(GridEvent<?> be) {
+		if (!be.getTarget().getClassName().equals("x-grid3-row-expander") || !hasNote(be.getModel()))
+			onRowSelected(be.getModel());
+		// else do nothing... handled later by RowExpander
 	}
 	
 	/**
-	 * Wake up when expanded.
+	 * Override this method to provide functionality when a row is selected but not expanded/collapsed.
+	 * @param model
 	 */
-	@Override
-	public void onExpand() {
-		super.onExpand();
-		awaken();
+	protected void onRowSelected(ModelData model) {
 	}
-	
-	public abstract void awaken();
-	
-	public abstract void sleep();
-
 }

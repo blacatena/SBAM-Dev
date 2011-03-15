@@ -170,6 +170,9 @@ a.pdocImgLink {
 /*div.x-item-disabled input.x-form-field { use this to apply to all fields, below for only selected */
 div.x-item-disabled.field-or-label {
 	color: 	black	!important;
+	opacity:1  !important;
+	-moz-opacity:1  !important;
+	filter:alpha(opacity = 100 )  !important;
 }
 
 div.x-form-readonly.field-or-label input.x-form-field {
@@ -189,6 +192,16 @@ div.x-item-disabled.field-or-label input.x-form-field {
 	opacity:1  !important;
 	-moz-opacity:1  !important;
 	filter:alpha(opacity = 100 )  !important;
+}
+
+/* Fix selected grid row color */
+.x-grid3-row-selected {
+    background-color: #D9C9BF !important;
+}
+
+
+.x-grid3-row-expander {
+	background-image: none !important;
 }
 
 /* These are necessary, because the theme doesn't "take" -- change these if the theme changes */

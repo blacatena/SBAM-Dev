@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Mar 12, 2011 2:07:15 PM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Mar 14, 2011 8:15:15 AM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.AgreementSite" table="agreement_site" catalog="sbam">
         <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.AgreementSiteId">
@@ -21,14 +21,14 @@
         <property name="orgPath" type="string">
             <column name="org_path" length="1024" not-null="true" />
         </property>
-        <property name="note" type="string">
-            <column name="note" length="4000" not-null="true" />
-        </property>
         <property name="activeDate" type="date">
             <column name="active_date" length="10" />
         </property>
         <property name="inactiveDate" type="date">
             <column name="inactive_date" length="10" />
+        </property>
+        <property name="note" type="string">
+            <column name="note" length="4000" not-null="true" />
         </property>
         <property name="createdDatetime" type="timestamp">
             <column name="created_datetime" length="19" not-null="true" />

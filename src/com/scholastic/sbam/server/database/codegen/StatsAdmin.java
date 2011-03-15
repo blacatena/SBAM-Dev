@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Mar 12, 2011 2:07:15 PM by Hibernate Tools 3.2.4.GA
+// Generated Mar 14, 2011 8:15:15 AM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -13,6 +13,7 @@ public class StatsAdmin implements java.io.Serializable {
 	private String adminUsername;
 	private String adminPassword;
 	private String accessGroup;
+	private String note;
 	private Date createdDatetime;
 	private char status;
 
@@ -20,11 +21,12 @@ public class StatsAdmin implements java.io.Serializable {
 	}
 
 	public StatsAdmin(int ucn, String adminUsername, String adminPassword,
-			String accessGroup, Date createdDatetime, char status) {
+			String accessGroup, String note, Date createdDatetime, char status) {
 		this.ucn = ucn;
 		this.adminUsername = adminUsername;
 		this.adminPassword = adminPassword;
 		this.accessGroup = accessGroup;
+		this.note = note;
 		this.createdDatetime = createdDatetime;
 		this.status = status;
 	}
@@ -59,6 +61,14 @@ public class StatsAdmin implements java.io.Serializable {
 
 	public void setAccessGroup(String accessGroup) {
 		this.accessGroup = accessGroup;
+	}
+
+	public String getNote() {
+		return this.note;
+	}
+
+	public void setNote(String note) {
+		this.note = note;
 	}
 
 	public Date getCreatedDatetime() {

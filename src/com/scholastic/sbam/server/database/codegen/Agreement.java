@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Mar 12, 2011 2:07:15 PM by Hibernate Tools 3.2.4.GA
+// Generated Mar 14, 2011 8:15:15 AM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -17,17 +17,17 @@ public class Agreement implements java.io.Serializable {
 	private String commissionCode;
 	private String deleteReasonCode;
 	private String orgPath;
+	private String note;
 	private Date createdDatetime;
 	private char status;
-	private String note;
 
 	public Agreement() {
 	}
 
 	public Agreement(int idCheckDigit, int billUcn, int billUcnSuffix,
 			String agreementTypeCode, String commissionCode,
-			String deleteReasonCode, String orgPath, Date createdDatetime,
-			char status, String note) {
+			String deleteReasonCode, String orgPath, String note,
+			Date createdDatetime, char status) {
 		this.idCheckDigit = idCheckDigit;
 		this.billUcn = billUcn;
 		this.billUcnSuffix = billUcnSuffix;
@@ -35,9 +35,9 @@ public class Agreement implements java.io.Serializable {
 		this.commissionCode = commissionCode;
 		this.deleteReasonCode = deleteReasonCode;
 		this.orgPath = orgPath;
+		this.note = note;
 		this.createdDatetime = createdDatetime;
 		this.status = status;
-		this.note = note;
 	}
 
 	public Integer getId() {
@@ -104,6 +104,14 @@ public class Agreement implements java.io.Serializable {
 		this.orgPath = orgPath;
 	}
 
+	public String getNote() {
+		return this.note;
+	}
+
+	public void setNote(String note) {
+		this.note = note;
+	}
+
 	public Date getCreatedDatetime() {
 		return this.createdDatetime;
 	}
@@ -118,14 +126,6 @@ public class Agreement implements java.io.Serializable {
 
 	public void setStatus(char status) {
 		this.status = status;
-	}
-
-	public String getNote() {
-		return this.note;
-	}
-
-	public void setNote(String note) {
-		this.note = note;
 	}
 
 }

@@ -563,7 +563,7 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 	 * Show the dialog.
 	 */
 	public void show(boolean animate) {
-		super.show(false);
+		super.show(animate);
 	}
 	
 	/**
