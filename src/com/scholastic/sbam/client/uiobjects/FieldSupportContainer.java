@@ -49,6 +49,11 @@ public abstract class FieldSupportContainer extends LayoutContainer {
 		return "<br/>" + value;
 	}
 	
+//	protected void setOriginalValues(FormPanel formPanel) {
+//		for (Field<?> field : formPanel.getFields())
+//			field.updateOriginalValue(field.getValue());
+//	}
+	
 	protected NumberField getDollarField(String label) {
 		return getNumberField(label, UiConstants.DOLLARS_FORMAT);
 	}
@@ -82,6 +87,9 @@ public abstract class FieldSupportContainer extends LayoutContainer {
 	protected DateField getDateField(String label) {
 		DateField field = new DateField();
 		setStandard(field, label);
+		field.setWidth(50);
+		field.getPropertyEditor().setFormat(UiConstants.APP_DATE_LONG_FORMAT);
+		field.setFormatValue(true);
 		
 		return field;
 	}
@@ -89,6 +97,7 @@ public abstract class FieldSupportContainer extends LayoutContainer {
 	protected void setStandard(Field<?> field, String label) {
 		field.setEnabled(false);
 		field.addStyleName("field-or-label");
+//		field.setLabelStyle("sbam-field-label");
 		field.setFieldLabel(label);
 	}
 	

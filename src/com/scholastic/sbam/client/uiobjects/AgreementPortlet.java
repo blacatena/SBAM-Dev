@@ -66,6 +66,13 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected ListStore<ModelData>	store;
 	
 	protected PagingLoader<PagingLoadResult<InstitutionInstance>> institutionLoader;
+	
+	protected ToggleButton			agreementButton;
+	protected ToggleButton			termsButton;
+	protected ToggleButton			sitesButton;
+	protected ToggleButton			methodsButton;
+	protected ToggleButton			remoteButton;
+	protected ToggleButton			contactsButton;
 
 	protected LabelField			agreementIdDisplay;
 	protected NumberField			ucnDisplay;
@@ -145,7 +152,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		FormData formData = new FormData("100%");
 		displayCard = new FormPanel();
 
-		displayCard.setPadding(40);  
+//		displayCard.setPadding(40);  
 		displayCard.setFrame(true); 
 		displayCard.setHeaderVisible(false);  
 		displayCard.setBodyBorder(true);
@@ -267,13 +274,22 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		displayCard.add(fieldSet, new FormData("95%")); // new FormData(cm.getTotalWidth() + 20, 200));
 	}
 	
+	/**
+	 * What to do when a row is selected.
+	 */
 	@Override
 	protected void onRowSelected(BeanModel data) {
 		termsCard.setAgreementId(agreementId);
 		termsCard.setAgreementTerm((AgreementTermInstance) data.getBean());
 		cards.setActiveItem(termsCard);
+		// Set the button states to match the automatic switch
+		agreementButton.toggle(false);
+		termsButton.toggle(true);
 	}
 	
+	/**
+	 * Add the toolbar buttons
+	 */
 	protected void addButtons() {
 		
 		ToolBar toolBar = new ToolBar();
@@ -282,19 +298,20 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		toolBar.setSpacing(20);
 		toolBar.setToolTip(UiConstants.getQuickTip("Use these buttons to access detailed information for this agreement."));
 		
-		ToggleButton agreementButton = new ToggleButton("Agreement");
+		agreementButton = new ToggleButton("Agreement");
 		agreementButton.setToolTip(UiConstants.getQuickTip("Define and edit the main agreement."));
 		IconSupplier.forceIcon(agreementButton, IconSupplier.getAgreementIconName());
 		agreementButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
 				@Override
 				public void componentSelected(ButtonEvent ce) {
 					cards.setActiveItem(displayCard);
+					agreementButton.toggle(true);
 				}  
 			});
 		agreementButton.setToggleGroup("agreementGroup");
 		toolBar.add(agreementButton);
 		
-		ToggleButton termsButton = new ToggleButton("Terms");
+		termsButton = new ToggleButton("Terms");
 		termsButton.setToolTip(UiConstants.getQuickTip("Define and edit product terms for this agreement."));
 		IconSupplier.forceIcon(termsButton, IconSupplier.getAgreementTermIconName());
 		termsButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
@@ -302,50 +319,55 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 				public void componentSelected(ButtonEvent ce) {
 					termsCard.setAgreementId(agreementId);
 					cards.setActiveItem(termsCard);
+					termsButton.toggle(true);
 				}  
 			});
 		termsButton.setToggleGroup("agreementGroup");
 		toolBar.add(termsButton);
 		
-		ToggleButton sitesButton = new ToggleButton("Sites");
+		sitesButton = new ToggleButton("Sites");
 		sitesButton.setToolTip(UiConstants.getQuickTip("Define and edit the list of sites for this agreement."));
 		IconSupplier.forceIcon(sitesButton, IconSupplier.getSiteIconName());
 		sitesButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
 				@Override
 				public void componentSelected(ButtonEvent ce) {
+					sitesButton.toggle(true);
 				}  
 			});
 		sitesButton.setToggleGroup("agreementGroup");
 		toolBar.add(sitesButton);
 		
-		ToggleButton methodsButton = new ToggleButton("Access");
+		methodsButton = new ToggleButton("Access");
 		methodsButton.setToolTip(UiConstants.getQuickTip("Define and edit access methods for this agreement."));
 		IconSupplier.forceIcon(methodsButton, IconSupplier.getAccessMethodIconName());
 		methodsButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
 				@Override
 				public void componentSelected(ButtonEvent ce) {
+					methodsButton.toggle(true);
 				}
 			});
 		methodsButton.setToggleGroup("agreementGroup");
 		toolBar.add(methodsButton);
 		
-		ToggleButton remoteButton = new ToggleButton("Remote Setup");
+		remoteButton = new ToggleButton("Remote Setup");
 		remoteButton.setToolTip(UiConstants.getQuickTip("Define and edit any remote setup for this agreement."));
 		IconSupplier.forceIcon(remoteButton, IconSupplier.getRemoteIconName());
 		remoteButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
 				@Override
 				public void componentSelected(ButtonEvent ce) {
+					remoteButton.toggle(true);
 				}
 			});
 		remoteButton.setToggleGroup("agreementGroup");
 		toolBar.add(remoteButton);
 		
-		ToggleButton contactsButton = new ToggleButton("Contacts");
+		contactsButton = new ToggleButton("Contacts");
 		contactsButton.setToolTip(UiConstants.getQuickTip("View, define and edit the contacts for this agreement."));
 		IconSupplier.forceIcon(contactsButton, IconSupplier.getContactsIconName());
 		contactsButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
 				@Override
 				public void componentSelected(ButtonEvent ce) {
+					contactsButton.toggle(true);
 				}
 			});
 		contactsButton.setToggleGroup("agreementGroup");
@@ -356,6 +378,9 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		outerContainer.setBottomComponent(toolBar);
 	}
 	
+	/**
+	 * Set attributes for the main container
+	 */
 	protected void setThis() {
 //		this.setFrame(true);  
 //		this.setCollapsible(true);  
@@ -367,6 +392,10 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 //		this.setSize(grid.getWidth() + 50, 400);  
 	}
 	
+	/**
+	 * Set an agreement on the form, and load its institution
+	 * @param agreement
+	 */
 	protected void set(AgreementInstance agreement) {
 		this.agreement = agreement;
 		if (agreement == null)
@@ -407,6 +436,10 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		}
 	}
 	
+	/**
+	 * Set an institution on the form
+	 * @param instance
+	 */
 	protected void set(InstitutionInstance instance) {
 		billToInstitution = instance;
 		setPortletHeading();
@@ -426,6 +459,10 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		typeDisplay.setValue(instance.getPublicPrivateDescription() + " / " + instance.getGroupDescription() + " &rArr; " + instance.getTypeDescription());
 	}
 
+	/**
+	 * Load the agreement for an ID
+	 * @param id
+	 */
 	protected void loadAgreement(final int id) {
 		agrementGetService.getAgreement(id, false,
 				new AsyncCallback<AgreementInstance>() {
@@ -446,6 +483,10 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 			});
 	}
 
+	/**
+	 * Load the institution for the agreement
+	 * @param ucn
+	 */
 	protected void loadInstitution(final int ucn) {
 		institutionGetService.getInstitution(ucn, false,
 				new AsyncCallback<InstitutionInstance>() {
@@ -483,6 +524,9 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	public void sleep() {
 	}
 
+	/**
+	 * For the user cache, set this instance from a string of data stored offline
+	 */
 	@Override
 	public void setFromKeyData(String keyData) {
 		if (keyData == null)
@@ -506,6 +550,9 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		}
 	}
 
+	/**
+	 * For the user cache, return the "set" data as a string for offline storage
+	 */
 	@Override
 	public String getKeyData() {
 		if (identificationTip == null)

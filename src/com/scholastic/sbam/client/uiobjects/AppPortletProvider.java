@@ -37,6 +37,14 @@ public class AppPortletProvider {
 		portal.add(portlet, column);
 	}
 	
+	public boolean insertPortlet(ModelData model, int index, int column) { 
+		if (portal != null && model.get("portlet") != null) {
+			insertPortlet(getPortlet((AppPortletIds) model.get("portlet")), index, column);
+			return true;
+		}
+		return false;
+	}
+	
 	public void insertPortlet(AppPortlet portlet, int index, int column) { 
 		portal.insert(portlet, index, column);
 	}

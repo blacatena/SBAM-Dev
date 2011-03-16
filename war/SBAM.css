@@ -166,6 +166,27 @@ a.pdocImgLink {
 	background-color: #FBEBDB  !important;
 }
 
+.subtle-form .x-fieldset-header-text {
+	color: #755B37; /* #A28456; */
+}
+
+.subtle-form .x-form-item-label {
+	color: #755B37; /* #A28456; */
+}
+
+.x-panel.inner-panel .x-panel-tl, .x-panel.inner-panel  .x-panel-tr {
+    background-image: url("resources/images/panel/inner-panel/corners-sprite.gif");
+    border-bottom-color: #755B37; /* #6C5F4A; */
+}
+
+.x-panel-header.inner-panel {
+    background-image: url("resources/images/panel/inner-panel/white-top-bottom.gif");
+}
+
+.x-panel-header.inner-panel .x-panel-header-text {
+	color: #755B37; /* #A28456; */
+}
+
 /* Override display for disabled fields */
 /*div.x-item-disabled input.x-form-field { use this to apply to all fields, below for only selected */
 div.x-item-disabled.field-or-label {

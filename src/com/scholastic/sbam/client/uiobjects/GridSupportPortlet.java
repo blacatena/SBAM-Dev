@@ -10,6 +10,7 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.util.KeyNav;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -176,6 +177,23 @@ public abstract class GridSupportPortlet<I> extends FieldSupportPortlet {
 		        onRowSelected(be);
 		      }
 		    });
+		grid.addListener(Events.SelectionChange, new Listener<GridEvent<?>>() {
+		      public void handleEvent(GridEvent<?> be) {
+		    	  onRowSelected(be);
+		      }
+		    });
+		
+		new KeyNav<GridEvent<?>>(grid) {
+		      @Override
+		      public void onUp(GridEvent<?> ce) {
+		        onRowSelected((BeanModel) ce.getGrid().getSelectionModel().getSelectedItem());
+		      }
+		      
+		      @Override
+		      public void onDown(GridEvent<?> ce) {
+	        	onRowSelected((BeanModel) ce.getGrid().getSelectionModel().getSelectedItem());
+		      }
+		    };
 	}
 	
 	protected boolean hasNote(ModelData model) {

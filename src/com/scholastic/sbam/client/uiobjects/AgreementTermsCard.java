@@ -3,12 +3,16 @@ package com.scholastic.sbam.client.uiobjects;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.widget.form.DateField;
+import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.LabelField;
+import com.extjs.gxt.ui.client.widget.form.NumberField;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.RowExpander;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -24,8 +28,13 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 	
 	protected RowExpander			noteExpander;
 	
-	protected LabelField			agreementIdDisplay	= new LabelField();
-	protected LabelField			productDisplay		= new LabelField();
+	protected NumberField			agreementIdDisplay	= getIntegerField("Agreement #");
+	protected TextField<String>		productCodeDisplay	= getTextField("Product");
+	protected TextField<String>		productDisplay		= getTextField("");
+	protected NumberField			dollarValue			= getDollarField("Value");
+	protected DateField				startDate			= getDateField("Start");
+	protected DateField				endDate				= getDateField("End");
+	protected DateField				terminateDate		= getDateField("Terminate");
 	
 	public int getAgreementId() {
 		return getFocusId();
@@ -45,6 +54,10 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 
 	@Override
 	public void sleep() {
+	}
+	
+	public String getFormHeading() {
+		return "Product Terms";
 	}
 	
 	@Override
@@ -82,14 +95,13 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 
 	@Override
 	public void setFormFieldValues(AgreementTermInstance instance) {
-		agreementIdDisplay.setValue(instance.getAgreementId());
+		agreementIdDisplay.setValue(AppConstants.appendCheckDigit(instance.getAgreementId()));
+		productCodeDisplay.setValue(instance.getProductCode());
 		productDisplay.setValue(instance.getProductDescription());
-	}
-
-	@Override
-	public void clearFormFieldValues() {
-		agreementIdDisplay.clear();
-		productDisplay.clear();
+		dollarValue.setValue(instance.getDollarValue());
+		startDate.setValue(instance.getStartDate());
+		endDate.setValue(instance.getEndDate());
+		terminateDate.setValue(instance.getTerminateDate());
 	}
 
 	@Override
@@ -100,13 +112,34 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 
 	@Override
 	protected void addFormFields(FormPanel panel, FormData formData) {
-//		agreementIdDisplay = new LabelField();  
-		agreementIdDisplay.setFieldLabel("Agreement # :");
-		panel.add(agreementIdDisplay, formData);
 		
-//		productDisplay = new LabelField();  
-		productDisplay.setFieldLabel("Product :");
+		productCodeDisplay.setToolTip(UiConstants.getQuickTip("The product requested."));
+		dollarValue.setToolTip(UiConstants.getQuickTip("The total dollar value of this product for this term."));
+		startDate.setToolTip(UiConstants.getQuickTip("The date on which this product term will take effect."));
+		endDate.setToolTip(UiConstants.getQuickTip("The date on which this product term is scheduled to end."));
+		terminateDate.setToolTip(UiConstants.getQuickTip("The date on which this product term will no longer be delivered."));
+		
+		productDisplay.setLabelSeparator("");
+		productDisplay.setWidth(300);
+		
+		panel.add(agreementIdDisplay, formData);	
+		panel.add(productCodeDisplay, formData);
 		panel.add(productDisplay, formData);
+		panel.add(dollarValue, formData);
+		
+		FieldSet fieldSet = new FieldSet();
+		FormLayout layout = new FormLayout();
+		layout.setLabelAlign(panel.getLabelAlign());
+		layout.setLabelWidth(panel.getLabelWidth() - 10);
+		fieldSet.setLayout(layout);
+		fieldSet.setBorders(true);
+		fieldSet.setHeading("Term Dates");
+		
+		fieldSet.add(startDate);
+		fieldSet.add(endDate);
+		fieldSet.add(terminateDate);
+		
+		panel.add(fieldSet);
 	}
 	
 	

@@ -48,25 +48,21 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 			 */
 			
 			@Override
-			protected void onRender(Element parent, int index) {
-				super.onRender(parent, index);
-				if (gridPanel != null && gridPanel.isRendered()) {
-					gridPanel.setHeight(mainContainer.getHeight(true) - getHeight());
-				}
+			protected void afterRender() {
+				super.afterRender();
+				adjustGridPanelHeight();
 			}
 			
 			@Override
 			public void onResize(int width, int height) {
 				super.onResize(width, height);
-				if (gridPanel != null && gridPanel.isRendered()) {
-					gridPanel.setHeight(mainContainer.getHeight(true) - getHeight());
-				}
+				adjustGridPanelHeight();
 			}
 			
 			@Override
 			public void onCollapse() {
 				super.onCollapse();
-				// Resize in anticipation of what it will be after collapse
+				// Resize in anticipation of what it WILL be after collapse
 				if (gridPanel != null && gridPanel.isRendered()) {
 					if (isHeaderVisible())
 						gridPanel.setHeight(mainContainer.getHeight(true) - getHeader().getOffsetHeight());
@@ -78,34 +74,43 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 			@Override
 			public void afterCollapse() {
 				super.afterCollapse();
-				if (gridPanel != null && gridPanel.isRendered()) {
-					gridPanel.setHeight(mainContainer.getHeight(true) - getHeight());
-				}
+				adjustGridPanelHeight();
 			}
 			
 			@Override
 			public void afterExpand() {
 				super.afterExpand();
-				if (gridPanel != null && gridPanel.isRendered()) {
-					gridPanel.setHeight(mainContainer.getHeight(true) - getHeight());
-				}
+				adjustGridPanelHeight();
+			}
+			
+			@Override
+			public void onAfterLayout() { // This is critical... this is what makes sure that the grid panel gets resized after the formPanel actually has a size
+				super.onAfterLayout();
+				adjustGridPanelHeight();
 			}
 			
 		};
-		formPanel.setPadding(20);
+		formPanel.setPadding(5);
 		formPanel.setFrame(true);
-		formPanel.setHeaderVisible(true);
-		formPanel.setHeading("Product Terms");
+		formPanel.addStyleName("inner-panel");
+		if (getFormHeading() == null)
+			formPanel.setHeaderVisible(false);
+		else {
+			formPanel.setHeaderVisible(true);
+			formPanel.setHeading(getFormHeading());
+			formPanel.getHeader().addStyleName("inner-panel");
+		}
 		formPanel.setBodyBorder(true);
 		formPanel.setBorders(false);
 		formPanel.setBodyStyleName("subtle-form");
 		formPanel.setButtonAlign(HorizontalAlignment.CENTER);
 		formPanel.setLabelAlign(LabelAlign.RIGHT);
-		formPanel.setLabelWidth(100);
+		formPanel.setLabelWidth(getLabelWidth());
 		formPanel.setCollapsible(true);
 //		formPanel.setHeight(300);
-		if (focusInstance == null)
+		if (focusInstance == null) {
 			formPanel.collapse();
+		}
 		
 		addFormFields(formPanel, formData);
 		
@@ -121,15 +126,11 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 //		formPanel.addButton(doneButton);
 		
 		gridPanel = new ContentPanel() {
+			
 			@Override
-			protected void onRender(Element parent, int index) {
-				super.onRender(parent, index);
-				// This is key: it fits the grid, initially, to the height of the parent container
-				if (formPanel != null && formPanel.isRendered() && formPanel.isHeaderVisible())
-					gridPanel.setHeight(mainContainer.getHeight(true) - formPanel.getHeader().getOffsetHeight());
-				else
-					gridPanel.setHeight(mainContainer.getHeight(true));
-//				setHeight(parent.getClientHeight());
+			protected void afterRender() {
+				super.afterRender();
+				adjustGridPanelHeight();
 			}
 		};
 		gridPanel.setLayout(new FitLayout());
@@ -150,34 +151,56 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		}
 	}
 	
+	public void adjustGridPanelHeight() {
+		if (gridPanel == null || !gridPanel.isRendered())
+			return;
+		
+		if (formPanel == null || !formPanel.isRendered())
+			gridPanel.setHeight(mainContainer.getHeight(true));
+		else
+			if (formPanel.isExpanded())
+				gridPanel.setHeight(mainContainer.getHeight(true) - formPanel.getHeight());
+			else
+				if (formPanel.isHeaderVisible())
+					gridPanel.setHeight(mainContainer.getHeight(true) - formPanel.getHeader().getOffsetHeight());
+				else
+					gridPanel.setHeight(mainContainer.getHeight(true));
+	}
+	
+	public int getLabelWidth() {
+		return 100;
+	}
+
+	@Override
+	protected void afterRender() {
+		super.afterRender();
+		adjustGridPanelHeight();
+	}
+			
+	
 	@Override
 	public void onResize(int width, int height) {
 		super.onResize(width, height);
-		if (gridPanel != null && grid != null && gridPanel.isRendered() && grid.isRendered() && grid.getHeight() == 0) {
-			if (formPanel != null && formPanel.isRendered() && formPanel.isHeaderVisible())
-				gridPanel.setHeight(mainContainer.getHeight(true) - formPanel.getHeader().getOffsetHeight());
-			else
-				gridPanel.setHeight(mainContainer.getHeight(true));
-//			gridPanel.setHeight(height);
-		}
+		adjustGridPanelHeight();
 	}
 
-	public void setModelInstance(ModelInstance modelInstance) {
+	public void setFocusInstance(ModelInstance modelInstance) {
 		focusInstance = modelInstance;
 		// No agreement term means clear the form
 		if (focusInstance == null) {
-			clearModelInstance();
+			clearFocusInstance();
 			return;
 		}
 		
 		// Set the form fields
 		setFormFieldValues(focusInstance);
 		
-		if (formPanel != null)
+		if (formPanel != null) {
 			formPanel.expand();
+		}
 	}
 	
-	public void clearModelInstance() {
+	public void clearFocusInstance() {
 		clearFormFieldValues();
 		formPanel.collapse();
 	}
@@ -196,11 +219,9 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		grid.setBorders(true);  
 //		grid.setAutoExpandColumn(autoExpandColumn);  
 		grid.setLoadMask(true);
-//		grid.setHeight(this.getHeight());
 		grid.setStripeRows(true);
 		grid.setColumnLines(false);
 		grid.setHideHeaders(false);
-//		grid.setWidth(cm.getTotalWidth() + 20);
 		
 		addGridPlugins(grid);
 		setGridAttributes(grid);
@@ -216,7 +237,7 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onRowSelected(BeanModel instance) {
-		setModelInstance((ModelInstance) instance.getBean());
+		setFocusInstance((ModelInstance) instance.getBean());
 //		formPanel.expand();
 //		grid.getSelectionModel().deselectAll();
 	}
@@ -228,7 +249,7 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 						if (caught instanceof IllegalArgumentException)
 							MessageBox.alert("Alert", caught.getMessage(), null);
 						else {
-							MessageBox.alert("Alert", "Agreement access failed unexpectedly.", null);
+							MessageBox.alert("Alert", "Grid data access failed unexpectedly.", null);
 							System.out.println(caught.getClass().getName());
 							System.out.println(caught.getMessage());
 						}
@@ -270,10 +291,6 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		return focusInstance;
 	}
 
-	public void setFocusInstance(ModelInstance focusInstance) {
-		this.focusInstance = focusInstance;
-	}
-
 	public FormAndGridPanel<ModelInstance> getMainContainer() {
 		return mainContainer;
 	}
@@ -305,6 +322,8 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	public void setGrid(Grid<ModelData> grid) {
 		this.grid = grid;
 	}
+	
+	public abstract String getFormHeading();
 
 	/**
 	 * Implement to add all columns to the column configuration list.
@@ -317,6 +336,7 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	 * @param grid
 	 */
 	public void addGridPlugins(Grid<ModelData> grid) {
+//		For example:
 //		grid.addPlugin(expander);
 	}
 	
@@ -325,6 +345,7 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	 * @param grid
 	 */
 	public void setGridAttributes(Grid<ModelData> grid) {
+//		For example:
 //		grid.setAutoExpandColumn(autoExpandColumn);  	
 	}
 	
@@ -338,7 +359,9 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	 * Implement to clear the form field values based on the focus instance. 
 	 * @param instance
 	 */
-	public abstract void clearFormFieldValues();
+	public void clearFormFieldValues() {
+		formPanel.clear();
+	}
 	
 	/**
 	 * Implement to call the backend service to retrieve the list of instances for the grid.

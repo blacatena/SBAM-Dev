@@ -37,7 +37,7 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 		public void onSelectChange(ModelData model, boolean select) {
 			super.onSelectChange(model, select);
 			if (select) {
-				provider.addPortlet(model);
+				provider.insertPortlet(model, 0, 0);
 			}
 			this.deselectAll();
 		}

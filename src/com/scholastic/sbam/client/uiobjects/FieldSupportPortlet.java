@@ -88,6 +88,7 @@ public abstract class FieldSupportPortlet extends AppPortlet {
 	protected void setStandard(Field<?> field, String label) {
 		field.setEnabled(false);
 		field.addStyleName("field-or-label");
+	//	field.setLabelStyle("color: saddlebrown;");
 		field.setFieldLabel(label);
 	}
 
