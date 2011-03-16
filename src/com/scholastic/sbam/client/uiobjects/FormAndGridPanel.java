@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
-import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -22,7 +21,7 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
-public abstract class FormAndGridPanel<ModelInstance extends BaseModel> extends GridSupportContainer<ModelInstance> {
+public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContainer<ModelInstance> {
 	
 	protected FormAndGridPanel<ModelInstance>	mainContainer	= this;
 	
@@ -108,7 +107,7 @@ public abstract class FormAndGridPanel<ModelInstance extends BaseModel> extends 
 		if (focusInstance == null)
 			formPanel.collapse();
 		
-		addFormFields(formPanel);
+		addFormFields(formPanel, formData);
 		
 //		Button doneButton = new Button("Done");
 //		doneButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -253,13 +252,18 @@ public abstract class FormAndGridPanel<ModelInstance extends BaseModel> extends 
 		}
 		executeLoader(id, getLoaderCallback());
 	}
-	
+
+
 	public int getFocusId() {
 		return focusId;
 	}
 
+
 	public void setFocusId(int focusId) {
-		this.focusId = focusId;
+		if (focusId != this.focusId) {
+			this.focusId = focusId;
+			loadGrid(focusId);
+		}
 	}
 
 	public ModelInstance getFocusInstance() {
@@ -347,6 +351,6 @@ public abstract class FormAndGridPanel<ModelInstance extends BaseModel> extends 
 	 * Implement to add all necessary fields (and other components) to the form.
 	 * @param panel
 	 */
-	protected abstract void addFormFields(FormPanel panel);
+	protected abstract void addFormFields(FormPanel panel, FormData formData);
 	
 }
