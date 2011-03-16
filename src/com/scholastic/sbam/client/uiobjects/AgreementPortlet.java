@@ -10,26 +10,19 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
-import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.grid.CellSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.LiveGridView;
 import com.extjs.gxt.ui.client.widget.grid.RowExpander;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
@@ -63,8 +56,10 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected InstitutionInstance	billToInstitution;
 	protected String				identificationTip;
 	
+	protected ContentPanel			outerContainer;
 	protected CardLayout			cards;
 	protected FormPanel				displayCard;
+	protected AgreementTermsCard	termsCard;
 	protected Grid<ModelData>		grid;
 	protected LiveGridView			liveView;
 	
@@ -125,7 +120,10 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		setPortletHeading();
 		
 		setLayout(new FitLayout());
-		LayoutContainer outerContainer = new LayoutContainer();
+		outerContainer = new ContentPanel();
+		outerContainer.setBorders(false);
+		outerContainer.setHeaderVisible(false);
+		addButtons();
 		add(outerContainer);
 		
 		cards = new CardLayout();
@@ -135,6 +133,9 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		
 		createDisplayCard();
 		outerContainer.add(displayCard);
+		
+		termsCard = new AgreementTermsCard();
+		outerContainer.add(termsCard);
 		
 		if (agreementId > 0)
 			loadAgreement(agreementId);
@@ -148,6 +149,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		displayCard.setFrame(true); 
 		displayCard.setHeaderVisible(false);  
 		displayCard.setBodyBorder(true);
+		displayCard.setBorders(false);
 		displayCard.setBodyStyleName("subtle-form");
 		displayCard.setButtonAlign(HorizontalAlignment.CENTER);
 		displayCard.setLabelAlign(LabelAlign.RIGHT);
@@ -206,10 +208,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		displayCard.add(statusDisplay, formData); 
 		
 		addAgreementTermsGrid(formData);
-		addButtons(formData);
 	}
-	
-
 	
 	protected void addAgreementTermsGrid(FormData formData) {
 		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
@@ -225,22 +224,6 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		columns.add(getDisplayColumn("termTypeDescription",		"Type",						80,
 					"This is the type of service."));
 
-//		ColumnConfig noteColumn = getDisplayColumn("junk",		"",							24,		false);
-//		final GridCellRenderer<BeanModel> noteRenderer = new GridCellRenderer<BeanModel>() {
-//				@Override
-//				public Object render(final BeanModel model, final String property, final ColumnData config, final int rowIndex,
-//						final int colIndex, final ListStore<BeanModel> store, final Grid<BeanModel> grid) {
-//					boolean hasNote = (model.get("note") != null && model.get("note").toString().length() > 0);
-//					config.style = "";
-//					if (hasNote) {
-//						config.style = "background: url(" + IconSupplier.getColorfulIconPath(IconSupplier.getNoteIconName()) +
-//										") no-repeat center center !important;";
-//					}
-//					return "";
-//				}
-//			};
-//		noteColumn.setRenderer(noteRenderer);
-//		columns.add(noteColumn);
 		RowExpander expander = getNoteExpander();
 		columns.add(expander);
 		
@@ -250,7 +233,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		
 		termsGrid = new Grid<ModelData>(termsStore, cm); 
 		termsGrid.addPlugin(expander);
-		termsGrid.setBorders(false);  
+		termsGrid.setBorders(true);  
 //		termsGrid.setAutoExpandColumn("firstStartDate");  
 //		termsGrid.setLoadMask(true);
 		termsGrid.setHeight(200);
@@ -284,27 +267,47 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		displayCard.add(fieldSet, new FormData("95%")); // new FormData(cm.getTotalWidth() + 20, 200));
 	}
 	
-	protected void addButtons(FormData formData) {
-//		FieldSet buttonSet = new FieldSet();
-//		buttonSet.setBorders(true);
-//		buttonSet.setHeading(null);// 		displayCard.add(new LabelField("<br/><i>Existing Agreements</i>"));
-//		buttonSet.setCollapsible(false);
+	@Override
+	protected void onRowSelected(BeanModel data) {
+		termsCard.setAgreementId(agreementId);
+		termsCard.setAgreementTerm((AgreementTermInstance) data.getBean());
+		cards.setActiveItem(termsCard);
+	}
+	
+	protected void addButtons() {
 		
 		ToolBar toolBar = new ToolBar();
 		toolBar.setAlignment(HorizontalAlignment.CENTER);
+		toolBar.setBorders(false);
+		toolBar.setSpacing(20);
 		toolBar.setToolTip(UiConstants.getQuickTip("Use these buttons to access detailed information for this agreement."));
 		
-		Button termsButton = new Button("Terms");
+		ToggleButton agreementButton = new ToggleButton("Agreement");
+		agreementButton.setToolTip(UiConstants.getQuickTip("Define and edit the main agreement."));
+		IconSupplier.forceIcon(agreementButton, IconSupplier.getAgreementIconName());
+		agreementButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+				@Override
+				public void componentSelected(ButtonEvent ce) {
+					cards.setActiveItem(displayCard);
+				}  
+			});
+		agreementButton.setToggleGroup("agreementGroup");
+		toolBar.add(agreementButton);
+		
+		ToggleButton termsButton = new ToggleButton("Terms");
 		termsButton.setToolTip(UiConstants.getQuickTip("Define and edit product terms for this agreement."));
 		IconSupplier.forceIcon(termsButton, IconSupplier.getAgreementTermIconName());
 		termsButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
 				@Override
 				public void componentSelected(ButtonEvent ce) {
+					termsCard.setAgreementId(agreementId);
+					cards.setActiveItem(termsCard);
 				}  
 			});
+		termsButton.setToggleGroup("agreementGroup");
 		toolBar.add(termsButton);
 		
-		Button sitesButton = new Button("Sites");
+		ToggleButton sitesButton = new ToggleButton("Sites");
 		sitesButton.setToolTip(UiConstants.getQuickTip("Define and edit the list of sites for this agreement."));
 		IconSupplier.forceIcon(sitesButton, IconSupplier.getSiteIconName());
 		sitesButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
@@ -312,9 +315,10 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 				public void componentSelected(ButtonEvent ce) {
 				}  
 			});
+		sitesButton.setToggleGroup("agreementGroup");
 		toolBar.add(sitesButton);
 		
-		Button methodsButton = new Button("Access");
+		ToggleButton methodsButton = new ToggleButton("Access");
 		methodsButton.setToolTip(UiConstants.getQuickTip("Define and edit access methods for this agreement."));
 		IconSupplier.forceIcon(methodsButton, IconSupplier.getAccessMethodIconName());
 		methodsButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
@@ -322,9 +326,10 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 				public void componentSelected(ButtonEvent ce) {
 				}
 			});
+		methodsButton.setToggleGroup("agreementGroup");
 		toolBar.add(methodsButton);
 		
-		Button remoteButton = new Button("Remote Setup");
+		ToggleButton remoteButton = new ToggleButton("Remote Setup");
 		remoteButton.setToolTip(UiConstants.getQuickTip("Define and edit any remote setup for this agreement."));
 		IconSupplier.forceIcon(remoteButton, IconSupplier.getRemoteIconName());
 		remoteButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
@@ -332,9 +337,10 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 				public void componentSelected(ButtonEvent ce) {
 				}
 			});
+		remoteButton.setToggleGroup("agreementGroup");
 		toolBar.add(remoteButton);
 		
-		Button contactsButton = new Button("Contacts");
+		ToggleButton contactsButton = new ToggleButton("Contacts");
 		contactsButton.setToolTip(UiConstants.getQuickTip("View, define and edit the contacts for this agreement."));
 		IconSupplier.forceIcon(contactsButton, IconSupplier.getContactsIconName());
 		contactsButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
@@ -342,9 +348,12 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 				public void componentSelected(ButtonEvent ce) {
 				}
 			});
+		contactsButton.setToggleGroup("agreementGroup");
 		toolBar.add(contactsButton);
+
+		agreementButton.toggle(true);
 		
-		displayCard.add(toolBar);
+		outerContainer.setBottomComponent(toolBar);
 	}
 	
 	protected void setThis() {

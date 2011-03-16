@@ -28,24 +28,16 @@ import com.scholastic.sbam.client.util.IconSupplier;
  *
  * @param <I>
  */
-public abstract class GridSupportPortlet<I> extends FieldSupportPortlet {
+public abstract class GridSupportContainer<I> extends FieldSupportContainer {
 	
 	protected boolean selectWithNoteExpand;
 	
-	public GridSupportPortlet() {
+	public GridSupportContainer() {
 		this(false);
 	}
 	
-	public GridSupportPortlet(boolean selectWithNoteExpand) {
-		this(null, selectWithNoteExpand);
-	}
-	
-	public GridSupportPortlet(String helpTextId) {
-		this(helpTextId, false);
-	}
-	
-	public GridSupportPortlet(String helpTextId, boolean selectWithNoteExpand) {
-		super(helpTextId);
+	public GridSupportContainer(boolean selectWithNoteExpand) {
+		super();
 		this.selectWithNoteExpand = selectWithNoteExpand;
 	}
 
@@ -204,4 +196,6 @@ public abstract class GridSupportPortlet<I> extends FieldSupportPortlet {
 	public void setSelectWithNoteExpand(boolean selectWithNoteExpand) {
 		this.selectWithNoteExpand = selectWithNoteExpand;
 	}
+	
+	
 }
