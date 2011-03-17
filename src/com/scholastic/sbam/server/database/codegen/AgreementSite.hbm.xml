@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Mar 14, 2011 8:15:15 AM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Mar 17, 2011 9:05:24 AM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.AgreementSite" table="agreement_site" catalog="sbam">
         <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.AgreementSiteId">
@@ -13,6 +13,9 @@
             </key-property>
             <key-property name="siteUcnSuffix" type="int">
                 <column name="site_ucn_suffix" />
+            </key-property>
+            <key-property name="siteLocCode" type="string">
+                <column name="site_loc_code" length="32" />
             </key-property>
         </composite-id>
         <property name="commissionCode" type="string">

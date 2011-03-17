@@ -8,8 +8,9 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class AgreementSiteInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
 
 	private int		agreementId;
-	private int		site_ucn;
-	private int		site_ucn_suffix;
+	private int		siteUcn;
+	private int		siteUcnSuffix;
+	private String	siteLocCode;
 	
 	private String	commissionCode;
 	private String	commissionCodeDescription;
@@ -24,6 +25,9 @@ public class AgreementSiteInstance extends BetterRowEditInstance implements Bean
 	private char	status;
 	private boolean	active;
 	private Date	createdDatetime;
+	
+	private SiteInstance		site;
+	private InstitutionInstance	institution;
 	
 	@Override
 	public void markForDeletion() {
@@ -85,20 +89,28 @@ public class AgreementSiteInstance extends BetterRowEditInstance implements Bean
 		this.agreementId = agreementId;
 	}
 
-	public int getSite_ucn() {
-		return site_ucn;
+	public int getSiteUcn() {
+		return siteUcn;
 	}
 
-	public void setSite_ucn(int site_ucn) {
-		this.site_ucn = site_ucn;
+	public void setSiteUcn(int siteUcn) {
+		this.siteUcn = siteUcn;
 	}
 
-	public int getSite_ucn_suffix() {
-		return site_ucn_suffix;
+	public int getSiteUcnSuffix() {
+		return siteUcnSuffix;
 	}
 
-	public void setSite_ucn_suffix(int site_ucn_suffix) {
-		this.site_ucn_suffix = site_ucn_suffix;
+	public void setSiteUcnSuffix(int siteUcnSuffix) {
+		this.siteUcnSuffix = siteUcnSuffix;
+	}
+
+	public String getSiteLocCode() {
+		return siteLocCode;
+	}
+
+	public void setSiteLocCode(String siteLocCode) {
+		this.siteLocCode = siteLocCode;
 	}
 
 	public String getCommissionCode() {
@@ -149,7 +161,29 @@ public class AgreementSiteInstance extends BetterRowEditInstance implements Bean
 		this.note = note;
 	}
 
+	public SiteInstance getSite() {
+		return site;
+	}
+
+	public void setSite(SiteInstance site) {
+		this.site = site;
+	}
+
+	public InstitutionInstance getInstitution() {
+		return institution;
+	}
+
+	public void setInstitution(InstitutionInstance institution) {
+		this.institution = institution;
+	}
+	
+	public String getDisplayUcn() {
+		if (siteUcnSuffix <= 0)
+			return siteUcn + "";
+		return siteUcn + " - " + siteUcnSuffix;
+	}
+
 	public String toString() {
-		return "Site " + agreementId + "-" + site_ucn + "-" + site_ucn_suffix;
+		return "Site " + agreementId + "-" + siteUcn + "-" + siteUcnSuffix;
 	}
 }

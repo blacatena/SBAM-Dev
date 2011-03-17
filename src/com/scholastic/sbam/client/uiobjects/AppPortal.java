@@ -113,6 +113,8 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 						//	First, create and add the portlets
 						for (UserPortletCacheInstance instance : list) {
 							AppPortlet portlet = portletProvider.getPortlet(instance.getPortletType());
+							if (instance.getRestoreHeight() > 0)
+								portlet.setForceHeight(instance.getRestoreHeight());
 							portlet.setPortletId(instance.getPortletId());
 							portlet.setFromKeyData(instance.getKeyData());
 							if (instance.isMinimized())
@@ -132,6 +134,8 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 		    List<Component> list = new ArrayList<Component>(con.getItems());
 		    for (int row = 0; row < list.size(); row++) {
 		    	if (list.get(row) instanceof Portlet) {
+		    		if (list.get(row) instanceof AppPortlet)
+		    			((AppPortlet) list.get(row)).setPortletId(-1);
 		    		((Portlet) list.get(row)).removeFromParent();
 		    	}
 		    }

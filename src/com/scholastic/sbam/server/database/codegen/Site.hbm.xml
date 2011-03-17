@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Mar 14, 2011 8:15:15 AM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Mar 17, 2011 9:05:24 AM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.Site" table="site" catalog="sbam">
         <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.SiteId">
@@ -24,11 +24,14 @@
         <property name="pseudoSite" type="char">
             <column name="pseudo_site" length="1" not-null="true" />
         </property>
+        <property name="note" type="string">
+            <column name="note" length="4000" not-null="true" />
+        </property>
         <property name="createdDatetime" type="timestamp">
             <column name="created_datetime" length="19" not-null="true" />
         </property>
-        <property name="status" type="string">
-            <column name="status" length="50" not-null="true" />
+        <property name="status" type="char">
+            <column name="status" length="1" not-null="true" />
         </property>
     </class>
 </hibernate-mapping>

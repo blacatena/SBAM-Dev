@@ -30,6 +30,10 @@ public class IconSupplier {
 		return "agreement.png";
 	}
 	
+	public static String getProxyIconName() {
+		return "proxy.png";
+	}
+	
 	public static String getAccessMethodIconName() {
 		return "access.png";
 	}
@@ -170,12 +174,20 @@ public class IconSupplier {
 		return "portlets.png";
 	}
 	
+	public static String getHistoryIconName() {
+		return "history.png";
+	}
+	
 	public static String getNewIconName() {
 		return getInsertIconName();
 	}
 	
 	public static String getDeleteIconName() {
 		return getRemoveIconName();
+	}
+	
+	public static String getRecentIconName() {
+		return getHistoryIconName();
 	}
 	
 	public static String getFirstIconName() {

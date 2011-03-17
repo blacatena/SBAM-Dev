@@ -125,7 +125,7 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 		searchPanel = new ContentPanel(new FitLayout());
 		searchPanel.setHeaderVisible(false);
 		searchPanel.setBorders(false);
-		searchPanel.setHeight(540);
+//		searchPanel.setHeight(540);
 		
 		setThis();
 		addGrid();
@@ -248,10 +248,11 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 													"UCN " + focusInstitution.getUcn();
 								portlet.setIdentificationTip("Found for " + foundFor + "");
 							}
-							portletProvider.addPortlet(portlet, 1);
+							int insertCol = (portalColumn == 0) ? 1 : 0;
+							portletProvider.insertPortlet(portlet, portalRow, insertCol);
 							agreementsGrid.getSelectionModel().deselectAll();
 						} 
-					}  
+					}
 			});
 	
 		FieldSet fieldSet = new FieldSet();
@@ -520,7 +521,7 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 //		this.setAnimCollapse(false);  
 //		this.setIcon(Resources.ICONS.table()); 
 		this.setLayout(new FitLayout());
-		this.setHeight(550);
+		this.setHeight(forceHeight);
 		IconSupplier.setIcon(this, IconSupplier.getInstitutionIconName());
 //		this.setSize(grid.getWidth() + 50, 400);  
 	}

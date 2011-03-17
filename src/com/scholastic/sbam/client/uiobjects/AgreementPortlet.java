@@ -60,6 +60,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected CardLayout			cards;
 	protected FormPanel				displayCard;
 	protected AgreementTermsCard	termsCard;
+	protected AgreementSitesCard	sitesCard;
 	protected Grid<ModelData>		grid;
 	protected LiveGridView			liveView;
 	
@@ -143,6 +144,9 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		
 		termsCard = new AgreementTermsCard();
 		outerContainer.add(termsCard);
+		
+		sitesCard = new AgreementSitesCard();
+		outerContainer.add(sitesCard);
 		
 		if (agreementId > 0)
 			loadAgreement(agreementId);
@@ -331,6 +335,8 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		sitesButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
 				@Override
 				public void componentSelected(ButtonEvent ce) {
+					sitesCard.setAgreementId(agreementId);
+					cards.setActiveItem(sitesCard);
 					sitesButton.toggle(true);
 				}  
 			});
@@ -387,7 +393,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 //		this.setAnimCollapse(false);  
 //		this.setIcon(Resources.ICONS.table()); 
 		this.setLayout(new FitLayout());
-		this.setHeight(550);
+		this.setHeight(forceHeight);
 		IconSupplier.setIcon(this, IconSupplier.getAgreementIconName());
 //		this.setSize(grid.getWidth() + 50, 400);  
 	}

@@ -30,6 +30,8 @@ public class DbUserPortletCache extends HibernateAccessor {
 		instance.setKeyData(dbInstance.getKeyData());
 		instance.setRestoreColumn(dbInstance.getRestoreColumn());
 		instance.setRestoreRow(dbInstance.getRestoreRow());
+		instance.setRestoreWidth(dbInstance.getRestoreWidth());
+		instance.setRestoreHeight(dbInstance.getRestoreHeight());
 		instance.setMinimized(dbInstance.getMinimized());
 		
 		return instance;

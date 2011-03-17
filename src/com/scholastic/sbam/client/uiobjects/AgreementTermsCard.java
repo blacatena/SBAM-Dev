@@ -14,7 +14,6 @@ import com.extjs.gxt.ui.client.widget.grid.RowExpander;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.AgreementTermListService;
 import com.scholastic.sbam.client.services.AgreementTermListServiceAsync;
@@ -24,7 +23,7 @@ import com.scholastic.sbam.shared.util.AppConstants;
 
 public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> {
 	
-	protected final AgreementTermListServiceAsync agrementTermListService = GWT.create(AgreementTermListService.class);
+	protected final AgreementTermListServiceAsync agreementTermListService = GWT.create(AgreementTermListService.class);
 	
 	protected RowExpander			noteExpander;
 	
@@ -84,7 +83,7 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 					"This is the service end date for a product term."));
 		columns.add(getDisplayColumn("terminateDate",			"Terminate",				80,		true, UiConstants.APP_DATE_TIME_FORMAT,
 					"This is the actual service termination date for a product term."));
-		columns.add(getDisplayColumn("dollarValue",				"Value",					80,		true, NumberFormat.getCurrencyFormat(UiConstants.US_DOLLARS),
+		columns.add(getDisplayColumn("dollarValue",				"Value",					80,		true, UiConstants.DOLLARS_FORMAT,
 					"This is the value of the service."));
 		columns.add(getDisplayColumn("termTypeDescription",		"Type",						80,
 					"This is the type of service."));
@@ -107,7 +106,7 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 	@Override
 	protected void executeLoader(int id,
 			AsyncCallback<List<AgreementTermInstance>> callback) {
-		agrementTermListService.getAgreementTerms(id, AppConstants.STATUS_DELETED,callback);
+		agreementTermListService.getAgreementTerms(id, AppConstants.STATUS_DELETED,callback);
 	}
 
 	@Override

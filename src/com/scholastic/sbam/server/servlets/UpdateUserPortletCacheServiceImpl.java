@@ -19,9 +19,20 @@ public class UpdateUserPortletCacheServiceImpl extends AuthenticatedServiceServl
 	@Override
 	public String updateUserPortletCache(UserPortletCacheInstance instance) throws IllegalArgumentException {
 		
+		if (instance == null) {
+			throw new IllegalArgumentException("Attempt to update null portlet instance.");
+		}
+		
 		UserPortletCache dbInstance = null;
 		
-		Authentication auth = authenticate("update user portlet cache", SecurityManager.ROLE_QUERY);
+		// This is a DIRTY fix... after logging out, some updates still try to happen.
+		// For now, catch these errors and don't throw them
+		Authentication auth = null;
+		try {
+			auth = authenticate("update user portlet cache", SecurityManager.ROLE_QUERY);
+		} catch (IllegalArgumentException e) {
+			return "";
+		}
 		
 		if (auth.getUserName() == null || auth.getUserName().length() == 0)
 			throw new IllegalArgumentException("No user name associated with user portlet cache transaction.");
@@ -44,11 +55,17 @@ public class UpdateUserPortletCacheServiceImpl extends AuthenticatedServiceServl
 				dbInstance.setId(dbId);
 			}
 			
+			//	If the portlet isn't ready to save yet, and wasn't found, there's nothing more to do
+			if (dbInstance == null)
+				return "";
+			
 			if (instance.getPortletType() != null)
 				dbInstance.setPortletType(instance.getPortletType());
 			dbInstance.setMinimized(instance.getMinimized());
 			dbInstance.setRestoreColumn(instance.getRestoreColumn());
 			dbInstance.setRestoreRow(instance.getRestoreRow());
+			dbInstance.setRestoreWidth(instance.getRestoreWidth());
+			dbInstance.setRestoreHeight(instance.getRestoreHeight());
 			dbInstance.setKeyData(instance.getKeyData());
 			
 			//	Persist in database

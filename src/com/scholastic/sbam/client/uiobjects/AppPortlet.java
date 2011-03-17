@@ -22,6 +22,8 @@ import com.scholastic.sbam.shared.util.AppConstants;
 
 public abstract class AppPortlet extends Portlet {
 	
+	protected int		forceHeight = 550;
+	
 	protected String	helpTextId;
 	protected boolean	resizeable = true;	//	This doesn't quite work... Enclosing portal has to be adjusted somehow, to reposition the other portlets after resizing
 	protected Resizable	resizer;
@@ -43,7 +45,13 @@ public abstract class AppPortlet extends Portlet {
 	protected void onRender(Element el, int index) {
 		super.onRender(el, index);
 		if (resizeable) {
-			resizer = new Resizable(this);
+			resizer = new Resizable(this) {
+				@Override
+				protected void onComponentResize() {
+					super.onComponentResize();
+					updateUserPortlet();
+				}
+			};
 			//	This can't be set to true, because of a bug in the resizer, where it sets the page position wrong and moves portlets to overlap over those above them
 			resizer.setDynamic(false);
 			resizer.setMaxWidth(this.getWidth());
@@ -61,10 +69,11 @@ public abstract class AppPortlet extends Portlet {
 //	@Override
 //	protected void onResize(int width, int height) {
 //		super.onResize(width, height);
-//		if (resizer != null) {
-//			resizer.setMaxWidth(this.getWidth());	//	This turns off horizontal resizing
-////			resizer.setMaxHeight(this.getHeight());	//	This turns off vertical resizing
-//		}
+//		updateUserPortlet();
+////		if (resizer != null) {
+////			resizer.setMaxWidth(this.getWidth());	//	This turns off horizontal resizing
+//////			resizer.setMaxHeight(this.getHeight());	//	This turns off vertical resizing
+////		}
 //	}
 	
 	protected void addHelp() {
@@ -170,6 +179,10 @@ public abstract class AppPortlet extends Portlet {
 	}
 	
 	public void updateUserPortlet(int row, int col, boolean closed, boolean minimized) {
+		//	When the portlet ID hasn't been properly set (or has been purposely unset, such as on logout), there are no valid updates to do.
+		if (portletId < 0)
+			return;
+		
 		portalRow = row;
 		portalColumn = col;
 		
@@ -181,6 +194,7 @@ public abstract class AppPortlet extends Portlet {
 		cacheInstance.setPortletId(portletId);
 		cacheInstance.setPortletType(getClass().getName());
 		cacheInstance.setKeyData(getKeyData());
+		
 		if (closed) {
 			cacheInstance.setRestoreColumn(-1);
 			cacheInstance.setRestoreRow(-1);
@@ -188,6 +202,12 @@ public abstract class AppPortlet extends Portlet {
 			cacheInstance.setRestoreColumn(col);
 			cacheInstance.setRestoreRow(row);
 		}
+		
+		if (!closed && !minimized) {
+			cacheInstance.setRestoreWidth(getWidth());
+			cacheInstance.setRestoreHeight(getHeight());
+		}
+		
 		cacheInstance.setMinimized(minimized);
 		
 		userPortletCacheUpdateService.updateUserPortletCache(cacheInstance,
@@ -232,6 +252,14 @@ public abstract class AppPortlet extends Portlet {
 
 	public void setPortletId(int portletId) {
 		this.portletId = portletId;
+	}
+
+	public int getForceHeight() {
+		return forceHeight;
+	}
+
+	public void setForceHeight(int forceHeight) {
+		this.forceHeight = forceHeight;
 	}
 
 	public abstract void setFromKeyData(String keyData);

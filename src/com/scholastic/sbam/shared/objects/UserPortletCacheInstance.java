@@ -9,6 +9,8 @@ public class UserPortletCacheInstance  implements BeanModelTag, IsSerializable {
 	private String	portletType;
 	private int		restoreColumn;
 	private int		restoreRow;
+	private int		restoreHeight;
+	private int		restoreWidth;
 	private char	minimized;
 	private String	keyData;
 	
@@ -41,6 +43,18 @@ public class UserPortletCacheInstance  implements BeanModelTag, IsSerializable {
 	}
 	public void setRestoreRow(int restoreRow) {
 		this.restoreRow = restoreRow;
+	}
+	public int getRestoreHeight() {
+		return restoreHeight;
+	}
+	public void setRestoreHeight(int restoreHeight) {
+		this.restoreHeight = restoreHeight;
+	}
+	public int getRestoreWidth() {
+		return restoreWidth;
+	}
+	public void setRestoreWidth(int restoreWidth) {
+		this.restoreWidth = restoreWidth;
 	}
 	public char getMinimized() {
 		return minimized;

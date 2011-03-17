@@ -8,9 +8,9 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class SiteInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
 
 	private int		ucn;
-	private int		ucn_suffix;
+	private int		ucnSuffix;
 	
-	private String	site_loc_code;
+	private String	siteLocCode;
 	private String	description;
 	
 	private String	commissionCode;
@@ -57,20 +57,20 @@ public class SiteInstance extends BetterRowEditInstance implements BeanModelTag,
 		this.ucn = ucn;
 	}
 
-	public int getUcn_suffix() {
-		return ucn_suffix;
+	public int getUcnSuffix() {
+		return ucnSuffix;
 	}
 
-	public void setUcn_suffix(int ucn_suffix) {
-		this.ucn_suffix = ucn_suffix;
+	public void setUcnSuffix(int ucnSuffix) {
+		this.ucnSuffix = ucnSuffix;
 	}
 
-	public String getSite_loc_code() {
-		return site_loc_code;
+	public String getSiteLocCode() {
+		return siteLocCode;
 	}
 
-	public void setSite_loc_code(String site_loc_code) {
-		this.site_loc_code = site_loc_code;
+	public void setSiteLocCode(String siteLocCode) {
+		this.siteLocCode = siteLocCode;
 	}
 
 	public String getDescription() {
@@ -149,6 +149,6 @@ public class SiteInstance extends BetterRowEditInstance implements BeanModelTag,
 	}
 
 	public String toString() {
-		return "Site " + ucn + "-" + ucn_suffix;
+		return "Site " + ucn + "-" + ucnSuffix;
 	}
 }

@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Mar 14, 2011 8:15:15 AM by Hibernate Tools 3.2.4.GA
+// Generated Mar 17, 2011 9:05:23 AM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -10,6 +10,7 @@ import java.util.Date;
 public class Institution implements java.io.Serializable {
 
 	private int ucn;
+	private int parentUcn;
 	private String institutionName;
 	private String address1;
 	private String address2;
@@ -39,10 +40,12 @@ public class Institution implements java.io.Serializable {
 	public Institution() {
 	}
 
-	public Institution(int ucn, String institutionName, String address1,
-			String city, String country, String typeCode, String groupCode,
-			String publicPrivateCode, String alternateIds, char status) {
+	public Institution(int ucn, int parentUcn, String institutionName,
+			String address1, String city, String country, String typeCode,
+			String groupCode, String publicPrivateCode, String alternateIds,
+			char status) {
 		this.ucn = ucn;
+		this.parentUcn = parentUcn;
 		this.institutionName = institutionName;
 		this.address1 = address1;
 		this.city = city;
@@ -54,15 +57,16 @@ public class Institution implements java.io.Serializable {
 		this.status = status;
 	}
 
-	public Institution(int ucn, String institutionName, String address1,
-			String address2, String address3, String city, String state,
-			String zip, String country, String webUrl, String phone,
-			String fax, String mailAddress1, String mailAddress2,
+	public Institution(int ucn, int parentUcn, String institutionName,
+			String address1, String address2, String address3, String city,
+			String state, String zip, String country, String webUrl,
+			String phone, String fax, String mailAddress1, String mailAddress2,
 			String mailAddress3, String mailCity, String mailState,
 			String mailZip, String mailCountry, String typeCode,
 			String groupCode, String publicPrivateCode, String alternateIds,
 			Date createdDate, Date closedDate, char status) {
 		this.ucn = ucn;
+		this.parentUcn = parentUcn;
 		this.institutionName = institutionName;
 		this.address1 = address1;
 		this.address2 = address2;
@@ -96,6 +100,14 @@ public class Institution implements java.io.Serializable {
 
 	public void setUcn(int ucn) {
 		this.ucn = ucn;
+	}
+
+	public int getParentUcn() {
+		return this.parentUcn;
+	}
+
+	public void setParentUcn(int parentUcn) {
+		this.parentUcn = parentUcn;
 	}
 
 	public String getInstitutionName() {

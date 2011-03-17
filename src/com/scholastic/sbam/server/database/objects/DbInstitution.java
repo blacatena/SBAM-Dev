@@ -24,6 +24,9 @@ public class DbInstitution extends HibernateAccessor {
 	static String objectName = Institution.class.getSimpleName();
 	
 	public static InstitutionInstance getInstance(Institution dbInstance) {
+		if (dbInstance == null)
+			return null;
+		
 		InstitutionInstance instance = new InstitutionInstance();
 		instance.setUcn(dbInstance.getUcn());
 		instance.setInstitutionName(dbInstance.getInstitutionName());

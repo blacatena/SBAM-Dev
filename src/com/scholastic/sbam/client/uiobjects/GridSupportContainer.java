@@ -61,6 +61,10 @@ public abstract class GridSupportContainer<I> extends FieldSupportContainer {
 		return getGridColumn(column, heading, size, false, sortable, null, null);
 	}
 	
+	protected ColumnConfig getDisplayColumn(String column, String heading, int size, boolean sortable, String toolTip) {
+		return getGridColumn(column, heading, size, false, sortable, null, null, toolTip);
+	}
+	
 	protected ColumnConfig getDisplayColumn(String column, String heading, int size, boolean sortable, DateTimeFormat dateFormat) {
 		return getGridColumn(column, heading, size, false, sortable, dateFormat, null);
 	}
@@ -85,12 +89,24 @@ public abstract class GridSupportContainer<I> extends FieldSupportContainer {
 		return getGridColumn(column, heading, size, true, sortable, null, null);
 	}
 	
+	protected ColumnConfig getHiddenColumn(String column, String heading, int size, boolean sortable, String toolTip) {
+		return getGridColumn(column, heading, size, true, sortable, null, null, toolTip);
+	}
+	
 	protected ColumnConfig getHiddenColumn(String column, String heading, int size, boolean sortable, DateTimeFormat dateFormat) {
 		return getGridColumn(column, heading, size, true, sortable, dateFormat, null);
 	}
 	
 	protected ColumnConfig getHiddenColumn(String column, String heading, int size, boolean sortable, NumberFormat numberFormat) {
 		return getGridColumn(column, heading, size, true, sortable, null, numberFormat);
+	}
+	
+	protected ColumnConfig getHiddenColumn(String column, String heading, int size, boolean sortable, DateTimeFormat dateFormat, String toolTip) {
+		return getGridColumn(column, heading, size, true, sortable, dateFormat, null, toolTip);
+	}
+	
+	protected ColumnConfig getHiddenColumn(String column, String heading, int size, boolean sortable, NumberFormat numberFormat, String toolTip) {
+		return getGridColumn(column, heading, size, true, sortable, null, numberFormat, toolTip);
 	}
 	
 	protected ColumnConfig getGridColumn(String column, String heading, int size, boolean hidden, boolean sortable, DateTimeFormat dateFormat, NumberFormat numberFormat) {
