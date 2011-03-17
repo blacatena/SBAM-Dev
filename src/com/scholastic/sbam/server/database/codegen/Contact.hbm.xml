@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 17, 2011 4:04:45 PM by Hibernate Tools 3.2.4.GA -->
+<hibernate-mapping>
+    <class name="com.scholastic.sbam.server.database.codegen.Contact" table="contact" catalog="sbam">
+        <id name="contactId" type="java.lang.Integer">
+            <column name="contact_id" />
+            <generator class="identity" />
+        </id>
+        <property name="contactTypeCode" type="string">
+            <column name="contact_type_code" length="32" not-null="true" />
+        </property>
+        <property name="fullName" type="string">
+            <column name="full_name" not-null="true" />
+        </property>
+        <property name="title" type="string">
+            <column name="title" not-null="true" />
+        </property>
+        <property name="additionalInfo" type="string">
+            <column name="additional_info" not-null="true" />
+        </property>
+        <property name="address1" type="string">
+            <column name="address1" not-null="true" />
+        </property>
+        <property name="address2" type="string">
+            <column name="address2" not-null="true" />
+        </property>
+        <property name="address3" type="string">
+            <column name="address3" not-null="true" />
+        </property>
+        <property name="city" type="string">
+            <column name="city" not-null="true" />
+        </property>
+        <property name="state" type="string">
+            <column name="state" not-null="true" />
+        </property>
+        <property name="zip" type="string">
+            <column name="zip" length="63" not-null="true" />
+        </property>
+        <property name="country" type="string">
+            <column name="country" not-null="true" />
+        </property>
+        <property name="EMail" type="string">
+            <column name="e_mail" not-null="true" />
+        </property>
+        <property name="EMail2" type="string">
+            <column name="e_mail_2" not-null="true" />
+        </property>
+        <property name="phone" type="string">
+            <column name="phone" length="63" not-null="true" />
+        </property>
+        <property name="phone2" type="string">
+            <column name="phone_2" length="63" not-null="true" />
+        </property>
+        <property name="fax" type="string">
+            <column name="fax" length="63" not-null="true" />
+        </property>
+        <property name="note" type="string">
+            <column name="note" length="4000" not-null="true" />
+        </property>
+        <property name="createdDatetime" type="timestamp">
+            <column name="created_datetime" length="19" not-null="true" />
+        </property>
+        <property name="status" type="char">
+            <column name="status" length="1" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

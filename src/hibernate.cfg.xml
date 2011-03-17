@@ -30,8 +30,8 @@
         <mapping resource="com/scholastic/sbam/server/database/codegen/AuthUserId.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/Institution.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/StatsAdmin.hbm.xml" />
-        <mapping resource="com/scholastic/sbam/server/database/codegen/AgreementTerm.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/Site.hbm.xml" />
+        <mapping resource="com/scholastic/sbam/server/database/codegen/AgreementTerm.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/UserPortletCache.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/Service.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/AuthUrl.hbm.xml" />
@@ -44,10 +44,12 @@
         <mapping resource="com/scholastic/sbam/server/database/codegen/HelpText.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/CommissionType.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/ProductService.hbm.xml" />
+        <mapping resource="com/scholastic/sbam/server/database/codegen/SiteContact.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/CancelReason.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/AuthMethod.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/InstitutionGroup.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/Product.hbm.xml" />
+        <mapping resource="com/scholastic/sbam/server/database/codegen/AgreementContact.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/UserRole.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/UserProfile.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/InstitutionPubPriv.hbm.xml" />
@@ -55,7 +57,9 @@
         <mapping resource="com/scholastic/sbam/server/database/codegen/TermType.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/WelcomeMessage.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/SysConfig.hbm.xml" />
+        <mapping resource="com/scholastic/sbam/server/database/codegen/InstitutionContact.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/SitePreference.hbm.xml" />
+        <mapping resource="com/scholastic/sbam/server/database/codegen/Contact.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/UserMessage.hbm.xml" />
     </session-factory>
 </hibernate-configuration>

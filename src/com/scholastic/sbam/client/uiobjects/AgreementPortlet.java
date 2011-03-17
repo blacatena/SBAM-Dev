@@ -61,6 +61,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected FormPanel				displayCard;
 	protected AgreementTermsCard	termsCard;
 	protected AgreementSitesCard	sitesCard;
+	protected AgreementContactsCard	contactsCard;
 	protected Grid<ModelData>		grid;
 	protected LiveGridView			liveView;
 	
@@ -147,6 +148,9 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		
 		sitesCard = new AgreementSitesCard();
 		outerContainer.add(sitesCard);
+		
+		contactsCard = new AgreementContactsCard();
+		outerContainer.add(contactsCard);
 		
 		if (agreementId > 0)
 			loadAgreement(agreementId);
@@ -373,6 +377,8 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		contactsButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
 				@Override
 				public void componentSelected(ButtonEvent ce) {
+					contactsCard.setAgreementId(agreementId);
+					cards.setActiveItem(contactsCard);
 					contactsButton.toggle(true);
 				}
 			});
