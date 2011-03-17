@@ -23,7 +23,7 @@ import com.scholastic.sbam.shared.util.AppConstants;
 public abstract class AppPortlet extends Portlet {
 	
 	protected String	helpTextId;
-	protected boolean	resizeable = false;	//	This doesn't quite work... Enclosing portal has to be adjusted somehow, to reposition the other portlets after resizing
+	protected boolean	resizeable = true;	//	This doesn't quite work... Enclosing portal has to be adjusted somehow, to reposition the other portlets after resizing
 	protected Resizable	resizer;
 	
 	protected int		portalColumn = -1;
@@ -44,7 +44,8 @@ public abstract class AppPortlet extends Portlet {
 		super.onRender(el, index);
 		if (resizeable) {
 			resizer = new Resizable(this);
-			resizer.setDynamic(true);
+			//	This can't be set to true, because of a bug in the resizer, where it sets the page position wrong and moves portlets to overlap over those above them
+			resizer.setDynamic(false);
 			resizer.setMaxWidth(this.getWidth());
 			resizer.setMinWidth(this.getWidth());
 		}
@@ -57,14 +58,14 @@ public abstract class AppPortlet extends Portlet {
 		addClosable();
 	}
 	
-	@Override
-	protected void onResize(int width, int height) {
-		super.onResize(width, height);
-		if (resizer != null) {
-			resizer.setMaxWidth(this.getWidth());
-			resizer.setMaxHeight(this.getHeight());
-		}
-	}
+//	@Override
+//	protected void onResize(int width, int height) {
+//		super.onResize(width, height);
+//		if (resizer != null) {
+//			resizer.setMaxWidth(this.getWidth());	//	This turns off horizontal resizing
+////			resizer.setMaxHeight(this.getHeight());	//	This turns off vertical resizing
+//		}
+//	}
 	
 	protected void addHelp() {
 		if (helpTextId == null)
