@@ -16,6 +16,10 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.RowExpander;
+import com.extjs.gxt.ui.client.widget.grid.filters.DateFilter;
+import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
+import com.extjs.gxt.ui.client.widget.grid.filters.NumericFilter;
+import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.scholastic.sbam.client.util.IconSupplier;
@@ -32,6 +36,8 @@ import com.scholastic.sbam.client.util.IconSupplier;
 public abstract class GridSupportContainer<I> extends FieldSupportContainer {
 	
 	protected boolean selectWithNoteExpand;
+	
+	protected GridFilters 			gridFilters;
 	
 	public GridSupportContainer() {
 		this(false);
@@ -137,6 +143,16 @@ public abstract class GridSupportContainer<I> extends FieldSupportContainer {
 				cc.setNumberFormat(numberFormat);
 			}
 		}
+		
+		if (gridFilters != null) {
+			if (dateFormat != null)
+				gridFilters.addFilter(new DateFilter(column));
+			else if (numberFormat != null)
+				gridFilters.addFilter(new NumericFilter(column));
+			else
+				gridFilters.addFilter(new StringFilter(column));
+		}
+		
 		return cc;
 	}
 	

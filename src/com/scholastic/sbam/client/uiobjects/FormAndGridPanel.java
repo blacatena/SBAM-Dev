@@ -15,6 +15,7 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
@@ -206,6 +207,9 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	}
 	
 	protected Grid<ModelData> getAgreementTermsGrid(FormData formData) {
+
+		gridFilters = new GridFilters(); // Have to create this here, before adding the grid columns, so the filters get created with the columns
+		
 		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
 		
 		addGridColumns(columns);
@@ -223,8 +227,11 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		grid.setColumnLines(false);
 		grid.setHideHeaders(false);
 		
-		addGridPlugins(grid);
+		gridFilters.setLocal(true); 
+		grid.addPlugin(gridFilters);
+
 		setGridAttributes(grid);
+		addGridPlugins(grid);
 		
 		addRowListener(grid);
 		
@@ -253,6 +260,7 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 							System.out.println(caught.getClass().getName());
 							System.out.println(caught.getMessage());
 						}
+						grid.unmask();
 					}
 
 					public void onSuccess(List<ModelInstance> instances) {
@@ -260,6 +268,7 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 						for (ModelInstance instance : instances) {
 							gridStore.add(getModel(instance));
 						}
+						grid.unmask();
 					}
 			};
 	}
@@ -271,6 +280,7 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 			gridStore.removeAll();
 			return;
 		}
+		grid.mask("Loading...");
 		executeLoader(id, getLoaderCallback());
 	}
 

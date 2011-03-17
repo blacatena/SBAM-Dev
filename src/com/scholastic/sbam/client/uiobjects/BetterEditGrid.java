@@ -142,8 +142,6 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 		
 		addStoreListeners();
 		
-		loader.load();
-		
 		// column model
 		ColumnModel cm = getColumnModel();
 		
@@ -176,6 +174,9 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 		panel.setLayout(new FitLayout());
 		
 		add(panel);
+		
+		grid.mask("Loading...");
+		loader.load();
 	}
 	
 	protected void setGridAttributes() {
@@ -221,10 +222,12 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 							System.out.println(caught.getMessage());
 						}
 						callback.onFailure(caught);
+						grid.unmask();
 					}
 
 					public void onSuccess(List<I> list) {
 						callback.onSuccess(list);
+						grid.unmask();
 					}
 				};
 				
@@ -259,8 +262,10 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	}
 	
 	public void refreshGridData() {
-		if (store != null && store.getLoader() != null)
+		if (store != null && store.getLoader() != null) {
+			grid.mask("Loading");
 			store.getLoader().load();
+		}
 	}
 	
 	protected ColumnModel getColumnModel() {  
@@ -424,8 +429,10 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	}
 	
 	protected void reload() {
-		if (store != null)
+		if (store != null) {
+			grid.mask("Loading...");
 			store.getLoader().load();
+		}
 		if (grid != null && grid.getSelectionModel() != null&& selection != null)
 			grid.getSelectionModel().setSelection(selection);
 	}
