@@ -21,6 +21,7 @@
         <property name="hibernate.max_fetch_depth">3</property>
         <property name="hibernate.show_sql">false</property>
         <mapping resource="com/scholastic/sbam/server/database/codegen/UserCache.hbm.xml" />
+        <mapping resource="com/scholastic/sbam/server/database/codegen/ContactType.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/InstitutionType.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/AuthIp.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/ExportAuthUnit.hbm.xml" />

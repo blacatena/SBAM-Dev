@@ -137,6 +137,21 @@
   </servlet>
   
   <servlet>
+    <servlet-name>contactTypeListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.ContactTypeListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updateContactTypeServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateContactTypeServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>contactTypeCodeValidationServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.ContactTypeCodeValidationServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>deleteReasonListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.DeleteReasonListServiceImpl</servlet-class>
   </servlet>
@@ -404,6 +419,21 @@
   <servlet-mapping>
     <servlet-name>commissionCodeValidationServlet</servlet-name>
     <url-pattern>/sbam/validateCommissionCode</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>contactTypeListServlet</servlet-name>
+    <url-pattern>/sbam/getContactTypes</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateContactTypeServlet</servlet-name>
+    <url-pattern>/sbam/updateContactType</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>contactTypeCodeValidationServlet</servlet-name>
+    <url-pattern>/sbam/validateContactTypeCode</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

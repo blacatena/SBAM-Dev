@@ -190,6 +190,10 @@ public class IconSupplier {
 		return getHistoryIconName();
 	}
 	
+	public static String getContactTypeIconName() {
+		return getContactsIconName();
+	}
+	
 	public static String getFirstIconName() {
 		return "first.png";
 	}
