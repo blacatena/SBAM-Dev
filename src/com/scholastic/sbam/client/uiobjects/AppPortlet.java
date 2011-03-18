@@ -4,9 +4,12 @@ import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.ResizeEvent;
+import com.extjs.gxt.ui.client.event.ResizeListener;
 import com.extjs.gxt.ui.client.fx.Resizable;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
+import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.extjs.gxt.ui.client.widget.custom.Portlet;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
@@ -25,13 +28,15 @@ public abstract class AppPortlet extends Portlet {
 	protected int		forceHeight = 550;
 	
 	protected String	helpTextId;
-	protected boolean	resizeable = true;	//	This doesn't quite work... Enclosing portal has to be adjusted somehow, to reposition the other portlets after resizing
+	protected boolean	resizeable = false;
 	protected Resizable	resizer;
 	
-	protected int		portalColumn = -1;
-	protected int		portalRow	 = -1;
+	protected int		portalColumn	= -1;
+	protected int		portalRow		= -1;
 	
-	protected int		portletId;
+	protected int		portletId		= -1;
+	
+	protected UserPortletCacheInstance lastCacheInstance;
 	
 	protected final UpdateUserCacheServiceAsync userCacheUpdateService = GWT.create(UpdateUserCacheService.class);
 	protected final UpdateUserPortletCacheServiceAsync userPortletCacheUpdateService = GWT.create(UpdateUserPortletCacheService.class);
@@ -45,17 +50,29 @@ public abstract class AppPortlet extends Portlet {
 	protected void onRender(Element el, int index) {
 		super.onRender(el, index);
 		if (resizeable) {
-			resizer = new Resizable(this) {
-				@Override
-				protected void onComponentResize() {
-					super.onComponentResize();
-					updateUserPortlet();
+			resizer = new Resizable(this)
+			/* {
+					@Override
+					protected void onComponentResize() {
+						super.onComponentResize();
+//						System.out.println("Updating due to resizer");
+						updateUserPortlet();
 				}
-			};
-			//	This can't be set to true, because of a bug in the resizer, where it sets the page position wrong and moves portlets to overlap over those above them
-			resizer.setDynamic(false);
+			}*/	;
+			
+			resizer.setDynamic(false);	//	This can't be set to true, because of a bug in the resizer, where it sets the page position wrong and moves portlets to overlap over those above them
 			resizer.setMaxWidth(this.getWidth());
 			resizer.setMinWidth(this.getWidth());
+			
+			ResizeListener watchResize = new ResizeListener() {
+
+				@Override
+				public void handleEvent(ResizeEvent re) {
+					updateUserPortlet();
+				}
+				
+			};
+			resizer.addResizeListener(watchResize);
 		}
 	}
 
@@ -66,15 +83,17 @@ public abstract class AppPortlet extends Portlet {
 		addClosable();
 	}
 	
-//	@Override
-//	protected void onResize(int width, int height) {
-//		super.onResize(width, height);
-//		updateUserPortlet();
-////		if (resizer != null) {
-////			resizer.setMaxWidth(this.getWidth());	//	This turns off horizontal resizing
-//////			resizer.setMaxHeight(this.getHeight());	//	This turns off vertical resizing
-////		}
-//	}
+	@Override
+	protected void onResize(int width, int height) {
+		super.onResize(width, height);
+//		System.out.println("Resized to " + width + ", " + height);
+//		updateUserPortlet();	//	Now done in resizer only
+		//	If there is a resizer, and portel width has changed due to portal dimensions change, then adjust the max and min width on the resizer to compensate
+		if (resizer != null && width > -1) {
+			resizer.setMaxWidth(this.getWidth());	//	This turns off horizontal resizing
+			resizer.setMinWidth(this.getWidth());	//	This turns off vertical resizing
+		}
+	}
 	
 	protected void addHelp() {
 		if (helpTextId == null)
@@ -101,11 +120,18 @@ public abstract class AppPortlet extends Portlet {
 		}
 		closeBtn.addListener(Events.Select, new Listener<ComponentEvent>() {
 			public void handleEvent(ComponentEvent ce) {
-				removeFromParent();
+				closePortlet();
 				updateUserPortlet();
 			}
 		});
 		head.addTool(closeBtn);
+	}
+	
+	public void closePortlet() {
+		if(getParent() != null && getParent().getParent() != null && getParent().getParent() instanceof Portal) {
+			Portal thePortal = (Portal) getParent().getParent();
+			thePortal.remove(this, portalColumn);
+		}
 	}
 
 	public String getHelpTextId() {
@@ -122,8 +148,6 @@ public abstract class AppPortlet extends Portlet {
 
 	public void setResizeable(boolean resizeable) {
 		this.resizeable = resizeable;
-		if (resizeable)
-			System.out.println("WARNING: Attempt made to make a portlet resizeable, when there are bugs in it.");
 	}
 	
 	@Override
@@ -171,17 +195,22 @@ public abstract class AppPortlet extends Portlet {
 	}
 	
 	public void updateUserPortlet() {
+//		System.out.println("Default update user portlet " + portletId + " where parent = null " + (getParent() == null));
 		updateUserPortlet(portalRow, portalColumn, getParent() == null, this.isCollapsed());
 	}
 	
 	public void updateUserPortlet(int row, int col) {
+//		System.out.println("Row/col update user portlet " + portletId + " to " + row + " and " + col + " where parent = null " + (getParent() == null));
 		updateUserPortlet(row, col, getParent() == null, this.isCollapsed());
 	}
 	
 	public void updateUserPortlet(int row, int col, boolean closed, boolean minimized) {
+//		System.out.println("Update " + portletId + " at " + row + " and " + col + " is closed " + closed);
 		//	When the portlet ID hasn't been properly set (or has been purposely unset, such as on logout), there are no valid updates to do.
-		if (portletId < 0)
+		if (portletId < 0) {
+//			System.out.println("No ID, no update");
 			return;
+		}
 		
 		portalRow = row;
 		portalColumn = col;
@@ -195,20 +224,33 @@ public abstract class AppPortlet extends Portlet {
 		cacheInstance.setPortletType(getClass().getName());
 		cacheInstance.setKeyData(getKeyData());
 		
-		if (closed) {
-			cacheInstance.setRestoreColumn(-1);
-			cacheInstance.setRestoreRow(-1);
-		} else {
+		cacheInstance.setClosed(closed);
+
+		cacheInstance.setRestoreColumn(-1);
+		cacheInstance.setRestoreRow(-1);
+		if (col >= 0)
 			cacheInstance.setRestoreColumn(col);
+		if (row >= 0)
 			cacheInstance.setRestoreRow(row);
-		}
-		
+
+		cacheInstance.setRestoreWidth(-1);
+		cacheInstance.setRestoreWidth(-1);
 		if (!closed && !minimized) {
-			cacheInstance.setRestoreWidth(getWidth());
-			cacheInstance.setRestoreHeight(getHeight());
+//			System.out.println("Doing width/height " + getWidth() + ",  " + getHeight());
+			if (getWidth() > 0)
+				cacheInstance.setRestoreWidth(getWidth());
+			if (getHeight() > 0)
+				cacheInstance.setRestoreHeight(getHeight());
 		}
 		
 		cacheInstance.setMinimized(minimized);
+		
+		if (cacheInstance.equalsPrevious(lastCacheInstance)) {
+//			System.out.println("No diffs... optimized");
+			return;
+		}
+		
+		lastCacheInstance = cacheInstance;
 		
 		userPortletCacheUpdateService.updateUserPortletCache(cacheInstance,
 				new AsyncCallback<String>() {
@@ -260,6 +302,14 @@ public abstract class AppPortlet extends Portlet {
 
 	public void setForceHeight(int forceHeight) {
 		this.forceHeight = forceHeight;
+	}
+
+	public UserPortletCacheInstance getLastCacheInstance() {
+		return lastCacheInstance;
+	}
+
+	public void setLastCacheInstance(UserPortletCacheInstance lastCacheInstance) {
+		this.lastCacheInstance = lastCacheInstance;
 	}
 
 	public abstract void setFromKeyData(String keyData);

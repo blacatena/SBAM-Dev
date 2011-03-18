@@ -12,6 +12,7 @@ public class UserPortletCacheInstance  implements BeanModelTag, IsSerializable {
 	private int		restoreHeight;
 	private int		restoreWidth;
 	private char	minimized;
+	private char	closed;
 	private String	keyData;
 	
 	public String getUserName() {
@@ -56,6 +57,18 @@ public class UserPortletCacheInstance  implements BeanModelTag, IsSerializable {
 	public void setRestoreWidth(int restoreWidth) {
 		this.restoreWidth = restoreWidth;
 	}
+	public char getClosed() {
+		return closed;
+	}
+	public void setClosed(char closed) {
+		this.closed = closed;
+	}
+	public void setClosed(boolean closed) {
+		this.closed = closed?'y':'n';
+	}
+	public boolean isClosed() {
+		return closed == 'y';
+	}
 	public char getMinimized() {
 		return minimized;
 	}
@@ -74,5 +87,25 @@ public class UserPortletCacheInstance  implements BeanModelTag, IsSerializable {
 	public void setKeyData(String keyData) {
 		this.keyData = keyData;
 	}
-	
+	public boolean isEqualPrevious(String one, String two) {
+		if (one == null)
+			return true;
+		if (two == null)
+			return false;
+		return one.equals(two);
+	}
+	public boolean equalsPrevious(UserPortletCacheInstance other) {
+		if (other == null) return false;
+		if (!isEqualPrevious(userName, other.userName)) return false;
+		if (portletId != other.portletId)		return false;
+		if (!isEqualPrevious(portletType, other.portletType)) return false;
+		if (restoreColumn >= 0 && restoreColumn != other.restoreColumn) return false;
+		if (restoreRow >= 0 && restoreRow != other.restoreRow) return false;
+		if (restoreHeight > 0 && restoreHeight != other.restoreHeight) return false;
+		if (restoreWidth > 0 && restoreWidth != other.restoreWidth) return false;
+		if (minimized != other.minimized) return false;
+		if (closed != other.closed) return false;
+		if (!isEqualPrevious(keyData, other.keyData)) return false;
+		return true;
+	}
 }

@@ -10,6 +10,7 @@ import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.scholastic.sbam.client.util.IconSupplier;
+import com.scholastic.sbam.shared.objects.Authentication;
 import com.scholastic.sbam.shared.security.SecurityManager;
 
 public class AppNav extends Composite implements AppSecurityManager {
@@ -110,6 +111,7 @@ public class AppNav extends Composite implements AppSecurityManager {
 		tbtmAgreements.addListener(Events.Select, new Listener<ComponentEvent>() {  
 			public void handleEvent(ComponentEvent be) {
 				sleepOthers(tbtmAgreements);
+				awaken(appPortal);
 			}  
 		}); 
 	
@@ -142,9 +144,9 @@ public class AppNav extends Composite implements AppSecurityManager {
 	 * On log in, reset things for the user's roles, and load his cached portlets
 	 * @param roleNames
 	 */
-	public void setLoggedIn(List<String> roleNames) {
-		applyRoles(roleNames);
-		appPortal.setLoggedIn();
+	public void setLoggedIn(Authentication auth) {
+		applyRoles(auth.getRoleNames());
+		appPortal.setLoggedIn(auth);
 	}
 	
 	/**

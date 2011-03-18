@@ -128,17 +128,17 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 
 		setPortletHeading();
 		
-		setLayout(new FitLayout());
+//		setLayout(new FitLayout());
+		
+		setThis();
+		
 		outerContainer = new ContentPanel();
 		outerContainer.setBorders(false);
 		outerContainer.setHeaderVisible(false);
 		addButtons();
-		add(outerContainer);
 		
 		cards = new CardLayout();
 		outerContainer.setLayout(cards);
-		
-		setThis();
 		
 		createDisplayCard();
 		outerContainer.add(displayCard);
@@ -151,6 +151,8 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		
 		contactsCard = new AgreementContactsCard();
 		outerContainer.add(contactsCard);
+		
+		add(outerContainer);
 		
 		if (agreementId > 0)
 			loadAgreement(agreementId);
@@ -396,8 +398,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected void setThis() {
 //		this.setFrame(true);  
 //		this.setCollapsible(true);  
-//		this.setAnimCollapse(false);  
-//		this.setIcon(Resources.ICONS.table()); 
+//		this.setAnimCollapse(false);
 		this.setLayout(new FitLayout());
 		this.setHeight(forceHeight);
 		IconSupplier.setIcon(this, IconSupplier.getAgreementIconName());

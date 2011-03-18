@@ -6,12 +6,13 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class Authentication implements IsSerializable {
-	private String userName;
-	private String firstName;
-	private String lastName;
-	private String message;
-	private boolean authenticated;
-	private List<String> roleNames = new ArrayList<String>();
+	private String			userName;
+	private String			firstName;
+	private String			lastName;
+	private String			message;
+	private boolean			authenticated;
+	private int				cachedPortlets;
+	private List<String>	roleNames = new ArrayList<String>();
 	
 	public Authentication() {
 		
@@ -90,6 +91,14 @@ public class Authentication implements IsSerializable {
 	public void setMessage(String message) {
 		this.message = message;
 	}
+	public int getCachedPortlets() {
+		return cachedPortlets;
+	}
+
+	public void setCachedPortlets(int cachedPortlets) {
+		this.cachedPortlets = cachedPortlets;
+	}
+
 	public List<String> getRoleNames() {
 		return roleNames;
 	}

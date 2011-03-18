@@ -7,8 +7,10 @@ import javax.servlet.ServletContext;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.scholastic.sbam.client.services.AuthenticateService;
 import com.scholastic.sbam.server.database.codegen.User;
+import com.scholastic.sbam.server.database.codegen.UserPortletCache;
 import com.scholastic.sbam.server.database.codegen.UserRole;
 import com.scholastic.sbam.server.database.objects.DbUser;
+import com.scholastic.sbam.server.database.objects.DbUserPortletCache;
 import com.scholastic.sbam.server.database.objects.DbUserRole;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.objects.Authentication;
@@ -67,6 +69,10 @@ public class AuthenticateServiceImpl extends RemoteServiceServlet implements Aut
 			
 			user.setLoginCount(user.getLoginCount() + 1);
 			DbUser.persist(user);	//	DbUserHelper.persist(user);
+			
+			//	To optimize loading cached portlets, get them now and count them, but don't include the actual list in the authentication data
+			List<UserPortletCache> portlets = DbUserPortletCache.findByUserName(userName);
+			auth.setCachedPortlets(portlets.size());
 		}
 		
 		return auth;

@@ -198,7 +198,7 @@ public class LoginUiManager {
 			logoutButton.setVisible(true);
 		
 		// Tell the app to set things up
-		theApp.setLoggedIn(auth.getRoleNames());
+		theApp.setLoggedIn(auth);
 	}
 	
 	public void setLoggedOut() {

@@ -23,6 +23,11 @@ public class UpdateUserPortletCacheServiceImpl extends AuthenticatedServiceServl
 			throw new IllegalArgumentException("Attempt to update null portlet instance.");
 		}
 		
+//		long execId = System.currentTimeMillis();
+//		System.out.println();
+//		System.out.println(execId);
+//		System.out.println(execId + "  : Update user portlet cache " + instance.getPortletType() + " : " + instance.getPortletId() + " / " + instance.getRestoreColumn() + " / " + instance.getRestoreRow() + " size " + instance.getRestoreWidth() + " / " + instance.getRestoreHeight() + "  closed " + instance.getClosed() + ", min " + instance.getMinimized());
+		
 		UserPortletCache dbInstance = null;
 		
 		// This is a DIRTY fix... after logging out, some updates still try to happen.
@@ -31,6 +36,7 @@ public class UpdateUserPortletCacheServiceImpl extends AuthenticatedServiceServl
 		try {
 			auth = authenticate("update user portlet cache", SecurityManager.ROLE_QUERY);
 		} catch (IllegalArgumentException e) {
+//			System.out.println(execId + "  : No user for " + instance.getPortletId());
 			return "";
 		}
 		
@@ -48,6 +54,7 @@ public class UpdateUserPortletCacheServiceImpl extends AuthenticatedServiceServl
 			
 			//	If none found, create new
 			if (dbInstance == null && instance.getRestoreColumn() >= 0 && instance.getRestoreRow() >= 0) {
+//				System.out.println(execId + "  : Create new for " + instance.getPortletId());
 				dbInstance = new UserPortletCache();
 				UserPortletCacheId dbId = new UserPortletCacheId();
 				dbId.setUserName(auth.getUserName());
@@ -56,24 +63,38 @@ public class UpdateUserPortletCacheServiceImpl extends AuthenticatedServiceServl
 			}
 			
 			//	If the portlet isn't ready to save yet, and wasn't found, there's nothing more to do
-			if (dbInstance == null)
+			if (dbInstance == null) {
+//				System.out.println(execId + "  : No db instance for " + instance.getPortletId());
 				return "";
+			}
 			
 			if (instance.getPortletType() != null)
 				dbInstance.setPortletType(instance.getPortletType());
 			dbInstance.setMinimized(instance.getMinimized());
-			dbInstance.setRestoreColumn(instance.getRestoreColumn());
-			dbInstance.setRestoreRow(instance.getRestoreRow());
-			dbInstance.setRestoreWidth(instance.getRestoreWidth());
-			dbInstance.setRestoreHeight(instance.getRestoreHeight());
-			dbInstance.setKeyData(instance.getKeyData());
+			if (instance.getRestoreColumn() >= 0)
+				dbInstance.setRestoreColumn(instance.getRestoreColumn());
+			if (instance.getRestoreRow() >= 0)
+				dbInstance.setRestoreRow(instance.getRestoreRow());
+			if (instance.getRestoreWidth() > 0)
+				dbInstance.setRestoreWidth(instance.getRestoreWidth());
+			if (instance.getRestoreHeight() > 0)
+				dbInstance.setRestoreHeight(instance.getRestoreHeight());
+			if (instance.getKeyData() != null)
+				dbInstance.setKeyData(instance.getKeyData());
 			
 			//	Persist in database
 			if (dbInstance != null) {
-				if (instance.getRestoreColumn() < 0 && instance.getRestoreRow() < 0)	// Means delete it
+				if (instance.isClosed()) {	// Means delete it
+
+//					System.out.println(execId + "  : Delete for " + instance.getPortletId());
 					DbUserPortletCache.delete(dbInstance);
-				else
+					
+				} else {
+
+//					System.out.println(execId + "  : Update for " + instance.getPortletId());
 					DbUserPortletCache.persist(dbInstance);
+					
+				}
 			}
 			
 			

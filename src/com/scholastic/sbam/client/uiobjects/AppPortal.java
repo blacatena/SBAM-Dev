@@ -20,6 +20,7 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.UserPortletCacheListService;
 import com.scholastic.sbam.client.services.UserPortletCacheListServiceAsync;
+import com.scholastic.sbam.shared.objects.Authentication;
 import com.scholastic.sbam.shared.objects.UserPortletCacheInstance;
 import com.scholastic.sbam.shared.util.AppConstants;
 
@@ -44,8 +45,11 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 	}
 	
 	//	These must be instantiated now, not on render
-	private AppPortalWithCache thePortal		=	new AppPortalWithCache(2);;
-	private AppPortletProvider portletProvider	=	new AppPortletProvider(thePortal);;
+	private AppPortalWithCache		thePortal		=	new AppPortalWithCache(2);
+	private AppPortletProvider		portletProvider	=	new AppPortletProvider(thePortal);
+	private TreePanel<ModelData>	appNavTree;
+	
+	private boolean					cachedPortletsLoaded	= false;
 
 	@Override  
 	protected void onRender(Element parent, int index) {  
@@ -64,7 +68,7 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 		contentPanel.setCollapsible(false);
 		contentPanel.setBorders(true);
 		
-		TreePanel<ModelData> appNavTree = AppNavTree.getTreePanel();
+		appNavTree = AppNavTree.getTreePanel();
 	//	portletProvider = new AppPortletProvider(thePortal);
 		appNavTree.setSelectionModel(new AppTreeSelectionModel(portletProvider));
 		contentPanel.add(appNavTree);
@@ -79,22 +83,40 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 		add(thePortal, 		centerData);
 	}
 	
-	public void setLoggedIn() {
-		if (AppConstants.USER_PORTLET_CACHE_ACTIVE)
-			restorePortlets();
+	public void setLoggedIn(Authentication auth) {
+		//	Determine if portlets need to be loaded now that the user has logged in (if they have none to load, mark them as loaded).
+		cachedPortletsLoaded = auth.getCachedPortlets() <= 0;
 	}
 	
 	public void setLoggedOut() {
-//		On logout, remove all portlets
+		//	On logout, remove all portlets
 		removeAllPortlets();
+		//	And mark them as gone
+		cachedPortletsLoaded = false;
 	}
 	
 	/**
 	 * Restore all portlets for this user from the user portlet cache.
 	 */
 	public void restorePortlets() {
+		/*
+		 * NOTE: Portlets must be reloaded this way, because simply loading them on login, before the portal is actually shown, causes
+		 * 		 discrepencies in the layouts (i.e. portlets get drawn incorrectly when a user logs out then logs back in without
+		 * 		 first reloading the entire app in the browser).
+		 */
+		
+		if (cachedPortletsLoaded)
+			return;
+		
+		cachedPortletsLoaded = true;
+		
+		if (!AppConstants.USER_PORTLET_CACHE_ACTIVE)
+			return;
+		
 		final UserPortletCacheListServiceAsync userPortletCacheUpdateService = GWT.create(UserPortletCacheListService.class);
 
+		mask("Loading cached portlets...");
+		// Initiate the call to load the portlets
 		userPortletCacheUpdateService.getUserPortlets(null, null,
 				new AsyncCallback<List<UserPortletCacheInstance>>() {
 					public void onFailure(Throwable caught) {
@@ -117,10 +139,12 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 								portlet.setForceHeight(instance.getRestoreHeight());
 							portlet.setPortletId(instance.getPortletId());
 							portlet.setFromKeyData(instance.getKeyData());
+							portlet.setLastCacheInstance(instance);
 							if (instance.isMinimized())
 								portlet.collapse();
 							thePortal.reinsert(portlet, instance.getRestoreRow(), instance.getRestoreColumn());
 						}
+						unmask();
 					}
 			});
 	}
@@ -136,7 +160,8 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 		    	if (list.get(row) instanceof Portlet) {
 		    		if (list.get(row) instanceof AppPortlet)
 		    			((AppPortlet) list.get(row)).setPortletId(-1);
-		    		((Portlet) list.get(row)).removeFromParent();
+//		    		((Portlet) list.get(row)).removeFromParent();
+		    		thePortal.remove((Portlet) list.get(row), col);
 		    	}
 		    }
 		}
@@ -144,6 +169,10 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 
 	@Override
 	public void awaken() {
+		//	When the user chooses this tab, if it hasn't happened already, load the portlets
+		if (!cachedPortletsLoaded)
+			restorePortlets();
+		
 		for (LayoutContainer portlet : thePortal.getItems())
 			if (portlet instanceof AppSleeper)
 				((AppSleeper) portlet).awaken();
