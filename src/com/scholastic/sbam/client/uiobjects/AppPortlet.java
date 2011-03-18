@@ -28,7 +28,7 @@ public abstract class AppPortlet extends Portlet {
 	protected int		forceHeight = 550;
 	
 	protected String	helpTextId;
-	protected boolean	resizeable = false;
+	protected boolean	resizeable = true;
 	protected Resizable	resizer;
 	
 	protected int		portalColumn	= -1;

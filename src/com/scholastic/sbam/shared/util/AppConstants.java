@@ -1,7 +1,7 @@
 package com.scholastic.sbam.shared.util;
 
 public class AppConstants {
-	public static final String VERSION = "0.0.5dev";
+	public static final String VERSION = "0.0.6dev";
 	public static final String VERSION_DESCRIPTION = "In Development.";
 	
 	public static 		boolean USER_PORTLET_CACHE_ACTIVE = true;	//	Use this to turn on/off the portlet cache service
