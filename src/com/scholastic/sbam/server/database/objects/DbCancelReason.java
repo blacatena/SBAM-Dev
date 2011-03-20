@@ -9,6 +9,7 @@ import org.hibernate.criterion.Restrictions;
 
 import com.scholastic.sbam.server.database.codegen.CancelReason;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
+import com.scholastic.sbam.shared.objects.CancelReasonInstance;
 
 /**
  * Sample database table accessor class, extending HibernateAccessor, and implementing custom get/find methods.
@@ -19,6 +20,17 @@ import com.scholastic.sbam.server.database.util.HibernateAccessor;
 public class DbCancelReason extends HibernateAccessor {
 	
 	static String objectName = CancelReason.class.getSimpleName();
+	
+	public static CancelReasonInstance getInstance(CancelReason dbInstance) {
+		CancelReasonInstance instance = new CancelReasonInstance();
+		instance.setCancelReasonCode(dbInstance.getCancelReasonCode());
+		instance.setDescription(dbInstance.getDescription());
+		instance.setChangeNotCancel(dbInstance.getChangeNotCancel());
+		instance.setStatus(dbInstance.getStatus());
+		instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
+		
+		return instance;
+	}
 	
 	public static CancelReason getByCode(String code) {
 		return (CancelReason) getByField(objectName, "cancelReasonCode", code, "description");

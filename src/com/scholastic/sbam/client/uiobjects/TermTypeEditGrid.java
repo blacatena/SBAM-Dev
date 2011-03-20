@@ -19,6 +19,7 @@ import com.scholastic.sbam.client.services.TermTypeListService;
 import com.scholastic.sbam.client.services.TermTypeListServiceAsync;
 import com.scholastic.sbam.client.services.UpdateTermTypeService;
 import com.scholastic.sbam.client.services.UpdateTermTypeServiceAsync;
+import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.TermTypeInstance;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.validation.CodeValidator;
@@ -99,6 +100,8 @@ public class TermTypeEditGrid extends BetterFilterEditGrid<TermTypeInstance> {
 						if (storeInstance.getCreatedDatetime() == null) {
 							storeInstance.setCreatedDatetime(updatedTermType.getCreatedDatetime());
 						}
+						//	Refresh this user's term type cache
+						UiConstants.loadTermTypes();
 				}
 			});
 	}

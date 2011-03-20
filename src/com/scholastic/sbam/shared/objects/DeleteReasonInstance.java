@@ -2,9 +2,15 @@ package com.scholastic.sbam.shared.objects;
 
 import java.util.Date;
 
+import com.extjs.gxt.ui.client.data.BeanModel;
+import com.extjs.gxt.ui.client.data.BeanModelFactory;
+import com.extjs.gxt.ui.client.data.BeanModelLookup;
+import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-public class DeleteReasonInstance extends BetterRowEditInstance implements IsSerializable {
+public class DeleteReasonInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
+
+	private static BeanModelFactory beanModelfactory;
 
 	private String deleteReasonCode;
 	private String description;
@@ -78,5 +84,23 @@ public class DeleteReasonInstance extends BetterRowEditInstance implements IsSer
 		if (this.status == 'X')
 			return;
 		setStatus(active?'A':'I');
+	}
+	
+	public static DeleteReasonInstance getUnknownInstance(String code) {
+		DeleteReasonInstance instance = new DeleteReasonInstance();
+		instance.deleteReasonCode = code;
+		instance.description = "Unknown delete reason " + code;
+		return instance;
+	}
+
+	public static BeanModel obtainModel(DeleteReasonInstance instance) {
+		if (beanModelfactory == null)
+			beanModelfactory  = BeanModelLookup.get().getFactory(DeleteReasonInstance.class);
+		BeanModel model = beanModelfactory.createModel(instance);
+		return model;
+	}
+	
+	public String getDescriptionAndCode() {
+		return description + " [ " + deleteReasonCode + " ]";
 	}
 }

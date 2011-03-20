@@ -16,11 +16,19 @@ import com.google.gwt.i18n.client.DefaultCurrencyData;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.scholastic.sbam.client.services.CancelReasonListService;
+import com.scholastic.sbam.client.services.CancelReasonListServiceAsync;
 import com.scholastic.sbam.client.services.CommissionTypeListService;
 import com.scholastic.sbam.client.services.CommissionTypeListServiceAsync;
+import com.scholastic.sbam.client.services.DeleteReasonListService;
+import com.scholastic.sbam.client.services.DeleteReasonListServiceAsync;
 import com.scholastic.sbam.client.services.TermTypeListService;
 import com.scholastic.sbam.client.services.TermTypeListServiceAsync;
+import com.scholastic.sbam.client.stores.BetterFilterListStore;
+import com.scholastic.sbam.shared.objects.CancelReasonInstance;
 import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
+import com.scholastic.sbam.shared.objects.DeleteReasonInstance;
+import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.TermTypeInstance;
 
 public class UiConstants {
@@ -37,11 +45,14 @@ public class UiConstants {
 		PRODUCT, SITE, AGREEMENT, AGREEMENT_TERM;
 	}
 	
-	private final static int REFRESH_PERIOD = 10 * 60 * 1000;	// Every 10 minutes
+	private final static int			REFRESH_PERIOD = 10 * 60 * 1000;	// Every 10 minutes
 	
-	private static ListStore<BeanModel>	termTypes = new ListStore<BeanModel>();
-	private static ListStore<BeanModel>	commissionTypes = new ListStore<BeanModel>();
-	private static Timer				refreshTimer;
+	private static ListStore<BeanModel>					termTypes = new ListStore<BeanModel>();
+	private static ListStore<BeanModel>					commissionTypes = new ListStore<BeanModel>();
+	private static ListStore<BeanModel>					deleteReasons = new ListStore<BeanModel>();
+	private static BetterFilterListStore<BeanModel>		cancelReasons = new BetterFilterListStore<BeanModel>();
+	
+	private static Timer								refreshTimer;
 	
 	public static void init() {
 		refresh();
@@ -51,6 +62,8 @@ public class UiConstants {
 	public static void refresh() {
 		loadTermTypes();
 		loadCommissionTypes();
+		loadDeleteReasons();
+		loadCancelReasons();
 	}
 	
 	public static void setTimer() {
@@ -77,7 +90,7 @@ public class UiConstants {
 			refreshTimer.cancel();
 	}
 	
-	private static void loadTermTypes() {
+	public static void loadTermTypes() {
 		TermTypeListServiceAsync termTypeListService = GWT.create(TermTypeListService.class);
 		
 		AsyncCallback<List<TermTypeInstance>> callback = new AsyncCallback<List<TermTypeInstance>>() {
@@ -110,7 +123,73 @@ public class UiConstants {
 		return termTypes;
 	}
 	
-	private static void loadCommissionTypes() {
+	public static void loadDeleteReasons() {
+		DeleteReasonListServiceAsync deleteReasonListService = GWT.create(DeleteReasonListService.class);
+		
+		AsyncCallback<List<DeleteReasonInstance>> callback = new AsyncCallback<List<DeleteReasonInstance>>() {
+			public void onFailure(Throwable caught) {
+				// Show the RPC error message to the user
+				if (caught instanceof IllegalArgumentException)
+					MessageBox.alert("Alert", caught.getMessage(), null);
+				else {
+					MessageBox.alert("Alert", "Delete reasons load failed unexpectedly.", null);
+					System.out.println(caught.getClass().getName());
+					System.out.println(caught.getMessage());
+				}
+			}
+
+			public void onSuccess(List<DeleteReasonInstance> list) {
+				deleteReasons.removeAll();
+				BeanModelFactory factory = null;
+				for (DeleteReasonInstance instance : list) {
+					if (factory == null)
+						factory = BeanModelLookup.get().getFactory(instance.getClass());
+					deleteReasons.add(factory.createModel(instance));	
+				}
+			}
+		};
+		
+		deleteReasonListService.getDeleteReasons(null, callback);
+	}
+	
+	public static ListStore<BeanModel> getDeleteReasons() {
+		return deleteReasons;
+	}
+	
+	public static void loadCancelReasons() {
+		CancelReasonListServiceAsync cancelReasonListService = GWT.create(CancelReasonListService.class);
+		
+		AsyncCallback<List<CancelReasonInstance>> callback = new AsyncCallback<List<CancelReasonInstance>>() {
+			public void onFailure(Throwable caught) {
+				// Show the RPC error message to the user
+				if (caught instanceof IllegalArgumentException)
+					MessageBox.alert("Alert", caught.getMessage(), null);
+				else {
+					MessageBox.alert("Alert", "Cancel reasons load failed unexpectedly.", null);
+					System.out.println(caught.getClass().getName());
+					System.out.println(caught.getMessage());
+				}
+			}
+
+			public void onSuccess(List<CancelReasonInstance> list) {
+				cancelReasons.removeAll();
+				BeanModelFactory factory = null;
+				for (CancelReasonInstance instance : list) {
+					if (factory == null)
+						factory = BeanModelLookup.get().getFactory(instance.getClass());
+					cancelReasons.add(factory.createModel(instance));	
+				}
+			}
+		};
+		
+		cancelReasonListService.getCancelReasons(null, callback);
+	}
+	
+	public static ListStore<BeanModel> getCancelReasons() {
+		return cancelReasons;
+	}
+	
+	public static void loadCommissionTypes() {
 		CommissionTypeListServiceAsync commissionTypeListService = GWT.create(CommissionTypeListService.class);
 		
 		AsyncCallback<List<CommissionTypeInstance>> callback = new AsyncCallback<List<CommissionTypeInstance>>() {
@@ -147,7 +226,8 @@ public class UiConstants {
 	
 	public static ListStore<BeanModel> getCommissionTypes(CommissionTypeTargets target) {
 		ListStore<BeanModel> list = new ListStore<BeanModel>();
-		list.setKeyProvider(CommissionTypeInstance.obtainStaticModelKeyProvider());
+		list.setKeyProvider(new SimpleKeyProvider("commissionTypeCode"));
+//		list.setKeyProvider(CommissionTypeInstance.obtainStaticModelKeyProvider());
 		
 		for (BeanModel model : commissionTypes.getModels()) {
 			CommissionTypeInstance instance = (CommissionTypeInstance) model.getBean();

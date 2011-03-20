@@ -2,11 +2,16 @@ package com.scholastic.sbam.shared.objects;
 
 import java.util.Date;
 
+import com.extjs.gxt.ui.client.data.BeanModel;
+import com.extjs.gxt.ui.client.data.BeanModelFactory;
+import com.extjs.gxt.ui.client.data.BeanModelLookup;
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class TermTypeInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
 
+	private static BeanModelFactory beanModelfactory;
+	
 	private String termTypeCode;
 	private String description;
 	private boolean   activate;
@@ -96,6 +101,24 @@ public class TermTypeInstance extends BetterRowEditInstance implements BeanModel
 		if (this.status == 'X')
 			return;
 		setStatus(active?'A':'I');
+	}
+	
+	public String getDescriptionAndCode() {
+		return description + " [ " + termTypeCode + " ]";
+	}
+	
+	public static TermTypeInstance getUnknownInstance(String code) {
+		TermTypeInstance instance = new TermTypeInstance();
+		instance.termTypeCode = code;
+		instance.description = "Unknown term type " + code;
+		return instance;
+	}
+
+	public static BeanModel obtainModel(TermTypeInstance instance) {
+		if (beanModelfactory == null)
+			beanModelfactory  = BeanModelLookup.get().getFactory(TermTypeInstance.class);
+		BeanModel model = beanModelfactory.createModel(instance);
+		return model;
 	}
 
 	public String toString() {

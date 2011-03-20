@@ -7,9 +7,13 @@ import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
@@ -114,6 +118,13 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		}
 		
 		addFormFields(formPanel, formData);
+		
+		formPanel.addListener(Events.OnClick, new Listener<BaseEvent>() {
+			@Override
+			public void handleEvent(BaseEvent be) {
+				enableFields();
+			}	
+		});
 		
 //		Button doneButton = new Button("Done");
 //		doneButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -357,6 +368,12 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	public void setGridAttributes(Grid<ModelData> grid) {
 //		For example:
 //		grid.setAutoExpandColumn(autoExpandColumn);  	
+	}
+	
+	public void enableFields() {
+		for (Field<?> field : formPanel.getFields()) {
+			field.enable();
+		}
 	}
 	
 	/**

@@ -238,7 +238,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 					"This is the service end date for a product term."));
 		columns.add(getDisplayColumn("dollarValue",				"Value",					80,		true, NumberFormat.getCurrencyFormat(UiConstants.US_DOLLARS),
 					"This is the value of the service."));
-		columns.add(getDisplayColumn("termTypeDescription",		"Type",						80,
+		columns.add(getDisplayColumn("termType.description",	"Type",						80,
 					"This is the type of service."));
 
 		RowExpander expander = getNoteExpander();

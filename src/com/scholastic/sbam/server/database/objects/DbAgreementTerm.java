@@ -32,7 +32,7 @@ public class DbAgreementTerm extends HibernateAccessor {
 		instance.setStartDate(dbInstance.getStartDate());
 		instance.setEndDate(dbInstance.getEndDate());
 		instance.setTerminateDate(dbInstance.getTerminateDate());
-		instance.setTermType(dbInstance.getTermType());
+		instance.setTermTypeCode(dbInstance.getTermType());
 		
 		instance.setCommissionCode(dbInstance.getCommissionCode());
 		instance.setCancelReasonCode(dbInstance.getCancelReasonCode());

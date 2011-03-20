@@ -1,11 +1,11 @@
 package com.scholastic.sbam.client.uiobjects;
 
+import com.extjs.gxt.ui.client.data.BeanModel;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.DateField;
-import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.i18n.client.NumberFormat;
-import com.scholastic.sbam.client.util.UiConstants;
 
 /**
  * A base class which provides useful helper methods for any portlet that will be using fields.
@@ -49,47 +49,35 @@ public abstract class FieldSupportPortlet extends AppPortlet {
 	}
 	
 	protected NumberField getDollarField(String label) {
-		return getNumberField(label, UiConstants.DOLLARS_FORMAT);
+		return FieldFactory.getDollarField(label);
 	}
 	
 	protected NumberField getIntegerField(String label) {
-		return getNumberField(label, UiConstants.INTEGER_FORMAT);
+		return FieldFactory.getIntegerField(label);
 	}
 	
 	protected NumberField getNumberField(String label, NumberFormat numberFormat) {
-		NumberField field = new NumberField();
-		setStandard(field, label);
-		
-		field.setFormat(numberFormat);
-		field.setAllowDecimals(false);
-		field.setAllowNegative(false);
-
-//		field.setMessageTarget(messageTarget)
-//		field.setMessages(messages);
-//		field.setImages(images);
-//		field.setReadOnly(true);
-		
-		return field;
+		return FieldFactory.getNumberField(label, numberFormat);
 	}
 	
 	protected TextField<String> getTextField(String label) {
-		TextField<String> field = new TextField<String>();
-		setStandard(field, label);
-		return field;
+		return FieldFactory.getTextField(label);
 	}
 	
 	protected DateField getDateField(String label) {
-		DateField field = new DateField();
-		setStandard(field, label);
-		
-		return field;
+		return FieldFactory.getDateField(label);
 	}
 	
-	protected void setStandard(Field<?> field, String label) {
-		field.setEnabled(false);
-		field.addStyleName("field-or-label");
-	//	field.setLabelStyle("color: saddlebrown;");
-		field.setFieldLabel(label);
+	protected EnhancedComboBox<BeanModel> getComboField(String name, String label, int width, ListStore<BeanModel> listStore, String displayField) {
+		return FieldFactory.getComboField(name, label, width, listStore, displayField);
+	}
+	
+	protected EnhancedComboBox<BeanModel> getComboField(String name, String label, int width, String toolTip, ListStore<BeanModel> listStore, String displayField) {
+		return FieldFactory.getComboField(name, label, width, toolTip, listStore, displayField);
+	}
+	
+	protected EnhancedComboBox<BeanModel> getComboField(String name, String label, int width, String toolTip, ListStore<BeanModel> listStore, String valueField, String displayField) {
+		return FieldFactory.getComboField(name, label, width, toolTip, listStore, valueField, displayField);
 	}
 
 	/**

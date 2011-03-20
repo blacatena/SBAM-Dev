@@ -174,4 +174,8 @@ public class CommissionTypeInstance extends BetterRowEditInstance implements Bea
 	public ModelKeyProvider<BeanModel> obtainModelKeyProvider() {
 		return CommissionTypeInstance.singletonKeyProvider;
 	}
+	
+	public String getDescriptionAndCode() {
+		return description + "[" + commissionCode + "]";
+	}
 }

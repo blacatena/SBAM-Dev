@@ -16,6 +16,8 @@ import com.scholastic.sbam.server.database.objects.DbProduct;
 import com.scholastic.sbam.server.database.objects.DbTermType;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.objects.AgreementTermInstance;
+import com.scholastic.sbam.shared.objects.CancelReasonInstance;
+import com.scholastic.sbam.shared.objects.TermTypeInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
 import com.scholastic.sbam.shared.util.AppConstants;
 
@@ -62,11 +64,16 @@ public class AgreementTermListServiceImpl extends AuthenticatedServiceServlet im
 		if (agreementTerm == null)
 			return;
 		
-		if (agreementTerm.getTermType() != null) {
-			TermType tType = DbTermType.getByCode(agreementTerm.getTermType());
-			if (tType != null)
-				agreementTerm.setTermTypeDescription(tType.getDescription());
-		}
+		if (agreementTerm.getTermTypeCode() != null) {
+			TermType tType = DbTermType.getByCode(agreementTerm.getTermTypeCode());
+			if (tType != null) {
+				agreementTerm.setTermType(DbTermType.getInstance(tType));
+			} else {
+				agreementTerm.setTermType(TermTypeInstance.getUnknownInstance(agreementTerm.getTermTypeCode()));
+			}
+		} else
+			agreementTerm.setTermType(TermTypeInstance.getUnknownInstance("none"));
+		
 	
 		if (agreementTerm.getCommissionCode() != null) {
 			CommissionType cType = DbCommissionType.getByCode(agreementTerm.getCommissionCode());
@@ -74,11 +81,18 @@ public class AgreementTermListServiceImpl extends AuthenticatedServiceServlet im
 				agreementTerm.setCommissionCodeDescription(cType.getDescription());
 		}
 		
-		if (agreementTerm.getCancelReasonCode() != null) {
+		
+		if (agreementTerm.getCancelReasonCode() != null && agreementTerm.getCancelReasonCode().length() > 0) {
 			CancelReason cancelReason = DbCancelReason.getByCode(agreementTerm.getCancelReasonCode());
-			if (cancelReason != null)
-				agreementTerm.setCancelReasonDescription(cancelReason.getDescription());
-		}
+			if (cancelReason != null) {
+				agreementTerm.setCancelReason(DbCancelReason.getInstance(cancelReason));
+			} else {
+				agreementTerm.setCancelReason(CancelReasonInstance.getUnknownInstance(agreementTerm.getCancelReasonCode()));
+			}
+		} else
+			agreementTerm.setCancelReason(CancelReasonInstance.getEmptyInstance());
+			
+		
 		if (agreementTerm.getProductCode() != null) {
 			Product product = DbProduct.getByCode(agreementTerm.getProductCode());
 			if (product != null) {
@@ -86,5 +100,6 @@ public class AgreementTermListServiceImpl extends AuthenticatedServiceServlet im
 				agreementTerm.setProductShortName(product.getShortName());
 			}
 		}
+		
 	}
 }

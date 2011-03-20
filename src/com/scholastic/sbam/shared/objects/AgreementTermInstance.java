@@ -16,14 +16,12 @@ public class AgreementTermInstance extends BetterRowEditInstance implements Bean
 	private Date	startDate;
 	private Date	endDate;
 	private Date	terminateDate;
-	private String	termType;
-	private String	termTypeDescription;
+	private String	termTypeCode;
 	
 	private String	commissionCode;
 	private String	commissionCodeDescription;
 
 	private String	cancelReasonCode;
-	private String	cancelReasonDescription;
 	private Date	cancelDate;
 	
 	private double	dollarValue;
@@ -45,6 +43,9 @@ public class AgreementTermInstance extends BetterRowEditInstance implements Bean
 	private char	status;
 	private boolean	active;
 	private Date	createdDatetime;
+	
+	private TermTypeInstance		termType;
+	private CancelReasonInstance	cancelReason;
 	
 	@Override
 	public void markForDeletion() {
@@ -146,20 +147,14 @@ public class AgreementTermInstance extends BetterRowEditInstance implements Bean
 		this.terminateDate = terminateDate;
 	}
 
-	public String getTermType() {
-		return termType;
+	public String getTermTypeCode() {
+		if (termType != null)
+			return termType.getTermTypeCode();
+		return termTypeCode;
 	}
 
-	public void setTermType(String termType) {
-		this.termType = termType;
-	}
-
-	public String getTermTypeDescription() {
-		return termTypeDescription;
-	}
-
-	public void setTermTypeDescription(String termTypeDescription) {
-		this.termTypeDescription = termTypeDescription;
+	public void setTermTypeCode(String termTypeCode) {
+		this.termTypeCode = termTypeCode;
 	}
 
 	public String getCommissionCode() {
@@ -184,14 +179,6 @@ public class AgreementTermInstance extends BetterRowEditInstance implements Bean
 
 	public void setCancelReasonCode(String cancelReasonCode) {
 		this.cancelReasonCode = cancelReasonCode;
-	}
-
-	public String getCancelReasonDescription() {
-		return cancelReasonDescription;
-	}
-
-	public void setCancelReasonDescription(String cancelReasonDescription) {
-		this.cancelReasonDescription = cancelReasonDescription;
 	}
 
 	public Date getCancelDate() {
@@ -313,6 +300,30 @@ public class AgreementTermInstance extends BetterRowEditInstance implements Bean
 
 	public void setNote(String note) {
 		this.note = note;
+	}
+
+	public TermTypeInstance getTermType() {
+		return termType;
+	}
+
+	public void setTermType(TermTypeInstance termType) {
+		this.termType = termType;
+		if (termType == null)
+			this.termTypeCode = "";
+		else
+			this.termTypeCode = termType.getTermTypeCode();
+	}
+
+	public CancelReasonInstance getCancelReason() {
+		return cancelReason;
+	}
+
+	public void setCancelReason(CancelReasonInstance cancelReason) {
+		this.cancelReason = cancelReason;
+		if (this.cancelReason == null)
+			this.cancelReasonCode = "";
+		else
+			this.cancelReasonCode = cancelReason.getCancelReasonCode();
 	}
 
 	public String toString() {

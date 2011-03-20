@@ -2,6 +2,7 @@ package com.scholastic.sbam.client.uiobjects;
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
@@ -19,21 +20,29 @@ import com.scholastic.sbam.client.services.AgreementTermListService;
 import com.scholastic.sbam.client.services.AgreementTermListServiceAsync;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.AgreementTermInstance;
+import com.scholastic.sbam.shared.objects.CancelReasonInstance;
+import com.scholastic.sbam.shared.objects.TermTypeInstance;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> {
 	
 	protected final AgreementTermListServiceAsync agreementTermListService = GWT.create(AgreementTermListService.class);
 	
-	protected RowExpander			noteExpander;
+	protected RowExpander					noteExpander;
 	
-	protected NumberField			agreementIdDisplay	= getIntegerField("Agreement #");
-	protected TextField<String>		productCodeDisplay	= getTextField("Product");
-	protected TextField<String>		productDisplay		= getTextField("");
-	protected NumberField			dollarValue			= getDollarField("Value");
-	protected DateField				startDate			= getDateField("Start");
-	protected DateField				endDate				= getDateField("End");
-	protected DateField				terminateDate		= getDateField("Terminate");
+	protected NumberField					agreementIdDisplay	= getIntegerField("Agreement #");
+	protected TextField<String>				productCodeDisplay	= getTextField("Product");
+	protected TextField<String>				productDisplay		= getTextField("");
+	protected NumberField					dollarValue			= getDollarField("Value");
+	protected DateField						startDate			= getDateField("Start");
+	protected DateField						endDate				= getDateField("End");
+	protected DateField						terminateDate		= getDateField("Terminate");
+	protected EnhancedComboBox<BeanModel>	termType			= getComboField("termType", 		"Term Type",	150,		
+																		"The term type for this product term.",	
+																		UiConstants.getTermTypes(), "termTypeCode", "description");
+	protected EnhancedComboBox<BeanModel>	cancelReason		= getComboField("cancelReason", 	"Cancel Reason",	150,		
+																		"The reason for canceling for this product term.",	
+																		UiConstants.getCancelReasons(), "cancelReasonCode", "descriptionAndCode");
 	
 	public int getAgreementId() {
 		return getFocusId();
@@ -85,7 +94,7 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 					"This is the actual service termination date for a product term."));
 		columns.add(getDisplayColumn("dollarValue",				"Value",					80,		true, UiConstants.DOLLARS_FORMAT,
 					"This is the value of the service."));
-		columns.add(getDisplayColumn("termTypeDescription",		"Type",						80,
+		columns.add(getDisplayColumn("termType.description",	"Type",						80,
 					"This is the type of service."));
 	
 		noteExpander = getNoteExpander();
@@ -101,6 +110,8 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 		startDate.setValue(instance.getStartDate());
 		endDate.setValue(instance.getEndDate());
 		terminateDate.setValue(instance.getTerminateDate());
+		termType.setValue(TermTypeInstance.obtainModel(instance.getTermType()));
+		cancelReason.setValue(CancelReasonInstance.obtainModel(instance.getCancelReason()));
 	}
 
 	@Override
@@ -111,6 +122,8 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 
 	@Override
 	protected void addFormFields(FormPanel panel, FormData formData) {
+		agreementIdDisplay.setReadOnly(true);
+		productDisplay.setReadOnly(true);
 		
 		productCodeDisplay.setToolTip(UiConstants.getQuickTip("The product requested."));
 		dollarValue.setToolTip(UiConstants.getQuickTip("The total dollar value of this product for this term."));
@@ -120,6 +133,9 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 		
 		productDisplay.setLabelSeparator("");
 		productDisplay.setWidth(300);
+		
+		termType.setAllowBlank(false);
+		cancelReason.setAllowBlank(true);
 		
 		panel.add(agreementIdDisplay, formData);	
 		panel.add(productCodeDisplay, formData);
@@ -137,8 +153,11 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 		fieldSet.add(startDate);
 		fieldSet.add(endDate);
 		fieldSet.add(terminateDate);
+		fieldSet.add(termType);
 		
 		panel.add(fieldSet);
+		
+		panel.add(cancelReason, formData);
 	}
 	
 	

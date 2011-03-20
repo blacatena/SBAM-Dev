@@ -24,6 +24,8 @@ import com.scholastic.sbam.server.database.objects.DbTermType;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.objects.AgreementInstance;
 import com.scholastic.sbam.shared.objects.AgreementTermInstance;
+import com.scholastic.sbam.shared.objects.CancelReasonInstance;
+import com.scholastic.sbam.shared.objects.TermTypeInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
 import com.scholastic.sbam.shared.util.AppConstants;
 
@@ -116,13 +118,13 @@ public class AgreementGetServiceImpl extends AuthenticatedServiceServlet impleme
 				agreement.setAgreementTypeDescription(aType.getDescription());
 		}
 		
-		if (agreement.getAgreementTypeCode() != null) {
+		if (agreement.getCommissionCode() != null) {
 			CommissionType cType = DbCommissionType.getByCode(agreement.getCommissionCode());
 			if (cType != null)
 				agreement.setCommissionCodeDescription(cType.getDescription());
 		}
 		
-		if (agreement.getAgreementTypeCode() != null) {
+		if (agreement.getDeleteReasonCode() != null) {
 			DeleteReason dType = DbDeleteReason.getByCode(agreement.getDeleteReasonCode());
 			if (dType != null)
 				agreement.setDeleteReasonDescription(dType.getDescription());
@@ -135,11 +137,14 @@ public class AgreementGetServiceImpl extends AuthenticatedServiceServlet impleme
 		if (agreementTerm == null)
 			return;
 		
-		if (agreementTerm.getTermType() != null) {
-			TermType tType = DbTermType.getByCode(agreementTerm.getTermType());
-			if (tType != null)
-				agreementTerm.setTermTypeDescription(tType.getDescription());
-		}
+		if (agreementTerm.getTermTypeCode() != null) {
+			TermType tType = DbTermType.getByCode(agreementTerm.getTermTypeCode());
+			if (tType != null) {
+				agreementTerm.setTermType(DbTermType.getInstance(tType));
+			} else
+				agreementTerm.setTermType(TermTypeInstance.getUnknownInstance(agreementTerm.getTermTypeCode()));
+		} else
+			agreementTerm.setTermType(TermTypeInstance.getUnknownInstance("none"));
 	
 		if (agreementTerm.getCommissionCode() != null) {
 			CommissionType cType = DbCommissionType.getByCode(agreementTerm.getCommissionCode());
@@ -147,11 +152,17 @@ public class AgreementGetServiceImpl extends AuthenticatedServiceServlet impleme
 				agreementTerm.setCommissionCodeDescription(cType.getDescription());
 		}
 		
-		if (agreementTerm.getCancelReasonCode() != null) {
+		if (agreementTerm.getCancelReasonCode() != null && agreementTerm.getCancelReasonCode().length() > 0) {
 			CancelReason cancelReason = DbCancelReason.getByCode(agreementTerm.getCancelReasonCode());
-			if (cancelReason != null)
-				agreementTerm.setCancelReasonDescription(cancelReason.getDescription());
-		}
+			if (cancelReason != null) {
+				agreementTerm.setCancelReason(DbCancelReason.getInstance(cancelReason));
+			} else {
+				agreementTerm.setCancelReason(CancelReasonInstance.getUnknownInstance(agreementTerm.getCancelReasonCode()));
+			}
+		} else
+			agreementTerm.setCancelReason(CancelReasonInstance.getEmptyInstance());
+			
+			
 		if (agreementTerm.getProductCode() != null) {
 			Product product = DbProduct.getByCode(agreementTerm.getProductCode());
 			if (product != null) {

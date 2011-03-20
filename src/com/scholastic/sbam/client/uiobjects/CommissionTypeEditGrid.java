@@ -19,6 +19,7 @@ import com.scholastic.sbam.client.services.CommissionTypeListService;
 import com.scholastic.sbam.client.services.CommissionTypeListServiceAsync;
 import com.scholastic.sbam.client.services.UpdateCommissionTypeService;
 import com.scholastic.sbam.client.services.UpdateCommissionTypeServiceAsync;
+import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.validation.CodeValidator;
@@ -108,6 +109,8 @@ public class CommissionTypeEditGrid extends BetterFilterEditGrid<CommissionTypeI
 							storeInstance.setCreatedDatetime(updatedCommissionType.getCreatedDatetime());
 //							targetBeanModel.set("createdDatetime", updatedCommissionType.getCreatedDatetime());
 						}
+						//	Refresh this user's commission type cache
+						UiConstants.loadCommissionTypes();
 				}
 			});
 	}
