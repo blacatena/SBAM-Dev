@@ -43,7 +43,6 @@ import com.scholastic.sbam.client.services.InstitutionGetService;
 import com.scholastic.sbam.client.services.InstitutionGetServiceAsync;
 import com.scholastic.sbam.client.uiobjects.AppPortletIds;
 import com.scholastic.sbam.client.uiobjects.AppSleeper;
-import com.scholastic.sbam.client.util.AddressFormatter;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.AgreementInstance;
@@ -72,6 +71,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected AgreementContactsCard	contactsCard;
 	protected Grid<ModelData>		grid;
 	protected LiveGridView			liveView;
+//	protected FormBinding			institutionBinding;
 	
 	protected ListStore<ModelData>	store;
 	
@@ -87,9 +87,9 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected NumberField					agreementIdField	= getIntegerField("Agreement #");
 	protected NumberField					currentValueField	= getDollarField("Current Value");
 	protected LabelField					idTipField			= new LabelField();
-	protected NumberField					ucnDisplay			= getIntegerField("Bill Institution");
-	protected InstitutionSearchField		institutionField	= FieldFactory.getInstitutionSearchField("billUcn", "Bill To", 300, "The institution that will pay for the products delivered.");
+	protected InstitutionSearchField		institutionField	= getInstitutionField("billUcn", "Bill To", 300, "The institution that will pay for the products delivered.");
 	protected LabelField					addressDisplay		= new LabelField();
+	protected NumberField					ucnDisplay			= getIntegerField("UCN");
 	protected LabelField					customerTypeDisplay	= new LabelField();
 	protected EnhancedComboBox<BeanModel>	agreementTypeField	= getComboField("agreementType", 	"Agreement Type",	150,		
 								"The agreement type assigned to this agreement for reporting purposes.",	
@@ -217,12 +217,12 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 
 		agreementIdField.setReadOnly(true);
 		currentValueField.setReadOnly(true);
+		ucnDisplay.setReadOnly(true);
 
 		displayCard.add(agreementIdField, formData);
 		displayCard.add(idTipField, formData);
 		displayCard.add(currentValueField, formData);
 
-		displayCard.add(ucnDisplay, formData);
 		displayCard.add(institutionField, formData);
 		
 //		ucnDisplay = new LabelField();
@@ -230,6 +230,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 //		displayCard.add(ucnDisplay, formData);
 		
 		displayCard.add(addressDisplay, formData); 
+		displayCard.add(ucnDisplay, formData);
 		displayCard.add(customerTypeDisplay, formData); 
 		
 		displayCard.add(agreementTypeField, formData); 
@@ -238,9 +239,36 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 			
 		statusDisplay.setFieldLabel("Status :");
 		displayCard.add(statusDisplay, formData);
-		displayCard.add(deleteReasonField, formData); 
+		displayCard.add(deleteReasonField, formData);
+		
+//		This method not used, because it's just one more complication that has no added value
+//		institutionBinding = new FormBinding(displayCard);
+//		institutionBinding.addFieldBinding(new FieldBinding(addressDisplay, "htmlAddress"));
 		
 		addAgreementTermsGrid(formData);
+	}
+	
+	protected InstitutionSearchField getInstitutionField(String name, String label, int width, String toolTip) {
+        InstitutionSearchField instCombo = new InstitutionSearchField() {
+			@Override
+			public void onSelect(BeanModel model, int index) {
+				super.onSelect(model, index);
+				selectInstitution(model);
+			};
+		};
+		FieldFactory.setStandard(instCombo, label);
+		
+		if (toolTip != null)
+			instCombo.setToolTip(toolTip);
+		if (width > 0)
+			instCombo.setWidth(width);
+		instCombo.setDisplayField("institutionName");
+		
+		return instCombo;
+	}
+	
+	protected void selectInstitution(BeanModel model) {
+		set( (InstitutionInstance) model.getBean() );
 	}
 	
 	protected void addAgreementTermsGrid(FormData formData) {
@@ -474,26 +502,19 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	 */
 	protected void set(InstitutionInstance instance) {
 		billToInstitution = instance;
+//		institutionBinding.bind(InstitutionInstance.obtainModel(billToInstitution));
 		setPortletHeading();
 		
 		if (instance == null) {
 			MessageBox.alert("Institution Not Found", "The Institution for the agreement was not found.", null);
+			ucnDisplay.setValue(0);
 			addressDisplay.setValue("");
 			customerTypeDisplay.setValue("");
 			return;
 		}
 		
-		addressDisplay.setValue(AddressFormatter.getMultiLineAddress(	instance.getAddress1(), 
-																		instance.getAddress2(), 
-																		instance.getAddress3(), 
-																		instance.getCity(), instance.getState(), instance.getZip(), 
-																		instance.getCountry()));
-		
-//		addressDisplay.setValue("<b>" + instance.getInstitutionName() + "</b><br/>" +
-//				instance.getAddress1() + brIfNotEmpty(instance.getAddress2()) + brIfNotEmpty(instance.getAddress3()) + "<br/>" +
-//				instance.getCity() + commaIfNotEmpty(instance.getState()) + spaceIfNotEmpty(instance.getZip()) + 
-//				brIfNotUsa(instance.getCountry()));
-
+		ucnDisplay.setValue(instance.getUcn());
+		addressDisplay.setValue(instance.getHtmlAddress());
 		customerTypeDisplay.setValue(instance.getPublicPrivateDescription() + " / " + instance.getGroupDescription() + " &rArr; " + instance.getTypeDescription());
 	}
 	

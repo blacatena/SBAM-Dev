@@ -147,7 +147,7 @@ public class FieldFactory {
 		return instCombo;
 	}
 	
-	protected static void setStandard(Field<?> field, String label) {
+	public static void setStandard(Field<?> field, String label) {
 	//	field.setName(name);
 		field.setEnabled(false);
 		field.addStyleName("field-or-label");

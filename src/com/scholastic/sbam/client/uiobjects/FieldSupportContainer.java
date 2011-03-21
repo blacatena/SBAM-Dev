@@ -7,6 +7,7 @@ import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.i18n.client.NumberFormat;
+import com.scholastic.sbam.client.util.AddressFormatter;
 
 /**
  * A base class which provides useful helper methods for any portlet that will be using fields.
@@ -24,29 +25,23 @@ public abstract class FieldSupportContainer extends LayoutContainer {
 	}
 
 	protected String plusIfNotEmpty(String value, String prefix) {
-		if (value == null || value.length() == 0)
-			return "";
-		return prefix + value;
+		return AddressFormatter.plusIfNotEmpty(value, prefix);
 	}
 	
 	protected String brIfNotEmpty(String value) {
-		return plusIfNotEmpty(value, "<br/>");
+		return AddressFormatter.brIfNotEmpty(value);
 	}
 	
 	protected String commaIfNotEmpty(String value) {
-		return plusIfNotEmpty(value, ", ");
+		return AddressFormatter.commaIfNotEmpty(value);
 	}
 	
 	protected String spaceIfNotEmpty(String value) {
-		return plusIfNotEmpty(value, "&nbsp;&nbsp;&nbsp;");
+		return AddressFormatter.spaceIfNotEmpty(value);
 	}
 	
 	protected String brIfNotUsa(String value) {
-		if (value == null || value.length() == 0)
-			return "";
-		if (value.equalsIgnoreCase("USA"))
-			return "";
-		return "<br/>" + value;
+		return AddressFormatter.brIfNotUsa(value);
 	}
 	
 	protected NumberField getDollarField(String label) {
