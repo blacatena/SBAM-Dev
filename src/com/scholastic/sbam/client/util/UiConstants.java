@@ -3,8 +3,6 @@ package com.scholastic.sbam.client.util;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BeanModel;
-import com.extjs.gxt.ui.client.data.BeanModelFactory;
-import com.extjs.gxt.ui.client.data.BeanModelLookup;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
@@ -22,12 +20,15 @@ import com.scholastic.sbam.client.services.CommissionTypeListService;
 import com.scholastic.sbam.client.services.CommissionTypeListServiceAsync;
 import com.scholastic.sbam.client.services.DeleteReasonListService;
 import com.scholastic.sbam.client.services.DeleteReasonListServiceAsync;
+import com.scholastic.sbam.client.services.ProductListService;
+import com.scholastic.sbam.client.services.ProductListServiceAsync;
 import com.scholastic.sbam.client.services.TermTypeListService;
 import com.scholastic.sbam.client.services.TermTypeListServiceAsync;
 import com.scholastic.sbam.client.stores.BetterFilterListStore;
 import com.scholastic.sbam.shared.objects.CancelReasonInstance;
 import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
 import com.scholastic.sbam.shared.objects.DeleteReasonInstance;
+import com.scholastic.sbam.shared.objects.ProductInstance;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.TermTypeInstance;
 
@@ -41,6 +42,11 @@ public class UiConstants {
 	public static final NumberFormat	INTEGER_FORMAT					= NumberFormat.getFormat("#");
 	public static final NumberFormat	DOLLARS_FORMAT					= NumberFormat.getCurrencyFormat(US_DOLLARS);
 	
+	/**
+	 * This enumeration helps to support the fact that different commission type lists will be delivered for different targets.
+	 * @author Bob Lacatena
+	 *
+	 */
 	public enum CommissionTypeTargets {
 		PRODUCT, SITE, AGREEMENT, AGREEMENT_TERM;
 	}
@@ -48,9 +54,10 @@ public class UiConstants {
 	private final static int			REFRESH_PERIOD = 10 * 60 * 1000;	// Every 10 minutes
 	
 	private static ListStore<BeanModel>					termTypes = new ListStore<BeanModel>();
-	private static ListStore<BeanModel>					commissionTypes = new ListStore<BeanModel>();
-	private static ListStore<BeanModel>					deleteReasons = new ListStore<BeanModel>();
+	private static BetterFilterListStore<BeanModel>		commissionTypes = new BetterFilterListStore<BeanModel>();
+	private static BetterFilterListStore<BeanModel>		deleteReasons = new BetterFilterListStore<BeanModel>();
 	private static BetterFilterListStore<BeanModel>		cancelReasons = new BetterFilterListStore<BeanModel>();
+	private static BetterFilterListStore<BeanModel>		products = new BetterFilterListStore<BeanModel>();
 	
 	private static Timer								refreshTimer;
 	
@@ -64,6 +71,7 @@ public class UiConstants {
 		loadCommissionTypes();
 		loadDeleteReasons();
 		loadCancelReasons();
+		loadProducts();
 	}
 	
 	public static void setTimer() {
@@ -107,11 +115,8 @@ public class UiConstants {
 
 			public void onSuccess(List<TermTypeInstance> list) {
 				termTypes.removeAll();
-				BeanModelFactory factory = null;
 				for (TermTypeInstance instance : list) {
-					if (factory == null)
-						factory = BeanModelLookup.get().getFactory(instance.getClass());
-					termTypes.add(factory.createModel(instance));	
+					termTypes.add(TermTypeInstance.obtainModel(instance));	
 				}
 			}
 		};
@@ -140,11 +145,8 @@ public class UiConstants {
 
 			public void onSuccess(List<DeleteReasonInstance> list) {
 				deleteReasons.removeAll();
-				BeanModelFactory factory = null;
 				for (DeleteReasonInstance instance : list) {
-					if (factory == null)
-						factory = BeanModelLookup.get().getFactory(instance.getClass());
-					deleteReasons.add(factory.createModel(instance));	
+					deleteReasons.add(DeleteReasonInstance.obtainModel(instance));	
 				}
 			}
 		};
@@ -173,11 +175,8 @@ public class UiConstants {
 
 			public void onSuccess(List<CancelReasonInstance> list) {
 				cancelReasons.removeAll();
-				BeanModelFactory factory = null;
 				for (CancelReasonInstance instance : list) {
-					if (factory == null)
-						factory = BeanModelLookup.get().getFactory(instance.getClass());
-					cancelReasons.add(factory.createModel(instance));	
+					cancelReasons.add(CancelReasonInstance.obtainModel(instance));	
 				}
 			}
 		};
@@ -207,12 +206,9 @@ public class UiConstants {
 			public void onSuccess(List<CommissionTypeInstance> list) {
 				commissionTypes.removeAll();
 				if (commissionTypes.getKeyProvider() == null)
-					commissionTypes.setKeyProvider(CommissionTypeInstance.obtainStaticModelKeyProvider());
-				BeanModelFactory factory = null;
+					commissionTypes.setKeyProvider(new SimpleKeyProvider("commissionCode"));
 				for (CommissionTypeInstance instance : list) {
-					if (factory == null)
-						factory = BeanModelLookup.get().getFactory(instance.getClass());
-					commissionTypes.add(factory.createModel(instance));	
+					commissionTypes.add(CommissionTypeInstance.obtainModel(instance));	
 				}
 			}
 		};
@@ -224,8 +220,38 @@ public class UiConstants {
 		return commissionTypes;
 	}
 	
+	public static void loadProducts() {
+		ProductListServiceAsync productListService = GWT.create(ProductListService.class);
+		
+		AsyncCallback<List<ProductInstance>> callback = new AsyncCallback<List<ProductInstance>>() {
+			public void onFailure(Throwable caught) {
+				// Show the RPC error message to the user
+				if (caught instanceof IllegalArgumentException)
+					MessageBox.alert("Alert", caught.getMessage(), null);
+				else {
+					MessageBox.alert("Alert", "Products load failed unexpectedly.", null);
+					System.out.println(caught.getClass().getName());
+					System.out.println(caught.getMessage());
+				}
+			}
+
+			public void onSuccess(List<ProductInstance> list) {
+				products.removeAll();
+				for (ProductInstance instance : list) {
+					products.add(ProductInstance.obtainModel(instance));	
+				}
+			}
+		};
+		
+		productListService.getProducts(null, callback);
+	}
+	
+	public static ListStore<BeanModel> getProducts() {
+		return products;
+	}
+	
 	public static ListStore<BeanModel> getCommissionTypes(CommissionTypeTargets target) {
-		ListStore<BeanModel> list = new ListStore<BeanModel>();
+		ListStore<BeanModel> list = new BetterFilterListStore<BeanModel>();
 		list.setKeyProvider(new SimpleKeyProvider("commissionTypeCode"));
 //		list.setKeyProvider(CommissionTypeInstance.obtainStaticModelKeyProvider());
 		

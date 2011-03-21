@@ -3,13 +3,14 @@ package com.scholastic.sbam.shared.objects;
 import java.util.Date;
 
 import com.extjs.gxt.ui.client.data.BeanModel;
+import com.extjs.gxt.ui.client.data.BeanModelFactory;
+import com.extjs.gxt.ui.client.data.BeanModelLookup;
 import com.extjs.gxt.ui.client.data.BeanModelTag;
-import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-public class CommissionTypeInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable, InherentModelKeyProvider {
+public class CommissionTypeInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
 
-	private static ModelKeyProvider<BeanModel> singletonKeyProvider = new SimpleKeyProvider("commissionCode");
+	private static BeanModelFactory beanModelfactory;
 	
 	private String	commissionCode;
 	private String	description;
@@ -166,16 +167,31 @@ public class CommissionTypeInstance extends BetterRowEditInstance implements Bea
 		return shortName;
 	}
 	
-	public static ModelKeyProvider<BeanModel> obtainStaticModelKeyProvider() {
-		return singletonKeyProvider;
+	public static CommissionTypeInstance getEmptyInstance() {
+		CommissionTypeInstance instance = new CommissionTypeInstance();
+		instance.commissionCode = "";
+		instance.description = "";
+		instance.shortName   = "";
+		return instance;
+	}
+	
+	public static CommissionTypeInstance getUnknownInstance(String code) {
+		CommissionTypeInstance instance = new CommissionTypeInstance();
+		instance.commissionCode = code;
+		instance.description = "Unknown commission type " + code;
+		return instance;
 	}
 
-	@Override
-	public ModelKeyProvider<BeanModel> obtainModelKeyProvider() {
-		return CommissionTypeInstance.singletonKeyProvider;
+	public static BeanModel obtainModel(CommissionTypeInstance instance) {
+		if (beanModelfactory == null)
+			beanModelfactory  = BeanModelLookup.get().getFactory(CommissionTypeInstance.class);
+		BeanModel model = beanModelfactory.createModel(instance);
+		return model;
 	}
 	
 	public String getDescriptionAndCode() {
-		return description + "[" + commissionCode + "]";
+		if (commissionCode == null || commissionCode.length() == 0)
+			return description;
+		return description + " [ " + commissionCode + " ]";
 	}
 }

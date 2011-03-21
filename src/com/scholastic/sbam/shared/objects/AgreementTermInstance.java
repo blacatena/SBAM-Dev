@@ -11,15 +11,12 @@ public class AgreementTermInstance extends BetterRowEditInstance implements Bean
 	private int		id;
 	
 	private String	productCode;
-	private String	productDescription;
-	private String	productShortName;
 	private Date	startDate;
 	private Date	endDate;
 	private Date	terminateDate;
 	private String	termTypeCode;
 	
 	private String	commissionCode;
-	private String	commissionCodeDescription;
 
 	private String	cancelReasonCode;
 	private Date	cancelDate;
@@ -45,7 +42,9 @@ public class AgreementTermInstance extends BetterRowEditInstance implements Bean
 	private Date	createdDatetime;
 	
 	private TermTypeInstance		termType;
+	private ProductInstance			product;
 	private CancelReasonInstance	cancelReason;
+	private CommissionTypeInstance	commissionType;
 	
 	@Override
 	public void markForDeletion() {
@@ -165,14 +164,6 @@ public class AgreementTermInstance extends BetterRowEditInstance implements Bean
 		this.commissionCode = commissionCode;
 	}
 
-	public String getCommissionCodeDescription() {
-		return commissionCodeDescription;
-	}
-
-	public void setCommissionCodeDescription(String commissionCodeDescription) {
-		this.commissionCodeDescription = commissionCodeDescription;
-	}
-
 	public String getCancelReasonCode() {
 		return cancelReasonCode;
 	}
@@ -278,22 +269,6 @@ public class AgreementTermInstance extends BetterRowEditInstance implements Bean
 		setPrimary(primaryTerm ? 'y' : 'n');
 	}
 
-	public String getProductDescription() {
-		return productDescription;
-	}
-
-	public void setProductDescription(String productDescription) {
-		this.productDescription = productDescription;
-	}
-
-	public String getProductShortName() {
-		return productShortName;
-	}
-
-	public void setProductShortName(String productShortName) {
-		this.productShortName = productShortName;
-	}
-
 	public String getNote() {
 		return note;
 	}
@@ -324,6 +299,30 @@ public class AgreementTermInstance extends BetterRowEditInstance implements Bean
 			this.cancelReasonCode = "";
 		else
 			this.cancelReasonCode = cancelReason.getCancelReasonCode();
+	}
+
+	public ProductInstance getProduct() {
+		return product;
+	}
+
+	public void setProduct(ProductInstance product) {
+		this.product = product;
+		if (this.product == null)
+			this.productCode = "";
+		else
+			this.productCode = product.getProductCode();
+	}
+
+	public CommissionTypeInstance getCommissionType() {
+		return commissionType;
+	}
+
+	public void setCommissionType(CommissionTypeInstance commissionType) {
+		this.commissionType = commissionType;
+		if (this.commissionType == null)
+			this.commissionCode = "";
+		else
+			this.commissionCode = commissionType.getCommissionCode();
 	}
 
 	public String toString() {

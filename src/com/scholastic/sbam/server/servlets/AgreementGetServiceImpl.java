@@ -25,6 +25,8 @@ import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.objects.AgreementInstance;
 import com.scholastic.sbam.shared.objects.AgreementTermInstance;
 import com.scholastic.sbam.shared.objects.CancelReasonInstance;
+import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
+import com.scholastic.sbam.shared.objects.ProductInstance;
 import com.scholastic.sbam.shared.objects.TermTypeInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
 import com.scholastic.sbam.shared.util.AppConstants;
@@ -145,12 +147,18 @@ public class AgreementGetServiceImpl extends AuthenticatedServiceServlet impleme
 				agreementTerm.setTermType(TermTypeInstance.getUnknownInstance(agreementTerm.getTermTypeCode()));
 		} else
 			agreementTerm.setTermType(TermTypeInstance.getUnknownInstance("none"));
-	
-		if (agreementTerm.getCommissionCode() != null) {
-			CommissionType cType = DbCommissionType.getByCode(agreementTerm.getCommissionCode());
-			if (cType != null)
-				agreementTerm.setCommissionCodeDescription(cType.getDescription());
-		}
+		
+		
+		if (agreementTerm.getCommissionCode() != null && agreementTerm.getCommissionCode().length() > 0) {
+			CommissionType commissionType = DbCommissionType.getByCode(agreementTerm.getCommissionCode());
+			if (commissionType != null) {
+				agreementTerm.setCommissionType(DbCommissionType.getInstance(commissionType));
+			} else {
+				agreementTerm.setCommissionType(CommissionTypeInstance.getUnknownInstance(agreementTerm.getCommissionCode()));
+			}
+		} else
+			agreementTerm.setCommissionType(CommissionTypeInstance.getEmptyInstance());
+		
 		
 		if (agreementTerm.getCancelReasonCode() != null && agreementTerm.getCancelReasonCode().length() > 0) {
 			CancelReason cancelReason = DbCancelReason.getByCode(agreementTerm.getCancelReasonCode());
@@ -162,13 +170,16 @@ public class AgreementGetServiceImpl extends AuthenticatedServiceServlet impleme
 		} else
 			agreementTerm.setCancelReason(CancelReasonInstance.getEmptyInstance());
 			
-			
-		if (agreementTerm.getProductCode() != null) {
+
+		
+		if (agreementTerm.getProductCode() != null && agreementTerm.getProductCode().length() > 0) {
 			Product product = DbProduct.getByCode(agreementTerm.getProductCode());
 			if (product != null) {
-				agreementTerm.setProductDescription(product.getDescription());
-				agreementTerm.setProductShortName(product.getShortName());
+				agreementTerm.setProduct(DbProduct.getInstance(product));
+			} else {
+				agreementTerm.setProduct(ProductInstance.getUnknownInstance(agreementTerm.getProductCode()));
 			}
-		}
+		} else
+			agreementTerm.setProduct(ProductInstance.getEmptyInstance());
 	}
 }

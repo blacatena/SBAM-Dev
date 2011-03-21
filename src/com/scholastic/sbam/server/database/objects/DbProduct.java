@@ -9,6 +9,7 @@ import org.hibernate.criterion.Restrictions;
 
 import com.scholastic.sbam.server.database.codegen.Product;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
+import com.scholastic.sbam.shared.objects.ProductInstance;
 
 /**
  * SBAM Product database table accessor class, extending HibernateAccessor, and implementing custom get/find methods.
@@ -22,6 +23,19 @@ public class DbProduct extends HibernateAccessor {
 	
 	public static Product getByCode(String productCode) {
 		return (Product) getByField(objectName, "productCode", productCode, "description");
+	}
+	
+	public static ProductInstance getInstance(Product dbInstance) {
+		ProductInstance instance = new ProductInstance();
+		instance.setProductCode(dbInstance.getProductCode());
+		instance.setDescription(dbInstance.getDescription());
+		instance.setShortName(dbInstance.getShortName());
+		instance.setDefaultTermType(dbInstance.getDefaultTermType());
+		instance.setDefaultCommissionCode(dbInstance.getDefaultCommissionCode());
+		instance.setStatus(dbInstance.getStatus());
+		instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
+		
+		return instance;
 	}
 	
 	public static List<Product> findAll() {

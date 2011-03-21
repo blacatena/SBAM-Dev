@@ -230,7 +230,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected void addAgreementTermsGrid(FormData formData) {
 		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
 		
-		columns.add(getDisplayColumn("productDescription",		"Product",					200,
+		columns.add(getDisplayColumn("product.description",		"Product",					200,
 					"This is the product ordered."));
 		columns.add(getDisplayColumn("startDate",				"Start",					80,		true, UiConstants.APP_DATE_TIME_FORMAT,
 					"This is the service start date for a product term."));

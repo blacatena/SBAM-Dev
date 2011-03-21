@@ -101,6 +101,8 @@ public class DeleteReasonInstance extends BetterRowEditInstance implements BeanM
 	}
 	
 	public String getDescriptionAndCode() {
+		if (deleteReasonCode == null || deleteReasonCode.length() == 0)
+			return description;
 		return description + " [ " + deleteReasonCode + " ]";
 	}
 }

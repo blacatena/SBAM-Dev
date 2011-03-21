@@ -2,10 +2,15 @@ package com.scholastic.sbam.shared.objects;
 
 import java.util.Date;
 
+import com.extjs.gxt.ui.client.data.BeanModel;
+import com.extjs.gxt.ui.client.data.BeanModelFactory;
+import com.extjs.gxt.ui.client.data.BeanModelLookup;
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class ProductInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable  {
+
+	private static BeanModelFactory beanModelfactory;
 
 	private String productCode;
 	private String description;
@@ -126,6 +131,34 @@ public class ProductInstance extends BetterRowEditInstance implements BeanModelT
 	public void setDefaultCommTypeInstance(
 			CommissionTypeInstance defaultCommTypeInstance) {
 		this.defaultCommTypeInstance = defaultCommTypeInstance;
+	}
+	
+	public String getDescriptionAndCode() {
+		if (productCode == null || productCode.length() == 0)
+			return description;
+		return description + " [ " + productCode + " ]";
+	}
+	
+	public static ProductInstance getEmptyInstance() {
+		ProductInstance instance = new ProductInstance();
+		instance.productCode = "";
+		instance.description = "";
+		instance.shortName   = "";
+		return instance;
+	}
+	
+	public static ProductInstance getUnknownInstance(String code) {
+		ProductInstance instance = new ProductInstance();
+		instance.productCode = code;
+		instance.description = "Unknown product " + code;
+		return instance;
+	}
+
+	public static BeanModel obtainModel(ProductInstance instance) {
+		if (beanModelfactory == null)
+			beanModelfactory  = BeanModelLookup.get().getFactory(ProductInstance.class);
+		BeanModel model = beanModelfactory.createModel(instance);
+		return model;
 	}
 	
 	public String toString() {

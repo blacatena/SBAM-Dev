@@ -4,6 +4,15 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.StoreFilter;
 
+/**
+ * The BetterFilterListStore offers the option (which becomes the default) for a search to work by finding any value in the store, rather than items that begin with the value.
+ * 
+ * To use the filter, use setFilterContainsMode to true to filter by strings that contain the search string, or false for the standard method of finding strings that begin with the search string.
+ * 
+ * @author Bob Lacatena
+ *
+ * @param <M>
+ */
 public class BetterFilterListStore<M extends ModelData> extends ListStore<M> {
 	protected boolean filterContainsMode	=	true;
 	@Override

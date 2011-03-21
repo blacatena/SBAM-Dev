@@ -8,7 +8,6 @@ import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.RowExpander;
@@ -21,6 +20,8 @@ import com.scholastic.sbam.client.services.AgreementTermListServiceAsync;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.AgreementTermInstance;
 import com.scholastic.sbam.shared.objects.CancelReasonInstance;
+import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
+import com.scholastic.sbam.shared.objects.ProductInstance;
 import com.scholastic.sbam.shared.objects.TermTypeInstance;
 import com.scholastic.sbam.shared.util.AppConstants;
 
@@ -31,8 +32,9 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 	protected RowExpander					noteExpander;
 	
 	protected NumberField					agreementIdDisplay	= getIntegerField("Agreement #");
-	protected TextField<String>				productCodeDisplay	= getTextField("Product");
-	protected TextField<String>				productDisplay		= getTextField("");
+	protected EnhancedComboBox<BeanModel>	productDisplay		= getComboField("product", 	"Product",	150,		
+																	"The product to deliver for this term.",	
+																	UiConstants.getProducts(), "productCode", "descriptionAndCode");
 	protected NumberField					dollarValue			= getDollarField("Value");
 	protected DateField						startDate			= getDateField("Start");
 	protected DateField						endDate				= getDateField("End");
@@ -40,6 +42,9 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 	protected EnhancedComboBox<BeanModel>	termType			= getComboField("termType", 		"Term Type",	150,		
 																		"The term type for this product term.",	
 																		UiConstants.getTermTypes(), "termTypeCode", "description");
+	protected EnhancedComboBox<BeanModel>	commissionType		= getComboField("commissionType", 	"Commission Code",	150,		
+																		"The commission code assigned to this product term for reporting purposes.",	
+																		UiConstants.getCommissionTypes(UiConstants.CommissionTypeTargets.AGREEMENT_TERM), "commissionCode", "descriptionAndCode");
 	protected EnhancedComboBox<BeanModel>	cancelReason		= getComboField("cancelReason", 	"Cancel Reason",	150,		
 																		"The reason for canceling for this product term.",	
 																		UiConstants.getCancelReasons(), "cancelReasonCode", "descriptionAndCode");
@@ -74,17 +79,17 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 	}
 	
 	/**
-	 * Override to set any further grid atrributes, such as the autoExpandColumn.
+	 * Override to set any further grid attributes, such as the autoExpandColumn.
 	 * @param grid
 	 */
 	@Override
 	public void setGridAttributes(Grid<ModelData> grid) {
-		grid.setAutoExpandColumn("productDescription");  	
+		grid.setAutoExpandColumn("product.description");  	
 	}
 
 	@Override
 	public void addGridColumns(List<ColumnConfig> columns) {
-		columns.add(getDisplayColumn("productDescription",		"Product",					200,
+		columns.add(getDisplayColumn("product.description",		"Product",					200,
 					"This is the product ordered."));
 		columns.add(getDisplayColumn("startDate",				"Start",					80,		true, UiConstants.APP_DATE_TIME_FORMAT,
 					"This is the service start date for a product term."));
@@ -104,14 +109,14 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 	@Override
 	public void setFormFieldValues(AgreementTermInstance instance) {
 		agreementIdDisplay.setValue(AppConstants.appendCheckDigit(instance.getAgreementId()));
-		productCodeDisplay.setValue(instance.getProductCode());
-		productDisplay.setValue(instance.getProductDescription());
+		productDisplay.setValue(ProductInstance.obtainModel(instance.getProduct()));
 		dollarValue.setValue(instance.getDollarValue());
 		startDate.setValue(instance.getStartDate());
 		endDate.setValue(instance.getEndDate());
 		terminateDate.setValue(instance.getTerminateDate());
 		termType.setValue(TermTypeInstance.obtainModel(instance.getTermType()));
 		cancelReason.setValue(CancelReasonInstance.obtainModel(instance.getCancelReason()));
+		commissionType.setValue(CommissionTypeInstance.obtainModel(instance.getCommissionType()));
 	}
 
 	@Override
@@ -123,22 +128,18 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 	@Override
 	protected void addFormFields(FormPanel panel, FormData formData) {
 		agreementIdDisplay.setReadOnly(true);
-		productDisplay.setReadOnly(true);
 		
-		productCodeDisplay.setToolTip(UiConstants.getQuickTip("The product requested."));
 		dollarValue.setToolTip(UiConstants.getQuickTip("The total dollar value of this product for this term."));
 		startDate.setToolTip(UiConstants.getQuickTip("The date on which this product term will take effect."));
 		endDate.setToolTip(UiConstants.getQuickTip("The date on which this product term is scheduled to end."));
 		terminateDate.setToolTip(UiConstants.getQuickTip("The date on which this product term will no longer be delivered."));
-		
-		productDisplay.setLabelSeparator("");
-		productDisplay.setWidth(300);
-		
+
+		productDisplay.setAllowBlank(false);
 		termType.setAllowBlank(false);
 		cancelReason.setAllowBlank(true);
+		commissionType.setAllowBlank(true);
 		
-		panel.add(agreementIdDisplay, formData);	
-		panel.add(productCodeDisplay, formData);
+		panel.add(agreementIdDisplay, formData);
 		panel.add(productDisplay, formData);
 		panel.add(dollarValue, formData);
 		
@@ -158,6 +159,7 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 		panel.add(fieldSet);
 		
 		panel.add(cancelReason, formData);
+		panel.add(commissionType, formData);
 	}
 	
 	

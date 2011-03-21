@@ -104,6 +104,8 @@ public class TermTypeInstance extends BetterRowEditInstance implements BeanModel
 	}
 	
 	public String getDescriptionAndCode() {
+		if (termTypeCode == null || termTypeCode.length() == 0)
+			return description;
 		return description + " [ " + termTypeCode + " ]";
 	}
 	
