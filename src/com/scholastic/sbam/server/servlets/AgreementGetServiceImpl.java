@@ -11,6 +11,7 @@ import com.scholastic.sbam.server.database.codegen.AgreementType;
 import com.scholastic.sbam.server.database.codegen.CancelReason;
 import com.scholastic.sbam.server.database.codegen.CommissionType;
 import com.scholastic.sbam.server.database.codegen.DeleteReason;
+import com.scholastic.sbam.server.database.codegen.Institution;
 import com.scholastic.sbam.server.database.codegen.Product;
 import com.scholastic.sbam.server.database.codegen.TermType;
 import com.scholastic.sbam.server.database.objects.DbAgreement;
@@ -19,13 +20,18 @@ import com.scholastic.sbam.server.database.objects.DbAgreementType;
 import com.scholastic.sbam.server.database.objects.DbCancelReason;
 import com.scholastic.sbam.server.database.objects.DbCommissionType;
 import com.scholastic.sbam.server.database.objects.DbDeleteReason;
+import com.scholastic.sbam.server.database.objects.DbInstitution;
 import com.scholastic.sbam.server.database.objects.DbProduct;
 import com.scholastic.sbam.server.database.objects.DbTermType;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
+import com.scholastic.sbam.server.fastSearch.InstitutionCache;
 import com.scholastic.sbam.shared.objects.AgreementInstance;
 import com.scholastic.sbam.shared.objects.AgreementTermInstance;
+import com.scholastic.sbam.shared.objects.AgreementTypeInstance;
 import com.scholastic.sbam.shared.objects.CancelReasonInstance;
 import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
+import com.scholastic.sbam.shared.objects.DeleteReasonInstance;
+import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.ProductInstance;
 import com.scholastic.sbam.shared.objects.TermTypeInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
@@ -52,24 +58,38 @@ public class AgreementGetServiceImpl extends AuthenticatedServiceServlet impleme
 				agreement = DbAgreement.getInstance(dbInstance);
 				setDescriptions(agreement);
 				
+				// Get the institution
+				if (agreement.getBillUcn() > 0) {
+					Institution dbInstitution = DbInstitution.getByCode(agreement.getBillUcn());
+					agreement.setInstitution(DbInstitution.getInstance(dbInstitution));
+
+					if (agreement.getInstitution() != null) {
+						InstitutionInstance institution = agreement.getInstitution();
+						institution.setTypeDescription(InstitutionCache.getSingleton().getInstitutionType(institution.getTypeCode()).getDescription());
+						institution.setGroupDescription(InstitutionCache.getSingleton().getInstitutionGroup(institution.getGroupCode()).getDescription());
+						institution.setPublicPrivateDescription(InstitutionCache.getSingleton().getInstitutionPubPriv(institution.getPublicPrivateCode()).getDescription());
+					}
+				}
+				
 				//	Find only undeleted term types
-				List<AgreementTerm> termInstances = DbAgreementTerm.findByAgreementId(agreement.getId(), AppConstants.STATUS_ANY_NONE, AppConstants.STATUS_DELETED);
+				List<AgreementTerm> dbAgreementTerms = DbAgreementTerm.findByAgreementId(agreement.getId(), AppConstants.STATUS_ANY_NONE, AppConstants.STATUS_DELETED);
 	
 				//	First scan through the instances, to see what date or path to use
 				String		chosenPath = null;
 				Calendar	chosenDate = null;
-				for (AgreementTerm termInstance : termInstances) {
+				for (AgreementTerm dbAgreementTerm : dbAgreementTerms) {
 
 					//	 Determine the most recent path, or the most recent date
-						if (chosenPath == null && chosenDate == null && termInstance.getEndDate() != null) {
+						if (chosenPath == null && chosenDate == null && dbAgreementTerm.getEndDate() != null) {
 							chosenDate = Calendar.getInstance();
-							chosenDate.setTime(termInstance.getEndDate());
-							chosenPath = termInstance.getPrimaryOrgPath();
-						} else if (termInstance.getEndDate().after(chosenDate.getTime())) {
+							chosenDate.setTime(dbAgreementTerm.getEndDate());
+							chosenPath = dbAgreementTerm.getPrimaryOrgPath();
+						} else if (dbAgreementTerm.getEndDate().after(chosenDate.getTime())) {
 							//	If we find something that ends more than a year later than this, throw out anything too old
-							chosenDate.setTime(termInstance.getEndDate());
-							chosenPath = termInstance.getPrimaryOrgPath();
+							chosenDate.setTime(dbAgreementTerm.getEndDate());
+							chosenPath = dbAgreementTerm.getPrimaryOrgPath();
 						}
+						
 
 				}
 				
@@ -81,17 +101,24 @@ public class AgreementGetServiceImpl extends AuthenticatedServiceServlet impleme
 					chosenDate.add(Calendar.YEAR, -1);	//	Set the last date back one year, and choose within that
 				}
 
+				//  Second, scan again to pick which terms to keep  -- at the same time, compute the current value
 				List<AgreementTermInstance> list = new ArrayList<AgreementTermInstance>();
-				for (AgreementTerm termInstance : termInstances) {
+				for (AgreementTerm dbAgreementTerm : dbAgreementTerms) {
+					AgreementTermInstance termInstance = DbAgreementTerm.getInstance(dbAgreementTerm);
+					//	Separate current value computation
+					if (termInstance.deliverService())
+						agreement.setCurrentValue(agreement.getCurrentValue() + dbAgreementTerm.getDollarValue().doubleValue());
+					
+					//	Figure out which terms to keep in the list, too
 					if (allTerms) {
-						list.add(DbAgreementTerm.getInstance(termInstance));
+						list.add(termInstance);
 					} else if (chosenPath == null && chosenDate == null) {
-						list.add(DbAgreementTerm.getInstance(termInstance));
-					} else if (chosenPath != null && chosenPath.equals(termInstance.getPrimaryOrgPath())) {
-						list.add(DbAgreementTerm.getInstance(termInstance));
-					} else if (chosenDate != null && chosenDate.getTime().before(termInstance.getEndDate())) {
-						list.add(DbAgreementTerm.getInstance(termInstance));
-					}
+						list.add(termInstance);
+					} else if (chosenPath != null && chosenPath.equals(dbAgreementTerm.getPrimaryOrgPath())) {
+						list.add(termInstance);
+					} else if (chosenDate != null && chosenDate.getTime().before(dbAgreementTerm.getEndDate())) {
+						list.add(termInstance);
+					} // else don't add it, we don't need it
 				}
 				
 				agreement.setAgreementTerms(list);
@@ -114,23 +141,39 @@ public class AgreementGetServiceImpl extends AuthenticatedServiceServlet impleme
 		if (agreement == null)
 			return;
 		
-		if (agreement.getAgreementTypeCode() != null) {
-			AgreementType aType = DbAgreementType.getByCode(agreement.getAgreementTypeCode());
-			if (aType != null)
-				agreement.setAgreementTypeDescription(aType.getDescription());
-		}
 		
-		if (agreement.getCommissionCode() != null) {
-			CommissionType cType = DbCommissionType.getByCode(agreement.getCommissionCode());
-			if (cType != null)
-				agreement.setCommissionCodeDescription(cType.getDescription());
-		}
+		if (agreement.getAgreementTypeCode() != null && agreement.getAgreementTypeCode().length() > 0) {
+			AgreementType agreementType = DbAgreementType.getByCode(agreement.getAgreementTypeCode());
+			if (agreementType != null) {
+				agreement.setAgreementType(DbAgreementType.getInstance(agreementType));
+			} else {
+				agreement.setAgreementType(AgreementTypeInstance.getUnknownInstance(agreement.getAgreementTypeCode()));
+			}
+		} else
+			agreement.setAgreementType(AgreementTypeInstance.getEmptyInstance());
 		
-		if (agreement.getDeleteReasonCode() != null) {
-			DeleteReason dType = DbDeleteReason.getByCode(agreement.getDeleteReasonCode());
-			if (dType != null)
-				agreement.setDeleteReasonDescription(dType.getDescription());
-		}
+		
+		if (agreement.getCommissionCode() != null && agreement.getCommissionCode().length() > 0) {
+			CommissionType commissionType = DbCommissionType.getByCode(agreement.getCommissionCode());
+			if (commissionType != null) {
+				agreement.setCommissionType(DbCommissionType.getInstance(commissionType));
+			} else {
+				agreement.setCommissionType(CommissionTypeInstance.getUnknownInstance(agreement.getCommissionCode()));
+			}
+		} else
+			agreement.setCommissionType(CommissionTypeInstance.getEmptyInstance());
+		
+		
+		if (agreement.getDeleteReasonCode() != null && agreement.getDeleteReasonCode().length() > 0) {
+			DeleteReason deleteReason = DbDeleteReason.getByCode(agreement.getDeleteReasonCode());
+			if (deleteReason != null) {
+				agreement.setDeleteReason(DbDeleteReason.getInstance(deleteReason));
+			} else {
+				agreement.setDeleteReason(DeleteReasonInstance.getUnknownInstance(agreement.getDeleteReasonCode()));
+			}
+		} else
+			agreement.setDeleteReason(DeleteReasonInstance.getEmptyInstance());
+		
 	}
 	
 

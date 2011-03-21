@@ -14,6 +14,8 @@ import com.google.gwt.i18n.client.DefaultCurrencyData;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.scholastic.sbam.client.services.AgreementTypeListService;
+import com.scholastic.sbam.client.services.AgreementTypeListServiceAsync;
 import com.scholastic.sbam.client.services.CancelReasonListService;
 import com.scholastic.sbam.client.services.CancelReasonListServiceAsync;
 import com.scholastic.sbam.client.services.CommissionTypeListService;
@@ -25,6 +27,7 @@ import com.scholastic.sbam.client.services.ProductListServiceAsync;
 import com.scholastic.sbam.client.services.TermTypeListService;
 import com.scholastic.sbam.client.services.TermTypeListServiceAsync;
 import com.scholastic.sbam.client.stores.BetterFilterListStore;
+import com.scholastic.sbam.shared.objects.AgreementTypeInstance;
 import com.scholastic.sbam.shared.objects.CancelReasonInstance;
 import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
 import com.scholastic.sbam.shared.objects.DeleteReasonInstance;
@@ -53,11 +56,12 @@ public class UiConstants {
 	
 	private final static int			REFRESH_PERIOD = 10 * 60 * 1000;	// Every 10 minutes
 	
-	private static ListStore<BeanModel>					termTypes = new ListStore<BeanModel>();
+	private static BetterFilterListStore<BeanModel>		agreementTypes = new BetterFilterListStore<BeanModel>();
 	private static BetterFilterListStore<BeanModel>		commissionTypes = new BetterFilterListStore<BeanModel>();
 	private static BetterFilterListStore<BeanModel>		deleteReasons = new BetterFilterListStore<BeanModel>();
 	private static BetterFilterListStore<BeanModel>		cancelReasons = new BetterFilterListStore<BeanModel>();
 	private static BetterFilterListStore<BeanModel>		products = new BetterFilterListStore<BeanModel>();
+	private static ListStore<BeanModel>					termTypes = new ListStore<BeanModel>();
 	
 	private static Timer								refreshTimer;
 	
@@ -67,11 +71,12 @@ public class UiConstants {
 	}
 	
 	public static void refresh() {
-		loadTermTypes();
+		loadAgreementTypes();
 		loadCommissionTypes();
 		loadDeleteReasons();
 		loadCancelReasons();
 		loadProducts();
+		loadTermTypes();
 	}
 	
 	public static void setTimer() {
@@ -156,6 +161,36 @@ public class UiConstants {
 	
 	public static ListStore<BeanModel> getDeleteReasons() {
 		return deleteReasons;
+	}
+	
+	public static void loadAgreementTypes() {
+		AgreementTypeListServiceAsync agreementTypeListService = GWT.create(AgreementTypeListService.class);
+		
+		AsyncCallback<List<AgreementTypeInstance>> callback = new AsyncCallback<List<AgreementTypeInstance>>() {
+			public void onFailure(Throwable caught) {
+				// Show the RPC error message to the user
+				if (caught instanceof IllegalArgumentException)
+					MessageBox.alert("Alert", caught.getMessage(), null);
+				else {
+					MessageBox.alert("Alert", "AgreementTypes load failed unexpectedly.", null);
+					System.out.println(caught.getClass().getName());
+					System.out.println(caught.getMessage());
+				}
+			}
+
+			public void onSuccess(List<AgreementTypeInstance> list) {
+				agreementTypes.removeAll();
+				for (AgreementTypeInstance instance : list) {
+					agreementTypes.add(AgreementTypeInstance.obtainModel(instance));	
+				}
+			}
+		};
+		
+		agreementTypeListService.getAgreementTypes(null, callback);
+	}
+	
+	public static ListStore<BeanModel> getAgreementTypes() {
+		return agreementTypes;
 	}
 	
 	public static void loadCancelReasons() {

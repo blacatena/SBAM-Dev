@@ -14,16 +14,20 @@ public class AgreementInstance extends BetterRowEditInstance implements BeanMode
 	private int		billUcn;
 	private int		billUcnSuffix;
 	private String	agreementTypeCode;
-	private String	agreementTypeDescription;
 	private String	commissionCode;
-	private String	commissionCodeDescription;
 	private String	deleteReasonCode;
-	private String	deleteReasonDescription;
 	private String	orgPath;
 	private String	note;
 	private char	status;
 	private boolean	active;
 	private Date	createdDatetime;
+	
+	private double	currentValue;
+
+	private AgreementTypeInstance	agreementType;
+	private CommissionTypeInstance	commissionType;
+	private DeleteReasonInstance	deleteReason;
+	private InstitutionInstance		institution;
 	
 	private List<AgreementTermInstance> agreementTerms;
 	
@@ -121,14 +125,6 @@ public class AgreementInstance extends BetterRowEditInstance implements BeanMode
 		this.agreementTypeCode = agreementTypeCode;
 	}
 
-	public String getAgreementTypeDescription() {
-		return agreementTypeDescription;
-	}
-
-	public void setAgreementTypeDescription(String agreementTypeDescription) {
-		this.agreementTypeDescription = agreementTypeDescription;
-	}
-
 	public String getCommissionCode() {
 		return commissionCode;
 	}
@@ -137,28 +133,12 @@ public class AgreementInstance extends BetterRowEditInstance implements BeanMode
 		this.commissionCode = commissionCode;
 	}
 
-	public String getCommissionCodeDescription() {
-		return commissionCodeDescription;
-	}
-
-	public void setCommissionCodeDescription(String commissionCodeDescription) {
-		this.commissionCodeDescription = commissionCodeDescription;
-	}
-
 	public String getDeleteReasonCode() {
 		return deleteReasonCode;
 	}
 
 	public void setDeleteReasonCode(String deleteReasonCode) {
 		this.deleteReasonCode = deleteReasonCode;
-	}
-
-	public String getDeleteReasonDescription() {
-		return deleteReasonDescription;
-	}
-
-	public void setDeleteReasonDescription(String deleteReasonDescription) {
-		this.deleteReasonDescription = deleteReasonDescription;
 	}
 
 	public String getNote() {
@@ -177,8 +157,64 @@ public class AgreementInstance extends BetterRowEditInstance implements BeanMode
 		this.orgPath = orgPath;
 	}
 
+	public double getCurrentValue() {
+		return currentValue;
+	}
+
+	public void setCurrentValue(double currentValue) {
+		this.currentValue = currentValue;
+	}
+
+	public AgreementTypeInstance getAgreementType() {
+		return agreementType;
+	}
+
+	public void setAgreementType(AgreementTypeInstance agreementType) {
+		this.agreementType = agreementType;
+		if (agreementType == null)
+			this.agreementTypeCode = "";
+		else
+			this.agreementTypeCode = agreementType.getAgreementTypeCode();
+	}
+
+	public CommissionTypeInstance getCommissionType() {
+		return commissionType;
+	}
+
+	public void setCommissionType(CommissionTypeInstance commissionType) {
+		this.commissionType = commissionType;
+		if (commissionType == null)
+			this.commissionCode = "";
+		else
+			this.commissionCode = commissionType.getCommissionCode();
+	}
+
+	public DeleteReasonInstance getDeleteReason() {
+		return deleteReason;
+	}
+
+	public void setDeleteReason(DeleteReasonInstance deleteReason) {
+		this.deleteReason = deleteReason;
+		if (deleteReason == null)
+			this.deleteReasonCode = "";
+		else
+			this.deleteReasonCode = deleteReason.getDeleteReasonCode();
+	}
+
 	public List<AgreementTermInstance> getAgreementTerms() {
 		return agreementTerms;
+	}
+
+	public InstitutionInstance getInstitution() {
+		return institution;
+	}
+
+	public void setInstitution(InstitutionInstance institution) {
+		this.institution = institution;
+		if (institution == null)
+			this.billUcn = 0;
+		else
+			this.billUcn = institution.getUcn();
 	}
 
 	public void setAgreementTerms(List<AgreementTermInstance> agreementTerms) {

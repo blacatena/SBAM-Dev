@@ -9,6 +9,7 @@ import org.hibernate.criterion.Restrictions;
 
 import com.scholastic.sbam.server.database.codegen.DeleteReason;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
+import com.scholastic.sbam.shared.objects.DeleteReasonInstance;
 
 /**
  * Sample database table accessor class, extending HibernateAccessor, and implementing custom get/find methods.
@@ -19,6 +20,16 @@ import com.scholastic.sbam.server.database.util.HibernateAccessor;
 public class DbDeleteReason extends HibernateAccessor {
 	
 	static String objectName = DeleteReason.class.getSimpleName();
+	
+	public static DeleteReasonInstance getInstance(DeleteReason dbInstance) {
+		DeleteReasonInstance instance = new DeleteReasonInstance();
+		instance.setDeleteReasonCode(dbInstance.getDeleteReasonCode());
+		instance.setDescription(dbInstance.getDescription());
+		instance.setStatus(dbInstance.getStatus());
+		instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
+		
+		return instance;
+	}
 	
 	public static DeleteReason getByCode(String code) {
 		return (DeleteReason) getByField(objectName, "deleteReasonCode", code, "description");

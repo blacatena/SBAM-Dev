@@ -23,7 +23,7 @@ import com.scholastic.sbam.shared.util.AppConstants;
 public class InstitutionSearchServiceImpl extends AuthenticatedServiceServlet implements InstitutionSearchService {
 
 	@Override
-	public SynchronizedPagingLoadResult<InstitutionInstance> getInstitutions(PagingLoadConfig loadConfig, String filter, long syncId) throws IllegalArgumentException, ServiceNotReadyException {
+	public SynchronizedPagingLoadResult<InstitutionInstance> getInstitutions(PagingLoadConfig loadConfig, String filter, boolean includeAgreementSummaries, long syncId) throws IllegalArgumentException, ServiceNotReadyException {
 		
 		authenticate("search institutions", SecurityManager.ROLE_QUERY);
 
@@ -66,7 +66,8 @@ public class InstitutionSearchServiceImpl extends AuthenticatedServiceServlet im
 							instance.setPublicPrivateDescription(InstitutionCache.getSingleton().getInstitutionPubPriv(instance.getPublicPrivateCode()).getDescription());
 							list.add(instance);
 							
-							instance.setAgreementSummaryList(DbAgreement.findAgreementSummaries(instance.getUcn(), false, (char) 0, AppConstants.STATUS_DELETED));
+							if (includeAgreementSummaries)
+								instance.setAgreementSummaryList(DbAgreement.findAgreementSummaries(instance.getUcn(), false, (char) 0, AppConstants.STATUS_DELETED));
 						}
 						i++;
 					}

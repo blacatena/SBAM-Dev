@@ -225,6 +225,13 @@ div.x-item-disabled.field-or-label input.x-form-field {
 	background-image: none !important;
 }
 
+/* Fix highlighted combo box row color */
+*.x-combo-list *.x-combo-selected {
+	border-color:#b0813f;
+	background-color:#efefef;
+	background-image:url(resources/themes/xtheme-wheat/images/wheat/grid/row-over.gif);
+}
+
 /* These are necessary, because the theme doesn't "take" -- change these if the theme changes */
 /* Managed now by adding the style "x-panel" wherever needed
 .x-border {

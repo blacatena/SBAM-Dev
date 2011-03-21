@@ -118,8 +118,37 @@ public class FieldFactory {
 		
 		return combo;
 	}
+
+	protected static InstitutionSearchField getInstitutionSearchField(String name, String label) {
+		return getInstitutionSearchField(name, label, 0, null, null, null);
+	}
+
+	protected static InstitutionSearchField getInstitutionSearchField(String name, String label, String toolTip) {
+		return getInstitutionSearchField(name, label, 0, toolTip, null, null);
+	}
+
+	protected static InstitutionSearchField getInstitutionSearchField(String name, String label, int width, String toolTip) {
+		return getInstitutionSearchField(name, label, width, toolTip, null, null);
+	}
+	
+	protected static InstitutionSearchField getInstitutionSearchField(String name, String label, int width, String toolTip, String valueField, String displayField) {
+		InstitutionSearchField instCombo = new InstitutionSearchField();
+		setStandard(instCombo, label);
+		
+		if (toolTip != null)
+			instCombo.setToolTip(toolTip);
+		if (width > 0)
+			instCombo.setWidth(width);
+		if (valueField != null)
+			instCombo.setValueField(valueField);
+		if (displayField != null)
+			instCombo.setDisplayField(displayField);
+		
+		return instCombo;
+	}
 	
 	protected static void setStandard(Field<?> field, String label) {
+	//	field.setName(name);
 		field.setEnabled(false);
 		field.addStyleName("field-or-label");
 	//	field.setLabelStyle("color: saddlebrown;");

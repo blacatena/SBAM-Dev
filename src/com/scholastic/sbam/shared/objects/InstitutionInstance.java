@@ -3,10 +3,17 @@ package com.scholastic.sbam.shared.objects;
 import java.util.Date;
 import java.util.SortedMap;
 
+import com.extjs.gxt.ui.client.data.BeanModel;
+import com.extjs.gxt.ui.client.data.BeanModelFactory;
+import com.extjs.gxt.ui.client.data.BeanModelLookup;
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
+import com.scholastic.sbam.client.util.AddressFormatter;
 
 public class InstitutionInstance implements BeanModelTag, IsSerializable, UserCacheTarget {
+
+	private static BeanModelFactory beanModelfactory;
+	
 	private	int 	ucn;
 	private	String	institutionName;
 	private	String	address1;
@@ -179,6 +186,15 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable, UserCa
 	public void setLastServiceDate(Date lastServiceDate) {
 		this.lastServiceDate = lastServiceDate;
 	}
+	public String getNameAndUcn() {
+		if (ucn <= 0)
+			return institutionName;
+		return institutionName + " [ " + ucn + " ]";
+	}
+	public String getHtmlAddress() {
+		return AddressFormatter.getMultiLineAddress(address1, address2, address3, city, state, zip, country);
+	}
+	
 	public SortedMap<Integer, AgreementSummaryInstance> getAgreementSummaryList() {
 		return agreementSummaryList;
 	}
@@ -199,6 +215,27 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable, UserCa
 			}
 		//	System.out.println("UCN " + ucn + " agreements " + agreements + ", active " + activeAgreements + ", last date " + lastServiceDate);
 		}
+	}
+	
+	public static InstitutionInstance getEmptyInstance() {
+		InstitutionInstance instance = new InstitutionInstance();
+		instance.ucn = 0;
+		instance.institutionName = "";
+		return instance;
+	}
+	
+	public static InstitutionInstance getUnknownInstance(int ucn) {
+		InstitutionInstance instance = new InstitutionInstance();
+		instance.ucn = ucn;
+		instance.institutionName = "Unknown institution " + ucn;
+		return instance;
+	}
+
+	public static BeanModel obtainModel(InstitutionInstance instance) {
+		if (beanModelfactory == null)
+			beanModelfactory  = BeanModelLookup.get().getFactory(InstitutionInstance.class);
+		BeanModel model = beanModelfactory.createModel(instance);
+		return model;
 	}
 
 	public static String getUserCacheCategory() {

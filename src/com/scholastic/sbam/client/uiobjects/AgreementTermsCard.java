@@ -31,21 +31,21 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 	
 	protected RowExpander					noteExpander;
 	
-	protected NumberField					agreementIdDisplay	= getIntegerField("Agreement #");
-	protected EnhancedComboBox<BeanModel>	productDisplay		= getComboField("product", 	"Product",	150,		
+	protected NumberField					agreementIdField	= getIntegerField("Agreement #");
+	protected EnhancedComboBox<BeanModel>	productField		= getComboField("product", 	"Product",	150,		
 																	"The product to deliver for this term.",	
 																	UiConstants.getProducts(), "productCode", "descriptionAndCode");
-	protected NumberField					dollarValue			= getDollarField("Value");
-	protected DateField						startDate			= getDateField("Start");
-	protected DateField						endDate				= getDateField("End");
-	protected DateField						terminateDate		= getDateField("Terminate");
-	protected EnhancedComboBox<BeanModel>	termType			= getComboField("termType", 		"Term Type",	150,		
+	protected NumberField					dollarValueField	= getDollarField("Value");
+	protected DateField						startDateField		= getDateField("Start");
+	protected DateField						endDateField		= getDateField("End");
+	protected DateField						terminateDateField	= getDateField("Terminate");
+	protected EnhancedComboBox<BeanModel>	termTypeField		= getComboField("termType", 		"Term Type",	150,		
 																		"The term type for this product term.",	
 																		UiConstants.getTermTypes(), "termTypeCode", "description");
-	protected EnhancedComboBox<BeanModel>	commissionType		= getComboField("commissionType", 	"Commission Code",	150,		
+	protected EnhancedComboBox<BeanModel>	commissionTypeField	= getComboField("commissionType", 	"Commission Code",	150,		
 																		"The commission code assigned to this product term for reporting purposes.",	
 																		UiConstants.getCommissionTypes(UiConstants.CommissionTypeTargets.AGREEMENT_TERM), "commissionCode", "descriptionAndCode");
-	protected EnhancedComboBox<BeanModel>	cancelReason		= getComboField("cancelReason", 	"Cancel Reason",	150,		
+	protected EnhancedComboBox<BeanModel>	cancelReasonField	= getComboField("cancelReason", 	"Cancel Reason",	150,		
 																		"The reason for canceling for this product term.",	
 																		UiConstants.getCancelReasons(), "cancelReasonCode", "descriptionAndCode");
 	
@@ -108,15 +108,15 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 
 	@Override
 	public void setFormFieldValues(AgreementTermInstance instance) {
-		agreementIdDisplay.setValue(AppConstants.appendCheckDigit(instance.getAgreementId()));
-		productDisplay.setValue(ProductInstance.obtainModel(instance.getProduct()));
-		dollarValue.setValue(instance.getDollarValue());
-		startDate.setValue(instance.getStartDate());
-		endDate.setValue(instance.getEndDate());
-		terminateDate.setValue(instance.getTerminateDate());
-		termType.setValue(TermTypeInstance.obtainModel(instance.getTermType()));
-		cancelReason.setValue(CancelReasonInstance.obtainModel(instance.getCancelReason()));
-		commissionType.setValue(CommissionTypeInstance.obtainModel(instance.getCommissionType()));
+		agreementIdField.setValue(AppConstants.appendCheckDigit(instance.getAgreementId()));
+		productField.setValue(ProductInstance.obtainModel(instance.getProduct()));
+		dollarValueField.setValue(instance.getDollarValue());
+		startDateField.setValue(instance.getStartDate());
+		endDateField.setValue(instance.getEndDate());
+		terminateDateField.setValue(instance.getTerminateDate());
+		termTypeField.setValue(TermTypeInstance.obtainModel(instance.getTermType()));
+		cancelReasonField.setValue(CancelReasonInstance.obtainModel(instance.getCancelReason()));
+		commissionTypeField.setValue(CommissionTypeInstance.obtainModel(instance.getCommissionType()));
 	}
 
 	@Override
@@ -127,21 +127,21 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 
 	@Override
 	protected void addFormFields(FormPanel panel, FormData formData) {
-		agreementIdDisplay.setReadOnly(true);
+		agreementIdField.setReadOnly(true);
 		
-		dollarValue.setToolTip(UiConstants.getQuickTip("The total dollar value of this product for this term."));
-		startDate.setToolTip(UiConstants.getQuickTip("The date on which this product term will take effect."));
-		endDate.setToolTip(UiConstants.getQuickTip("The date on which this product term is scheduled to end."));
-		terminateDate.setToolTip(UiConstants.getQuickTip("The date on which this product term will no longer be delivered."));
+		dollarValueField.setToolTip(UiConstants.getQuickTip("The total dollar value of this product for this term."));
+		startDateField.setToolTip(UiConstants.getQuickTip("The date on which this product term will take effect."));
+		endDateField.setToolTip(UiConstants.getQuickTip("The date on which this product term is scheduled to end."));
+		terminateDateField.setToolTip(UiConstants.getQuickTip("The date on which this product term will no longer be delivered."));
 
-		productDisplay.setAllowBlank(false);
-		termType.setAllowBlank(false);
-		cancelReason.setAllowBlank(true);
-		commissionType.setAllowBlank(true);
+		productField.setAllowBlank(false);
+		termTypeField.setAllowBlank(false);
+		cancelReasonField.setAllowBlank(true);
+		commissionTypeField.setAllowBlank(true);
 		
-		panel.add(agreementIdDisplay, formData);
-		panel.add(productDisplay, formData);
-		panel.add(dollarValue, formData);
+		panel.add(agreementIdField, formData);
+		panel.add(productField, formData);
+		panel.add(dollarValueField, formData);
 		
 		FieldSet fieldSet = new FieldSet();
 		FormLayout layout = new FormLayout();
@@ -151,15 +151,15 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 		fieldSet.setBorders(true);
 		fieldSet.setHeading("Term Dates");
 		
-		fieldSet.add(startDate);
-		fieldSet.add(endDate);
-		fieldSet.add(terminateDate);
-		fieldSet.add(termType);
+		fieldSet.add(startDateField);
+		fieldSet.add(endDateField);
+		fieldSet.add(terminateDateField);
+		fieldSet.add(termTypeField);
 		
 		panel.add(fieldSet);
 		
-		panel.add(cancelReason, formData);
-		panel.add(commissionType, formData);
+		panel.add(cancelReasonField, formData);
+		panel.add(commissionTypeField, formData);
 	}
 	
 	

@@ -1,0 +1,135 @@
+package com.scholastic.sbam.client.uiobjects;
+
+import com.extjs.gxt.ui.client.Style.SortDir;
+import com.extjs.gxt.ui.client.data.BasePagingLoader;
+import com.extjs.gxt.ui.client.data.BeanModel;
+import com.extjs.gxt.ui.client.data.BeanModelReader;
+import com.extjs.gxt.ui.client.data.PagingLoadConfig;
+import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.extjs.gxt.ui.client.data.PagingLoader;
+import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.scholastic.sbam.client.services.InstitutionSearchService;
+import com.scholastic.sbam.client.services.InstitutionSearchServiceAsync;
+import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
+import com.scholastic.sbam.shared.objects.InstitutionInstance;
+import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
+import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
+
+public class InstitutionSearchField extends ComboBox<BeanModel> {
+	
+	protected final InstitutionSearchServiceAsync institutionSearchService = GWT.create(InstitutionSearchService.class);
+	
+	private long					searchSyncId	=	0;
+
+	private String					sortField		=	"institutionName";
+	private SortDir					sortDir			=	SortDir.ASC;
+	
+	public InstitutionSearchField() {
+		
+		PagingLoader<PagingLoadResult<InstitutionInstance>> loader = getInstitutionLoader(); 
+		
+		ListStore<BeanModel> institutionStore = new ListStore<BeanModel>(loader);
+		institutionStore.setKeyProvider(new SimpleKeyProvider("ucn"));
+		
+		this.setWidth(300);
+		this.setValueField("ucn");
+		this.setDisplayField("nameAndUcn");  
+		this.setEmptyText("Enter institution search criteria here...");
+		this.setStore(institutionStore);
+		this.setMinChars(1);
+		this.setHideTrigger(true);  
+		this.setPageSize(200);
+		this.setAllowBlank(false);
+		this.setEditable(true);
+		this.setSimpleTemplate(getMultiLineAddressTemplate());
+	}
+	
+	protected String getMultiLineAddressTemplate() {
+		return "<b>{institutionName}</b>  <span style=\"color:gray; font-style: italic\">{ucn}</span><br/>{htmlAddress}"; // {address1}<br/>{city}, {state} &nbsp;&nbsp;&nbsp; {zip}";
+	}
+	
+	/**
+	 * Construct and return a loader to handle returning a list of institutions.
+	 * @return
+	 */
+	protected PagingLoader<PagingLoadResult<InstitutionInstance>> getInstitutionLoader() {
+		// proxy and reader  
+		RpcProxy<PagingLoadResult<InstitutionInstance>> proxy = new RpcProxy<PagingLoadResult<InstitutionInstance>>() {  
+			@Override  
+			public void load(Object loadConfig, final AsyncCallback<PagingLoadResult<InstitutionInstance>> callback) {
+		    	
+				// This could be as simple as calling userListService.getUsers and passing the callback
+				// Instead, here the callback is overridden so that it can catch errors and alert the users.  Then the original callback is told of the failure.
+				// On success, the original callback is just passed the onSuccess message, and the response (the list).
+				
+				AsyncCallback<SynchronizedPagingLoadResult<InstitutionInstance>> myCallback = new AsyncCallback<SynchronizedPagingLoadResult<InstitutionInstance>>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else if (caught instanceof ServiceNotReadyException)
+								MessageBox.alert("Alert", "The " + caught.getMessage() + " is not available at this time.  Please try again in a few minutes.", null);
+						else {
+							MessageBox.alert("Alert", "Institution load failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+						callback.onFailure(caught);
+					}
+
+					public void onSuccess(SynchronizedPagingLoadResult<InstitutionInstance> syncResult) {
+						if(syncResult.getSyncId() != searchSyncId)
+							return;
+						
+						PagingLoadResult<InstitutionInstance> result = syncResult.getResult();
+						
+						//	This code was left, in case some way is determined to display this information when a search returns too many or no results
+//						if ( result.getData() == null || result.getData().size() == 0 ) {
+//							if (result.getTotalLength() > 0)
+//								liveView.setEmptyText(result.getTotalLength() + " institutions qualify (too many to display).<br/>Please enter filter criteria to narrow your search.");
+//							else if (filter.length() == 0)
+//								liveView.setEmptyText("Enter filter criteria to search for institutions.");
+//							else
+//								liveView.setEmptyText("Please enter filter criteria to narrow your search.");
+//						}
+						callback.onSuccess(result);
+					}
+				};
+				
+				( (PagingLoadConfig) loadConfig).set("sortField",	sortField);
+				( (PagingLoadConfig) loadConfig).set("sortDir",		sortDir);
+				
+				searchSyncId = System.currentTimeMillis();
+				institutionSearchService.getInstitutions((PagingLoadConfig) loadConfig, getRawValue(), false, searchSyncId, myCallback);
+				
+		    }  
+		};
+		BeanModelReader reader = new BeanModelReader();
+		
+		// loader and store  
+		PagingLoader<PagingLoadResult<InstitutionInstance>> loader = new BasePagingLoader<PagingLoadResult<InstitutionInstance>>(proxy, reader);
+		return loader;
+	}
+
+	public String getSortField() {
+		return sortField;
+	}
+
+	public void setSortField(String sortField) {
+		this.sortField = sortField;
+	}
+
+	public SortDir getSortDir() {
+		return sortDir;
+	}
+
+	public void setSortDir(SortDir sortDir) {
+		this.sortDir = sortDir;
+	}
+	
+}

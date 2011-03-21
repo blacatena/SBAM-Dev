@@ -324,6 +324,24 @@ public class AgreementTermInstance extends BetterRowEditInstance implements Bean
 		else
 			this.commissionCode = commissionType.getCommissionCode();
 	}
+	
+	public boolean deliverService() {
+		return deliverService(new Date());
+	}
+	
+	public boolean deliverService(Date testDate) {
+		if (startDate == null)
+			return false;
+		if (endDate == null)
+			return false;
+		if (cancelReasonCode != null && cancelReasonCode.length() > 0)
+			return false;
+		if (startDate.after(testDate))
+			return false;
+		if (!endDate.after(testDate))
+			return false;
+		return true;
+	}
 
 	public String toString() {
 		return "Term " + agreementId + "-" + id;

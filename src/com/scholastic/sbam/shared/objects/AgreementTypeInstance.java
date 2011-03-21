@@ -2,10 +2,15 @@ package com.scholastic.sbam.shared.objects;
 
 import java.util.Date;
 
+import com.extjs.gxt.ui.client.data.BeanModel;
+import com.extjs.gxt.ui.client.data.BeanModelFactory;
+import com.extjs.gxt.ui.client.data.BeanModelLookup;
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class AgreementTypeInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
+
+	private static BeanModelFactory beanModelfactory;
 
 	private String agreementTypeCode;
 	private String description;
@@ -92,5 +97,33 @@ public class AgreementTypeInstance extends BetterRowEditInstance implements Bean
 
 	public String toString() {
 		return description;
+	}
+	
+	public static AgreementTypeInstance getEmptyInstance() {
+		AgreementTypeInstance instance = new AgreementTypeInstance();
+		instance.agreementTypeCode = "";
+		instance.description = "";
+		instance.shortName   = "";
+		return instance;
+	}
+	
+	public static AgreementTypeInstance getUnknownInstance(String code) {
+		AgreementTypeInstance instance = new AgreementTypeInstance();
+		instance.agreementTypeCode = code;
+		instance.description = "Unknown agreement type " + code;
+		return instance;
+	}
+
+	public static BeanModel obtainModel(AgreementTypeInstance instance) {
+		if (beanModelfactory == null)
+			beanModelfactory  = BeanModelLookup.get().getFactory(AgreementTypeInstance.class);
+		BeanModel model = beanModelfactory.createModel(instance);
+		return model;
+	}
+	
+	public String getDescriptionAndCode() {
+		if (agreementTypeCode == null || agreementTypeCode.length() == 0)
+			return description;
+		return description + " [ " + agreementTypeCode + " ]";
 	}
 }

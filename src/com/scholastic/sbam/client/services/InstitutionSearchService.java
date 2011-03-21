@@ -12,5 +12,5 @@ import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
  */
 @RemoteServiceRelativePath("getInstitutions")
 public interface InstitutionSearchService extends RemoteService {
-	SynchronizedPagingLoadResult<InstitutionInstance> getInstitutions(PagingLoadConfig loadConfig, String filter, long syncId) throws IllegalArgumentException, ServiceNotReadyException;
+	SynchronizedPagingLoadResult<InstitutionInstance> getInstitutions(PagingLoadConfig loadConfig, String filter, boolean includeAgreementSummaries, long syncId) throws IllegalArgumentException, ServiceNotReadyException;
 }

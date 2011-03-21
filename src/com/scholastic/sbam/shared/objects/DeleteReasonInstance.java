@@ -92,6 +92,13 @@ public class DeleteReasonInstance extends BetterRowEditInstance implements BeanM
 		instance.description = "Unknown delete reason " + code;
 		return instance;
 	}
+	
+	public static DeleteReasonInstance getEmptyInstance() {
+		DeleteReasonInstance instance = new DeleteReasonInstance();
+		instance.deleteReasonCode = "";
+		instance.description = "";
+		return instance;
+	}
 
 	public static BeanModel obtainModel(DeleteReasonInstance instance) {
 		if (beanModelfactory == null)

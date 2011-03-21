@@ -596,7 +596,7 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 				};
 
 				searchSyncId = System.currentTimeMillis();
-				institutionSearchService.getInstitutions((PagingLoadConfig) loadConfig, filter, searchSyncId, myCallback);
+				institutionSearchService.getInstitutions((PagingLoadConfig) loadConfig, filter, true, searchSyncId, myCallback);
 				
 		    }  
 		};

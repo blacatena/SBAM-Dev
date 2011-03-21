@@ -9,12 +9,16 @@ import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
@@ -39,10 +43,14 @@ import com.scholastic.sbam.client.services.InstitutionGetService;
 import com.scholastic.sbam.client.services.InstitutionGetServiceAsync;
 import com.scholastic.sbam.client.uiobjects.AppPortletIds;
 import com.scholastic.sbam.client.uiobjects.AppSleeper;
+import com.scholastic.sbam.client.util.AddressFormatter;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.AgreementInstance;
 import com.scholastic.sbam.shared.objects.AgreementTermInstance;
+import com.scholastic.sbam.shared.objects.AgreementTypeInstance;
+import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
+import com.scholastic.sbam.shared.objects.DeleteReasonInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.util.AppConstants;
 
@@ -54,7 +62,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected int					agreementId;
 	protected AgreementInstance		agreement;
 	protected InstitutionInstance	billToInstitution;
-	protected String				identificationTip;
+	protected String				identificationTip	=	"";
 	
 	protected ContentPanel			outerContainer;
 	protected CardLayout			cards;
@@ -76,12 +84,24 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected ToggleButton			remoteButton;
 	protected ToggleButton			contactsButton;
 
-	protected LabelField			agreementIdDisplay;
-	protected NumberField			ucnDisplay;
-	protected LabelField			addressDisplay;
-	protected LabelField			typeDisplay;
-	protected LabelField			statusDisplay;
-	protected LabelField			commDisplay;
+	protected NumberField					agreementIdField	= getIntegerField("Agreement #");
+	protected NumberField					currentValueField	= getDollarField("Current Value");
+	protected LabelField					idTipField			= new LabelField();
+	protected NumberField					ucnDisplay			= getIntegerField("Bill Institution");
+	protected InstitutionSearchField		institutionField	= FieldFactory.getInstitutionSearchField("billUcn", "Bill To", 300, "The institution that will pay for the products delivered.");
+	protected LabelField					addressDisplay		= new LabelField();
+	protected LabelField					customerTypeDisplay	= new LabelField();
+	protected EnhancedComboBox<BeanModel>	agreementTypeField	= getComboField("agreementType", 	"Agreement Type",	150,		
+								"The agreement type assigned to this agreement for reporting purposes.",	
+								UiConstants.getAgreementTypes(), "agreementTypeCode", "descriptionAndCode");
+	protected LabelField					statusDisplay		= new LabelField();
+	protected EnhancedComboBox<BeanModel>	commissionTypeField	= getComboField("commissionType", 	"Commission Code",	150,		
+								"The commission code assigned to this agreement for reporting purposes.",	
+								UiConstants.getCommissionTypes(UiConstants.CommissionTypeTargets.AGREEMENT), "commissionCode", "descriptionAndCode");
+	protected EnhancedComboBox<BeanModel>	deleteReasonField	= getComboField("deleteReason", 	"Delete Reason",	150,		
+								"The reason for deleting this agreement.",	
+								UiConstants.getDeleteReasons(), "deleteReasonCode", "descriptionAndCode");
+
 	protected ListStore<ModelData>	termsStore;
 	protected Grid<ModelData>		termsGrid;
 	
@@ -102,6 +122,8 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	}
 
 	public void setIdentificationTip(String identificationTip) {
+		if (identificationTip == null)
+			identificationTip = "";
 		this.identificationTip = identificationTip;
 	}
 
@@ -161,6 +183,13 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	private void createDisplayCard() {
 		FormData formData = new FormData("100%");
 		displayCard = new FormPanel();
+		
+		displayCard.addListener(Events.OnClick, new Listener<BaseEvent>() {
+			@Override
+			public void handleEvent(BaseEvent be) {
+				enableFields();
+			}	
+		});
 
 //		displayCard.setPadding(40);  
 		displayCard.setFrame(true); 
@@ -186,43 +215,30 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 //		displayBar.add(new Html("<b>Selected Institution</b>"));
 //		displayCard.setTopComponent(displayBar);
 
-		agreementIdDisplay = new LabelField();  
-		agreementIdDisplay.setFieldLabel("Agreement # :");
-		displayCard.add(agreementIdDisplay, formData);
+		agreementIdField.setReadOnly(true);
+		currentValueField.setReadOnly(true);
 
-		// ucnDisplay as NumberField
-		ucnDisplay = getIntegerField("Bill Institution");
-//		ucnDisplay = new NumberField();
-////		ucnDisplay.setReadOnly(true);
-//		ucnDisplay.setFormat(NumberFormat.getFormat("#"));
-//		ucnDisplay.setAllowDecimals(false);
-//		ucnDisplay.setAllowNegative(false);
-//		ucnDisplay.setEnabled(false);
-//		ucnDisplay.addStyleName("field-or-label");
-////		ucnDisplay.setMessageTarget(messageTarget)
-////		ucnDisplay.setMessages(messages);
-////		ucnDisplay.setImages(images);
-//		ucnDisplay.setFieldLabel("Bill Institution ");
+		displayCard.add(agreementIdField, formData);
+		displayCard.add(idTipField, formData);
+		displayCard.add(currentValueField, formData);
+
 		displayCard.add(ucnDisplay, formData);
+		displayCard.add(institutionField, formData);
 		
 //		ucnDisplay = new LabelField();
 //		ucnDisplay.setFieldLabel("Bill Institution :");
 //		displayCard.add(ucnDisplay, formData);
 		
-		addressDisplay = new LabelField();
 		displayCard.add(addressDisplay, formData); 
+		displayCard.add(customerTypeDisplay, formData); 
 		
-		typeDisplay = new LabelField();
-		typeDisplay.setFieldLabel("Customer Type :");
-		displayCard.add(typeDisplay, formData);
+		displayCard.add(agreementTypeField, formData); 
 			
-		statusDisplay = new LabelField();
+		displayCard.add(commissionTypeField, formData); 
+			
 		statusDisplay.setFieldLabel("Status :");
-		displayCard.add(statusDisplay, formData); 
-			
-		commDisplay = new LabelField();
-		commDisplay.setFieldLabel("Commission Code :");
-		displayCard.add(statusDisplay, formData); 
+		displayCard.add(statusDisplay, formData);
+		displayCard.add(deleteReasonField, formData); 
 		
 		addAgreementTermsGrid(formData);
 	}
@@ -421,12 +437,13 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		if (agreement == null) {
 			MessageBox.alert("Agreement not found.", "The requested agreement was not found.", null);
 		} else {
-			if (identificationTip == null)
-				agreementIdDisplay.setValue(agreement.getIdCheckDigit());
-			else
-				agreementIdDisplay.setValue(agreement.getIdCheckDigit() +  "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&mdash;&nbsp;&nbsp;<i>" + identificationTip + "</i>");
+			agreementIdField.setValue(agreement.getIdCheckDigit());
+			idTipField.setValue(identificationTip);
+			
+			currentValueField.setValue(agreement.getCurrentValue());
 			
 			ucnDisplay.setValue(agreement.getBillUcn());
+			institutionField.setValue(InstitutionInstance.obtainModel(agreement.getInstitution()));
 			
 			ListStore<ModelData> store = termsStore;
 			store.removeAll();
@@ -435,17 +452,19 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 			}
 			
 			addressDisplay.setValue("<i>Loading...</i>");
+			customerTypeDisplay.setValue("");
 			
-			if (agreement.getStatus() == AppConstants.STATUS_DELETED)
-				statusDisplay.setValue(AppConstants.getStatusDescription(agreement.getStatus()) + " &ndash; " + agreement.getDeleteReasonDescription());
-			else
-				statusDisplay.setValue(AppConstants.getStatusDescription(agreement.getStatus()));
-			typeDisplay.setValue(agreement.getAgreementTypeDescription());
-			commDisplay.setValue(agreement.getCommissionCodeDescription());
+			statusDisplay.setValue(AppConstants.getStatusDescription(agreement.getStatus()));
+			agreementTypeField.setValue(AgreementTypeInstance.obtainModel(agreement.getAgreementType()));
+			commissionTypeField.setValue(CommissionTypeInstance.obtainModel(agreement.getCommissionType()));
+			deleteReasonField.setValue(DeleteReasonInstance.obtainModel(agreement.getDeleteReason()));
 			
 			cards.setActiveItem(displayCard);
 			
-			loadInstitution(agreement.getBillUcn());
+			if (agreement.getInstitution() != null)
+				set(agreement.getInstitution());
+			else
+				loadInstitution(agreement.getBillUcn());
 		}
 	}
 	
@@ -460,16 +479,28 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		if (instance == null) {
 			MessageBox.alert("Institution Not Found", "The Institution for the agreement was not found.", null);
 			addressDisplay.setValue("");
-			typeDisplay.setValue("");
+			customerTypeDisplay.setValue("");
 			return;
 		}
 		
-		addressDisplay.setValue("<b>" + instance.getInstitutionName() + "</b><br/>" +
-				instance.getAddress1() + brIfNotEmpty(instance.getAddress2()) + brIfNotEmpty(instance.getAddress3()) + "<br/>" +
-				instance.getCity() + commaIfNotEmpty(instance.getState()) + spaceIfNotEmpty(instance.getZip()) + 
-				brIfNotUsa(instance.getCountry()));
+		addressDisplay.setValue(AddressFormatter.getMultiLineAddress(	instance.getAddress1(), 
+																		instance.getAddress2(), 
+																		instance.getAddress3(), 
+																		instance.getCity(), instance.getState(), instance.getZip(), 
+																		instance.getCountry()));
+		
+//		addressDisplay.setValue("<b>" + instance.getInstitutionName() + "</b><br/>" +
+//				instance.getAddress1() + brIfNotEmpty(instance.getAddress2()) + brIfNotEmpty(instance.getAddress3()) + "<br/>" +
+//				instance.getCity() + commaIfNotEmpty(instance.getState()) + spaceIfNotEmpty(instance.getZip()) + 
+//				brIfNotUsa(instance.getCountry()));
 
-		typeDisplay.setValue(instance.getPublicPrivateDescription() + " / " + instance.getGroupDescription() + " &rArr; " + instance.getTypeDescription());
+		customerTypeDisplay.setValue(instance.getPublicPrivateDescription() + " / " + instance.getGroupDescription() + " &rArr; " + instance.getTypeDescription());
+	}
+	
+	public void enableFields() {
+		for (Field<?> field : displayCard.getFields()) {
+			field.enable();
+		}
 	}
 
 	/**
