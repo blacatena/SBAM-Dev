@@ -8,6 +8,7 @@ import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
@@ -47,6 +48,17 @@ public class InstitutionSearchField extends ComboBox<BeanModel> {
 		this.setAllowBlank(false);
 		this.setEditable(true);
 		this.setSimpleTemplate(getMultiLineAddressTemplate());
+	}
+	
+	public void onBlur(ComponentEvent ce) {
+		super.onBlur(ce);
+		if (this.value == null) {
+			this.value = this.originalValue;
+			if (this.value == null)
+				setRawValue("");
+			else
+				setRawValue(this.value.get(this.getDisplayField()).toString());
+		}
 	}
 	
 	protected String getMultiLineAddressTemplate() {

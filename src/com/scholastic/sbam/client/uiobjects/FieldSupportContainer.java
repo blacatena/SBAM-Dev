@@ -1,11 +1,14 @@
 package com.scholastic.sbam.client.uiobjects;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.DateField;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.scholastic.sbam.client.util.AddressFormatter;
 
@@ -22,6 +25,21 @@ public abstract class FieldSupportContainer extends LayoutContainer {
 	
 	public FieldSupportContainer() {
 		super();
+	}
+	
+	protected FormPanel getNewFormPanel() {
+		FormPanel newFormPanel = new FormPanel();
+		
+		newFormPanel.setFrame(false); // true
+		newFormPanel.setHeaderVisible(false);  
+		newFormPanel.setBodyBorder(false);	// true
+		newFormPanel.setBorders(false);
+		newFormPanel.setBodyStyleName("subtle-form");
+		newFormPanel.setButtonAlign(HorizontalAlignment.CENTER);
+		newFormPanel.setLabelAlign(LabelAlign.RIGHT);
+		newFormPanel.setLabelWidth(80);
+		
+		return newFormPanel;
 	}
 
 	protected String plusIfNotEmpty(String value, String prefix) {

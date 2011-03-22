@@ -673,6 +673,18 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 			});
 	}
 	
+	@Override
+	public void onExpand() {
+		super.onExpand();
+		awaken();
+	}
+	
+	@Override
+	public void onCollapse() {
+		super.onCollapse();
+		sleep();
+	}
+	
 	/**
 	 * Turn on the listener timer when waking up.
 	 */

@@ -217,6 +217,12 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable, UserCa
 		}
 	}
 	
+	public boolean equals(InstitutionInstance other) {
+		if (other == null)
+			return false;
+		return (other.ucn == this.ucn);
+	}
+	
 	public static InstitutionInstance getEmptyInstance() {
 		InstitutionInstance instance = new InstitutionInstance();
 		instance.ucn = 0;

@@ -134,6 +134,10 @@ public class IconSupplier {
 		return "messages.png";
 	}
 	
+	public static String getEditIconName() {
+		return "edit.png";
+	}
+	
 	public static String getSaveIconName() {
 		return "save.png";
 	}

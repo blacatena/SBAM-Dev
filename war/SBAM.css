@@ -232,6 +232,10 @@ div.x-item-disabled.field-or-label input.x-form-field {
 	background-image:url(resources/themes/xtheme-wheat/images/wheat/grid/row-over.gif);
 }
 
+.clear-toolbar {
+	background: #FBEBDB !important;
+}
+
 /* These are necessary, because the theme doesn't "take" -- change these if the theme changes */
 /* Managed now by adding the style "x-panel" wherever needed
 .x-border {

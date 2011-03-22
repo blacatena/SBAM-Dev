@@ -107,7 +107,7 @@ public class FieldFactory {
 		combo.setDisplayField(displayField);
 		combo.setValueField(valueField);
 		combo.setTypeAhead(true);
-
+		
 		if (toolTip != null)
 			combo.setToolTip(toolTip);
 //		if (validator != null)

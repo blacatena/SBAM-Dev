@@ -4,25 +4,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
-import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -32,10 +34,13 @@ import com.extjs.gxt.ui.client.widget.grid.RowExpander;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.extjs.gxt.ui.client.widget.layout.RowData;
+import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.AgreementGetService;
 import com.scholastic.sbam.client.services.AgreementGetServiceAsync;
@@ -55,6 +60,8 @@ import com.scholastic.sbam.shared.util.AppConstants;
 
 public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> implements AppSleeper {
 	
+	protected final int DIRTY_FORM_LISTEN_TIME = 3000;
+	
 	protected final AgreementGetServiceAsync agrementGetService = GWT.create(AgreementGetService.class);
 	protected final InstitutionGetServiceAsync institutionGetService = GWT.create(InstitutionGetService.class);
 	
@@ -65,7 +72,10 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	
 	protected ContentPanel			outerContainer;
 	protected CardLayout			cards;
-	protected FormPanel				displayCard;
+	protected LayoutContainer		displayCard;
+	protected FormPanel				formColumn1;
+	protected FormPanel				formColumn2;
+	protected FormPanel				formRow2;
 	protected AgreementTermsCard	termsCard;
 	protected AgreementSitesCard	sitesCard;
 	protected AgreementContactsCard	contactsCard;
@@ -76,6 +86,12 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected ListStore<ModelData>	store;
 	
 	protected PagingLoader<PagingLoadResult<InstitutionInstance>> institutionLoader;
+	
+	protected Timer					dirtyFormListener;
+	
+	protected Button				editButton;
+	protected Button				cancelButton;
+	protected Button				saveButton;
 	
 	protected ToggleButton			agreementButton;
 	protected ToggleButton			termsButton;
@@ -91,14 +107,14 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected LabelField					addressDisplay		= new LabelField();
 	protected NumberField					ucnDisplay			= getIntegerField("UCN");
 	protected LabelField					customerTypeDisplay	= new LabelField();
-	protected EnhancedComboBox<BeanModel>	agreementTypeField	= getComboField("agreementType", 	"Agreement Type",	150,		
+	protected EnhancedComboBox<BeanModel>	agreementTypeField	= getComboField("agreementType", 	"Type",	150,		
 								"The agreement type assigned to this agreement for reporting purposes.",	
 								UiConstants.getAgreementTypes(), "agreementTypeCode", "descriptionAndCode");
 	protected LabelField					statusDisplay		= new LabelField();
-	protected EnhancedComboBox<BeanModel>	commissionTypeField	= getComboField("commissionType", 	"Commission Code",	150,		
+	protected EnhancedComboBox<BeanModel>	commissionTypeField	= getComboField("commissionType", 	"Commission",	150,		
 								"The commission code assigned to this agreement for reporting purposes.",	
 								UiConstants.getCommissionTypes(UiConstants.CommissionTypeTargets.AGREEMENT), "commissionCode", "descriptionAndCode");
-	protected EnhancedComboBox<BeanModel>	deleteReasonField	= getComboField("deleteReason", 	"Delete Reason",	150,		
+	protected EnhancedComboBox<BeanModel>	deleteReasonField	= getComboField("deleteReason", 	"Delete",	150,		
 								"The reason for deleting this agreement.",	
 								UiConstants.getDeleteReasons(), "deleteReasonCode", "descriptionAndCode");
 
@@ -157,7 +173,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		outerContainer = new ContentPanel();
 		outerContainer.setBorders(false);
 		outerContainer.setHeaderVisible(false);
-		addButtons();
+		addPanelSwitchTools();
 		
 		cards = new CardLayout();
 		outerContainer.setLayout(cards);
@@ -182,24 +198,20 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	
 	private void createDisplayCard() {
 		FormData formData = new FormData("100%");
-		displayCard = new FormPanel();
+		displayCard = new LayoutContainer(new RowLayout(Orientation.VERTICAL));
 		
-		displayCard.addListener(Events.OnClick, new Listener<BaseEvent>() {
-			@Override
-			public void handleEvent(BaseEvent be) {
-				enableFields();
-			}	
-		});
-
-//		displayCard.setPadding(40);  
-		displayCard.setFrame(true); 
-		displayCard.setHeaderVisible(false);  
-		displayCard.setBodyBorder(true);
-		displayCard.setBorders(false);
-		displayCard.setBodyStyleName("subtle-form");
-		displayCard.setButtonAlign(HorizontalAlignment.CENTER);
-		displayCard.setLabelAlign(LabelAlign.RIGHT);
-		displayCard.setLabelWidth(100); 
+//		displayCard.addListener(Events.OnClick, new Listener<BaseEvent>() {
+//			@Override
+//			public void handleEvent(BaseEvent be) {
+//				beginEdit();
+//			}	
+//		});
+		
+		LayoutContainer sideBySide = new LayoutContainer(new RowLayout(Orientation.HORIZONTAL));
+		
+		formColumn1 = getNewFormPanel();
+		formColumn2 = getNewFormPanel();
+		formRow2	= getNewFormPanel();
 		
 //		ToolButton returnTool = new ToolButton("x-tool-left") {
 //				@Override
@@ -219,43 +231,48 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		currentValueField.setReadOnly(true);
 		ucnDisplay.setReadOnly(true);
 
-		displayCard.add(agreementIdField, formData);
-		displayCard.add(idTipField, formData);
-		displayCard.add(currentValueField, formData);
+		formColumn1.add(agreementIdField, formData);
+		formColumn1.add(idTipField, formData);
+		formColumn2.add(currentValueField, formData);
 
-		displayCard.add(institutionField, formData);
+		formColumn1.add(institutionField, formData);
 		
 //		ucnDisplay = new LabelField();
 //		ucnDisplay.setFieldLabel("Bill Institution :");
 //		displayCard.add(ucnDisplay, formData);
 		
-		displayCard.add(addressDisplay, formData); 
-		displayCard.add(ucnDisplay, formData);
-		displayCard.add(customerTypeDisplay, formData); 
+		formColumn1.add(addressDisplay, formData); 
+		formColumn1.add(ucnDisplay, formData);
+		formColumn1.add(customerTypeDisplay, formData); 
 		
-		displayCard.add(agreementTypeField, formData); 
+		formColumn2.add(agreementTypeField, formData); 
 			
-		displayCard.add(commissionTypeField, formData); 
+		formColumn2.add(commissionTypeField, formData); 
 			
 		statusDisplay.setFieldLabel("Status :");
-		displayCard.add(statusDisplay, formData);
-		displayCard.add(deleteReasonField, formData);
+		formColumn2.add(statusDisplay, formData);
+		formColumn2.add(deleteReasonField, formData);
 		
-//		This method not used, because it's just one more complication that has no added value
-//		institutionBinding = new FormBinding(displayCard);
-//		institutionBinding.addFieldBinding(new FieldBinding(addressDisplay, "htmlAddress"));
+		addEditSaveButtons(formColumn2);
 		
 		addAgreementTermsGrid(formData);
+		
+		sideBySide.add(formColumn1, new RowData(	0.55,   170, new Margins(0)));
+		sideBySide.add(formColumn2, new RowData(	0.45,   170, new Margins(0)));
+		displayCard.add(sideBySide, new RowData(	1,	    170, new Margins(0)));
+		displayCard.add(formRow2,   new RowData(	1,		  1, new Margins(0)));
 	}
 	
 	protected InstitutionSearchField getInstitutionField(String name, String label, int width, String toolTip) {
-        InstitutionSearchField instCombo = new InstitutionSearchField() {
-			@Override
-			public void onSelect(BeanModel model, int index) {
-				super.onSelect(model, index);
-				selectInstitution(model);
-			};
-		};
+        InstitutionSearchField instCombo = new InstitutionSearchField()
+//        {
+//			@Override
+//			public void onSelect(BeanModel model, int index) {
+//				super.onSelect(model, index);
+//				selectInstitution(model);
+//			};
+//		}
+        ;
 		FieldFactory.setStandard(instCombo, label);
 		
 		if (toolTip != null)
@@ -264,11 +281,23 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 			instCombo.setWidth(width);
 		instCombo.setDisplayField("institutionName");
 		
+		instCombo.addSelectionChangedListener(new SelectionChangedListener<BeanModel>() {
+
+			@Override
+			public void selectionChanged(SelectionChangedEvent<BeanModel> se) {
+				selectInstitution(se.getSelectedItem());
+			}
+			
+		});
+		
 		return instCombo;
 	}
 	
 	protected void selectInstitution(BeanModel model) {
-		set( (InstitutionInstance) model.getBean() );
+		if (model == null)
+			matchToInstitution(null);
+		else
+			matchToInstitution( (InstitutionInstance) model.getBean() );
 	}
 	
 	protected void addAgreementTermsGrid(FormData formData) {
@@ -280,6 +309,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 					"This is the service start date for a product term."));
 		columns.add(getDisplayColumn("endDate",					"End",						80,		true, UiConstants.APP_DATE_TIME_FORMAT,
 					"This is the service end date for a product term."));
+		columns.add(getHiddenColumn("terminateDate",			"Terminate",				80,		true, UiConstants.APP_DATE_TIME_FORMAT));
 		columns.add(getDisplayColumn("dollarValue",				"Value",					80,		true, NumberFormat.getCurrencyFormat(UiConstants.US_DOLLARS),
 					"This is the value of the service."));
 		columns.add(getDisplayColumn("termType.description",	"Type",						80,
@@ -295,37 +325,30 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		termsGrid = new Grid<ModelData>(termsStore, cm); 
 		termsGrid.addPlugin(expander);
 		termsGrid.setBorders(true);  
-//		termsGrid.setAutoExpandColumn("firstStartDate");  
+		termsGrid.setAutoExpandColumn("product.description");  
 //		termsGrid.setLoadMask(true);
-		termsGrid.setHeight(200);
+		termsGrid.setHeight(250);
 		termsGrid.setStripeRows(true);
 		termsGrid.setColumnLines(false);
 		termsGrid.setHideHeaders(false);
-		termsGrid.setWidth(cm.getTotalWidth() + 20);
+//		termsGrid.setWidth(cm.getTotalWidth() + 20);
+//		termsGrid.setDeferHeight(true);
 		
 		addRowListener(termsGrid);
 		
 		//	Switch to the display card when a row is selected
 		termsGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-//		termsGrid.getSelectionModel().addListener(Events.SelectionChange,  
-//				new Listener<SelectionChangedEvent<ModelData>>() {
-//					public void handleEvent(SelectionChangedEvent<ModelData> be) {  
-//						if (be.getSelection().size() > 0) {
-//							System.out.println("Agreement Term" + ((BeanModel) be.getSelectedItem()).get("id"));
-//							System.out.println(be.getSource().toString() + " / " + be.getSource().getClass().getName());
-//						} 
-//					}  
-//			});
 	
 		FieldSet fieldSet = new FieldSet();
 		fieldSet.setBorders(true);
 		fieldSet.setHeading("Product Terms");// 		displayCard.add(new LabelField("<br/><i>Existing Agreements</i>"));
 		fieldSet.setCollapsible(true);
+		fieldSet.setDeferHeight(true);
 		fieldSet.setToolTip(UiConstants.getQuickTip("These are most recent terms for this agreement.  Click the grid to edit or review all terms."));
-		fieldSet.add(termsGrid, new FormData(cm.getTotalWidth() + 25, 200));
+		fieldSet.add(termsGrid, new FormData("95%")); // new FormData(cm.getTotalWidth() + 25, 200));
 		
-		displayCard.add(new LabelField(""));	// Used as a spacer
-		displayCard.add(fieldSet, new FormData("95%")); // new FormData(cm.getTotalWidth() + 20, 200));
+//		formRow2.add(new LabelField(""));	// Used as a spacer
+		formRow2.add(fieldSet, new FormData("100%")); // new FormData(cm.getTotalWidth() + 20, 200));
 	}
 	
 	/**
@@ -341,10 +364,95 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		termsButton.toggle(true);
 	}
 	
+
+	protected void addEditSaveButtons(FormPanel targetPanel) {
+		
+		ToolBar toolBar = new ToolBar();
+		toolBar.setAlignment(HorizontalAlignment.CENTER);
+		toolBar.setBorders(false);
+		toolBar.setSpacing(20);
+		toolBar.setMinButtonWidth(60);
+//		toolBar.addStyleName("clear-toolbar");
+		
+		editButton = new Button("Edit");
+		IconSupplier.forceIcon(editButton, IconSupplier.getEditIconName());
+		editButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				beginEdit();
+			}  
+		});
+		toolBar.add(editButton);
+		
+		cancelButton = new Button("Cancel");
+		IconSupplier.forceIcon(cancelButton, IconSupplier.getCancelIconName());
+		cancelButton.disable();
+		cancelButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				endEdit(false);
+			}  
+		});
+		toolBar.add(cancelButton);
+		
+		saveButton = new Button("Save");
+		IconSupplier.forceIcon(saveButton, IconSupplier.getSaveIconName());
+		saveButton.disable();
+		saveButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				endEdit(true);
+			}  
+		});
+		toolBar.add(saveButton);
+		
+		targetPanel.setBottomComponent(toolBar);
+		
+		addDirtyFormListener();
+	}
+	
+	protected void addDirtyFormListener() {
+		if (dirtyFormListener == null) {
+			dirtyFormListener = new Timer() {
+
+				@Override
+				public void run() {
+					if (isDirtyForm())
+						handleDirtyForm();
+					else
+						handleCleanForm();
+				}
+				
+			};
+		}
+		
+		dirtyFormListener.scheduleRepeating(DIRTY_FORM_LISTEN_TIME);
+	}
+
+	protected boolean isDirtyForm() {
+
+//		System.out.println();
+//		System.out.println(System.currentTimeMillis());
+//		System.out.println("Original " + institutionField.getOriginalValue());
+//		System.out.println("New      " + institutionField.getValue());
+//		System.out.println("Raw      " + institutionField.getRawValue());
+//		System.out.println("Dirty    " + institutionField.isDirty());
+		
+		return formColumn1.isDirty() || formColumn2.isDirty();
+	}
+	
+	protected void handleDirtyForm() {
+		saveButton.enable();
+	}
+	
+	protected void handleCleanForm() {
+		saveButton.disable();
+	}
+	
 	/**
 	 * Add the toolbar buttons
 	 */
-	protected void addButtons() {
+	protected void addPanelSwitchTools() {
 		
 		ToolBar toolBar = new ToolBar();
 		toolBar.setAlignment(HorizontalAlignment.CENTER);
@@ -464,14 +572,15 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 
 		if (agreement == null) {
 			MessageBox.alert("Agreement not found.", "The requested agreement was not found.", null);
+			clearFormValues();
 		} else {
 			agreementIdField.setValue(agreement.getIdCheckDigit());
 			idTipField.setValue(identificationTip);
 			
 			currentValueField.setValue(agreement.getCurrentValue());
 			
-			ucnDisplay.setValue(agreement.getBillUcn());
-			institutionField.setValue(InstitutionInstance.obtainModel(agreement.getInstitution()));
+//			ucnDisplay.setValue(agreement.getBillUcn());
+//			institutionField.setValue(InstitutionInstance.obtainModel(agreement.getInstitution()));
 			
 			ListStore<ModelData> store = termsStore;
 			store.removeAll();
@@ -480,7 +589,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 			}
 			
 			addressDisplay.setValue("<i>Loading...</i>");
-			customerTypeDisplay.setValue("");
+//			customerTypeDisplay.setValue("");
 			
 			statusDisplay.setValue(AppConstants.getStatusDescription(agreement.getStatus()));
 			agreementTypeField.setValue(AgreementTypeInstance.obtainModel(agreement.getAgreementType()));
@@ -489,11 +598,15 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 			
 			cards.setActiveItem(displayCard);
 			
-			if (agreement.getInstitution() != null)
+			if (agreement.getInstitution() != null) {
 				set(agreement.getInstitution());
-			else
-				loadInstitution(agreement.getBillUcn());
+			} else {
+				set(InstitutionInstance.getEmptyInstance());
+//				loadInstitution(agreement.getBillUcn());
+			}
 		}
+
+		setOriginalValues();
 	}
 	
 	/**
@@ -501,12 +614,28 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	 * @param instance
 	 */
 	protected void set(InstitutionInstance instance) {
+		if (billToInstitution == instance)
+			return;
+		
 		billToInstitution = instance;
-//		institutionBinding.bind(InstitutionInstance.obtainModel(billToInstitution));
+		
+		if (billToInstitution == null) {
+			MessageBox.alert("Institution Not Found", "The Institution for the agreement was not found.", null);
+			billToInstitution = InstitutionInstance.getEmptyInstance(); 
+		}
+
+		if (institutionField.getValue() == null || !billToInstitution.equals(institutionField.getValue().getBean())) {
+			institutionField.setValue(InstitutionInstance.obtainModel(billToInstitution));
+		}
+
 		setPortletHeading();
+		matchToInstitution(billToInstitution);
+	}
+	
+	protected void matchToInstitution(InstitutionInstance instance) {
+//		institutionBinding.bind(InstitutionInstance.obtainModel(billToInstitution));
 		
 		if (instance == null) {
-			MessageBox.alert("Institution Not Found", "The Institution for the agreement was not found.", null);
 			ucnDisplay.setValue(0);
 			addressDisplay.setValue("");
 			customerTypeDisplay.setValue("");
@@ -518,9 +647,60 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		customerTypeDisplay.setValue(instance.getPublicPrivateDescription() + " / " + instance.getGroupDescription() + " &rArr; " + instance.getTypeDescription());
 	}
 	
+	public void beginEdit() {
+		editButton.disable();
+		cancelButton.enable();
+		enableFields();
+	}
+	
+	public void endEdit(boolean save) {
+		if (save) {
+			setOriginalValues();
+		} else
+			resetFormValues();
+		editButton.enable();
+		cancelButton.disable();
+		saveButton.disable();
+		disableFields();
+	}
+	
+	public void clearFormValues() {
+		formColumn1.clear();
+		formColumn2.clear();
+	}
+	
+	public void resetFormValues() {
+		formColumn1.reset();
+		formColumn2.reset();
+	}
+	
+	public void setOriginalValues() {
+		setOriginalValues(formColumn1);
+		setOriginalValues(formColumn2);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void setOriginalValues(FormPanel formPanel) {
+		for (Field<?> field : formPanel.getFields()) {
+			((Field<Object>) field).setOriginalValue(field.getValue());
+		}
+	}
+	
 	public void enableFields() {
-		for (Field<?> field : displayCard.getFields()) {
+		for (Field<?> field : formColumn1.getFields()) {
 			field.enable();
+		}
+		for (Field<?> field : formColumn2.getFields()) {
+			field.enable();
+		}
+	}
+	
+	public void disableFields() {
+		for (Field<?> field : formColumn1.getFields()) {
+			field.disable();
+		}
+		for (Field<?> field : formColumn2.getFields()) {
+			field.disable();
 		}
 	}
 
@@ -572,13 +752,26 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 			});
 	}
 	
+	@Override
+	public void onExpand() {
+		super.onExpand();
+		awaken();
+	}
+	
+	@Override
+	public void onCollapse() {
+		super.onCollapse();
+		sleep();
+	}
+	
 	/**
 	 * Turn on the listener timer when waking up.
 	 */
 	@Override
 	public void awaken() {
 		if (this.isExpanded()) {
-			
+			if (dirtyFormListener != null)
+				dirtyFormListener.scheduleRepeating(DIRTY_FORM_LISTEN_TIME);
 		}
 	}
 
@@ -587,6 +780,8 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	 */
 	@Override
 	public void sleep() {
+		if (dirtyFormListener != null)
+			dirtyFormListener.cancel();
 	}
 
 	/**
