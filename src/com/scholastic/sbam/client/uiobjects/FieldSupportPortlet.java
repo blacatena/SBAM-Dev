@@ -36,7 +36,7 @@ public abstract class FieldSupportPortlet extends AppPortlet {
 		newFormPanel.setBodyStyleName("subtle-form");
 		newFormPanel.setButtonAlign(HorizontalAlignment.CENTER);
 		newFormPanel.setLabelAlign(LabelAlign.RIGHT);
-		newFormPanel.setLabelWidth(80);
+		newFormPanel.setLabelWidth(75);
 		
 		return newFormPanel;
 	}

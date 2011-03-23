@@ -69,6 +69,7 @@ import com.scholastic.sbam.shared.objects.SearchResultInstance;
  *
  */
 public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor {
+	private		  boolean	EFFECT_ON			= true;
 	private 	  boolean	DYNAMIC_NAV_ICONS	= false;
 	private final int		DEFAULT_WIDTH		= 650;
 	private final int		DEFAULT_HEIGHT		= 500;
@@ -563,7 +564,7 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 	 * Show the dialog.
 	 */
 	public void show(boolean animate) {
-		super.show(animate);
+		super.show(animate && EFFECT_ON);
 	}
 	
 	/**

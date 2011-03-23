@@ -79,6 +79,14 @@ public class UiConstants {
 		loadTermTypes();
 	}
 	
+	public static void setLoggedIn() {
+		init();
+	}
+	
+	public static void setLoggedOut() {
+		cancel();
+	}
+	
 	public static void setTimer() {
 		if (refreshTimer == null) {
 			refreshTimer = new Timer() {

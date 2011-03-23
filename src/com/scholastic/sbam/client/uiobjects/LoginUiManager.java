@@ -189,7 +189,7 @@ public class LoginUiManager {
 	
 	public void setLoggedIn(Authentication auth) {		
 		//	Initialize application UI constants
-		UiConstants.init();
+		UiConstants.setLoggedIn();
 		
 		//	Set logged in UI controls and values
 		if (displayName != null)
@@ -203,7 +203,7 @@ public class LoginUiManager {
 	
 	public void setLoggedOut() {
 		//	Cancel periodic events
-		UiConstants.cancel();
+		UiConstants.setLoggedOut();
 		
 		//	Clear away any sticky notes
 		destroyStickyNotes();

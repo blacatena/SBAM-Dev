@@ -4,6 +4,7 @@ import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.data.BeanModelReader;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
@@ -48,6 +49,45 @@ public class InstitutionSearchField extends ComboBox<BeanModel> {
 		this.setAllowBlank(false);
 		this.setEditable(true);
 		this.setSimpleTemplate(getMultiLineAddressTemplate());
+	}
+	
+	@Override
+	public boolean isDirty() {
+		if (disabled || !rendered) {
+	    	return false;
+	    }
+	    return !equalWithNull();
+	}
+
+	/**
+	 * Like Util.equalWithNull, but if the values are ModelData with a Store and a KeyProvider, use the key values provided.
+	 * @param obj1
+	 * @param obj2
+	 * @return
+	 */
+	public boolean equalWithNull() {
+		if (getSelectedValue() == originalValue) {
+			return true;
+		} else if (getSelectedValue() == null) {
+			return false;
+		} else if (getSelectedValue() instanceof ModelData && originalValue instanceof ModelData && this.getStore() != null && this.getStore().getKeyProvider() != null) {
+	    	if (originalValue == null)
+	    		return true;
+	    	String key1 = this.getStore().getKeyProvider().getKey(getSelectedValue());
+	    	String key2 = this.getStore().getKeyProvider().getKey(originalValue);
+	    	return (key1.equals(key2));
+	    } else {
+	    	return getSelectedValue().equals(originalValue);
+	    }
+	}
+	
+//	public void dumpValues(String tag) {
+//		if (originalValue == null) System.out.println(tag + ": Original null"); else System.out.println(tag + ": Original " + originalValue.getProperties());
+//		if (value == null) System.out.println(tag + ": Value null"); else System.out.println(tag + ": Value " + value.getProperties());
+//	}
+	
+	public BeanModel getSelectedValue() {
+		return value;
 	}
 	
 	public void onBlur(ComponentEvent ce) {

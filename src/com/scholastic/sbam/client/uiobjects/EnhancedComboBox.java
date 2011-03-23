@@ -22,6 +22,10 @@ public class EnhancedComboBox<M extends ModelData> extends ComboBox<M> {
 	 */
 	private boolean forceSelectionOnBlur = true;
 	
+	public M getSelectedValue() {
+		return value;
+	}
+	
 	@Override
 	protected void onTypeAhead() {
 		if (store.getCount() == 1)
@@ -76,19 +80,19 @@ public class EnhancedComboBox<M extends ModelData> extends ComboBox<M> {
 	 * @param obj2
 	 * @return
 	 */
-	public boolean equalWithNull() { 
-		if (getValue() == originalValue) {
+	public boolean equalWithNull() {
+		if (getSelectedValue() == originalValue) {
 			return true;
-		} else if (getValue() == null) {
+		} else if (getSelectedValue() == null) {
 			return false;
-		} else if (getValue() instanceof ModelData && originalValue instanceof ModelData && this.getStore() != null && this.getStore().getKeyProvider() != null) {
+		} else if (getSelectedValue() instanceof ModelData && originalValue instanceof ModelData && this.getStore() != null && this.getStore().getKeyProvider() != null) {
 	    	if (originalValue == null)
 	    		return true;
-	    	String key1 = this.getStore().getKeyProvider().getKey(getValue());
+	    	String key1 = this.getStore().getKeyProvider().getKey(getSelectedValue());
 	    	String key2 = this.getStore().getKeyProvider().getKey(originalValue);
 	    	return (key1.equals(key2));
 	    } else {
-	    	return getValue().equals(originalValue);
+	    	return getSelectedValue().equals(originalValue);
 	    }
 	}
 

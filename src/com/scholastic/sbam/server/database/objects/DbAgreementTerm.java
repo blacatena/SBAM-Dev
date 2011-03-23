@@ -9,8 +9,16 @@ import org.hibernate.criterion.Restrictions;
 
 import com.scholastic.sbam.server.database.codegen.AgreementTerm;
 import com.scholastic.sbam.server.database.codegen.AgreementTermId;
+import com.scholastic.sbam.server.database.codegen.CancelReason;
+import com.scholastic.sbam.server.database.codegen.CommissionType;
+import com.scholastic.sbam.server.database.codegen.Product;
+import com.scholastic.sbam.server.database.codegen.TermType;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
 import com.scholastic.sbam.shared.objects.AgreementTermInstance;
+import com.scholastic.sbam.shared.objects.CancelReasonInstance;
+import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
+import com.scholastic.sbam.shared.objects.ProductInstance;
+import com.scholastic.sbam.shared.objects.TermTypeInstance;
 
 /**
  * Sample database table accessor class, extending HibernateAccessor, and implementing custom get/find methods.
@@ -108,5 +116,54 @@ public class DbAgreementTerm extends HibernateAccessor {
             System.out.println(e.getMessage());
         }
         return new ArrayList<AgreementTerm>();
+	}
+	
+	public static void setDescriptions(AgreementTermInstance agreementTerm) {
+		if (agreementTerm == null)
+			return;
+		
+		if (agreementTerm.getTermTypeCode() != null) {
+			TermType tType = DbTermType.getByCode(agreementTerm.getTermTypeCode());
+			if (tType != null) {
+				agreementTerm.setTermType(DbTermType.getInstance(tType));
+			} else {
+				agreementTerm.setTermType(TermTypeInstance.getUnknownInstance(agreementTerm.getTermTypeCode()));
+			}
+		} else
+			agreementTerm.setTermType(TermTypeInstance.getUnknownInstance("none"));
+		
+		
+		if (agreementTerm.getCommissionCode() != null && agreementTerm.getCommissionCode().length() > 0) {
+			CommissionType commissionType = DbCommissionType.getByCode(agreementTerm.getCommissionCode());
+			if (commissionType != null) {
+				agreementTerm.setCommissionType(DbCommissionType.getInstance(commissionType));
+			} else {
+				agreementTerm.setCommissionType(CommissionTypeInstance.getUnknownInstance(agreementTerm.getCommissionCode()));
+			}
+		} else
+			agreementTerm.setCommissionType(CommissionTypeInstance.getEmptyInstance());
+		
+		
+		if (agreementTerm.getCancelReasonCode() != null && agreementTerm.getCancelReasonCode().length() > 0) {
+			CancelReason cancelReason = DbCancelReason.getByCode(agreementTerm.getCancelReasonCode());
+			if (cancelReason != null) {
+				agreementTerm.setCancelReason(DbCancelReason.getInstance(cancelReason));
+			} else {
+				agreementTerm.setCancelReason(CancelReasonInstance.getUnknownInstance(agreementTerm.getCancelReasonCode()));
+			}
+		} else
+			agreementTerm.setCancelReason(CancelReasonInstance.getEmptyInstance());
+			
+		
+		if (agreementTerm.getProductCode() != null && agreementTerm.getProductCode().length() > 0) {
+			Product product = DbProduct.getByCode(agreementTerm.getProductCode());
+			if (product != null) {
+				agreementTerm.setProduct(DbProduct.getInstance(product));
+			} else {
+				agreementTerm.setProduct(ProductInstance.getUnknownInstance(agreementTerm.getProductCode()));
+			}
+		} else
+			agreementTerm.setProduct(ProductInstance.getEmptyInstance());
+		
 	}
 }

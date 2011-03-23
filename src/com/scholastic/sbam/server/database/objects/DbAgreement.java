@@ -12,9 +12,15 @@ import org.hibernate.criterion.Restrictions;
 
 import com.scholastic.sbam.server.database.codegen.Agreement;
 import com.scholastic.sbam.server.database.codegen.AgreementTerm;
+import com.scholastic.sbam.server.database.codegen.AgreementType;
+import com.scholastic.sbam.server.database.codegen.CommissionType;
+import com.scholastic.sbam.server.database.codegen.DeleteReason;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
 import com.scholastic.sbam.shared.objects.AgreementInstance;
 import com.scholastic.sbam.shared.objects.AgreementSummaryInstance;
+import com.scholastic.sbam.shared.objects.AgreementTypeInstance;
+import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
+import com.scholastic.sbam.shared.objects.DeleteReasonInstance;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 /**
@@ -305,5 +311,46 @@ public class DbAgreement extends HibernateAccessor {
 				instance.setTerminateDate(agreementTerm.getTerminateDate());
 			}
 		}
+	}
+	
+
+	
+	public static void setDescriptions(AgreementInstance agreement) {
+		if (agreement == null)
+			return;
+		
+		
+		if (agreement.getAgreementTypeCode() != null && agreement.getAgreementTypeCode().length() > 0) {
+			AgreementType agreementType = DbAgreementType.getByCode(agreement.getAgreementTypeCode());
+			if (agreementType != null) {
+				agreement.setAgreementType(DbAgreementType.getInstance(agreementType));
+			} else {
+				agreement.setAgreementType(AgreementTypeInstance.getUnknownInstance(agreement.getAgreementTypeCode()));
+			}
+		} else
+			agreement.setAgreementType(AgreementTypeInstance.getEmptyInstance());
+		
+		
+		if (agreement.getCommissionCode() != null && agreement.getCommissionCode().length() > 0) {
+			CommissionType commissionType = DbCommissionType.getByCode(agreement.getCommissionCode());
+			if (commissionType != null) {
+				agreement.setCommissionType(DbCommissionType.getInstance(commissionType));
+			} else {
+				agreement.setCommissionType(CommissionTypeInstance.getUnknownInstance(agreement.getCommissionCode()));
+			}
+		} else
+			agreement.setCommissionType(CommissionTypeInstance.getEmptyInstance());
+		
+		
+		if (agreement.getDeleteReasonCode() != null && agreement.getDeleteReasonCode().length() > 0) {
+			DeleteReason deleteReason = DbDeleteReason.getByCode(agreement.getDeleteReasonCode());
+			if (deleteReason != null) {
+				agreement.setDeleteReason(DbDeleteReason.getInstance(deleteReason));
+			} else {
+				agreement.setDeleteReason(DeleteReasonInstance.getUnknownInstance(agreement.getDeleteReasonCode()));
+			}
+		} else
+			agreement.setDeleteReason(DeleteReasonInstance.getEmptyInstance());
+		
 	}
 }

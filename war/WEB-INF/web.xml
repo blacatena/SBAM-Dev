@@ -72,6 +72,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>updateAgreementServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateAgreementServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>agreementContactListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.AgreementContactListServiceImpl</servlet-class>
   </servlet>
@@ -389,6 +394,11 @@
   <servlet-mapping>
     <servlet-name>agreementTypeListServlet</servlet-name>
     <url-pattern>/sbam/getAgreementTypes</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateAgreementServlet</servlet-name>
+    <url-pattern>/sbam/updateAgreement</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

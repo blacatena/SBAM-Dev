@@ -12,6 +12,8 @@ public class SimpleKeyProvider implements ModelKeyProvider<BeanModel> {
 
 	@Override
 	public String getKey(BeanModel model) {
-		return keyField;
+		if (model.getProperties().containsKey(keyField))
+			return model.get(keyField).toString();
+		return model.hashCode() + "";
 	}
 }
