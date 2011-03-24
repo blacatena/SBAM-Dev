@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Mar 17, 2011 4:04:45 PM by Hibernate Tools 3.2.4.GA
+// Generated Mar 24, 2011 5:22:08 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -33,6 +33,7 @@ public class Institution implements java.io.Serializable {
 	private String groupCode;
 	private String publicPrivateCode;
 	private String alternateIds;
+	private String source;
 	private Date createdDate;
 	private Date closedDate;
 	private char status;
@@ -43,7 +44,7 @@ public class Institution implements java.io.Serializable {
 	public Institution(int ucn, int parentUcn, String institutionName,
 			String address1, String city, String country, String typeCode,
 			String groupCode, String publicPrivateCode, String alternateIds,
-			char status) {
+			String source, char status) {
 		this.ucn = ucn;
 		this.parentUcn = parentUcn;
 		this.institutionName = institutionName;
@@ -54,6 +55,7 @@ public class Institution implements java.io.Serializable {
 		this.groupCode = groupCode;
 		this.publicPrivateCode = publicPrivateCode;
 		this.alternateIds = alternateIds;
+		this.source = source;
 		this.status = status;
 	}
 
@@ -64,7 +66,7 @@ public class Institution implements java.io.Serializable {
 			String mailAddress3, String mailCity, String mailState,
 			String mailZip, String mailCountry, String typeCode,
 			String groupCode, String publicPrivateCode, String alternateIds,
-			Date createdDate, Date closedDate, char status) {
+			String source, Date createdDate, Date closedDate, char status) {
 		this.ucn = ucn;
 		this.parentUcn = parentUcn;
 		this.institutionName = institutionName;
@@ -89,6 +91,7 @@ public class Institution implements java.io.Serializable {
 		this.groupCode = groupCode;
 		this.publicPrivateCode = publicPrivateCode;
 		this.alternateIds = alternateIds;
+		this.source = source;
 		this.createdDate = createdDate;
 		this.closedDate = closedDate;
 		this.status = status;
@@ -284,6 +287,14 @@ public class Institution implements java.io.Serializable {
 
 	public void setAlternateIds(String alternateIds) {
 		this.alternateIds = alternateIds;
+	}
+
+	public String getSource() {
+		return this.source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
 	}
 
 	public Date getCreatedDate() {

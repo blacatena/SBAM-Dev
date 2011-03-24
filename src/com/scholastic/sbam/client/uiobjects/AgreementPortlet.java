@@ -18,7 +18,6 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -28,7 +27,9 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
+import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -114,6 +115,9 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected LabelField					addressDisplay		= new LabelField();
 	protected NumberField					ucnDisplay			= getIntegerField("UCN");
 	protected LabelField					customerTypeDisplay	= new LabelField();
+	protected NumberField					linkIdField			= FieldFactory.getIntegerField("ID");
+	protected TextField<String>				linkTypeField		= FieldFactory.getTextField("Type");
+	protected MultiField<?>					linkField			= new MultiField<String>("Link", linkIdField, linkTypeField);
 	protected EnhancedComboBox<BeanModel>	agreementTypeField	= getComboField("agreementType", 	"Type",	150,		
 								"The agreement type assigned to this agreement for reporting purposes.",	
 								UiConstants.getAgreementTypes(), "agreementTypeCode", "descriptionAndCode");
@@ -201,7 +205,12 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		
 		if (agreementId > 0)
 			loadAgreement(agreementId);
-		else
+	}
+	
+	@Override
+	protected void afterRender() {
+		super.afterRender();
+		if (agreementId == 0)
 			beginEdit();
 	}
 	
@@ -263,14 +272,19 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		formColumn2.add(statusDisplay, formData90);
 		formColumn2.add(deleteReasonField, formData90);
 		
+		linkIdField.setWidth(60);
+		linkField.setOrientation(Orientation.HORIZONTAL);
+		linkField.setSpacing(20);
+		formColumn1.add(linkField, formData90);
+		
 		addEditSaveButtons(formColumn2);
 		
 		addAgreementTermsGrid();
 		
-		sideBySide.add(formColumn1, new RowData(	0.52,   185, new Margins(0)));
-		sideBySide.add(formColumn2, new RowData(	0.48,   185, new Margins(0)));
-		displayCard.add(sideBySide, new RowData(	1,	    185, new Margins(0)));
-		displayCard.add(formRow2,   new RowData(	1,		  1, new Margins(0)));
+		sideBySide.add(formColumn1, new RowData(	0.52,   200));
+		sideBySide.add(formColumn2, new RowData(	0.48,   200));
+		displayCard.add(sideBySide, new RowData(	1,	    200));
+		displayCard.add(formRow2,   new RowData(	1,		  1));
 	}
 	
 	protected InstitutionSearchField getInstitutionField(String name, String label, int width, String toolTip) {
@@ -504,6 +518,8 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	 */
 	protected void addPanelSwitchTools() {
 		
+		String toggleGroup = "ag" + System.currentTimeMillis();
+		
 		ToolBar toolBar = new ToolBar();
 		toolBar.setAlignment(HorizontalAlignment.CENTER);
 		toolBar.setBorders(false);
@@ -520,7 +536,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 					agreementButton.toggle(true);
 				}  
 			});
-		agreementButton.setToggleGroup("agreementGroup");
+		agreementButton.setToggleGroup(toggleGroup);
 		toolBar.add(agreementButton);
 		
 		termsButton = new ToggleButton("Terms");
@@ -534,7 +550,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 					termsButton.toggle(true);
 				}  
 			});
-		termsButton.setToggleGroup("agreementGroup");
+		termsButton.setToggleGroup(toggleGroup);
 		toolBar.add(termsButton);
 		
 		sitesButton = new ToggleButton("Sites");
@@ -548,7 +564,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 					sitesButton.toggle(true);
 				}  
 			});
-		sitesButton.setToggleGroup("agreementGroup");
+		sitesButton.setToggleGroup(toggleGroup);
 		toolBar.add(sitesButton);
 		
 		methodsButton = new ToggleButton("Access");
@@ -560,7 +576,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 					methodsButton.toggle(true);
 				}
 			});
-		methodsButton.setToggleGroup("agreementGroup");
+		methodsButton.setToggleGroup(toggleGroup);
 		toolBar.add(methodsButton);
 		
 		remoteButton = new ToggleButton("Remote Setup");
@@ -572,7 +588,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 					remoteButton.toggle(true);
 				}
 			});
-		remoteButton.setToggleGroup("agreementGroup");
+		remoteButton.setToggleGroup(toggleGroup);
 		toolBar.add(remoteButton);
 		
 		contactsButton = new ToggleButton("Contacts");
@@ -586,7 +602,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 					contactsButton.toggle(true);
 				}
 			});
-		contactsButton.setToggleGroup("agreementGroup");
+		contactsButton.setToggleGroup(toggleGroup);
 		toolBar.add(contactsButton);
 
 		agreementButton.toggle(true);

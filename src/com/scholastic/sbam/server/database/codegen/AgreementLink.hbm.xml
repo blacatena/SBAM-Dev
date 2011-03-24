@@ -3,19 +3,19 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <!-- Generated Mar 24, 2011 5:22:09 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
-    <class name="com.scholastic.sbam.server.database.codegen.StatsAdmin" table="stats_admin" catalog="sbam">
-        <id name="ucn" type="int">
-            <column name="ucn" />
-            <generator class="assigned" />
+    <class name="com.scholastic.sbam.server.database.codegen.AgreementLink" table="agreement_link" catalog="sbam">
+        <id name="linkId" type="java.lang.Integer">
+            <column name="link_id" />
+            <generator class="identity" />
         </id>
-        <property name="adminUsername" type="string">
-            <column name="admin_username" not-null="true" />
+        <property name="linkIdCheckDigit" type="int">
+            <column name="link_id_check_digit" not-null="true" />
         </property>
-        <property name="adminPassword" type="string">
-            <column name="admin_password" not-null="true" />
+        <property name="ucn" type="int">
+            <column name="ucn" not-null="true" />
         </property>
-        <property name="accessGroup" type="string">
-            <column name="access_group" not-null="true" />
+        <property name="linkTypeCode" type="string">
+            <column name="link_type_code" length="32" not-null="true" />
         </property>
         <property name="note" type="string">
             <column name="note" length="4000" not-null="true" />

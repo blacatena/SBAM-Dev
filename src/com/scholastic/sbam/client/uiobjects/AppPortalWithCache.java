@@ -43,6 +43,12 @@ public class AppPortalWithCache extends Portal {
 	 * @param column
 	 */
 	public void reinsert(Portlet portlet, int index, int column) {
+		//	Use this to fix problems where cached portlet locations are out of bounds
+		if (column >= this.getItemCount())
+			column = getItemCount() - 1;
+		if (index > this.getItem(column).getItemCount())
+			index = this.getItem(column).getItemCount();
+		
 		super.insert(portlet, index, column);
 		if (portlet instanceof AppPortlet) {
 			AppPortlet appPortlet = (AppPortlet) portlet;

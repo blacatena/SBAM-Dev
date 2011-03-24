@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Mar 24, 2011 5:22:09 PM by Hibernate Tools 3.2.4.GA -->
+<hibernate-mapping>
+    <class name="com.scholastic.sbam.server.database.codegen.AlienInstitution" table="alien_institution" catalog="sbam">
+        <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.AlienInstitutionId">
+            <key-property name="ucn" type="int">
+                <column name="ucn" />
+            </key-property>
+            <key-property name="parentUcn" type="int">
+                <column name="parent_ucn" />
+            </key-property>
+            <key-property name="institutionName" type="string">
+                <column name="institution_name" />
+            </key-property>
+            <key-property name="address1" type="string">
+                <column name="address1" />
+            </key-property>
+            <key-property name="address2" type="string">
+                <column name="address2" />
+            </key-property>
+            <key-property name="address3" type="string">
+                <column name="address3" />
+            </key-property>
+            <key-property name="city" type="string">
+                <column name="city" />
+            </key-property>
+            <key-property name="state" type="string">
+                <column name="state" />
+            </key-property>
+            <key-property name="zip" type="string">
+                <column name="zip" />
+            </key-property>
+            <key-property name="country" type="string">
+                <column name="country" />
+            </key-property>
+            <key-property name="webUrl" type="string">
+                <column name="web_url" length="1024" />
+            </key-property>
+            <key-property name="phone" type="string">
+                <column name="phone" />
+            </key-property>
+            <key-property name="fax" type="string">
+                <column name="fax" />
+            </key-property>
+            <key-property name="mailAddress1" type="string">
+                <column name="mail_address1" />
+            </key-property>
+            <key-property name="mailAddress2" type="string">
+                <column name="mail_address2" />
+            </key-property>
+            <key-property name="mailAddress3" type="string">
+                <column name="mail_address3" />
+            </key-property>
+            <key-property name="mailCity" type="string">
+                <column name="mail_city" />
+            </key-property>
+            <key-property name="mailState" type="string">
+                <column name="mail_state" />
+            </key-property>
+            <key-property name="mailZip" type="string">
+                <column name="mail_zip" />
+            </key-property>
+            <key-property name="mailCountry" type="string">
+                <column name="mail_country" />
+            </key-property>
+            <key-property name="typeCode" type="string">
+                <column name="type_code" length="16" />
+            </key-property>
+            <key-property name="groupCode" type="string">
+                <column name="group_code" length="16" />
+            </key-property>
+            <key-property name="publicPrivateCode" type="string">
+                <column name="public_private_code" length="16" />
+            </key-property>
+            <key-property name="alternateIds" type="string">
+                <column name="alternate_ids" />
+            </key-property>
+            <key-property name="source" type="string">
+                <column name="source" length="16" />
+            </key-property>
+            <key-property name="createdDate" type="date">
+                <column name="created_date" length="10" />
+            </key-property>
+            <key-property name="closedDate" type="date">
+                <column name="closed_date" length="10" />
+            </key-property>
+            <key-property name="status" type="char">
+                <column name="status" length="1" />
+            </key-property>
+        </composite-id>
+    </class>
+</hibernate-mapping>

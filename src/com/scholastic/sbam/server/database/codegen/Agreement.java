@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Mar 17, 2011 4:04:45 PM by Hibernate Tools 3.2.4.GA
+// Generated Mar 24, 2011 5:22:08 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -13,6 +13,7 @@ public class Agreement implements java.io.Serializable {
 	private int idCheckDigit;
 	private int billUcn;
 	private int billUcnSuffix;
+	private int agreementLinkId;
 	private String agreementTypeCode;
 	private String commissionCode;
 	private String deleteReasonCode;
@@ -25,12 +26,13 @@ public class Agreement implements java.io.Serializable {
 	}
 
 	public Agreement(int idCheckDigit, int billUcn, int billUcnSuffix,
-			String agreementTypeCode, String commissionCode,
-			String deleteReasonCode, String orgPath, String note,
-			Date createdDatetime, char status) {
+			int agreementLinkId, String agreementTypeCode,
+			String commissionCode, String deleteReasonCode, String orgPath,
+			String note, Date createdDatetime, char status) {
 		this.idCheckDigit = idCheckDigit;
 		this.billUcn = billUcn;
 		this.billUcnSuffix = billUcnSuffix;
+		this.agreementLinkId = agreementLinkId;
 		this.agreementTypeCode = agreementTypeCode;
 		this.commissionCode = commissionCode;
 		this.deleteReasonCode = deleteReasonCode;
@@ -70,6 +72,14 @@ public class Agreement implements java.io.Serializable {
 
 	public void setBillUcnSuffix(int billUcnSuffix) {
 		this.billUcnSuffix = billUcnSuffix;
+	}
+
+	public int getAgreementLinkId() {
+		return this.agreementLinkId;
+	}
+
+	public void setAgreementLinkId(int agreementLinkId) {
+		this.agreementLinkId = agreementLinkId;
 	}
 
 	public String getAgreementTypeCode() {

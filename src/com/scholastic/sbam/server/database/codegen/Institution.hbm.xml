@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Mar 17, 2011 4:04:45 PM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Mar 24, 2011 5:22:09 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.Institution" table="institution" catalog="sbam">
         <id name="ucn" type="int">
@@ -76,6 +76,9 @@
         </property>
         <property name="alternateIds" type="string">
             <column name="alternate_ids" not-null="true" />
+        </property>
+        <property name="source" type="string">
+            <column name="source" length="16" not-null="true" />
         </property>
         <property name="createdDate" type="date">
             <column name="created_date" length="10" />

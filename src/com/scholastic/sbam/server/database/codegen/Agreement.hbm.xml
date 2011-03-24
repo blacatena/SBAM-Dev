@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Mar 17, 2011 4:04:45 PM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Mar 24, 2011 5:22:09 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.Agreement" table="agreement" catalog="sbam">
         <id name="id" type="java.lang.Integer">
@@ -16,6 +16,11 @@
         </property>
         <property name="billUcnSuffix" type="int">
             <column name="bill_ucn_suffix" not-null="true" />
+        </property>
+        <property name="agreementLinkId" type="int">
+            <column name="agreement_link_id" not-null="true">
+                <comment>A field to link together related Agreements for organization purposes</comment>
+            </column>
         </property>
         <property name="agreementTypeCode" type="string">
             <column name="agreement_type_code" length="32" not-null="true" />
