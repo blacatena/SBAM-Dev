@@ -286,7 +286,9 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 				public void componentSelected(ButtonEvent ce) {
 					AgreementPortlet portlet = (AgreementPortlet) portletProvider.getPortlet(AppPortletIds.AGREEMENT_DISPLAY);
 					portlet.setAgreementId(0);
-					portletProvider.addPortlet(portlet, 1);
+					portlet.setCreateForInstitution(focusInstitution);
+					int insertCol = (portalColumn == 0) ? 1 : 0;
+					portletProvider.insertPortlet(portlet, portalRow, insertCol);
 				}  
 			});
 		toolBar.add(newAgreementButton);

@@ -59,7 +59,7 @@ public class AppHolder extends Composite {
 		headerContainer.add(titleContainer, new AnchorData("-100"));
 		titleContainer.setLayout(new CenterLayout());
 		
-		htmlHeader = new Html("<h1>Scholastic Site Based Authentication Management System</h1>");
+		htmlHeader = new Html("<h1><img src=\"resources/images/logo/logo.png\" align=\"absmiddle\" width=\"24\" height=\"24\"/>&nbsp;Scholastic Site Based Authentication Management System</h1>");
 		titleContainer.add(htmlHeader);
 		titleContainer.setWidth("");
 		anchorContainer.add(headerContainer, ad_headerContainer);

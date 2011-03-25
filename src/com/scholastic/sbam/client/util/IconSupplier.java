@@ -30,6 +30,10 @@ public class IconSupplier {
 		return "agreement.png";
 	}
 	
+	public static String getAgreementLinkIconName() {
+		return "agreementlink.png";
+	}
+	
 	public static String getProxyIconName() {
 		return "proxy.png";
 	}
@@ -52,6 +56,10 @@ public class IconSupplier {
 	
 	public static String getInstitutionIconName() {
 		return "institution.png";
+	}
+	
+	public static String getCustomerIconName() {
+		return "customer.png";
 	}
 	
 	public static String getProductIconName() {
