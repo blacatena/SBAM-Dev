@@ -40,6 +40,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.NumberFormat;
@@ -50,6 +51,8 @@ import com.scholastic.sbam.client.services.AgreementGetService;
 import com.scholastic.sbam.client.services.AgreementGetServiceAsync;
 import com.scholastic.sbam.client.services.InstitutionGetService;
 import com.scholastic.sbam.client.services.InstitutionGetServiceAsync;
+import com.scholastic.sbam.client.services.UpdateAgreementNoteService;
+import com.scholastic.sbam.client.services.UpdateAgreementNoteServiceAsync;
 import com.scholastic.sbam.client.services.UpdateAgreementService;
 import com.scholastic.sbam.client.services.UpdateAgreementServiceAsync;
 import com.scholastic.sbam.client.uiobjects.AppPortletIds;
@@ -69,9 +72,10 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	
 	protected final int DIRTY_FORM_LISTEN_TIME = 250;
 	
-	protected final AgreementGetServiceAsync agrementGetService = GWT.create(AgreementGetService.class);
-	private final UpdateAgreementServiceAsync updateAgreementService = GWT.create(UpdateAgreementService.class);
-	protected final InstitutionGetServiceAsync institutionGetService = GWT.create(InstitutionGetService.class);
+	protected final AgreementGetServiceAsync		agrementGetService			= GWT.create(AgreementGetService.class);
+	protected final UpdateAgreementServiceAsync		updateAgreementService		= GWT.create(UpdateAgreementService.class);
+	protected final UpdateAgreementNoteServiceAsync	updateAgreementNoteService	= GWT.create(UpdateAgreementNoteService.class);
+	protected final InstitutionGetServiceAsync		institutionGetService		= GWT.create(InstitutionGetService.class);
 	
 	protected int					agreementId;
 	protected AgreementInstance		agreement;
@@ -108,10 +112,14 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected ToggleButton			methodsButton;
 	protected ToggleButton			remoteButton;
 	protected ToggleButton			contactsButton;
+	
+	protected ToolTipConfig					notesToolTip		= new ToolTipConfig();
 
 	protected FieldSet						termsFieldSet;
 	
+	protected MultiField<String>			valueNotesCombo		= new MultiField<String>("Current Value");
 	protected NumberField					agreementIdField	= getIntegerField("Agreement #");
+	protected NotesIconButtonField<String>	notesField			= getNotesButtonField();
 	protected NumberField					currentValueField	= getDollarField("Current Value");
 	protected LabelField					idTipField			= new LabelField();
 	protected InstitutionSearchField		institutionField	= getInstitutionField("billUcn", "Bill To", 260, "The institution that will pay for the products delivered.");
@@ -264,10 +272,16 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		agreementIdField.setReadOnly(true);
 		currentValueField.setReadOnly(true);
 		ucnDisplay.setReadOnly(true);
-
+		
+		currentValueField.setWidth(120);
+		valueNotesCombo.setSpacing(20);
+		
 		formColumn1.add(agreementIdField, formData90);
 		formColumn1.add(idTipField, formData90);
-		formColumn2.add(currentValueField, formData90);
+		
+		valueNotesCombo.add(currentValueField);	
+		valueNotesCombo.add(notesField);
+		formColumn2.add(valueNotesCombo,    formData90);
 
 		formColumn1.add(institutionField, formData90);
 		
@@ -635,6 +649,17 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 //		this.setSize(grid.getWidth() + 50, 400);  
 	}
 	
+	protected NotesIconButtonField<String> getNotesButtonField() {
+		NotesIconButtonField<String> nibf = new NotesIconButtonField<String>(this) {
+			@Override
+			public void updateNote(String note) {
+				asyncUpdateNote(note);
+			}
+		};
+		nibf.setEmptyNoteText("Click the note icon to add notes for this agreement.");
+		return nibf;
+	}
+	
 	/**
 	 * Set an agreement on the form, and load its institution
 	 * @param agreement
@@ -653,7 +678,17 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 			clearFormValues();
 		} else {
 			agreementIdField.setValue(agreement.getIdCheckDigit());
-			idTipField.setValue(identificationTip);
+			idTipField.setValue(identificationTip);	
+
+			if (agreement.getNote() != null && agreement.getNote().length() > 0) {
+				notesField.setEditMode();	//	notesField.setIconName(IconSupplier.getColorfulIconPath(IconSupplier.getNoteEditIconName()));
+			//	notesField.setText("<img src=\"" + IconSupplier.getColorfulIconPath(IconSupplier.getNoteEditIconName()) +"\" \\>");
+				notesField.setNote(agreement.getNote());
+			} else {
+				notesField.setAddMode();	//	notesField.setIconName(IconSupplier.getColorfulIconPath(IconSupplier.getNoteAddIconName()));
+			//	notesField.setText("<img src=\"" + IconSupplier.getColorfulIconPath(IconSupplier.getNoteAddIconName()) +"\" \\>");
+				notesField.setNote("");			
+			}
 			
 			currentValueField.setValue(agreement.getCurrentValue());
 			
@@ -787,10 +822,12 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	
 	public void disableFields() {
 		for (Field<?> field : formColumn1.getFields()) {
-			field.disable();
+			if (field != valueNotesCombo)
+				field.disable();
 		}
 		for (Field<?> field : formColumn2.getFields()) {
-			field.disable();
+			if (field != valueNotesCombo)
+				field.disable();
 		}
 	}
 
@@ -859,6 +896,11 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 			agreement.setDeleteReasonCode("");
 		} else
 			agreement.setDeleteReason( (DeleteReasonInstance) deleteReasonField.getSelectedValue().getBean() );
+		
+		if (agreement.isNewRecord())
+			agreement.setNote(notesField.getNote());
+		else
+			agreement.setNote(null);
 	
 		//	Issue the asynchronous update request and plan on handling the response
 		updateAgreementService.updateAgreement(agreement,
@@ -886,6 +928,42 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 						}
 						set(updatedAgreement);
 						editButton.enable(); 
+				}
+			});
+	}
+
+	protected void asyncUpdateNote(String note) {
+	
+		// Set field values from form fields
+		
+		if (agreement == null || agreement.isNewRecord()) {
+			return;
+		}
+		
+		agreement.setNote(note);
+	
+		//	Issue the asynchronous update request and plan on handling the response
+		updateAgreementNoteService.updateAgreementNote(agreement,
+				new AsyncCallback<UpdateResponse<AgreementInstance>>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "Agreement note update failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+						notesField.unlockNote();
+					}
+
+					public void onSuccess(UpdateResponse<AgreementInstance> updateResponse) {
+						AgreementInstance updatedAgreement = (AgreementInstance) updateResponse.getInstance();
+						if (!notesField.getNote().equals(updatedAgreement.getNote())) {
+							notesField.setNote(updatedAgreement.getNote());
+							agreement.setNote(updatedAgreement.getNote());
+						}
+						notesField.unlockNote();
 				}
 			});
 	}

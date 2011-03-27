@@ -106,6 +106,18 @@ public class IconSupplier {
 		return "note.png";
 	}
 	
+	public static String getNoteAddIconName() {
+		return "note_add.png";
+	}
+	
+	public static String getNoteDeleteIconName() {
+		return "note_delete.png";
+	}
+	
+	public static String getNoteEditIconName() {
+		return "note_edit.png";
+	}
+	
 	public static String getUsersIconName() {
 		return "users.png";
 	}

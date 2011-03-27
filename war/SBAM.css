@@ -248,6 +248,42 @@ div.x-tree3-el.x-ftree2-node-over img.x-tree3-node-icon {
 	filter:alpha(opacity = 100 )  !important;
 }
 
+div.x-item-disabled *.x-form-trigger.trigger-square {
+	background-image: none;
+}
+	
+*.x-form-field-wrap *.x-form-trigger.trigger-square {
+	background-image:url(resources/themes/xtheme-wheat/images/wheat/form/trigger-square.gif);
+}
+	
+*.x-form-field-wrap *.x-form-trigger.trigger-notes-edit {
+	background-image:url(resources/images/form/trigger-notes-edit.gif);
+}
+	
+*.x-form-field-wrap *.x-form-trigger.trigger-notes-add {
+	background-image:url(resources/images/form/trigger-notes-add.gif);
+}
+
+div.noteToolTip {
+	padding: 5px;
+}
+
+div.noteToolTip div {
+	background-color: #FFEBC0;
+	padding: 5px;
+}
+
+div.noteMargin {
+	padding: 5px;
+}
+
+div.noteText {
+	background-color: #FFEBC0;
+	border: 1px solid #b0813f;
+	border-style: dotted solid solid dotted;
+	padding: 5px;
+}
+
 /* These are necessary, because the theme doesn't "take" -- change these if the theme changes */
 /* Managed now by adding the style "x-panel" wherever needed
 .x-border {

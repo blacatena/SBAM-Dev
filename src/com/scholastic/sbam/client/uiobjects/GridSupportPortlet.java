@@ -133,7 +133,7 @@ public abstract class GridSupportPortlet<I> extends FieldSupportPortlet {
 	}
 	
 	protected RowExpander getNoteExpander() {
-		XTemplate tpl = XTemplate.create("<p style=\"padding: 10px\"><b>Note:</b> {note}</p>");  
+		XTemplate tpl = XTemplate.create("<div class=\"noteMargin\"><div class=\"noteText\"><b>Note:</b> {note}</div></div>");  
 
 		RowExpander noteExpander = new RowExpander() {
 			@Override
