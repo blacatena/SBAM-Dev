@@ -170,6 +170,10 @@ public class IconSupplier {
 		return "done.png";
 	}
 	
+	public static String getLoginIconName() {
+		return "lock.png";
+	}
+	
 	public static String getRefreshIconName() {
 		return "refresh.png";
 	}

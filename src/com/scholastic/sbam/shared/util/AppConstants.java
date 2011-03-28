@@ -1,5 +1,7 @@
 package com.scholastic.sbam.shared.util;
 
+import java.util.HashSet;
+
 public class AppConstants {
 	public static final String VERSION = "0.0.6dev";
 	public static final String VERSION_DESCRIPTION = "In Development.";
@@ -11,6 +13,8 @@ public class AppConstants {
 	public static final char STATUS_INACTIVE	= 'I';
 	public static final char STATUS_DELETED		= 'X';
 	public static final char STATUS_EXPIRED		= 'E';
+	public static final char STATUS_NEW			= 'N';
+	public static final char STATUS_NULL		= '0';
 	public static final char STATUS_ANY_NONE	= (char) 0;
 	
 	public static final char PATH_DELIMITER		= '/';
@@ -61,6 +65,15 @@ public class AppConstants {
     	if (chr.length() > 1)
     		chr = chr.substring(0, 1);
     	return DIGITS.indexOf(chr) >= 0;
+    }
+    
+    public static boolean isNumeric(String term) {
+    	if (term == null || term.length() == 0)
+    		return false;
+    	for (int i = 0; i < term.length(); i++)
+    		if (DIGITS.indexOf(term.charAt(i)) < 0)
+    			return false;
+    	return true;
     }
     
     public static boolean isEmpty(String str) {
@@ -129,6 +142,31 @@ public class AppConstants {
 	    if (sum % 10 == 0)
 	    	return 0;
 	    return (10 - (sum % 10));
+	}
+	
+	public static String [] parseFilterTerms(String filter) {
+		filter = filter.toUpperCase();
+		HashSet<String> terms = new HashSet<String>();
+		if (filter != null) {
+			StringBuffer word = new StringBuffer();
+			for (int i = 0; i < filter.length(); i++) {
+				if ( (filter.charAt(i) >= 'a' && filter.charAt(i) <= 'z')
+				|| 	 (filter.charAt(i) >= 'A' && filter.charAt(i) <= 'Z')
+				||	 (filter.charAt(i) >= '0' && filter.charAt(i) <= '9')) {
+					word.append(filter.charAt(i));
+				} else if (word.length() > 0) {
+					if (!terms.contains(word)) {
+						terms.add(word.toString());
+					}
+					word = new StringBuffer();
+				}
+			}
+			if (word.length() > 0)
+				if (!terms.contains(word.toString())) {
+					terms.add(word.toString());
+				}
+		}
+		return terms.toArray(new String [] {});
 	}
 	
 	public static String getStatusDescription(char status) {

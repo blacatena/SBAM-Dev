@@ -82,6 +82,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>agreementLinkSearchServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.AgreementLinkSearchServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>updateAgreementNoteServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.UpdateAgreementNoteServiceImpl</servlet-class>
   </servlet>
@@ -384,6 +389,11 @@
   <servlet-mapping>
     <servlet-name>agreementContactListServlet</servlet-name>
     <url-pattern>/sbam/getAgreementContacts</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>agreementLinkSearchServlet</servlet-name>
+    <url-pattern>/sbam/searchAgreementLinks</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

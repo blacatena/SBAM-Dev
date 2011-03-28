@@ -23,6 +23,7 @@ import com.scholastic.sbam.shared.objects.InstitutionGroupInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.InstitutionPubPrivInstance;
 import com.scholastic.sbam.shared.objects.InstitutionTypeInstance;
+import com.scholastic.sbam.shared.util.AppConstants;
 
 /**
  * This class acts as a cache, to speed institution searches and sorting.
@@ -644,28 +645,7 @@ public class InstitutionCache implements Runnable {
 	}
 	
 	public String [] parseFilter(String filter) {
-		filter = filter.toUpperCase();
-		HashSet<String> terms = new HashSet<String>();
-		if (filter != null) {
-			StringBuffer word = new StringBuffer();
-			for (int i = 0; i < filter.length(); i++) {
-				if ( (filter.charAt(i) >= 'a' && filter.charAt(i) <= 'z')
-				|| 	 (filter.charAt(i) >= 'A' && filter.charAt(i) <= 'Z')
-				||	 (filter.charAt(i) >= '0' && filter.charAt(i) <= '9')) {
-					word.append(filter.charAt(i));
-				} else if (word.length() > 0) {
-					if (!terms.contains(word)) {
-						terms.add(word.toString());
-					}
-					word = new StringBuffer();
-				}
-			}
-			if (word.length() > 0)
-				if (!terms.contains(word.toString())) {
-					terms.add(word.toString());
-				}
-		}
-		return terms.toArray(new String [] {});
+		return AppConstants.parseFilterTerms(filter);
 	}
 	
 	public String getFilterPair(String first, String second) {

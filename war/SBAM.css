@@ -284,6 +284,23 @@ div.noteText {
 	padding: 5px;
 }
 
+.list-normal {
+}
+
+.list-new {
+	background-color: #EEFFEE;
+	background-image:url(resources/images/icons/colorful/insert.png);
+	background-repeat: no-repeat;
+	padding-left: 20px;
+}
+
+.list-null {
+	background-color: #DDDDDD;
+	background-image:url(resources/images/icons/colorful/remove.png);
+	background-repeat: no-repeat;
+	padding-left: 20px;
+}
+
 /* These are necessary, because the theme doesn't "take" -- change these if the theme changes */
 /* Managed now by adding the style "x-panel" wherever needed
 .x-border {

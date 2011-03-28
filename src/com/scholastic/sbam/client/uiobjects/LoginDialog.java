@@ -5,13 +5,13 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.util.IconHelper;
 //import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Status;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.scholastic.sbam.client.util.IconSupplier;
 
 /**
  * A log in dialog to accept a user name and password, and shield the application from use until validated.
@@ -40,7 +40,7 @@ public class LoginDialog extends EffectsDialog {
 //	    setAnimCollapse(true);
 	    setButtonAlign(HorizontalAlignment.LEFT);
 	    setButtons("");
-	    setIcon(IconHelper.createStyle("user"));
+	    setIcon(IconSupplier.getHeaderIcon(IconSupplier.getLoginIconName()));
 	    setHeading("SBAM Login");
 	    setModal(true);
 	    setBodyBorder(true);

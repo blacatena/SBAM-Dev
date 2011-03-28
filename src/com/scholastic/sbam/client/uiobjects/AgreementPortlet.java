@@ -29,7 +29,6 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -38,6 +37,7 @@ import com.extjs.gxt.ui.client.widget.grid.RowExpander;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
@@ -60,6 +60,7 @@ import com.scholastic.sbam.client.uiobjects.AppSleeper;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.AgreementInstance;
+import com.scholastic.sbam.shared.objects.AgreementLinkInstance;
 import com.scholastic.sbam.shared.objects.AgreementTermInstance;
 import com.scholastic.sbam.shared.objects.AgreementTypeInstance;
 import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
@@ -70,7 +71,8 @@ import com.scholastic.sbam.shared.util.AppConstants;
 
 public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> implements AppSleeper {
 	
-	protected final int DIRTY_FORM_LISTEN_TIME = 250;
+	protected final int DIRTY_FORM_LISTEN_TIME	=	250;
+	protected final int PRESUMED_FORM_HEIGHT	=	225;
 	
 	protected final AgreementGetServiceAsync		agrementGetService			= GWT.create(AgreementGetService.class);
 	protected final UpdateAgreementServiceAsync		updateAgreementService		= GWT.create(UpdateAgreementService.class);
@@ -80,6 +82,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected int					agreementId;
 	protected AgreementInstance		agreement;
 	protected InstitutionInstance	billToInstitution;
+	protected AgreementLinkInstance	agreementLink;
 	protected InstitutionInstance	createForInstitution;
 	protected String				identificationTip	=	"";
 	
@@ -117,7 +120,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 
 	protected FieldSet						termsFieldSet;
 	
-	protected MultiField<String>			valueNotesCombo		= new MultiField<String>("Current Value");
+	protected MultiField<String>			valueNotesCombo		= new MultiField<String>("Curr Value");
 	protected NumberField					agreementIdField	= getIntegerField("Agreement #");
 	protected NotesIconButtonField<String>	notesField			= getNotesButtonField();
 	protected NumberField					currentValueField	= getDollarField("Current Value");
@@ -126,9 +129,12 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected LabelField					addressDisplay		= new LabelField();
 	protected NumberField					ucnDisplay			= getIntegerField("UCN");
 	protected LabelField					customerTypeDisplay	= new LabelField();
-	protected NumberField					linkIdField			= FieldFactory.getIntegerField("ID");
-	protected TextField<String>				linkTypeField		= FieldFactory.getTextField("Type");
-	protected MultiField<?>					linkField			= new MultiField<String>("Link", linkIdField, linkTypeField);
+	protected AgreementLinkSearchField		agreementLinkField	= getAgreementLinkField("linkId", "Link", 260, "A link used to relate associated agreements.");
+	protected LabelField					linkTypeDisplay		= new LabelField();
+	protected FieldSet						linkFieldSet		= new FieldSet();
+//	protected NumberField					linkIdField			= FieldFactory.getIntegerField("ID");
+//	protected TextField<String>				linkTypeField		= FieldFactory.getTextField("Type");
+//	protected MultiField<?>					linkField			= new MultiField<String>("Link", linkIdField, linkTypeField);
 	protected EnhancedComboBox<BeanModel>	agreementTypeField	= getComboField("agreementType", 	"Type",	150,		
 								"The agreement type assigned to this agreement for reporting purposes.",	
 								UiConstants.getAgreementTypes(), "agreementTypeCode", "descriptionAndCode");
@@ -241,13 +247,6 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 //		FormData formData	= new FormData("100%");
 		agreementCard = new LayoutContainer(new RowLayout(Orientation.VERTICAL));
 		
-//		agreementCard.addListener(Events.OnClick, new Listener<BaseEvent>() {
-//			@Override
-//			public void handleEvent(BaseEvent be) {
-//				beginEdit();
-//			}	
-//		});
-		
 		LayoutContainer sideBySide = new LayoutContainer(new RowLayout(Orientation.HORIZONTAL));
 		
 		formColumn1 = getNewFormPanel();
@@ -297,35 +296,44 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 			
 		formColumn2.add(commissionTypeField, formData90); 
 			
-		statusDisplay.setFieldLabel("Status :");
+		statusDisplay.setFieldLabel("Status:");
 		formColumn2.add(statusDisplay, formData90);
 		formColumn2.add(deleteReasonField, formData90);
 		
-		linkIdField.setWidth(60);
-		linkField.setOrientation(Orientation.HORIZONTAL);
-		linkField.setSpacing(20);
-		formColumn1.add(linkField, formData90);
+
+		linkFieldSet.setBorders(true);
+		linkFieldSet.setHeading("Agreement Link");// 		agreementCard.add(new LabelField("<br/><i>Existing Agreements</i>"));
+		linkFieldSet.setCollapsible(true);
+		linkFieldSet.setCheckboxToggle(true);
+		linkFieldSet.collapse();
+		FormLayout fLayout = new FormLayout();
+		fLayout.setLabelWidth(60);
+		linkFieldSet.setLayout(fLayout);
+		linkFieldSet.setToolTip(UiConstants.getQuickTip("Use these fields to associated the agreement with a link."));
+//		linkFieldSet.setLayout(new FitLayout());
+//		linkFieldSet.setHeight(300);
+
+		linkFieldSet.add(agreementLinkField, formData90);
+		linkFieldSet.add(linkTypeDisplay, formData90);
+		formColumn2.add(linkFieldSet);
 		
-		addEditSaveButtons(formColumn2);
+		
+//		linkField.setOrientation(Orientation.HORIZONTAL);
+//		linkField.setSpacing(20);
+//		formColumn1.add(linkField, formData90);
+		
+		addEditSaveButtons(formColumn1);
 		
 		addAgreementTermsGrid();
 		
-		sideBySide.add(formColumn1, new RowData(	0.52,   200));
-		sideBySide.add(formColumn2, new RowData(	0.48,   200));
-		agreementCard.add(sideBySide, new RowData(	1,	    200));
-		agreementCard.add(formRow2,   new RowData(	1,		  1));
+		sideBySide.add(formColumn1, new RowData(	0.52,	PRESUMED_FORM_HEIGHT));
+		sideBySide.add(formColumn2, new RowData(	0.48,	PRESUMED_FORM_HEIGHT));
+		agreementCard.add(sideBySide, new RowData(	1,		PRESUMED_FORM_HEIGHT));
+		agreementCard.add(formRow2,   new RowData(	1,		1));
 	}
 	
 	protected InstitutionSearchField getInstitutionField(String name, String label, int width, String toolTip) {
-        InstitutionSearchField instCombo = new InstitutionSearchField()
-//        {
-//			@Override
-//			public void onSelect(BeanModel model, int index) {
-//				super.onSelect(model, index);
-//				selectInstitution(model);
-//			};
-//		}
-        ;
+        InstitutionSearchField instCombo = new InstitutionSearchField();
 		FieldFactory.setStandard(instCombo, label);
 		
 		if (toolTip != null)
@@ -357,6 +365,41 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 					matchToInstitution( billToInstitution );
 		} else
 			matchToInstitution( (InstitutionInstance) model.getBean() );
+	}
+	
+	protected AgreementLinkSearchField getAgreementLinkField(String name, String label, int width, String toolTip) {
+        AgreementLinkSearchField linkCombo = new AgreementLinkSearchField();
+		FieldFactory.setStandard(linkCombo, label);
+		
+		if (toolTip != null)
+			linkCombo.setToolTip(toolTip);
+		if (width > 0)
+			linkCombo.setWidth(width);
+		linkCombo.setDisplayField("descriptionAndCode");
+		
+		linkCombo.addSelectionChangedListener(new SelectionChangedListener<BeanModel>() {
+
+			@Override
+			public void selectionChanged(SelectionChangedEvent<BeanModel> se) {
+				selectAgreementLink(se.getSelectedItem());
+			}
+			
+		});
+		
+		return linkCombo;
+	}
+	
+	protected void selectAgreementLink(BeanModel model) {
+		if (model == null) {	// No value selected means leave it as is
+			if (agreementLinkField.getSelectedValue() != null)
+				matchToAgreementLink( (AgreementLinkInstance) agreementLinkField.getSelectedValue().getBean() );
+			else
+				if (agreementLinkField.getOriginalValue() != null)
+					matchToAgreementLink( (AgreementLinkInstance) agreementLinkField.getOriginalValue().getBean());
+				else
+					matchToAgreementLink( agreementLink );
+		} else
+			matchToAgreementLink( (AgreementLinkInstance) model.getBean() );
 	}
 	
 	protected void addAgreementTermsGrid() {
@@ -690,6 +733,16 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 				notesField.setNote("");			
 			}
 			
+			if (agreement.getAgreementLinkId() > 0) {
+				agreementLinkField.setValue(AgreementLinkInstance.obtainModel(agreement.getAgreementLink()));
+				linkTypeDisplay.setValue(agreement.getAgreementLink().getLinkType().getDescription());
+				linkFieldSet.expand();
+			} else {
+				agreementLinkField.setValue(AgreementLinkInstance.obtainModel(agreement.getAgreementLink()));
+				linkTypeDisplay.setValue("");
+				linkFieldSet.collapse();
+			}
+			
 			currentValueField.setValue(agreement.getCurrentValue());
 			
 //			ucnDisplay.setValue(agreement.getBillUcn());
@@ -704,6 +757,8 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 			
 			addressDisplay.setValue("<i>Loading...</i>");
 //			customerTypeDisplay.setValue("");
+			
+			
 			
 			statusDisplay.setValue(AppConstants.getStatusDescription(agreement.getStatus()));
 			agreementTypeField.setValue(AgreementTypeInstance.obtainModel(agreement.getAgreementType()));
@@ -761,6 +816,17 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		ucnDisplay.setValue(instance.getUcn());
 		addressDisplay.setValue(instance.getHtmlAddress());
 		customerTypeDisplay.setValue(instance.getPublicPrivateDescription() + " / " + instance.getGroupDescription() + " &rArr; " + instance.getTypeDescription());
+	}
+	
+	protected void matchToAgreementLink(AgreementLinkInstance instance) {
+//		agreementLinkBinding.bind(AgreementLinkInstance.obtainModel(billToAgreementLink));
+		
+		if (instance == null || instance.getLinkType() == null) {
+			linkTypeDisplay.setValue("");
+			return;
+		}
+		
+		linkTypeDisplay.setValue(instance.getLinkType().getDescription());
 	}
 	
 	public void beginEdit() {
@@ -897,10 +963,16 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		} else
 			agreement.setDeleteReason( (DeleteReasonInstance) deleteReasonField.getSelectedValue().getBean() );
 		
+		if (linkFieldSet.isExpanded() && agreementLinkField.getValue() != null)
+			agreement.setAgreementLink( (AgreementLinkInstance) agreementLinkField.getValue().getBean());
+		else
+			if (agreement.getAgreementLinkId() > 0)
+				agreement.setAgreementLinkId( - agreement.getAgreementLinkId() );	//	"Delete" by negating
+		
 		if (agreement.isNewRecord())
 			agreement.setNote(notesField.getNote());
 		else
-			agreement.setNote(null);
+			agreement.setNote(null);	//	This will keep the note from being updated by this call
 	
 		//	Issue the asynchronous update request and plan on handling the response
 		updateAgreementService.updateAgreement(agreement,

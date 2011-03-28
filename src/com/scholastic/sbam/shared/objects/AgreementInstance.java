@@ -13,6 +13,7 @@ public class AgreementInstance extends BetterRowEditInstance implements BeanMode
 	private int		idCheckDigit;
 	private int		billUcn;
 	private int		billUcnSuffix;
+	private int		agreementLinkId;
 	private String	agreementTypeCode;
 	private String	commissionCode;
 	private String	deleteReasonCode;
@@ -28,6 +29,7 @@ public class AgreementInstance extends BetterRowEditInstance implements BeanMode
 	private CommissionTypeInstance	commissionType;
 	private DeleteReasonInstance	deleteReason;
 	private InstitutionInstance		institution;
+	private AgreementLinkInstance	agreementLink;
 	
 	private List<AgreementTermInstance> agreementTerms;
 	
@@ -115,6 +117,14 @@ public class AgreementInstance extends BetterRowEditInstance implements BeanMode
 
 	public void setBillUcnSuffix(int billUcnSuffix) {
 		this.billUcnSuffix = billUcnSuffix;
+	}
+
+	public int getAgreementLinkId() {
+		return agreementLinkId;
+	}
+
+	public void setAgreementLinkId(int agreementLinkId) {
+		this.agreementLinkId = agreementLinkId;
 	}
 
 	public String getAgreementTypeCode() {
@@ -215,6 +225,18 @@ public class AgreementInstance extends BetterRowEditInstance implements BeanMode
 			this.billUcn = 0;
 		else
 			this.billUcn = institution.getUcn();
+	}
+
+	public AgreementLinkInstance getAgreementLink() {
+		return agreementLink;
+	}
+
+	public void setAgreementLink(AgreementLinkInstance agreementLink) {
+		this.agreementLink = agreementLink;
+		if (agreementLink == null)
+			this.agreementLinkId = 0;
+		else
+			this.agreementLinkId = agreementLink.getLinkId();
 	}
 
 	public void setAgreementTerms(List<AgreementTermInstance> agreementTerms) {

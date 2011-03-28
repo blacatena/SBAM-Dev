@@ -11,12 +11,14 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 import com.scholastic.sbam.server.database.codegen.Agreement;
+import com.scholastic.sbam.server.database.codegen.AgreementLink;
 import com.scholastic.sbam.server.database.codegen.AgreementTerm;
 import com.scholastic.sbam.server.database.codegen.AgreementType;
 import com.scholastic.sbam.server.database.codegen.CommissionType;
 import com.scholastic.sbam.server.database.codegen.DeleteReason;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
 import com.scholastic.sbam.shared.objects.AgreementInstance;
+import com.scholastic.sbam.shared.objects.AgreementLinkInstance;
 import com.scholastic.sbam.shared.objects.AgreementSummaryInstance;
 import com.scholastic.sbam.shared.objects.AgreementTypeInstance;
 import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
@@ -318,6 +320,18 @@ public class DbAgreement extends HibernateAccessor {
 	public static void setDescriptions(AgreementInstance agreement) {
 		if (agreement == null)
 			return;
+		
+		
+		if (agreement.getAgreementLinkId() > 0) {
+			AgreementLink agreementLink = DbAgreementLink.getById(agreement.getAgreementLinkId());
+			if (agreementLink != null) {
+				agreement.setAgreementLink(DbAgreementLink.getInstance(agreementLink));
+				DbAgreementLink.setDescriptions(agreement.getAgreementLink());
+			} else {
+				agreement.setAgreementLink(AgreementLinkInstance.getUnknownInstance(agreement.getAgreementLinkId()));
+			}
+		} else
+			agreement.setAgreementLink(AgreementLinkInstance.getEmptyInstance());
 		
 		
 		if (agreement.getAgreementTypeCode() != null && agreement.getAgreementTypeCode().length() > 0) {
