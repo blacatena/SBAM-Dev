@@ -108,7 +108,9 @@ public class FieldFactory {
 		combo.setValueField(valueField);
 		combo.setTypeAhead(true);
 		combo.setTriggerStyle("trigger-square");
-		
+		if (width > 0)
+			combo.setWidth(width);
+			
 		if (toolTip != null)
 			combo.setToolTip(toolTip);
 //		if (validator != null)

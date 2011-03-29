@@ -1,28 +1,28 @@
 package com.scholastic.sbam.server.servlets;
 
-import com.scholastic.sbam.client.services.UpdateAgreementNoteService;
-import com.scholastic.sbam.server.database.codegen.Agreement;
-import com.scholastic.sbam.server.database.objects.DbAgreement;
+import com.scholastic.sbam.client.services.UpdateAgreementTermNoteService;
+import com.scholastic.sbam.server.database.codegen.AgreementTerm;
+import com.scholastic.sbam.server.database.objects.DbAgreementTerm;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
-import com.scholastic.sbam.shared.objects.AgreementInstance;
+import com.scholastic.sbam.shared.objects.AgreementTermInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
 
 /**
  * The server side implementation of the RPC service.
  */
 @SuppressWarnings("serial")
-public class UpdateAgreementNoteServiceImpl extends AuthenticatedServiceServlet implements UpdateAgreementNoteService {
+public class UpdateAgreementTermNoteServiceImpl extends AuthenticatedServiceServlet implements UpdateAgreementTermNoteService {
 
 	@Override
-	public UpdateResponse<AgreementInstance> updateAgreementNote(AgreementInstance instance) throws IllegalArgumentException {
+	public UpdateResponse<AgreementTermInstance> updateAgreementTermNote(AgreementTermInstance instance) throws IllegalArgumentException {
 		
 		if (instance.isNewRecord() || instance.getId() <= 0)
-			throw new IllegalArgumentException("Notes can only be updated for an existing agreement.");
+			throw new IllegalArgumentException("Notes can only be updated for an existing agreement term.");
 		
-		Agreement dbInstance = null;
+		AgreementTerm dbInstance = null;
 		
-		authenticate("update agreement note", SecurityManager.ROLE_MAINT);
+		authenticate("update agreement term note", SecurityManager.ROLE_MAINT);
 		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();
@@ -30,9 +30,9 @@ public class UpdateAgreementNoteServiceImpl extends AuthenticatedServiceServlet 
 		try {
 			
 			//	Get existing, or create new
-			dbInstance = DbAgreement.getById(instance.getId());
+			dbInstance = DbAgreementTerm.getById(instance.getAgreementId(), instance.getId());
 			if (dbInstance == null)
-				throw new IllegalArgumentException("Agreement " + instance.getId() + " not found.");
+				throw new IllegalArgumentException("Agreement Term " + instance.getId() + " not found.");
 				
 
 			//	Update values
@@ -44,7 +44,7 @@ public class UpdateAgreementNoteServiceImpl extends AuthenticatedServiceServlet 
 			}
 			
 			//	Persist in database
-			DbAgreement.persist(dbInstance);
+			DbAgreementTerm.persist(dbInstance);
 			
 		} catch (IllegalArgumentException exc) {
 			silentRollback();
@@ -52,14 +52,14 @@ public class UpdateAgreementNoteServiceImpl extends AuthenticatedServiceServlet 
 		} catch (Exception exc) {
 			silentRollback();
 			exc.printStackTrace();
-			throw new IllegalArgumentException("The agreement note update failed unexpectedly.");
+			throw new IllegalArgumentException("The agreement term note update failed unexpectedly.");
 		} finally {
 			if (HibernateUtil.isTransactionInProgress())
 				HibernateUtil.endTransaction();
 			HibernateUtil.closeSession();
 		}
 		
-		return new UpdateResponse<AgreementInstance>(instance);
+		return new UpdateResponse<AgreementTermInstance>(instance);
 	}
 	
 	private void silentRollback() {

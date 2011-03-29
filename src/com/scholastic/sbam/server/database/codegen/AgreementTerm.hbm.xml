@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Mar 24, 2011 5:22:09 PM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Mar 29, 2011 4:59:06 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.AgreementTerm" table="agreement_term" catalog="sbam">
         <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.AgreementTermId">
@@ -67,8 +67,8 @@
                 <comment>The subset of the org path to be used for primary reporting purposes (i.e. group all terms together to determine main start/end dates)</comment>
             </column>
         </property>
-        <property name="primary" type="char">
-            <column name="primary" length="1" not-null="true">
+        <property name="primaryTerm" type="char">
+            <column name="primary_term" length="1" not-null="true">
                 <comment>Flag (y/n) to determine if a product term, within a group of terms, represents the primary (reporting) dates for that group</comment>
             </column>
         </property>

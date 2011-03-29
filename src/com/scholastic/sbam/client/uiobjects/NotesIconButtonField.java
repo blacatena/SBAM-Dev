@@ -43,6 +43,7 @@ public class NotesIconButtonField<D> extends IconButtonField<D> {
 	
 	public NotesIconButtonField(LayoutContainer constrainContainer) {
 		this.constrainContainer = constrainContainer;
+		this.setTriggerStyle("trigger-notes-add");
 	}
 	
 	/**
@@ -73,13 +74,15 @@ public class NotesIconButtonField<D> extends IconButtonField<D> {
 	public void setEditMode() {
 		editMode = true;
 		this.setTriggerStyle("trigger-notes-edit");
-		trigger.dom.setClassName("x-form-trigger " + triggerStyle);
+		if (trigger != null && trigger.dom != null)
+			trigger.dom.setClassName("x-form-trigger " + triggerStyle);
 	}
 
 	public void setAddMode() {
 		editMode = false;
 		this.setTriggerStyle("trigger-notes-add");
-		trigger.dom.setClassName("x-form-trigger " + triggerStyle);
+		if (trigger != null && trigger.dom != null)
+			trigger.dom.setClassName("x-form-trigger " + triggerStyle);
 	}
 	
 	/**
@@ -130,7 +133,7 @@ public class NotesIconButtonField<D> extends IconButtonField<D> {
 			}
 		};
 		
-	    simple.setHeading("Dialog Test");  
+	    simple.setHeading("Notes");
 	    simple.setButtons(Dialog.OKCANCEL);
 	    
 	    //	Rename the OK button to Save

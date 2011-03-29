@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Mar 24, 2011 5:22:08 PM by Hibernate Tools 3.2.4.GA
+// Generated Mar 29, 2011 4:59:05 PM by Hibernate Tools 3.2.4.GA
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -28,7 +28,7 @@ public class AgreementTerm implements java.io.Serializable {
 	private String commissionCode;
 	private String orgPath;
 	private String primaryOrgPath;
-	private char primary;
+	private char primaryTerm;
 	private String note;
 	private Date createdDatetime;
 	private char status;
@@ -40,7 +40,7 @@ public class AgreementTerm implements java.io.Serializable {
 			String termType, BigDecimal dollarValue, int workstations,
 			int buildings, int population, int enrollment, String poNumber,
 			int referenceSaId, String commissionCode, String orgPath,
-			String primaryOrgPath, char primary, String note,
+			String primaryOrgPath, char primaryTerm, String note,
 			Date createdDatetime, char status) {
 		this.id = id;
 		this.productCode = productCode;
@@ -55,7 +55,7 @@ public class AgreementTerm implements java.io.Serializable {
 		this.commissionCode = commissionCode;
 		this.orgPath = orgPath;
 		this.primaryOrgPath = primaryOrgPath;
-		this.primary = primary;
+		this.primaryTerm = primaryTerm;
 		this.note = note;
 		this.createdDatetime = createdDatetime;
 		this.status = status;
@@ -66,8 +66,8 @@ public class AgreementTerm implements java.io.Serializable {
 			String cancelReasonCode, Date cancelDate, BigDecimal dollarValue,
 			int workstations, int buildings, int population, int enrollment,
 			String poNumber, int referenceSaId, String commissionCode,
-			String orgPath, String primaryOrgPath, char primary, String note,
-			Date createdDatetime, char status) {
+			String orgPath, String primaryOrgPath, char primaryTerm,
+			String note, Date createdDatetime, char status) {
 		this.id = id;
 		this.productCode = productCode;
 		this.startDate = startDate;
@@ -86,7 +86,7 @@ public class AgreementTerm implements java.io.Serializable {
 		this.commissionCode = commissionCode;
 		this.orgPath = orgPath;
 		this.primaryOrgPath = primaryOrgPath;
-		this.primary = primary;
+		this.primaryTerm = primaryTerm;
 		this.note = note;
 		this.createdDatetime = createdDatetime;
 		this.status = status;
@@ -236,12 +236,12 @@ public class AgreementTerm implements java.io.Serializable {
 		this.primaryOrgPath = primaryOrgPath;
 	}
 
-	public char getPrimary() {
-		return this.primary;
+	public char getPrimaryTerm() {
+		return this.primaryTerm;
 	}
 
-	public void setPrimary(char primary) {
-		this.primary = primary;
+	public void setPrimaryTerm(char primaryTerm) {
+		this.primaryTerm = primaryTerm;
 	}
 
 	public String getNote() {

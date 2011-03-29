@@ -7,9 +7,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
-import com.extjs.gxt.ui.client.data.BeanModel;
-import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.extjs.gxt.ui.client.data.BeanModel;import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -66,6 +64,7 @@ import com.scholastic.sbam.shared.objects.AgreementTypeInstance;
 import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
 import com.scholastic.sbam.shared.objects.DeleteReasonInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
+import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.util.AppConstants;
 
@@ -95,11 +94,11 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected AgreementTermsCard	termsCard;
 	protected AgreementSitesCard	sitesCard;
 	protected AgreementContactsCard	contactsCard;
-	protected Grid<ModelData>		grid;
+	protected Grid<BeanModel>		grid;
 	protected LiveGridView			liveView;
 //	protected FormBinding			institutionBinding;
 	
-	protected ListStore<ModelData>	store;
+	protected ListStore<BeanModel>	store;
 	
 	protected PagingLoader<PagingLoadResult<InstitutionInstance>> institutionLoader;
 	
@@ -146,8 +145,8 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 								"The reason for deleting this agreement.",	
 								UiConstants.getDeleteReasons(), "deleteReasonCode", "descriptionAndCode");
 
-	protected ListStore<ModelData>	termsStore;
-	protected Grid<ModelData>		termsGrid;
+	protected ListStore<BeanModel>	termsStore;
+	protected Grid<BeanModel>		termsGrid;
 	
 	public AgreementPortlet() {
 		super(AppPortletIds.AGREEMENT_DISPLAY.getHelpTextId());
@@ -218,6 +217,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		outerContainer.add(agreementCard);
 		
 		termsCard = new AgreementTermsCard();
+		termsCard.setAgreementGridStore(termsStore);
 		outerContainer.add(termsCard);
 		
 		sitesCard = new AgreementSitesCard();
@@ -422,9 +422,10 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		
 		ColumnModel cm = new ColumnModel(columns);  
 
-		termsStore = new ListStore<ModelData>();
+		termsStore = new ListStore<BeanModel>();
+		termsStore.setKeyProvider(new SimpleKeyProvider("uniqueKey"));
 		
-		termsGrid = new Grid<ModelData>(termsStore, cm); 
+		termsGrid = new Grid<BeanModel>(termsStore, cm); 
 		termsGrid.addPlugin(expander);
 		termsGrid.setBorders(true);  
 		termsGrid.setAutoExpandColumn("product.description"); 
@@ -724,12 +725,10 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 			idTipField.setValue(identificationTip);	
 
 			if (agreement.getNote() != null && agreement.getNote().length() > 0) {
-				notesField.setEditMode();	//	notesField.setIconName(IconSupplier.getColorfulIconPath(IconSupplier.getNoteEditIconName()));
-			//	notesField.setText("<img src=\"" + IconSupplier.getColorfulIconPath(IconSupplier.getNoteEditIconName()) +"\" \\>");
+				notesField.setEditMode();
 				notesField.setNote(agreement.getNote());
 			} else {
-				notesField.setAddMode();	//	notesField.setIconName(IconSupplier.getColorfulIconPath(IconSupplier.getNoteAddIconName()));
-			//	notesField.setText("<img src=\"" + IconSupplier.getColorfulIconPath(IconSupplier.getNoteAddIconName()) +"\" \\>");
+				notesField.setAddMode();
 				notesField.setNote("");			
 			}
 			
@@ -748,7 +747,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 //			ucnDisplay.setValue(agreement.getBillUcn());
 //			institutionField.setValue(InstitutionInstance.obtainModel(agreement.getInstitution()));
 			
-			ListStore<ModelData> store = termsStore;
+			ListStore<BeanModel> store = termsStore;
 			store.removeAll();
 			if (agreement.getAgreementTerms() != null)
 				for (AgreementTermInstance agreementTerm : agreement.getAgreementTerms()) {
@@ -867,7 +866,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	public void setOriginalValues(FormPanel formPanel) {
 		for (Field<?> field : formPanel.getFields()) {
 			if (field instanceof EnhancedComboBox) {
-				EnhancedComboBox<ModelData>  ecb = (EnhancedComboBox<ModelData>) field;
+				EnhancedComboBox<BeanModel>  ecb = (EnhancedComboBox<BeanModel>) field;
 				ecb.setOriginalValue(ecb.getSelectedValue());
 			} else if (field instanceof InstitutionSearchField) {
 				InstitutionSearchField  isf = (InstitutionSearchField) field;

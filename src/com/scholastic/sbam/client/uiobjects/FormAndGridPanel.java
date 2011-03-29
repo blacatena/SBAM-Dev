@@ -7,12 +7,12 @@ import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.data.ModelData;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
@@ -23,17 +23,37 @@ import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.scholastic.sbam.client.util.IconSupplier;
 
 public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContainer<ModelInstance> {
 	
+	public final static int		DIRTY_FORM_LISTEN_TIME	=	250;
+	
+	public final static String EDIT_BUTTON		= "E";
+	public final static String CANCEL_BUTTON	= "C";
+	public final static String NEW_BUTTON		= "N";
+	public final static String SAVE_BUTTON		= "S";
+	
 	protected FormAndGridPanel<ModelInstance>	mainContainer	= this;
+	
+	protected Timer					dirtyFormListener;
+	protected int					dirtyFormListenTime = DIRTY_FORM_LISTEN_TIME;
+	
+	protected ToolBar				editToolBar;
+	protected Button				editButton;
+	protected Button				cancelButton;
+	protected Button				saveButton;
+	protected Button				newButton;
+	protected String				useButtons = NEW_BUTTON + EDIT_BUTTON + CANCEL_BUTTON + SAVE_BUTTON;
 	
 	protected FormPanel				formPanel;
 	protected ContentPanel			gridPanel;
-	protected ListStore<ModelData>	gridStore;
-	protected Grid<ModelData>		grid;
+	protected ListStore<BeanModel>	gridStore;
+	protected Grid<BeanModel>		grid;
 	
 	protected int					focusId;
 	protected ModelInstance			focusInstance;
@@ -119,12 +139,14 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		
 		addFormFields(formPanel, formData);
 		
-		formPanel.addListener(Events.OnClick, new Listener<BaseEvent>() {
-			@Override
-			public void handleEvent(BaseEvent be) {
-				enableFields();
-			}	
-		});
+//		formPanel.addListener(Events.OnClick, new Listener<BaseEvent>() {
+//			@Override
+//			public void handleEvent(BaseEvent be) {
+//				enableFields();
+//			}	
+//		});
+		
+		addEditSaveButtons();
 		
 //		Button doneButton = new Button("Done");
 //		doneButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -153,7 +175,7 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		gridPanel.setBodyStyleName("subtle-form");
 		gridPanel.setButtonAlign(HorizontalAlignment.CENTER);
 		
-		gridPanel.add(getAgreementTermsGrid(formData));
+		gridPanel.add(getGrid(formData));
 		
 		add(formPanel);
 		add(gridPanel);
@@ -217,7 +239,214 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		formPanel.collapse();
 	}
 	
-	protected Grid<ModelData> getAgreementTermsGrid(FormData formData) {
+	protected FormPanel getNewFormPanel() {
+		return getNewFormPanel(75);
+	}
+	
+	protected FormPanel getNewFormPanel(int labelWidth) {
+		FormPanel newFormPanel = new FormPanel();
+		
+		newFormPanel.setFrame(false); // true
+		newFormPanel.setHeaderVisible(false);  
+		newFormPanel.setBodyBorder(false);	// true
+		newFormPanel.setBorders(false);
+		newFormPanel.setBodyStyleName("subtle-form");
+		newFormPanel.setButtonAlign(HorizontalAlignment.CENTER);
+		newFormPanel.setLabelAlign(LabelAlign.RIGHT);
+		newFormPanel.setLabelWidth(labelWidth);
+		
+		return newFormPanel;
+	}
+	
+	protected void addEditSaveButtons() {
+		addEditSaveButtons(formPanel, useButtons);
+	}
+	
+	protected void addEditSaveButtons(String buttons) {
+		addEditSaveButtons(formPanel, buttons);
+	}
+	
+	protected void addEditSaveButtons(FormPanel targetPanel) {
+		addEditSaveButtons(targetPanel, useButtons);
+	}
+	
+	/**
+	 * Use this to add the standard New/Edit/Cancel/Save buttons to the top panel.
+	 * 
+	 * The buttons parameter can be set with a combination of button ids using the constants, such as NEW_BUTTON + SAVE_BUTTON
+	 * 
+	 * @param targetPanel
+	 * @param buttons
+	 */
+	protected void addEditSaveButtons(FormPanel targetPanel, String buttons) {
+		if (useButtons == null)
+			return;
+		
+		editToolBar = new ToolBar();
+		editToolBar.setAlignment(HorizontalAlignment.CENTER);
+		editToolBar.setBorders(false);
+		editToolBar.setSpacing(20);
+		editToolBar.setMinButtonWidth(60);
+//		toolBar.addStyleName("clear-toolbar");
+
+		if (buttons.length() == 0 || buttons.contains(NEW_BUTTON)) {
+			newButton = new Button("New");
+			IconSupplier.forceIcon(newButton, IconSupplier.getNewIconName());
+			newButton.disable();
+			newButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+				@Override
+				public void componentSelected(ButtonEvent ce) {
+					handleNew();
+				}  
+			});
+			editToolBar.add(newButton);
+		}
+		
+		if (buttons.length() == 0 || buttons.contains(EDIT_BUTTON)) {
+			editButton = new Button("Edit");
+			IconSupplier.forceIcon(editButton, IconSupplier.getEditIconName());
+			editButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+				@Override
+				public void componentSelected(ButtonEvent ce) {
+					beginEdit();
+				}  
+			});
+			editToolBar.add(editButton);
+		}
+
+		if (buttons.length() == 0 || buttons.contains(CANCEL_BUTTON)) {
+			cancelButton = new Button("Cancel");
+			IconSupplier.forceIcon(cancelButton, IconSupplier.getCancelIconName());
+			cancelButton.disable();
+			cancelButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+				@Override
+				public void componentSelected(ButtonEvent ce) {
+					endEdit(false);
+				}  
+			});
+			editToolBar.add(cancelButton);
+		}
+
+		if (buttons.length() == 0 || buttons.contains(SAVE_BUTTON)) {
+			saveButton = new Button("Save");
+			IconSupplier.forceIcon(saveButton, IconSupplier.getSaveIconName());
+			saveButton.disable();
+			saveButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+				@Override
+				public void componentSelected(ButtonEvent ce) {
+					handleSave();
+				}  
+			});
+			editToolBar.add(saveButton);
+		}
+		
+		targetPanel.setBottomComponent(editToolBar);
+		
+		addDirtyFormListener();
+	}
+	
+	protected void addDirtyFormListener() {
+		if (dirtyFormListener == null) {
+			dirtyFormListener = new Timer() {
+
+				@Override
+				public void run() {
+					if (isDirtyForm())
+						handleDirtyForm();
+					else
+						handleCleanForm();
+				}
+				
+			};
+		}
+		
+		dirtyFormListener.scheduleRepeating(dirtyFormListenTime);
+	}
+	
+	/**
+	 * Override this to determine if the current form is considered dirty.
+	 * @return
+	 */
+	protected boolean isDirtyForm() {
+		return focusInstance == null || formPanel.isDirty();
+	}
+	
+	/**
+	 * Override this to take action when the user wishes to create a new entry
+	 */
+	protected void handleNew() {
+		
+	}
+	
+	/**
+	 * Override this to perform any special checks or warnings/confirmations before doing a save.
+	 * The default behavior is to simple do an endEdit(true).
+	 */
+	protected void handleSave() {
+		endEdit(true);
+	}
+	
+	protected void handleDirtyForm() {
+		if (isFormValidAndReady())
+			saveButton.enable();
+		else
+			saveButton.disable();
+	}
+	
+	protected boolean isFormValidAndReady() {
+		return true;
+	}
+	
+	protected void handleCleanForm() {
+		if (saveButton != null) saveButton.disable();
+	}
+	
+	public void beginEdit() {
+		if (editButton != null) editButton.disable();
+		if (cancelButton != null) cancelButton.enable();
+		enableFields();
+	}
+
+	public void endEdit(boolean save) {
+		if (cancelButton != null) cancelButton.disable();
+		if (saveButton != null) saveButton.disable();
+		disableFields();
+		if (save) {
+			if (editButton != null) editButton.disable();	//	Disable this ...let the update enable it when the response arrives
+			asyncUpdate();
+		} else {
+			resetFormValues();
+			if (editButton != null) editButton.enable();
+		}
+	}
+	
+	protected void asyncUpdate() {
+		
+	}
+	
+	protected void resetFormValues() {
+		formPanel.reset();
+	}
+	
+	public void setOriginalValues() {
+		setOriginalValues(formPanel);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void setOriginalValues(FormPanel formPanel) {
+		for (Field<?> field : formPanel.getFields()) {
+			if (field instanceof EnhancedComboBox) {
+				EnhancedComboBox<ModelData>  ecb = (EnhancedComboBox<ModelData>) field;
+				ecb.setOriginalValue(ecb.getSelectedValue());
+			} else if (field instanceof InstitutionSearchField) {
+				InstitutionSearchField  isf = (InstitutionSearchField) field;
+				isf.setOriginalValue(isf.getSelectedValue());
+			} else
+			((Field<Object>) field).setOriginalValue(field.getValue());
+		}
+	}
+	
+	protected Grid<BeanModel> getGrid(FormData formData) {
 
 		gridFilters = new GridFilters(); // Have to create this here, before adding the grid columns, so the filters get created with the columns
 		
@@ -227,9 +456,9 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		
 		ColumnModel cm = new ColumnModel(columns);  
 
-		gridStore = new ListStore<ModelData>();
+		gridStore = new ListStore<BeanModel>();
 		
-		grid = new Grid<ModelData>(gridStore, cm); 
+		grid = new Grid<BeanModel>(gridStore, cm); 
 //		grid.addPlugin(expander);
 		grid.setBorders(true);  
 //		grid.setAutoExpandColumn(autoExpandColumn);  
@@ -328,19 +557,19 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		this.gridPanel = gridPanel;
 	}
 
-	public ListStore<ModelData> getGridStore() {
+	public ListStore<BeanModel> getGridStore() {
 		return gridStore;
 	}
 
-	public void setGridStore(ListStore<ModelData> gridStore) {
+	public void setGridStore(ListStore<BeanModel> gridStore) {
 		this.gridStore = gridStore;
 	}
 
-	public Grid<ModelData> getGrid() {
+	public Grid<BeanModel> getGrid() {
 		return grid;
 	}
 
-	public void setGrid(Grid<ModelData> grid) {
+	public void setGrid(Grid<BeanModel> grid) {
 		this.grid = grid;
 	}
 	
@@ -356,7 +585,7 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	 * Override to add any plug-ins to the grid.
 	 * @param grid
 	 */
-	public void addGridPlugins(Grid<ModelData> grid) {
+	public void addGridPlugins(Grid<BeanModel> grid) {
 //		For example:
 //		grid.addPlugin(expander);
 	}
@@ -365,9 +594,15 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	 * Override to set any further grid atrributes, such as the autoExpandColumn.
 	 * @param grid
 	 */
-	public void setGridAttributes(Grid<ModelData> grid) {
+	public void setGridAttributes(Grid<BeanModel> grid) {
 //		For example:
 //		grid.setAutoExpandColumn(autoExpandColumn);  	
+	}
+	
+	public void disableFields() {
+		for (Field<?> field : formPanel.getFields()) {
+			field.disable();
+		}
 	}
 	
 	public void enableFields() {

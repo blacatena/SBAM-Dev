@@ -55,7 +55,7 @@ public class DbAgreementTerm extends HibernateAccessor {
 		instance.setPoNumber(dbInstance.getPoNumber());
 		instance.setReferenceSaId(dbInstance.getReferenceSaId());
 		
-		instance.setPrimary(dbInstance.getPrimary());
+		instance.setPrimary(dbInstance.getPrimaryTerm());
 		instance.setOrgPath(dbInstance.getOrgPath());
 		instance.setPrimaryOrgPath(dbInstance.getPrimaryOrgPath());
 		instance.setNote(dbInstance.getNote());

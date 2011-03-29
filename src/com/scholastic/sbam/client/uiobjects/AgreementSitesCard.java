@@ -2,7 +2,7 @@ package com.scholastic.sbam.client.uiobjects;
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -54,7 +54,7 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 	}
 	
 	@Override
-	public void addGridPlugins(Grid<ModelData> grid) {
+	public void addGridPlugins(Grid<BeanModel> grid) {
 		grid.addPlugin(noteExpander);
 	}
 	
@@ -63,7 +63,7 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 	 * @param grid
 	 */
 	@Override
-	public void setGridAttributes(Grid<ModelData> grid) {
+	public void setGridAttributes(Grid<BeanModel> grid) {
 		grid.setAutoExpandColumn("institution.institutionName");  	
 	}
 
