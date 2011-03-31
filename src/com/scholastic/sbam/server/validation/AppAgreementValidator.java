@@ -38,6 +38,7 @@ public class AppAgreementValidator {
 		validateBillUcn(instance.getBillUcn(), instance);
 		validateBillUcnSuffix(instance.getBillUcnSuffix(), instance);	// This may change the UCN Suffix to 1
 		validateStatus(instance.getStatus());
+		validateProfile(instance);
 		return messages;
 	}
 	
@@ -153,6 +154,18 @@ public class AppAgreementValidator {
 	public List<String> validateStatus(char status) {
 		if (status != AppConstants.STATUS_ACTIVE && status != AppConstants.STATUS_INACTIVE && status != AppConstants.STATUS_EXPIRED && status != AppConstants.STATUS_DELETED)
 			addMessage("Invalid status " + status);
+		return messages;
+	}
+	
+	public List<String> validateProfile(AgreementInstance instance) {
+		if (instance.getWorkstations() < 0)
+			addMessage("Workstations may not be negative.");
+		if (instance.getWorkstations() < 0)
+			addMessage("Buildings may not be negative.");
+		if (instance.getWorkstations() < 0)
+			addMessage("Population may not be negative.");
+		if (instance.getWorkstations() < 0)
+			addMessage("Enrollment may not be negative.");
 		return messages;
 	}
 	

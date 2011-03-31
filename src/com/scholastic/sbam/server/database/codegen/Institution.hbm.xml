@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Mar 29, 2011 4:59:06 PM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Mar 30, 2011 8:08:56 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.Institution" table="institution" catalog="sbam">
         <id name="ucn" type="int">
@@ -18,19 +18,19 @@
             <column name="address1" not-null="true" />
         </property>
         <property name="address2" type="string">
-            <column name="address2" />
+            <column name="address2" not-null="true" />
         </property>
         <property name="address3" type="string">
-            <column name="address3" />
+            <column name="address3" not-null="true" />
         </property>
         <property name="city" type="string">
             <column name="city" not-null="true" />
         </property>
         <property name="state" type="string">
-            <column name="state" />
+            <column name="state" not-null="true" />
         </property>
         <property name="zip" type="string">
-            <column name="zip" />
+            <column name="zip" not-null="true" />
         </property>
         <property name="country" type="string">
             <column name="country" not-null="true" />
@@ -39,10 +39,10 @@
             <column name="web_url" length="1024" />
         </property>
         <property name="phone" type="string">
-            <column name="phone" />
+            <column name="phone" not-null="true" />
         </property>
         <property name="fax" type="string">
-            <column name="fax" />
+            <column name="fax" not-null="true" />
         </property>
         <property name="mailAddress1" type="string">
             <column name="mail_address1" />

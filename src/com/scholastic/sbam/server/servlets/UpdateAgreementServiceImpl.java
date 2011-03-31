@@ -73,6 +73,16 @@ public class UpdateAgreementServiceImpl extends AuthenticatedServiceServlet impl
 			if (instance.getAgreementLinkId() != 0)
 				dbInstance.setAgreementLinkId(instance.getAgreementLinkId());	//	This could be negative, to save the old link ID without it having any effect
 			
+			if (instance.getBuildings() >= 0)
+				dbInstance.setBuildings(instance.getBuildings());
+			if (instance.getEnrollment() >= 0)
+				dbInstance.setEnrollment(instance.getEnrollment());
+			if (instance.getPopulation() >= 0)
+				dbInstance.setPopulation(instance.getPopulation());
+			if (instance.getWorkstations() >= 0)
+				dbInstance.setWorkstations(instance.getWorkstations());
+			
+			
 			//	Fix any nulls
 			if (dbInstance.getDeleteReasonCode() == null)
 				dbInstance.setDeleteReasonCode("");

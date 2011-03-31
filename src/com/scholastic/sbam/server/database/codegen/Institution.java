@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Mar 29, 2011 4:59:05 PM by Hibernate Tools 3.2.4.GA
+// Generated Mar 30, 2011 8:08:56 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -42,15 +42,22 @@ public class Institution implements java.io.Serializable {
 	}
 
 	public Institution(int ucn, int parentUcn, String institutionName,
-			String address1, String city, String country, String typeCode,
-			String groupCode, String publicPrivateCode, String alternateIds,
-			String source, char status) {
+			String address1, String address2, String address3, String city,
+			String state, String zip, String country, String phone, String fax,
+			String typeCode, String groupCode, String publicPrivateCode,
+			String alternateIds, String source, char status) {
 		this.ucn = ucn;
 		this.parentUcn = parentUcn;
 		this.institutionName = institutionName;
 		this.address1 = address1;
+		this.address2 = address2;
+		this.address3 = address3;
 		this.city = city;
+		this.state = state;
+		this.zip = zip;
 		this.country = country;
+		this.phone = phone;
+		this.fax = fax;
 		this.typeCode = typeCode;
 		this.groupCode = groupCode;
 		this.publicPrivateCode = publicPrivateCode;

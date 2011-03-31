@@ -50,17 +50,31 @@ public class FieldFactory {
 	}
 	
 	protected static NumberField getDollarField(String label) {
-		return getNumberField(label, UiConstants.DOLLARS_FORMAT);
+		return getNumberField(label, UiConstants.DOLLARS_FORMAT, -1);
+	}
+	
+	protected static NumberField getDollarField(String label, int width) {
+		return getNumberField(label, UiConstants.DOLLARS_FORMAT, width);
 	}
 	
 	protected static NumberField getIntegerField(String label) {
-		return getNumberField(label, UiConstants.INTEGER_FORMAT);
+		return getIntegerField(label, -1);
+	}
+	
+	protected static NumberField getIntegerField(String label, int width) {
+		return getNumberField(label, UiConstants.INTEGER_FORMAT, width);
 	}
 	
 	protected static NumberField getNumberField(String label, NumberFormat numberFormat) {
+		return getNumberField(label, numberFormat, -1);
+	}
+	
+	protected static NumberField getNumberField(String label, NumberFormat numberFormat, int width) {
 		NumberField field = new NumberField();
 		setStandard(field, label);
 		
+		if (width >= 0)
+			field.setWidth(width);
 		field.setFormat(numberFormat);
 //		field.setAllowDecimals(false);
 		field.setAllowNegative(false);

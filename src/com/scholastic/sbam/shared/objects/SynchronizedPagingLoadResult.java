@@ -3,16 +3,7 @@ package com.scholastic.sbam.shared.objects;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
-import com.extjs.gxt.ui.client.data.BasePagingLoader;
-import com.extjs.gxt.ui.client.data.BeanModelReader;
-import com.extjs.gxt.ui.client.data.PagingLoadConfig;
-import com.extjs.gxt.ui.client.data.PagingLoadResult;
-import com.extjs.gxt.ui.client.data.PagingLoader;
-import com.extjs.gxt.ui.client.data.RpcProxy;
-import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.IsSerializable;
-import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 
 /**
  * This variation on BasePagingLoadResult includes a synchronization ID so that the recipient can be sure that old, slow, late search results don't overwrite newer, faster, more appropriate

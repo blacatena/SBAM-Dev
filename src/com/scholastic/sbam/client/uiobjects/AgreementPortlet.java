@@ -71,7 +71,7 @@ import com.scholastic.sbam.shared.util.AppConstants;
 public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> implements AppSleeper {
 	
 	protected final int DIRTY_FORM_LISTEN_TIME	=	250;
-	protected final int PRESUMED_FORM_HEIGHT	=	225;
+	protected final int PRESUMED_FORM_HEIGHT	=	260;
 	
 	protected final AgreementGetServiceAsync		agrementGetService			= GWT.create(AgreementGetService.class);
 	protected final UpdateAgreementServiceAsync		updateAgreementService		= GWT.create(UpdateAgreementService.class);
@@ -130,7 +130,13 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected LabelField					customerTypeDisplay	= new LabelField();
 	protected AgreementLinkSearchField		agreementLinkField	= getAgreementLinkField("linkId", "Link", 260, "A link used to relate associated agreements.");
 	protected LabelField					linkTypeDisplay		= new LabelField();
-	protected FieldSet						linkFieldSet		= new FieldSet();
+	protected FieldSet						linkFieldSet		= new FieldSet() {
+																	@Override
+																	public void onExpand() {
+																		super.onExpand();
+																		profileFieldSet.collapse();
+																	}
+																};
 //	protected NumberField					linkIdField			= FieldFactory.getIntegerField("ID");
 //	protected TextField<String>				linkTypeField		= FieldFactory.getTextField("Type");
 //	protected MultiField<?>					linkField			= new MultiField<String>("Link", linkIdField, linkTypeField);
@@ -144,6 +150,18 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected EnhancedComboBox<BeanModel>	deleteReasonField	= getComboField("deleteReason", 	"Delete",	150,		
 								"The reason for deleting this agreement.",	
 								UiConstants.getDeleteReasons(), "deleteReasonCode", "descriptionAndCode");
+
+	protected FieldSet						profileFieldSet		= new FieldSet() {
+																	@Override
+																	public void onExpand() {
+																		super.onExpand();
+																		linkFieldSet.collapse();
+																	}
+																};
+	protected NumberField					buildingsField		= getIntegerField("Buildings",		50);
+	protected NumberField					populationField		= getIntegerField("Population",		50);
+	protected NumberField					enrollmentField		= getIntegerField("Enrollment",		50);
+	protected NumberField					workstationsField	= getIntegerField("Workstations",	50);
 
 	protected ListStore<BeanModel>	termsStore;
 	protected Grid<BeanModel>		termsGrid;
@@ -297,15 +315,15 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		formColumn2.add(commissionTypeField, formData90); 
 			
 		statusDisplay.setFieldLabel("Status:");
-		formColumn2.add(statusDisplay, formData90);
-		formColumn2.add(deleteReasonField, formData90);
+		formColumn1.add(statusDisplay, formData90);
+		formColumn1.add(deleteReasonField, formData90);
 		
 
 		linkFieldSet.setBorders(true);
 		linkFieldSet.setHeading("Agreement Link");// 		agreementCard.add(new LabelField("<br/><i>Existing Agreements</i>"));
 		linkFieldSet.setCollapsible(true);
-		linkFieldSet.setCheckboxToggle(true);
-		linkFieldSet.collapse();
+//		linkFieldSet.setCheckboxToggle(true);
+//		linkFieldSet.collapse();
 		FormLayout fLayout = new FormLayout();
 		fLayout.setLabelWidth(60);
 		linkFieldSet.setLayout(fLayout);
@@ -316,6 +334,21 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		linkFieldSet.add(agreementLinkField, formData90);
 		linkFieldSet.add(linkTypeDisplay, formData90);
 		formColumn2.add(linkFieldSet);
+
+		FormLayout profileLayout = new FormLayout();
+		profileLayout.setLabelAlign(formColumn2.getLabelAlign());
+		profileLayout.setLabelWidth(formColumn2.getLabelWidth() - 10);
+		profileFieldSet.setLayout(profileLayout);
+		profileFieldSet.setBorders(true);
+		profileFieldSet.setHeading("Profile");
+		profileFieldSet.setWidth(buildingsField.getWidth() + 50);
+		profileFieldSet.setCollapsible(true);
+		
+		profileFieldSet.add(buildingsField);
+		profileFieldSet.add(populationField);
+		profileFieldSet.add(enrollmentField);
+		profileFieldSet.add(workstationsField);
+		formColumn2.add(profileFieldSet, formData90);
 		
 		
 //		linkField.setOrientation(Orientation.HORIZONTAL);
@@ -740,6 +773,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 				agreementLinkField.setValue(AgreementLinkInstance.obtainModel(agreement.getAgreementLink()));
 				linkTypeDisplay.setValue("");
 				linkFieldSet.collapse();
+				profileFieldSet.expand();
 			}
 			
 			currentValueField.setValue(agreement.getCurrentValue());
@@ -763,6 +797,11 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 			agreementTypeField.setValue(AgreementTypeInstance.obtainModel(agreement.getAgreementType()));
 			commissionTypeField.setValue(CommissionTypeInstance.obtainModel(agreement.getCommissionType()));
 			deleteReasonField.setValue(DeleteReasonInstance.obtainModel(agreement.getDeleteReason()));
+			
+			buildingsField.setValue(agreement.getBuildings());
+			populationField.setValue(agreement.getPopulation());
+			enrollmentField.setValue(agreement.getEnrollment());
+			workstationsField.setValue(agreement.getWorkstations());
 			
 			cards.setActiveItem(agreementCard);
 			
@@ -962,11 +1001,16 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		} else
 			agreement.setDeleteReason( (DeleteReasonInstance) deleteReasonField.getSelectedValue().getBean() );
 		
-		if (linkFieldSet.isExpanded() && agreementLinkField.getValue() != null)
+		if (agreementLinkField.getValue() != null)	//	&& linkFieldSet.isExpanded()  <-- this was for a checkbox to delete the link, taken out
 			agreement.setAgreementLink( (AgreementLinkInstance) agreementLinkField.getValue().getBean());
 		else
 			if (agreement.getAgreementLinkId() > 0)
 				agreement.setAgreementLinkId( - agreement.getAgreementLinkId() );	//	"Delete" by negating
+		
+		agreement.setBuildings(buildingsField.getValue().intValue());
+		agreement.setPopulation(populationField.getValue().intValue());
+		agreement.setEnrollment(enrollmentField.getValue().intValue());
+		agreement.setWorkstations(workstationsField.getValue().intValue());
 		
 		if (agreement.isNewRecord())
 			agreement.setNote(notesField.getNote());
@@ -997,6 +1041,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 							else
 								identificationTip = "Created for " + updatedAgreement.getInstitution().getInstitutionName();
 						}
+						agreement.setNewRecord(false);
 						set(updatedAgreement);
 						editButton.enable(); 
 				}

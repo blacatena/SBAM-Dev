@@ -66,7 +66,7 @@ public class AgreementGetServiceImpl extends AuthenticatedServiceServlet impleme
 							chosenDate = Calendar.getInstance();
 							chosenDate.setTime(dbAgreementTerm.getEndDate());
 							chosenPath = dbAgreementTerm.getPrimaryOrgPath();
-						} else if (dbAgreementTerm.getEndDate().after(chosenDate.getTime())) {
+						} else if (dbAgreementTerm.getEndDate() != null && dbAgreementTerm.getEndDate().after(chosenDate.getTime())) {
 							//	If we find something that ends more than a year later than this, throw out anything too old
 							chosenDate.setTime(dbAgreementTerm.getEndDate());
 							chosenPath = dbAgreementTerm.getPrimaryOrgPath();
@@ -98,7 +98,7 @@ public class AgreementGetServiceImpl extends AuthenticatedServiceServlet impleme
 						list.add(termInstance);
 					} else if (chosenPath != null && chosenPath.equals(dbAgreementTerm.getPrimaryOrgPath())) {
 						list.add(termInstance);
-					} else if (chosenDate != null && chosenDate.getTime().before(dbAgreementTerm.getEndDate())) {
+					} else if (dbAgreementTerm.getEndDate() == null || (chosenDate != null && chosenDate.getTime().before(dbAgreementTerm.getEndDate()))) {
 						list.add(termInstance);
 					} // else don't add it, we don't need it
 				}

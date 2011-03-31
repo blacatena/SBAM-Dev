@@ -7,6 +7,7 @@ import com.extjs.gxt.ui.client.data.BeanModelFactory;
 import com.extjs.gxt.ui.client.data.BeanModelLookup;
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
+import com.scholastic.sbam.shared.util.AppConstants;
 
 public class AgreementTermInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
 
@@ -281,6 +282,10 @@ public class AgreementTermInstance extends BetterRowEditInstance implements Bean
 	public void setNote(String note) {
 		this.note = note;
 	}
+	
+	public String getStatusDescription() {
+		return AppConstants.getStatusDescription(status);
+	}
 
 	public TermTypeInstance getTermType() {
 		return termType;
@@ -348,13 +353,61 @@ public class AgreementTermInstance extends BetterRowEditInstance implements Bean
 		return true;
 	}
 	
+	public void setValuesFrom(AgreementTermInstance fromInstance) {
+		
+		this.termType			=	fromInstance.termType;
+		this.product			=	fromInstance.product;
+		this.cancelReason		=	fromInstance.cancelReason;
+		this.commissionType		=	fromInstance.commissionType;
+
+		this.agreementId		=	fromInstance.agreementId;
+		this.id					=	fromInstance.id;
+
+		this.productCode		=	fromInstance.productCode;
+		this.startDate			=	fromInstance.startDate;
+		this.endDate			=	fromInstance.endDate;
+		this.terminateDate		=	fromInstance.terminateDate;
+		this.termTypeCode		=	fromInstance.termTypeCode;
+
+		this.commissionCode		=	fromInstance.commissionCode;
+
+		this.cancelReasonCode	=	fromInstance.cancelReasonCode;
+		this.cancelDate			=	fromInstance.cancelDate;
+
+		this.dollarValue		=	fromInstance.dollarValue;
+		this.workstations		=	fromInstance.workstations;
+		this.buildings			=	fromInstance.buildings;
+		this.population			=	fromInstance.population;
+		this.enrollment			=	fromInstance.enrollment;
+
+		this.poNumber			=	fromInstance.poNumber;
+		this.referenceSaId		=	fromInstance.referenceSaId;
+
+		this.orgPath			=	fromInstance.orgPath;
+		this.primaryOrgPath		=	fromInstance.primaryOrgPath;
+		this.primary			=	fromInstance.primary;
+		this.primaryTerm		=	fromInstance.primaryTerm;
+
+		this.note				=	fromInstance.note;
+
+		this.status				=	fromInstance.status;
+		this.active				=	fromInstance.active;
+		this.createdDatetime	=	fromInstance.createdDatetime;
+	}
+	
 	public String getUniqueKey() {
 		return agreementId + ":" + id;
 	}
 
+	public static AgreementTermInstance getEmptyInstance() {
+		AgreementTermInstance instance = new AgreementTermInstance();
+		instance.setNewRecord(true);
+		return instance;
+	}
+
 	public static BeanModel obtainModel(AgreementTermInstance instance) {
 		if (beanModelfactory == null)
-			beanModelfactory  = BeanModelLookup.get().getFactory(AgreementLinkInstance.class);
+			beanModelfactory  = BeanModelLookup.get().getFactory(AgreementTermInstance.class);
 		BeanModel model = beanModelfactory.createModel(instance);
 		return model;
 	}

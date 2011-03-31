@@ -117,6 +117,18 @@ public class DbAgreementTerm extends HibernateAccessor {
         }
         return new ArrayList<AgreementTerm>();
 	}
+
+	public static int getNextTermId(int agreementId) {
+        Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
+        crit.add(Restrictions.eq("id.agreementId", agreementId));
+        crit.setMaxResults(1);
+        crit.addOrder(Order.desc("id.termId"));
+        @SuppressWarnings("unchecked")
+		List<AgreementTerm> objects = crit.list();
+        if (objects == null || objects.size() == 0)
+        	return 1;
+        return objects.get(0).getId().getTermId() + 1;
+	}
 	
 	public static void setDescriptions(AgreementTermInstance agreementTerm) {
 		if (agreementTerm == null)

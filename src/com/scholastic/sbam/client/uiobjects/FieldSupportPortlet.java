@@ -65,12 +65,24 @@ public abstract class FieldSupportPortlet extends AppPortlet {
 		return FieldFactory.getDollarField(label);
 	}
 	
+	protected NumberField getDollarField(String label, int width) {
+		return FieldFactory.getDollarField(label, width);
+	}
+	
 	protected NumberField getIntegerField(String label) {
 		return FieldFactory.getIntegerField(label);
 	}
 	
+	protected NumberField getIntegerField(String label, int width) {
+		return FieldFactory.getIntegerField(label, width);
+	}
+	
 	protected NumberField getNumberField(String label, NumberFormat numberFormat) {
 		return FieldFactory.getNumberField(label, numberFormat);
+	}
+	
+	protected NumberField getNumberField(String label, NumberFormat numberFormat, int width) {
+		return FieldFactory.getNumberField(label, numberFormat, width);
 	}
 	
 	protected TextField<String> getTextField(String label) {

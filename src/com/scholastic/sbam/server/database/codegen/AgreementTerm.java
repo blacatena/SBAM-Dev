@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Mar 29, 2011 4:59:05 PM by Hibernate Tools 3.2.4.GA
+// Generated Mar 30, 2011 8:08:56 PM by Hibernate Tools 3.2.4.GA
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -37,14 +37,15 @@ public class AgreementTerm implements java.io.Serializable {
 	}
 
 	public AgreementTerm(AgreementTermId id, String productCode,
-			String termType, BigDecimal dollarValue, int workstations,
-			int buildings, int population, int enrollment, String poNumber,
-			int referenceSaId, String commissionCode, String orgPath,
-			String primaryOrgPath, char primaryTerm, String note,
-			Date createdDatetime, char status) {
+			String termType, String cancelReasonCode, BigDecimal dollarValue,
+			int workstations, int buildings, int population, int enrollment,
+			String poNumber, int referenceSaId, String commissionCode,
+			String orgPath, String primaryOrgPath, char primaryTerm,
+			String note, Date createdDatetime, char status) {
 		this.id = id;
 		this.productCode = productCode;
 		this.termType = termType;
+		this.cancelReasonCode = cancelReasonCode;
 		this.dollarValue = dollarValue;
 		this.workstations = workstations;
 		this.buildings = buildings;

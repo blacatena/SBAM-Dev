@@ -294,85 +294,36 @@ public class InstitutionCache implements Runnable {
 			
 			loadCodes();
 
-			System.out.println(new Date());
-			System.out.println("Loading institutions (statuses " + config.loadStatusList + ")...");
-			Connection conn   = HibernateUtil.getConnection();
-			Statement sqlStmt = conn.createStatement();
-			ResultSet results = sqlStmt.executeQuery(getSqlStatement());
+			int count1 = loadPass(1);
 			
-			int count = 0;
-			System.out.println(new Date());
-			System.out.println("Parsing institutions...");
-			while (results.next()) {
-				
-				if (config.loadLimit > -1 && count >= config.loadLimit) {
-					break;
-				}
+			int wordCount1 = cleanUp();
 
-				count++;
-				parse(getInstance(results));
+			System.out.println(new Date());
+			System.out.println(count1 + " institutions parsed and loaded into a map of size " + searchMap.size() + ".");
+			System.out.println(wordMap.size() + " word prefixes with " + wordCount1 + " words stored.");
+			System.out.println(countMap.size() + " words with counts only, " + searchMap.size() + " words with UCNs.");
+		
+			mapsReady = true;
+			
+			if (config.useStringPairs) {
 				
-				if (config.loadWatchPoint > 0 && count % config.loadWatchPoint == 0) {
-					System.out.print(count + " | ");
-					System.out.println(new Date() + "   |   " + searchMap.size() + " tags  |   "  + countMap.size() + " counts  |   "+ (Math.round(Runtime.getRuntime().freeMemory() / 1000000d) / 1000d) + "Gb Free  |  " + (Math.round(Runtime.getRuntime().totalMemory() / 1000000d) / 1000d) + "Gb Total  |   " + (Math.round(Runtime.getRuntime().maxMemory() / 1000000d) / 1000d) + "Gb Max   ");
-				}
-				if (config.loadGcPoint > 0 && count % config.loadGcPoint == 0)
-					Runtime.getRuntime().gc();
+				int count2 = loadPass(2);
 				
-				Thread.yield();
+			//	int wordCount2 = cleanUp();	Don't need this, because the pairs didn't change the word map
+				
+				System.out.println(new Date());
+				System.out.println(count2 + " institutions parsed and loaded into a map of size " + searchMap.size() + ".");
+			//	System.out.println(wordMap.size() + " word prefixes with " + wordCount2 + " words stored.");
+				System.out.println(countMap.size() + " words with counts only, " + searchMap.size() + " words with UCNs.");
+				
 			}
-			System.out.println();
 			
-			results.close();
-			sqlStmt.close();
-			conn.close();
-			
-			//	Clean up the map words (remove anything that had too many entries)
-			int wordCount = 0;
-			HashSet<String> nullWords = new HashSet<String>();
-			for (String string : wordMap.keySet()) {
-				if (wordMap.get(string) == null) {
-					nullWords.add(string);
-				} else {
-					wordCount += wordMap.get(string).size();
-//					System.out.println(string + " : " + wordMap.get(string));
-				}
-			}
-			System.out.println("Null words count is " + nullWords.size());
-			for (String string : nullWords)
-				wordMap.remove(string);
-
-			System.out.println("Loaded.");
-			Runtime.getRuntime().gc();
-			System.out.println("Cleaned.");
-			
-			//	This method, using Hibernate, is going to fail because it wants to load all objects into memory
-//			int count = 0;
-//			System.out.println("Loading institutions...");
-//			List<Institution> institutions = DbInstitution.findAllActive();
-//			System.out.println("Parsing institutions...");
-//			for (Institution institution : institutions) {
-//				parse(DbInstitution.getInstance(institution), tempMap);
-//				
-//				if(count++ > 10)
-//					break;
-//			}
-
-			System.out.println(new Date());
-			System.out.println(count + " institutions parsed and loaded into a map of size " + searchMap.size() + ".");
-			System.out.println(wordMap.size() + " word prefixes with " + wordCount + " words stored.");
-			
-//			for (String string : searchMap.keySet()) {
-//				System.out.println(string + " : " + searchMap.get(string).length);
-//			}
 		} catch (Exception exc) {
 			exc.printStackTrace();
 		}
 		
 		HibernateUtil.endTransaction();
 		HibernateUtil.closeSession();
-		
-		mapsReady = true;
 
 		Runtime.getRuntime().gc();
 		System.out.println("Total memory: " + Runtime.getRuntime().totalMemory());
@@ -430,6 +381,68 @@ public class InstitutionCache implements Runnable {
 			pubPrivs.put(pubPriv.getPubPrivCode(), DbInstitutionPubPriv.getInstance(pubPriv));
 	}
 	
+	private int loadPass(int pass) throws SQLException {
+		System.out.println(new Date());
+		System.out.println("Pass: "+ pass + " Loading institutions (statuses " + config.loadStatusList + ")...");
+		
+		// 	We must use SQL, because normal Hibernate access wants to load the full dataset into memory, which uses just too much space.
+		Connection conn   = HibernateUtil.getConnection();
+		Statement sqlStmt = conn.createStatement();
+		ResultSet results = sqlStmt.executeQuery(getSqlStatement());
+		
+		int count = 0;
+		System.out.println(new Date());
+		System.out.println("Parsing institutions...");
+		while (results.next()) {
+			
+			if (config.loadLimit > -1 && count >= config.loadLimit) {
+				break;
+			}
+
+			count++;
+			parse(getInstance(results), pass);
+			
+			if (config.loadWatchPoint > 0 && count % config.loadWatchPoint == 0) {
+				System.out.print(pass + " :: " + count + " | ");
+				System.out.println(new Date() + "   |   " + searchMap.size() + " tags  |   "  + countMap.size() + " counts  |   "+ (Math.round(Runtime.getRuntime().freeMemory() / 1000000d) / 1000d) + "Gb Free  |  " + (Math.round(Runtime.getRuntime().totalMemory() / 1000000d) / 1000d) + "Gb Total  |   " + (Math.round(Runtime.getRuntime().maxMemory() / 1000000d) / 1000d) + "Gb Max   ");
+			}
+			if (config.loadGcPoint > 0 && count % config.loadGcPoint == 0)
+				Runtime.getRuntime().gc();
+			
+			Thread.yield();
+		}
+		System.out.println();
+		
+		results.close();
+		sqlStmt.close();
+		conn.close();
+		
+		return count;
+	}
+	
+	private int cleanUp() {
+//		Clean up the map words (remove anything that had too many entries to be used in a search)
+		int wordCount = 0;
+		HashSet<String> nullWords = new HashSet<String>();
+		for (String string : wordMap.keySet()) {
+			if (wordMap.get(string) == null) {
+				nullWords.add(string);
+			} else {
+				wordCount += wordMap.get(string).size();
+//				System.out.println(string + " : " + wordMap.get(string));
+			}
+		}
+		System.out.println("Null words count is " + nullWords.size());
+		for (String string : nullWords)
+			wordMap.remove(string);
+
+		System.out.println("Loaded.");
+		Runtime.getRuntime().gc();
+		System.out.println("Cleaned.");
+		
+		return wordCount;
+	}
+	
 	/**
 	 * Output the word map statistics for debugging or performance analysis
 	 */
@@ -477,7 +490,7 @@ public class InstitutionCache implements Runnable {
 	 * @param institution
 	 * @param tempMap
 	 */
-	private void parse(InstitutionInstance institution) {
+	private void parse(InstitutionInstance institution, int pass) {
 		HashSet<String> strings = new HashSet<String>();
 		
 		//  Parse all components of the institution address
@@ -510,7 +523,7 @@ public class InstitutionCache implements Runnable {
 		}
 		
 		//	Add pairs of substrings, if the option is activated
-		if (config.useStringPairs) {
+		if (config.useStringPairs && pass == 2) {
 			HashSet<String> stringPairs = new HashSet<String>();
 			for (String first : strings) {
 				for (String second : strings) {
@@ -519,7 +532,8 @@ public class InstitutionCache implements Runnable {
 					}
 				}
 			}
-			strings.addAll(stringPairs);
+		//	strings.addAll(stringPairs);
+			strings = stringPairs;
 		}
 		
 		//  Add them all to the search maps
@@ -630,6 +644,8 @@ public class InstitutionCache implements Runnable {
 	 * @param strings
 	 */
 	private void parseAddContinuous(String string, HashSet<String> strings) {
+		if (string == null || string.length() == 0)
+			return;
 		string = string.toUpperCase();
 		StringBuffer word = new StringBuffer();
 		for (int i = 0; i < string.length(); i++) {

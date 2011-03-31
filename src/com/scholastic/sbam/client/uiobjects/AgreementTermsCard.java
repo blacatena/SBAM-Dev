@@ -8,8 +8,10 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.RowExpander;
@@ -22,6 +24,8 @@ import com.scholastic.sbam.client.services.AgreementTermListService;
 import com.scholastic.sbam.client.services.AgreementTermListServiceAsync;
 import com.scholastic.sbam.client.services.UpdateAgreementTermNoteService;
 import com.scholastic.sbam.client.services.UpdateAgreementTermNoteServiceAsync;
+import com.scholastic.sbam.client.services.UpdateAgreementTermService;
+import com.scholastic.sbam.client.services.UpdateAgreementTermServiceAsync;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.AgreementTermInstance;
 import com.scholastic.sbam.shared.objects.CancelReasonInstance;
@@ -35,6 +39,7 @@ import com.scholastic.sbam.shared.util.AppConstants;
 public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> {
 	
 	protected final AgreementTermListServiceAsync		agreementTermListService		= GWT.create(AgreementTermListService.class);
+	protected final UpdateAgreementTermServiceAsync		updateAgreementTermService		= GWT.create(UpdateAgreementTermService.class);
 	protected final UpdateAgreementTermNoteServiceAsync	updateAgreementTermNoteService	= GWT.create(UpdateAgreementTermNoteService.class);
 	
 	protected FormPanel				formColumn1;
@@ -48,7 +53,7 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 	protected MultiField<String>			idNotesCombo		= new MultiField<String>("Agreement #");
 	protected NumberField					agreementIdField	= getIntegerField("Agreement #");
 	protected NotesIconButtonField<String>	notesField			= getNotesButtonField();
-	protected EnhancedComboBox<BeanModel>	productField		= getComboField("product", 	"Product",	240,		
+	protected EnhancedComboBox<BeanModel>	productField		= getComboField("product", 	"Product",	280,		
 																	"The product to deliver for this term.",	
 																	UiConstants.getProducts(), "productCode", "descriptionAndCode");
 	protected NumberField					dollarValueField	= getDollarField("Value");
@@ -58,12 +63,22 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 	protected EnhancedComboBox<BeanModel>	termTypeField		= getComboField("termType", 		"Term Type",	0,		
 																		"The term type for this product term.",	
 																		UiConstants.getTermTypes(), "termTypeCode", "description");
-	protected EnhancedComboBox<BeanModel>	commissionTypeField	= getComboField("commissionType", 	"Commission Code",	0,		
+	protected EnhancedComboBox<BeanModel>	commissionTypeField	= getComboField("commissionType", 	"Commission",	290,		
 																		"The commission code assigned to this product term for reporting purposes.",	
 																		UiConstants.getCommissionTypes(UiConstants.CommissionTypeTargets.AGREEMENT_TERM), "commissionCode", "descriptionAndCode");
-	protected EnhancedComboBox<BeanModel>	cancelReasonField	= getComboField("cancelReason", 	"Cancel Reason",	0,		
+	protected EnhancedComboBox<BeanModel>	cancelReasonField	= getComboField("cancelReason", 	"Cancel Reason",	215,		
 																		"The reason for canceling for this product term.",	
 																		UiConstants.getCancelReasons(), "cancelReasonCode", "descriptionAndCode");
+	protected LabelField					statusField			= new LabelField();
+	
+	protected NumberField					referenceSaIdField	= getIntegerField("Reference",		50);
+	protected TextField<String>				poNumberField		= getTextField("PO #");
+	protected TextField<String>				groupField			= getTextField("Group");
+
+//	protected NumberField					buildingsField		= getIntegerField("Buildings",		50);
+//	protected NumberField					populationField		= getIntegerField("Population",		50);
+//	protected NumberField					enrollmentField		= getIntegerField("Enrollment",		50);
+//	protected NumberField					workstationsField	= getIntegerField("Workstations",	50);
 	
 	public int getAgreementId() {
 		return getFocusId();
@@ -76,6 +91,15 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 	public void setAgreementTerm(AgreementTermInstance instance) {
 		setFocusInstance(instance);
 	}
+	
+//	@Override
+//	public void afterRender() {
+//		super.afterRender();
+//		if (gridStore.getCount() == 0  && focusInstance == null) {
+//			formPanel.expand();
+//			beginEdit();
+//		}
+//	}
 
 	@Override
 	public void awaken() {
@@ -115,9 +139,11 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 		columns.add(getDisplayColumn("terminateDate",			"Terminate",				80,		true, UiConstants.APP_DATE_TIME_FORMAT,
 					"This is the actual service termination date for a product term."));
 		columns.add(getDisplayColumn("dollarValue",				"Value",					80,		true, UiConstants.DOLLARS_FORMAT,
-					"This is the value of the service."));
-		columns.add(getDisplayColumn("termType.description",	"Type",						80,
-					"This is the type of service."));
+					"This is the value of the product term."));
+		columns.add(getDisplayColumn("termType.description",	"Type",						50,
+					"This is the type of product term."));
+		columns.add(getDisplayColumn("statusDescription",		"Status",					50,
+					"This is the status of product term."));
 	
 		noteExpander = getNoteExpander();
 		columns.add(noteExpander);
@@ -134,6 +160,19 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 		termTypeField.setValue(TermTypeInstance.obtainModel(instance.getTermType()));
 		cancelReasonField.setValue(CancelReasonInstance.obtainModel(instance.getCancelReason()));
 		commissionTypeField.setValue(CommissionTypeInstance.obtainModel(instance.getCommissionType()));
+		
+		if (instance.getStatus() == AppConstants.STATUS_INACTIVE && instance.getCancelReasonCode() != null && instance.getCancelReasonCode().length() > 0 && instance.getCancelDate() != null)
+			statusField.setValue("Canceled " + instance.getCancelDate());
+		statusField.setValue(AppConstants.getStatusDescription(instance.getStatus()));
+		
+		referenceSaIdField.setValue(instance.getReferenceSaId());
+		poNumberField.setValue(instance.getPoNumber());
+		groupField.setValue(instance.getOrgPath());
+		
+//		buildingsField.setValue(instance.getBuildings());
+//		populationField.setValue(instance.getPopulation());
+//		enrollmentField.setValue(instance.getEnrollment());
+//		workstationsField.setValue(instance.getWorkstations());
 
 		if (instance.getNote() != null && instance.getNote().length() > 0) {
 			notesField.setEditMode();
@@ -152,11 +191,12 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 
 	@Override
 	protected void addFormFields(FormPanel panel, FormData formData) {
+		formData = new FormData("-24");
 		
 		panel.setLayout(new TableLayout(2));
 		
-		formColumn1 = getNewFormPanel(110);
-		formColumn2 = getNewFormPanel(5);
+		formColumn1 = getNewFormPanel(75);
+		formColumn2 = getNewFormPanel(85);
 		
 		agreementIdField.setReadOnly(true);
 		agreementIdField.setWidth(150);
@@ -172,32 +212,55 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 		cancelReasonField.setAllowBlank(true);
 		commissionTypeField.setAllowBlank(true);
 		
+		//	Form column 1
+		
 		idNotesCombo.add(agreementIdField);	
 		idNotesCombo.add(notesField);
 		formColumn1.add(idNotesCombo,    formData);
 		
-//		formColumn1.add(agreementIdField, formData);
 		formColumn1.add(productField, formData);
 		formColumn1.add(dollarValueField, formData);
 		
-		FieldSet fieldSet = new FieldSet();
+		formColumn1.add(commissionTypeField, formData);
+		
+		formColumn1.add(referenceSaIdField, formData);
+		formColumn1.add(poNumberField, formData);
+		formColumn1.add(groupField, formData);
+		
+		//	Form column 2
+		
+		FieldSet datesfieldSet = new FieldSet();
 		FormLayout layout = new FormLayout();
 		layout.setLabelAlign(panel.getLabelAlign());
 		layout.setLabelWidth(panel.getLabelWidth() - 10);
-		fieldSet.setLayout(layout);
-		fieldSet.setBorders(true);
-		fieldSet.setHeading("Term Dates");
+		datesfieldSet.setLayout(layout);
+		datesfieldSet.setBorders(true);
+		datesfieldSet.setHeading("Term Dates");
 		
-		fieldSet.add(startDateField);
-		fieldSet.add(endDateField);
-		fieldSet.add(terminateDateField);
-		fieldSet.add(termTypeField);
+		datesfieldSet.add(startDateField);
+		datesfieldSet.add(endDateField);
+		datesfieldSet.add(terminateDateField);
+		datesfieldSet.add(termTypeField);
 		
-//		formColumn2.add(notesField);
-		formColumn2.add(fieldSet);
+		formColumn2.add(datesfieldSet);
+
+//		FieldSet profileFieldSet = new FieldSet();
+//		FormLayout profileLayout = new FormLayout();
+//		profileLayout.setLabelAlign(panel.getLabelAlign());
+//		profileLayout.setLabelWidth(panel.getLabelWidth() - 10);
+//		profileFieldSet.setLayout(profileLayout);
+//		profileFieldSet.setBorders(true);
+//		profileFieldSet.setHeading("Profile");
+//		profileFieldSet.setWidth(buildingsField.getWidth() + 50);
+//		
+//		profileFieldSet.add(buildingsField);
+//		profileFieldSet.add(populationField);
+//		profileFieldSet.add(enrollmentField);
+//		profileFieldSet.add(workstationsField);
+//		formColumn2.add(profileFieldSet, formData);
 		
-		formColumn1.add(commissionTypeField, formData);
-		formColumn1.add(cancelReasonField, formData);
+		formColumn2.add(statusField, formData);
+		formColumn2.add(cancelReasonField, formData);
 
 		panel.add(formColumn1);
 		panel.add(formColumn2);
@@ -231,15 +294,15 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 		} else
 			productField.clearInvalid();
 		if (termTypeField.getSelectedValue() == null) {
-			termTypeField.markInvalid("Select an term type.");
+			termTypeField.markInvalid("Select a term type.");
 			ready = false;
 		} else
 			termTypeField.clearInvalid();
-		if (commissionTypeField.getSelectedValue() == null) {
-			commissionTypeField.markInvalid("Select a commission code.");
-			ready = false;
-		} else
-			commissionTypeField.clearInvalid();
+//		if (commissionTypeField.getSelectedValue() == null) {
+//			commissionTypeField.markInvalid("Select a commission code.");
+//			ready = false;
+//		} else
+//			commissionTypeField.clearInvalid();
 		
 		return ready;
 	}
@@ -261,7 +324,104 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 //	}
 
 	protected void asyncUpdate() {
-		System.out.println("Do update term");
+	
+		// Set field values from form fields
+		
+		if (focusInstance == null) {
+			focusInstance = new AgreementTermInstance();
+			focusInstance.setNewRecord(true);
+			focusInstance.setAgreementId(getAgreementId());
+		}
+		
+		focusInstance.setTermType( (TermTypeInstance) termTypeField.getSelectedValue().getBean()  );
+		if (commissionTypeField.getSelectedValue() == null)
+			focusInstance.setCommissionType(null);
+		else
+			focusInstance.setCommissionType( (CommissionTypeInstance) commissionTypeField.getSelectedValue().getBean() );
+		
+		focusInstance.setProduct( ((ProductInstance) productField.getSelectedValue().getBean()) );
+		
+		if (cancelReasonField.getSelectedValue() == null) {
+			focusInstance.setCancelReason(CancelReasonInstance.getEmptyInstance());
+			focusInstance.setCancelReasonCode("");
+		} else
+			focusInstance.setCancelReason( (CancelReasonInstance) cancelReasonField.getSelectedValue().getBean() );
+		
+		if (dollarValueField.getValue() == null)
+			focusInstance.setDollarValue(0);
+		else
+			focusInstance.setDollarValue(dollarValueField.getValue().doubleValue());
+		
+		focusInstance.setStartDate(startDateField.getValue());
+		focusInstance.setEndDate(endDateField.getValue());
+		focusInstance.setTerminateDate(terminateDateField.getValue());
+		
+		if (referenceSaIdField.getValue() == null)
+			focusInstance.setReferenceSaId(0);
+		else
+			focusInstance.setReferenceSaId(referenceSaIdField.getValue().intValue());
+		focusInstance.setPoNumber(poNumberField.getValue());
+		focusInstance.setOrgPath(groupField.getValue());
+		
+//		focusInstance.setBuildings(buildingsField.getValue().intValue());
+//		focusInstance.setPopulation(populationField.getValue().intValue());
+//		focusInstance.setEnrollment(enrollmentField.getValue().intValue());
+//		focusInstance.setWorkstations(workstationsField.getValue().intValue());
+		
+		if (focusInstance.isNewRecord())
+			focusInstance.setNote(notesField.getNote());
+		else
+			focusInstance.setNote(null);	//	This will keep the note from being updated by this call
+	
+		//	Issue the asynchronous update request and plan on handling the response
+		updateAgreementTermService.updateAgreementTerm(focusInstance,
+				new AsyncCallback<UpdateResponse<AgreementTermInstance>>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "Agreement term  update failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+						editButton.enable();
+						newButton.enable();
+					}
+
+					public void onSuccess(UpdateResponse<AgreementTermInstance> updateResponse) {
+						AgreementTermInstance updatedAgreementTerm = (AgreementTermInstance) updateResponse.getInstance();
+						if (updatedAgreementTerm.isNewRecord()) {
+							updatedAgreementTerm.setNewRecord(false);
+							grid.getStore().insert(AgreementTermInstance.obtainModel(updatedAgreementTerm), 0);
+							agreementGridStore.insert(AgreementTermInstance.obtainModel(updatedAgreementTerm), 0);
+						}
+						
+						focusInstance.setNewRecord(false);
+						focusInstance.setValuesFrom(updatedAgreementTerm);
+						setFormFieldValues(updatedAgreementTerm);
+						
+						//	This puts the grid in synch
+						BeanModel gridModel = grid.getStore().findModel(focusInstance.getUniqueKey());
+						if (gridModel != null) {
+							AgreementTermInstance matchInstance = gridModel.getBean();
+							matchInstance.setValuesFrom(focusInstance);
+							grid.getStore().update(gridModel);
+						}
+						//	Do the same for the terms grid on the main agreement panel
+						if (agreementGridStore != null) {
+							BeanModel mainGridModel = agreementGridStore.findModel(focusInstance.getUniqueKey());
+							if (mainGridModel != null) {
+								AgreementTermInstance mainMatchInstance = mainGridModel.getBean();
+								mainMatchInstance.setValuesFrom(focusInstance);
+								agreementGridStore.update(mainGridModel);
+							}
+						}
+						
+						editButton.enable();
+						newButton.enable();
+				}
+			});
 	}
 
 	protected void asyncUpdateNote(String note) {

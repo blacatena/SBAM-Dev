@@ -17,6 +17,10 @@ public class AgreementInstance extends BetterRowEditInstance implements BeanMode
 	private String	agreementTypeCode;
 	private String	commissionCode;
 	private String	deleteReasonCode;
+	private int		workstations;
+	private int		buildings;
+	private int		population;
+	private int		enrollment;
 	private String	orgPath;
 	private String	note;
 	private char	status;
@@ -149,6 +153,38 @@ public class AgreementInstance extends BetterRowEditInstance implements BeanMode
 
 	public void setDeleteReasonCode(String deleteReasonCode) {
 		this.deleteReasonCode = deleteReasonCode;
+	}
+
+	public int getWorkstations() {
+		return workstations;
+	}
+
+	public void setWorkstations(int workstations) {
+		this.workstations = workstations;
+	}
+
+	public int getBuildings() {
+		return buildings;
+	}
+
+	public void setBuildings(int buildings) {
+		this.buildings = buildings;
+	}
+
+	public int getPopulation() {
+		return population;
+	}
+
+	public void setPopulation(int population) {
+		this.population = population;
+	}
+
+	public int getEnrollment() {
+		return enrollment;
+	}
+
+	public void setEnrollment(int enrollment) {
+		this.enrollment = enrollment;
 	}
 
 	public String getNote() {

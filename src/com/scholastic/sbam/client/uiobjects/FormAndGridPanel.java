@@ -220,11 +220,20 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 
 	public void setFocusInstance(ModelInstance modelInstance) {
 		focusInstance = modelInstance;
+		
+		//	Disable these buttons, in case the user was in the midst of editing something
+		if (cancelButton != null) cancelButton.disable();
+		if (saveButton != null) saveButton.disable();
+		
 		// No agreement term means clear the form
 		if (focusInstance == null) {
+			if (editButton != null) editButton.disable();
 			clearFocusInstance();
 			return;
 		}
+		
+		//	Enable edit
+		if (editButton != null) editButton.enable();
 		
 		// Set the form fields
 		setFormFieldValues(focusInstance);
@@ -292,7 +301,7 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		if (buttons.length() == 0 || buttons.contains(NEW_BUTTON)) {
 			newButton = new Button("New");
 			IconSupplier.forceIcon(newButton, IconSupplier.getNewIconName());
-			newButton.disable();
+			newButton.enable();
 			newButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 				@Override
 				public void componentSelected(ButtonEvent ce) {
@@ -305,6 +314,10 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		if (buttons.length() == 0 || buttons.contains(EDIT_BUTTON)) {
 			editButton = new Button("Edit");
 			IconSupplier.forceIcon(editButton, IconSupplier.getEditIconName());
+			if (focusInstance != null)
+				editButton.enable();
+			else
+				editButton.disable();
 			editButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
 				@Override
 				public void componentSelected(ButtonEvent ce) {
@@ -374,8 +387,10 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	/**
 	 * Override this to take action when the user wishes to create a new entry
 	 */
-	protected void handleNew() {
-		
+	public void handleNew() {
+		focusInstance = null;
+		clearFormFieldValues();
+		beginEdit();
 	}
 	
 	/**
@@ -402,6 +417,7 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	}
 	
 	public void beginEdit() {
+		if (newButton != null) newButton.disable();
 		if (editButton != null) editButton.disable();
 		if (cancelButton != null) cancelButton.enable();
 		enableFields();
@@ -413,10 +429,12 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		disableFields();
 		if (save) {
 			if (editButton != null) editButton.disable();	//	Disable this ...let the update enable it when the response arrives
+			if (editButton != null) newButton.disable();	//	Disable this ...let the update enable it when the response arrives
 			asyncUpdate();
 		} else {
 			resetFormValues();
-			if (editButton != null) editButton.enable();
+			if (newButton != null)	newButton.enable();
+			if (editButton != null && focusInstance != null) editButton.enable();
 		}
 	}
 	
@@ -475,7 +493,6 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		
 		addRowListener(grid);
 		
-		//	Switch to the display card when a row is selected
 		grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
 		return grid;
@@ -484,7 +501,17 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onRowSelected(BeanModel instance) {
-		setFocusInstance((ModelInstance) instance.getBean());
+		if (cancelButton != null && cancelButton.isEnabled() && isDirtyForm()) {
+			grid.mask("Save or cancel your changes in progress before selecting another row.");
+			Timer unmaskTimer = new Timer() {
+				@Override
+				public void run() {
+					grid.unmask();
+				}
+			};
+			unmaskTimer.schedule(2000);
+		} else
+			setFocusInstance((ModelInstance) instance.getBean());
 //		formPanel.expand();
 //		grid.getSelectionModel().deselectAll();
 	}
@@ -509,6 +536,11 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 							gridStore.add(getModel(instance));
 						}
 						grid.unmask();
+						//	Go into add mode immediately if the grid is empty.
+						if (gridStore.getCount() == 0  && focusInstance == null) {
+							formPanel.expand();
+							beginEdit();
+						}
 					}
 			};
 	}

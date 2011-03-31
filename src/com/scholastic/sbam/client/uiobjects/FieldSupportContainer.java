@@ -70,6 +70,10 @@ public abstract class FieldSupportContainer extends LayoutContainer {
 		return FieldFactory.getIntegerField(label);
 	}
 	
+	protected NumberField getIntegerField(String label, int width) {
+		return FieldFactory.getIntegerField(label, width);
+	}
+	
 	protected NumberField getNumberField(String label, NumberFormat numberFormat) {
 		return FieldFactory.getNumberField(label, numberFormat);
 	}
