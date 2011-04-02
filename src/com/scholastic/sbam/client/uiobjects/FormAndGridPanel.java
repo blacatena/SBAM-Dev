@@ -16,6 +16,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
+import com.extjs.gxt.ui.client.widget.form.SliderField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -452,16 +453,19 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	
 	@SuppressWarnings("unchecked")
 	public void setOriginalValues(FormPanel formPanel) {
-		for (Field<?> field : formPanel.getFields()) {
-			if (field instanceof EnhancedComboBox) {
-				EnhancedComboBox<ModelData>  ecb = (EnhancedComboBox<ModelData>) field;
-				ecb.setOriginalValue(ecb.getSelectedValue());
-			} else if (field instanceof InstitutionSearchField) {
-				InstitutionSearchField  isf = (InstitutionSearchField) field;
-				isf.setOriginalValue(isf.getSelectedValue());
-			} else
-			((Field<Object>) field).setOriginalValue(field.getValue());
-		}
+		if (formPanel != null)
+			for (Field<?> field : formPanel.getFields()) {
+				if (field instanceof EnhancedComboBox) {
+					EnhancedComboBox<ModelData>  ecb = (EnhancedComboBox<ModelData>) field;
+					ecb.setOriginalValue(ecb.getSelectedValue());
+				} else if (field instanceof InstitutionSearchField) {
+					InstitutionSearchField  isf = (InstitutionSearchField) field;
+					isf.setOriginalValue(isf.getSelectedValue());
+				} else if (field instanceof SliderField)
+					((Field<Object>) field).setOriginalValue(field.getValue());
+				else
+					((Field<Object>) field).setOriginalValue(field.getValue());
+			}
 	}
 	
 	protected Grid<BeanModel> getGrid(FormData formData) {

@@ -86,6 +86,18 @@ public abstract class FieldSupportContainer extends LayoutContainer {
 		return FieldFactory.getDateField(label);
 	}
 	
+	protected BoundDateField getBoundDateField(String label) {
+		return FieldFactory.getBoundDateField(label);
+	}
+	
+	protected SliderFieldWithDisable getSliderField(String label) {
+		return FieldFactory.getSliderField(label);
+	}
+	
+	protected BoundSliderField getBoundSliderField(String label) {
+		return FieldFactory.getBoundSliderField(label);
+	}
+	
 	protected EnhancedComboBox<BeanModel> getComboField(String name, String label, int width, ListStore<BeanModel> listStore, String displayField) {
 		return FieldFactory.getComboField(name, label, width, listStore, displayField);
 	}

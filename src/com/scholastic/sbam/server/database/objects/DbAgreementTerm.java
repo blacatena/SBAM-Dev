@@ -34,7 +34,7 @@ public class DbAgreementTerm extends HibernateAccessor {
 		AgreementTermInstance instance = new AgreementTermInstance();
 
 		instance.setAgreementId(dbInstance.getId().getAgreementId());
-		instance.setId(dbInstance.getId().getTermId());
+		instance.setTermId(dbInstance.getId().getTermId());
 		
 		instance.setProductCode(dbInstance.getProductCode());
 		instance.setStartDate(dbInstance.getStartDate());

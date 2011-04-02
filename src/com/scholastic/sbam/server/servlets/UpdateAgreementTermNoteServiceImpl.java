@@ -17,7 +17,7 @@ public class UpdateAgreementTermNoteServiceImpl extends AuthenticatedServiceServ
 	@Override
 	public UpdateResponse<AgreementTermInstance> updateAgreementTermNote(AgreementTermInstance instance) throws IllegalArgumentException {
 		
-		if (instance.isNewRecord() || instance.getId() <= 0)
+		if (instance.isNewRecord() || instance.getTermId() <= 0)
 			throw new IllegalArgumentException("Notes can only be updated for an existing agreement term.");
 		
 		AgreementTerm dbInstance = null;
@@ -30,9 +30,9 @@ public class UpdateAgreementTermNoteServiceImpl extends AuthenticatedServiceServ
 		try {
 			
 			//	Get existing, or create new
-			dbInstance = DbAgreementTerm.getById(instance.getAgreementId(), instance.getId());
+			dbInstance = DbAgreementTerm.getById(instance.getAgreementId(), instance.getTermId());
 			if (dbInstance == null)
-				throw new IllegalArgumentException("Agreement Term " + instance.getId() + " not found.");
+				throw new IllegalArgumentException("Agreement Term " + instance.getTermId() + " not found.");
 				
 
 			//	Update values

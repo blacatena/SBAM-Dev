@@ -301,6 +301,24 @@ div.noteText {
 	padding-left: 20px;
 }
 
+div.x-slider div.ext-el-mask {
+	opacity:0  !important;
+	-moz-opacity:0  !important;
+	filter:alpha(opacity = 0 )  !important;
+}
+
+/* For date picker */
+
+*.x-date-middle, *.x-date-left, *.x-date-right{
+	background-image:url(resources/images/calendar/hd-sprite.gif);
+}
+*.x-date-right-icon {
+	background-image:url(resources/images/calendar/right-btn.gif);
+}
+*.x-date-left-icon {
+	background-image:url(resources/images/calendar/left-btn.gif);
+}
+
 /* These are necessary, because the theme doesn't "take" -- change these if the theme changes */
 /* Managed now by adding the style "x-panel" wherever needed
 .x-border {

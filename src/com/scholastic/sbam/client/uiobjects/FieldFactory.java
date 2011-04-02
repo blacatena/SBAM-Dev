@@ -2,6 +2,7 @@ package com.scholastic.sbam.client.uiobjects;
 
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.Slider;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -97,6 +98,31 @@ public class FieldFactory {
 		DateField field = new DateField();
 		setStandard(field, label);
 		field.setPropertyEditor(new DateTimePropertyEditor(UiConstants.APP_DATE_LONG_FORMAT));
+		
+		return field;
+	}
+	
+	protected static BoundDateField getBoundDateField(String label) {
+		BoundDateField field = new BoundDateField();
+		setStandard(field, label);
+		field.setPropertyEditor(new DateTimePropertyEditor(UiConstants.APP_DATE_LONG_FORMAT));
+		
+		return field;
+	}
+	
+	protected static SliderFieldWithDisable getSliderField(String label) {
+		Slider		slider = new Slider();
+		SliderFieldWithDisable field = new SliderFieldWithDisable(slider);
+		setStandard(field, label);
+		
+		return field;
+	}
+	
+	protected static BoundSliderField getBoundSliderField(String label) {
+		Slider		slider = new Slider();
+		BoundSliderField field = new BoundSliderField(slider);
+		setStandard(field, label);
+	//	field.setPropertyEditor(new NumberPropertyEditor(UiConstants.INTEGER_FORMAT));
 		
 		return field;
 	}

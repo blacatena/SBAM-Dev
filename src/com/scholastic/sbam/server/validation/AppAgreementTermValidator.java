@@ -31,9 +31,10 @@ public class AppAgreementTermValidator {
 		if (instance.getStatus() == AppConstants.STATUS_ANY_NONE)
 			instance.setStatus(AppConstants.STATUS_ACTIVE);
 		validateCancelReasonCode(instance.getCancelReasonCode(), instance); // This may change the status to I, set cancel date
-		validateAgreementTermId(instance.getAgreementId(), instance.getId(), instance.isNewRecord());
+		validateAgreementTermId(instance.getAgreementId(), instance.getTermId(), instance.isNewRecord());
 		validateTermType(instance.getTermTypeCode(), instance);
 		validateCommissionCode(instance.getCommissionCode(), instance);
+		validateDates(instance);
 		validateStatus(instance.getStatus());
 		if (instance.getDollarValue() < 0)
 			addMessage("Dollar value may not be negative.");
@@ -136,6 +137,20 @@ public class AppAgreementTermValidator {
 		return messages;
 	}
 	
+	public List<String> validateDates(AgreementTermInstance instance) {
+		if (instance.getStartDate() == null || instance.getEndDate() == null)
+			if (instance.getStatus() != AppConstants.STATUS_DELETED)
+				instance.setStatus(AppConstants.STATUS_INACTIVE);
+		
+		if (instance.getStartDate().after(instance.getEndDate()))
+			addMessage("Start date cannot follow end data.");
+		if (instance.getTerminateDate() == null)
+			instance.setTerminateDate(instance.getStartDate());
+		else if (instance.getStartDate().after(instance.getTerminateDate()))
+			addMessage("Terminate date cannot preceed start date.");
+		return messages;
+	}
+	
 	public List<String> validateStatus(char status) {
 		if (status != AppConstants.STATUS_ACTIVE && status != AppConstants.STATUS_INACTIVE && status != AppConstants.STATUS_EXPIRED && status != AppConstants.STATUS_DELETED)
 			addMessage("Invalid status " + status);
@@ -144,7 +159,7 @@ public class AppAgreementTermValidator {
 	
 	private boolean loadAgreementTerm() {
 		if (agreementTerm == null) {
-			agreementTerm = DbAgreementTerm.getById(original.getAgreementId(), original.getId());
+			agreementTerm = DbAgreementTerm.getById(original.getAgreementId(), original.getTermId());
 			if (agreementTerm == null) {
 				addMessage("Unexpected Error: Original agreement term not found in the database.");
 				return false;

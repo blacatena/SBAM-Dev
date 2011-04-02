@@ -41,8 +41,8 @@ public class UpdateAgreementTermServiceImpl extends AuthenticatedServiceServlet 
 			validateInput(instance);
 			
 			//	Get existing, or create new
-			if (instance.getId() > 0) {
-				dbInstance = DbAgreementTerm.getById(instance.getAgreementId(), instance.getId());
+			if (instance.getTermId() > 0) {
+				dbInstance = DbAgreementTerm.getById(instance.getAgreementId(), instance.getTermId());
 			}
 
 			//	If none found, create new
@@ -135,7 +135,7 @@ public class UpdateAgreementTermServiceImpl extends AuthenticatedServiceServlet 
 			//	Refresh when new row is created, to get assigned ID
 			if (newCreated) {
 			//	DbAgreementTerm.refresh(dbInstance);	// This may not be necessary, but just in case
-				instance.setId(dbInstance.getId().getTermId());
+				instance.setTermId(dbInstance.getId().getTermId());
 				instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
 				DbAgreementTerm.setDescriptions(instance);
 			}

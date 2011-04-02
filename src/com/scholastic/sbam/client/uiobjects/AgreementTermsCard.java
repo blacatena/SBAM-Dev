@@ -5,7 +5,6 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
@@ -35,6 +34,7 @@ import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.TermTypeInstance;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.util.AppConstants;
+import com.scholastic.sbam.shared.validation.DatesSliderBinder;
 
 public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> {
 	
@@ -51,25 +51,27 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 	protected RowExpander					noteExpander;
 
 	protected MultiField<String>			idNotesCombo		= new MultiField<String>("Agreement #");
-	protected NumberField					agreementIdField	= getIntegerField("Agreement #");
+	protected LabelField					agreementIdField	= new LabelField();
 	protected NotesIconButtonField<String>	notesField			= getNotesButtonField();
 	protected EnhancedComboBox<BeanModel>	productField		= getComboField("product", 	"Product",	280,		
 																	"The product to deliver for this term.",	
 																	UiConstants.getProducts(), "productCode", "descriptionAndCode");
 	protected NumberField					dollarValueField	= getDollarField("Value");
-	protected DateField						startDateField		= getDateField("Start");
-	protected DateField						endDateField		= getDateField("End");
-	protected DateField						terminateDateField	= getDateField("Terminate");
+	protected BoundDateField				startDateField		= getBoundDateField("Start");
+	protected BoundDateField				endDateField		= getBoundDateField("End");
+	protected BoundDateField				terminateDateField	= getBoundDateField("Terminate");
+	protected BoundSliderField				startEndSliderField = getBoundSliderField("Days");
+	protected BoundSliderField				endTerminateSliderField = getBoundSliderField("Days");
 	protected EnhancedComboBox<BeanModel>	termTypeField		= getComboField("termType", 		"Term Type",	0,		
 																		"The term type for this product term.",	
 																		UiConstants.getTermTypes(), "termTypeCode", "description");
 	protected EnhancedComboBox<BeanModel>	commissionTypeField	= getComboField("commissionType", 	"Commission",	290,		
 																		"The commission code assigned to this product term for reporting purposes.",	
 																		UiConstants.getCommissionTypes(UiConstants.CommissionTypeTargets.AGREEMENT_TERM), "commissionCode", "descriptionAndCode");
-	protected EnhancedComboBox<BeanModel>	cancelReasonField	= getComboField("cancelReason", 	"Cancel Reason",	215,		
+	protected EnhancedComboBox<BeanModel>	cancelReasonField	= getComboField("cancelReason", 	"Cancel",	290,		
 																		"The reason for canceling for this product term.",	
 																		UiConstants.getCancelReasons(), "cancelReasonCode", "descriptionAndCode");
-	protected LabelField					statusField			= new LabelField();
+//	protected LabelField					statusField			= new LabelField();
 	
 	protected NumberField					referenceSaIdField	= getIntegerField("Reference",		50);
 	protected TextField<String>				poNumberField		= getTextField("PO #");
@@ -151,19 +153,27 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 
 	@Override
 	public void setFormFieldValues(AgreementTermInstance instance) {
-		agreementIdField.setValue(AppConstants.appendCheckDigit(instance.getAgreementId()));
+		String displayStatus = AppConstants.getStatusDescription(instance.getStatus());
+		if (instance.getStatus() == AppConstants.STATUS_INACTIVE && instance.getCancelReasonCode() != null && instance.getCancelReasonCode().length() > 0 && instance.getCancelDate() != null)
+			displayStatus = "Canceled " + instance.getCancelDate();
+		agreementIdField.setValue(AppConstants.appendCheckDigit(instance.getAgreementId()) + " &nbsp;&nbsp;&nbsp;<i>" + displayStatus + "</i>");
 		productField.setValue(ProductInstance.obtainModel(instance.getProduct()));
 		dollarValueField.setValue(instance.getDollarValue());
+		
+		startDateField.setUnbound();
 		startDateField.setValue(instance.getStartDate());
 		endDateField.setValue(instance.getEndDate());
+		startDateField.setSliders();
+		startDateField.setBound();
+		
 		terminateDateField.setValue(instance.getTerminateDate());
 		termTypeField.setValue(TermTypeInstance.obtainModel(instance.getTermType()));
 		cancelReasonField.setValue(CancelReasonInstance.obtainModel(instance.getCancelReason()));
 		commissionTypeField.setValue(CommissionTypeInstance.obtainModel(instance.getCommissionType()));
 		
-		if (instance.getStatus() == AppConstants.STATUS_INACTIVE && instance.getCancelReasonCode() != null && instance.getCancelReasonCode().length() > 0 && instance.getCancelDate() != null)
-			statusField.setValue("Canceled " + instance.getCancelDate());
-		statusField.setValue(AppConstants.getStatusDescription(instance.getStatus()));
+//		if (instance.getStatus() == AppConstants.STATUS_INACTIVE && instance.getCancelReasonCode() != null && instance.getCancelReasonCode().length() > 0 && instance.getCancelDate() != null)
+//			statusField.setValue("Canceled " + instance.getCancelDate());
+//		statusField.setValue(AppConstants.getStatusDescription(instance.getStatus()));
 		
 		referenceSaIdField.setValue(instance.getReferenceSaId());
 		poNumberField.setValue(instance.getPoNumber());
@@ -181,6 +191,8 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 			notesField.setAddMode();
 			notesField.setNote("");			
 		}
+		
+		setOriginalValues();
 	}
 
 	@Override
@@ -206,6 +218,40 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 		startDateField.setToolTip(UiConstants.getQuickTip("The date on which this product term will take effect."));
 		endDateField.setToolTip(UiConstants.getQuickTip("The date on which this product term is scheduled to end."));
 		terminateDateField.setToolTip(UiConstants.getQuickTip("The date on which this product term will no longer be delivered."));
+		
+		startEndSliderField.setToolTip(UiConstants.getQuickTip("Use this slider to adjust the end date based on the number of days from the start date"));
+		endTerminateSliderField.setToolTip(UiConstants.getQuickTip("Use this slider to adjust the terminate date based on the number of days from the end date"));
+		
+		//	Start / end slider binding
+		
+		startEndSliderField.getSlider().setWidth(180);
+		startEndSliderField.getSlider().setMinValue(1);
+		startEndSliderField.getSlider().setMaxValue(365 * 2);
+		startEndSliderField.getSlider().setValue(365);
+		startEndSliderField.getSlider().setIncrement(1);
+		startEndSliderField.getSlider().setMessage("{0} days");
+
+//	    startEndSliderField.setFieldLabel("Days");
+	    
+	    DatesSliderBinder startEndBinder = new DatesSliderBinder(365 * 2);
+	    startDateField.bindLow(startEndBinder);
+	    endDateField.bindHigh(startEndBinder);
+	    startEndSliderField.bind(startEndBinder);
+		
+	    //	End / Terminate slider binding
+	    
+		endTerminateSliderField.getSlider().setWidth(180);
+		endTerminateSliderField.getSlider().setMinValue(0);
+		endTerminateSliderField.getSlider().setMaxValue(150);
+		endTerminateSliderField.getSlider().setValue(60);
+		endTerminateSliderField.getSlider().setIncrement(1);
+		endTerminateSliderField.getSlider().setMessage("{0} days");
+	    
+	    DatesSliderBinder endTerminateBinder = new DatesSliderBinder(150);
+	    startDateField.bindMin(endTerminateBinder);
+	    endDateField.bindLow(endTerminateBinder);
+	    terminateDateField.bindHigh(endTerminateBinder);
+	    endTerminateSliderField.bind(endTerminateBinder);
 
 		productField.setAllowBlank(false);
 		termTypeField.setAllowBlank(false);
@@ -227,6 +273,9 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 		formColumn1.add(poNumberField, formData);
 		formColumn1.add(groupField, formData);
 		
+//		formColumn1.add(statusField, formData);
+		formColumn1.add(cancelReasonField, formData);
+		
 		//	Form column 2
 		
 		FieldSet datesfieldSet = new FieldSet();
@@ -239,7 +288,9 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 		
 		datesfieldSet.add(startDateField);
 		datesfieldSet.add(endDateField);
+		datesfieldSet.add(startEndSliderField);
 		datesfieldSet.add(terminateDateField);
+		datesfieldSet.add(endTerminateSliderField);
 		datesfieldSet.add(termTypeField);
 		
 		formColumn2.add(datesfieldSet);
@@ -258,9 +309,6 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 //		profileFieldSet.add(enrollmentField);
 //		profileFieldSet.add(workstationsField);
 //		formColumn2.add(profileFieldSet, formData);
-		
-		formColumn2.add(statusField, formData);
-		formColumn2.add(cancelReasonField, formData);
 
 		panel.add(formColumn1);
 		panel.add(formColumn2);

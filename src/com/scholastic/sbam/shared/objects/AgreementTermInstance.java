@@ -14,7 +14,7 @@ public class AgreementTermInstance extends BetterRowEditInstance implements Bean
 	private static BeanModelFactory beanModelfactory;
 
 	private int		agreementId;
-	private int		id;
+	private int		termId;
 	
 	private String	productCode;
 	private Date	startDate;
@@ -112,12 +112,12 @@ public class AgreementTermInstance extends BetterRowEditInstance implements Bean
 		this.agreementId = agreementId;
 	}
 
-	public int getId() {
-		return id;
+	public int getTermId() {
+		return termId;
 	}
 
-	public void setId(int id) {
-		this.id = id;
+	public void setTermId(int termId) {
+		this.termId = termId;
 	}
 
 	public String getProductCode() {
@@ -361,7 +361,7 @@ public class AgreementTermInstance extends BetterRowEditInstance implements Bean
 		this.commissionType		=	fromInstance.commissionType;
 
 		this.agreementId		=	fromInstance.agreementId;
-		this.id					=	fromInstance.id;
+		this.termId				=	fromInstance.termId;
 
 		this.productCode		=	fromInstance.productCode;
 		this.startDate			=	fromInstance.startDate;
@@ -396,7 +396,7 @@ public class AgreementTermInstance extends BetterRowEditInstance implements Bean
 	}
 	
 	public String getUniqueKey() {
-		return agreementId + ":" + id;
+		return agreementId + ":" + termId;
 	}
 
 	public static AgreementTermInstance getEmptyInstance() {
@@ -413,6 +413,6 @@ public class AgreementTermInstance extends BetterRowEditInstance implements Bean
 	}
 
 	public String toString() {
-		return "Term " + agreementId + "-" + id;
+		return "Term " + agreementId + "-" + termId;
 	}
 }
