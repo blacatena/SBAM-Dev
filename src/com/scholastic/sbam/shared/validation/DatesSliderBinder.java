@@ -6,8 +6,9 @@ import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.SliderField;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
+import com.scholastic.sbam.client.uiobjects.DateFieldsBinder;
 
-public class DatesSliderBinder {
+public class DatesSliderBinder implements DateFieldsBinder {
 	
 	/**
 	 * This can be used to unbind things temporarily, while setting values, to prevent unexpected interactions
@@ -52,7 +53,7 @@ public class DatesSliderBinder {
 	 * Based on a setting of a field, adjust the other fields.
 	 * @param field
 	 */
-	public void setFromField(Field<?> field) {
+	public void fieldChanged(Field<?> field) {
 		if (unbound)
 			return;
 		
@@ -72,7 +73,7 @@ public class DatesSliderBinder {
 	 * 
 	 * This method can be used to initialize the slider.
 	 */
-	public void setSlider() {
+	public void setDependentFields() {
 		boolean saveUnbound = unbound;
 		unbound = true;
 		
@@ -116,7 +117,7 @@ public class DatesSliderBinder {
 	 * Set the slider from the dates.
 	 */
 	public void setFromDates() {
-		if (loDate.getValue() == null || hiDate.getValue() == null)
+		if (loDate == null || loDate.getValue() == null || hiDate == null || hiDate.getValue() == null)
 			return;
 
 		setSliderMaxDays();

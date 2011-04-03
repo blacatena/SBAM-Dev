@@ -60,7 +60,7 @@ public class BoundSliderField extends SliderFieldWithDisable {
 		locked = true;
 		super.setValue(value);
 		for (DatesSliderBinder binder : binders) {
-			binder.setFromField(this);
+			binder.fieldChanged(this);
 		}
 		locked = false;
 	}

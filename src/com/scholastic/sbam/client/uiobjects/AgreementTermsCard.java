@@ -82,6 +82,11 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 //	protected NumberField					enrollmentField		= getIntegerField("Enrollment",		50);
 //	protected NumberField					workstationsField	= getIntegerField("Workstations",	50);
 	
+	protected DateRangeBinder				startEndRangeBinder = new DateRangeBinder();
+	protected DatesSliderBinder				startEndSliderBinder = new DatesSliderBinder(365 * 2);
+	protected DatesSliderBinder				endTerminateSliderBinder = new DatesSliderBinder(150);
+	protected DateDefaultBinder				terminateDefaultBinder	= new DateDefaultBinder(60);
+	
 	public int getAgreementId() {
 		return getFocusId();
 	}
@@ -163,7 +168,9 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 		startDateField.setUnbound();
 		startDateField.setValue(instance.getStartDate());
 		endDateField.setValue(instance.getEndDate());
-		startDateField.setSliders();
+		startEndRangeBinder.setDependentFields();
+		startEndSliderBinder.setDependentFields();
+		endTerminateSliderBinder.setDependentFields();
 		startDateField.setBound();
 		
 		terminateDateField.setValue(instance.getTerminateDate());
@@ -221,6 +228,12 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 		
 		startEndSliderField.setToolTip(UiConstants.getQuickTip("Use this slider to adjust the end date based on the number of days from the start date"));
 		endTerminateSliderField.setToolTip(UiConstants.getQuickTip("Use this slider to adjust the terminate date based on the number of days from the end date"));
+
+		//  Start / end / terminate range binding
+		
+		startDateField.bindLow(startEndRangeBinder);
+		endDateField.bindHigh(startEndRangeBinder);
+		terminateDateField.bindHigh(startEndRangeBinder);
 		
 		//	Start / end slider binding
 		
@@ -230,13 +243,10 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 		startEndSliderField.getSlider().setValue(365);
 		startEndSliderField.getSlider().setIncrement(1);
 		startEndSliderField.getSlider().setMessage("{0} days");
-
-//	    startEndSliderField.setFieldLabel("Days");
 	    
-	    DatesSliderBinder startEndBinder = new DatesSliderBinder(365 * 2);
-	    startDateField.bindLow(startEndBinder);
-	    endDateField.bindHigh(startEndBinder);
-	    startEndSliderField.bind(startEndBinder);
+	    startDateField.bindLow(startEndSliderBinder);
+	    endDateField.bindHigh(startEndSliderBinder);
+	    startEndSliderField.bind(startEndSliderBinder);
 		
 	    //	End / Terminate slider binding
 	    
@@ -247,11 +257,13 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 		endTerminateSliderField.getSlider().setIncrement(1);
 		endTerminateSliderField.getSlider().setMessage("{0} days");
 	    
-	    DatesSliderBinder endTerminateBinder = new DatesSliderBinder(150);
-	    startDateField.bindMin(endTerminateBinder);
-	    endDateField.bindLow(endTerminateBinder);
-	    terminateDateField.bindHigh(endTerminateBinder);
-	    endTerminateSliderField.bind(endTerminateBinder);
+	    startDateField.bindMin(endTerminateSliderBinder);
+	    endDateField.bindLow(endTerminateSliderBinder);
+	    terminateDateField.bindHigh(endTerminateSliderBinder);
+	    endTerminateSliderField.bind(endTerminateSliderBinder);
+	    
+	    terminateDateField.bindTarget(terminateDefaultBinder);
+	    endDateField.bindControl(terminateDefaultBinder);
 
 		productField.setAllowBlank(false);
 		termTypeField.setAllowBlank(false);
@@ -333,7 +345,7 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 	
 	@Override
 	protected boolean isFormValidAndReady() {
-		boolean ready = true;
+		boolean ready = formPanel.isValid();
 		
 		//	Check for required fields
 		if (productField.getSelectedValue() == null) { 
@@ -354,22 +366,6 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 		
 		return ready;
 	}
-
-//	public void clearFormValues() {
-//		formColumn1.clear();
-//		formColumn2.clear();
-//	}
-//
-//	@Override
-//	public void resetFormValues() {
-//		formColumn1.reset();
-//		formColumn2.reset();
-//	}
-//	
-//	public void setOriginalValues() {
-//		setOriginalValues(formColumn1);
-//		setOriginalValues(formColumn2);
-//	}
 
 	protected void asyncUpdate() {
 	

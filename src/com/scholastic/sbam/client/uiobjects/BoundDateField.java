@@ -8,7 +8,7 @@ import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.scholastic.sbam.shared.validation.DatesSliderBinder;
 
 public class BoundDateField extends DateField {
-	List<DatesSliderBinder>	binders = new ArrayList<DatesSliderBinder>();
+	List<DateFieldsBinder>	binders = new ArrayList<DateFieldsBinder>();
 	protected boolean 		locked	= false;
 	
 	public void bindMin(DatesSliderBinder binder) {
@@ -31,6 +31,26 @@ public class BoundDateField extends DateField {
 		binder.setHiDate(this);
 	}
 	
+	public void bindLow(DateRangeBinder binder) {
+		binders.add(binder);
+		binder.addLoDate(this);
+	}
+	
+	public void bindHigh(DateRangeBinder binder) {
+		binders.add(binder);
+		binder.addHiDate(this);
+	}
+	
+	public void bindControl(DateDefaultBinder binder) {
+		binders.add(binder);
+		binder.setControlDate(this);
+	}
+	
+	public void bindTarget(DateDefaultBinder binder) {
+		binders.add(binder);
+		binder.setTargetDate(this);
+	}
+	
 	public void setValue(Date value) {
 		if (locked) {
 			return;
@@ -38,24 +58,24 @@ public class BoundDateField extends DateField {
 		
 		locked = true;
 		super.setValue(value);
-		for (DatesSliderBinder binder : binders) {
-			binder.setFromField(this);
+		for (DateFieldsBinder binder : binders) {
+			binder.fieldChanged(this);
 		}
 		locked = false;
 	}
 	
 	public void setUnbound() {
-		for (DatesSliderBinder binder : binders)
+		for (DateFieldsBinder binder : binders)
 			binder.setUnbound();
 	}
 	
 	public void setBound() {
-		for (DatesSliderBinder binder : binders)
+		for (DateFieldsBinder binder : binders)
 			binder.setBound();
 	}
 	
-	public void setSliders() {
-		for (DatesSliderBinder binder : binders)
-			binder.setSlider();
+	public void setDependencies() {
+		for (DateFieldsBinder binder : binders)
+			binder.setDependentFields();
 	}
 }
