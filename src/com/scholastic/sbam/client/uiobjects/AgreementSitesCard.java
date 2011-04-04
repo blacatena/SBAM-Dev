@@ -50,7 +50,7 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 	}
 	
 	public String getFormHeading() {
-		return "Product Terms";
+		return "Sites";
 	}
 	
 	@Override
@@ -81,6 +81,7 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 					"This is the code for the location at the site."));
 		columns.add(getDisplayColumn("site.description",		"Description",				150,
 					"This is the description of the location at the site."));
+		columns.add(getHiddenColumn("institution.htmlAddress",	"Address",					150));
 	
 		noteExpander = getNoteExpander();
 		columns.add(noteExpander);

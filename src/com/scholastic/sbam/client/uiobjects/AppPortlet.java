@@ -61,14 +61,14 @@ public abstract class AppPortlet extends Portlet {
 			}*/	;
 			
 			resizer.setDynamic(false);	//	This can't be set to true, because of a bug in the resizer, where it sets the page position wrong and moves portlets to overlap over those above them
-			resizer.setMaxWidth(this.getWidth());
-			resizer.setMinWidth(this.getWidth());
+//			resizer.setMaxWidth(this.getWidth());
+//			resizer.setMinWidth(this.getWidth());
 			
 			ResizeListener watchResize = new ResizeListener() {
 
 				@Override
 				public void handleEvent(ResizeEvent re) {
-					updateUserPortlet();
+					handleResize();
 				}
 				
 			};
@@ -86,13 +86,14 @@ public abstract class AppPortlet extends Portlet {
 	@Override
 	protected void onResize(int width, int height) {
 		super.onResize(width, height);
-//		System.out.println("Resized to " + width + ", " + height);
-//		updateUserPortlet();	//	Now done in resizer only
+		
+		updateUserPortlet();
+		
 		//	If there is a resizer, and portel width has changed due to portal dimensions change, then adjust the max and min width on the resizer to compensate
-		if (resizer != null && width > -1) {
-			resizer.setMaxWidth(this.getWidth());	//	This turns off horizontal resizing
-			resizer.setMinWidth(this.getWidth());	//	This turns off vertical resizing
-		}
+//		if (resizer != null && width > -1) {
+//			resizer.setMaxWidth(this.getWidth());	//	This turns off horizontal resizing
+//			resizer.setMinWidth(this.getWidth());	//	This turns off vertical resizing
+//		}
 	}
 	
 	protected void addHelp() {
@@ -132,6 +133,21 @@ public abstract class AppPortlet extends Portlet {
 			Portal thePortal = (Portal) getParent().getParent();
 			thePortal.remove(this, portalColumn);
 		}
+	}
+	
+	public void handleResize() {
+		//	Handle column resizes for width changes
+		if (getParent() != null) {
+			if (getParent().getParent() != null) { 
+				if (getParent().getParent() instanceof Portal) {
+					Portal myPortal = (Portal) getParent().getParent();
+					myPortal.setColumnWidth(portalColumn, getWidth());
+					myPortal.getItem(portalColumn).setWidth(getWidth() + myPortal.getSpacing());
+				}
+			}
+		}
+		
+//		updateUserPortlet();	//	Done in onResize, so that all impacted portlets update, not just this one
 	}
 
 	public String getHelpTextId() {

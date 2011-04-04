@@ -132,7 +132,18 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 					}
 
 					public void onSuccess(List<UserPortletCacheInstance> list) {
-						//	First, create and add the portlets
+						//	First, set the column widths
+						boolean [] columnWidthSet = new boolean [thePortal.getItemCount()];	// This only needs as many entries as columns, but why bother... the highest it would be is the number of portlets
+						for (UserPortletCacheInstance instance : list) {
+							if (instance.getRestoreColumn() >= 0 && instance.getRestoreColumn() < columnWidthSet.length) {
+								if (! columnWidthSet [instance.getRestoreColumn()]) {
+									thePortal.setColumnWidth(instance.getRestoreColumn(), instance.getRestoreWidth());
+									thePortal.getItem(instance.getRestoreColumn()).setWidth(instance.getRestoreWidth() + thePortal.getSpacing());
+									columnWidthSet [instance.getRestoreColumn()] = true; // This just makes sure we only do each column once, so first portlet in line decides the width
+								}
+							}
+						}
+						//	Second, create and add the portlets
 						for (UserPortletCacheInstance instance : list) {
 							AppPortlet portlet = portletProvider.getPortlet(instance.getPortletType());
 							if (instance.getRestoreHeight() > 0)
