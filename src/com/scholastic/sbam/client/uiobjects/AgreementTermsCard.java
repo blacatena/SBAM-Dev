@@ -98,15 +98,6 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 	public void setAgreementTerm(AgreementTermInstance instance) {
 		setFocusInstance(instance);
 	}
-	
-//	@Override
-//	public void afterRender() {
-//		super.afterRender();
-//		if (gridStore.getCount() == 0  && focusInstance == null) {
-//			formPanel.expand();
-//			beginEdit();
-//		}
-//	}
 
 	@Override
 	public void awaken() {
@@ -158,7 +149,7 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 
 	@Override
 	public void setFormFieldValues(AgreementTermInstance instance) {
-		String displayStatus = AppConstants.getStatusDescription(instance.getStatus());
+		String displayStatus = "Term " + AppConstants.getStatusDescription(instance.getStatus());
 		if (instance.getStatus() == AppConstants.STATUS_INACTIVE && instance.getCancelReasonCode() != null && instance.getCancelReasonCode().length() > 0 && instance.getCancelDate() != null)
 			displayStatus = "Canceled " + instance.getCancelDate();
 		agreementIdField.setValue(AppConstants.appendCheckDigit(instance.getAgreementId()) + " &nbsp;&nbsp;&nbsp;<i>" + displayStatus + "</i>");
@@ -191,15 +182,19 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 //		enrollmentField.setValue(instance.getEnrollment());
 //		workstationsField.setValue(instance.getWorkstations());
 
-		if (instance.getNote() != null && instance.getNote().length() > 0) {
+		setNotesField(instance.getNote());
+		
+//		setOriginalValues();
+	}
+	
+	public void setNotesField(String note) {
+		if (note != null && note.length() > 0) {
 			notesField.setEditMode();
-			notesField.setNote(instance.getNote());
+			notesField.setNote(note);
 		} else {
 			notesField.setAddMode();
 			notesField.setNote("");			
 		}
-		
-		setOriginalValues();
 	}
 
 	@Override
@@ -335,7 +330,6 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 		};
 		nibf.setLabelSeparator("");
 		nibf.setEmptyNoteText("Click the note icon to add notes for this agreement term.");
-		System.out.println(nibf.getStyleName());
 		return nibf;
 	}
 
@@ -444,7 +438,7 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 						
 						focusInstance.setNewRecord(false);
 						focusInstance.setValuesFrom(updatedAgreementTerm);
-						setFormFieldValues(updatedAgreementTerm);
+						setFormFromInstance(updatedAgreementTerm);	//	setFormFieldValues(updatedAgreementTerm);
 						
 						//	This puts the grid in synch
 						BeanModel gridModel = grid.getStore().findModel(focusInstance.getUniqueKey());
@@ -487,7 +481,7 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 						if (caught instanceof IllegalArgumentException)
 							MessageBox.alert("Alert", caught.getMessage(), null);
 						else {
-							MessageBox.alert("Alert", "Agreement note update failed unexpectedly.", null);
+							MessageBox.alert("Alert", "Agreement term note update failed unexpectedly.", null);
 							System.out.println(caught.getClass().getName());
 							System.out.println(caught.getMessage());
 						}
@@ -498,8 +492,8 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 						AgreementTermInstance updatedAgreementTerm = (AgreementTermInstance) updateResponse.getInstance();
 						//	This makes sure the field and instance are in synch
 						if (!notesField.getNote().equals(updatedAgreementTerm.getNote())) {
-							notesField.setNote(updatedAgreementTerm.getNote());
 							focusInstance.setNote(updatedAgreementTerm.getNote());
+							setNotesField(updatedAgreementTerm.getNote());
 						}
 						//	This puts the grid in synch
 						BeanModel gridModel = grid.getStore().findModel(focusInstance.getUniqueKey());

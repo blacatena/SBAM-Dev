@@ -15,7 +15,6 @@ import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.server.fastSearch.InstitutionCache;
 import com.scholastic.sbam.shared.objects.AgreementInstance;
 import com.scholastic.sbam.shared.objects.AgreementTermInstance;
-import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
 import com.scholastic.sbam.shared.util.AppConstants;
 
@@ -46,10 +45,7 @@ public class AgreementGetServiceImpl extends AuthenticatedServiceServlet impleme
 					agreement.setInstitution(DbInstitution.getInstance(dbInstitution));
 
 					if (agreement.getInstitution() != null) {
-						InstitutionInstance institution = agreement.getInstitution();
-						institution.setTypeDescription(InstitutionCache.getSingleton().getInstitutionType(institution.getTypeCode()).getDescription());
-						institution.setGroupDescription(InstitutionCache.getSingleton().getInstitutionGroup(institution.getGroupCode()).getDescription());
-						institution.setPublicPrivateDescription(InstitutionCache.getSingleton().getInstitutionPubPriv(institution.getPublicPrivateCode()).getDescription());
+						InstitutionCache.getSingleton().setDescriptions( agreement.getInstitution() );
 					}
 				}
 				

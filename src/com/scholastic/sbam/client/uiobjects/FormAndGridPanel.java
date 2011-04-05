@@ -58,6 +58,8 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	
 	protected int					focusId;
 	protected ModelInstance			focusInstance;
+	
+	protected boolean				fieldsOpen;
 
 	@Override
 	protected void onRender(Element parent, int index) {
@@ -237,7 +239,7 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		if (editButton != null) editButton.enable();
 		
 		// Set the form fields
-		setFormFieldValues(focusInstance);
+		setFormFromInstance(focusInstance);
 		
 		if (formPanel != null) {
 			formPanel.expand();
@@ -403,10 +405,11 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	}
 	
 	protected void handleDirtyForm() {
-		if (isFormValidAndReady())
+		if (isFormValidAndReady() && fieldsOpen) {
 			saveButton.enable();
-		else
+		} else {
 			saveButton.disable();
+		}
 	}
 	
 	protected boolean isFormValidAndReady() {
@@ -445,6 +448,11 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	
 	protected void resetFormValues() {
 		formPanel.reset();
+	}
+	
+	public void setFormFromInstance(ModelInstance instance) {
+		setFormFieldValues(instance);
+		setOriginalValues();
 	}
 	
 	public void setOriginalValues() {
@@ -636,12 +644,14 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	}
 	
 	public void disableFields() {
+		fieldsOpen = false;
 		for (Field<?> field : formPanel.getFields()) {
 			field.disable();
 		}
 	}
 	
 	public void enableFields() {
+		fieldsOpen = true;
 		for (Field<?> field : formPanel.getFields()) {
 			field.enable();
 		}
@@ -659,6 +669,7 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	 */
 	public void clearFormFieldValues() {
 		formPanel.clear();
+		setOriginalValues();
 	}
 	
 	/**

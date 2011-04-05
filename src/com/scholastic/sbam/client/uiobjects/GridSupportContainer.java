@@ -91,6 +91,10 @@ public abstract class GridSupportContainer<I> extends FieldSupportContainer {
 		return getGridColumn(column, heading, size, true, true, null, null);
 	}
 	
+	protected ColumnConfig getHiddenColumn(String column, String heading, int size, String toolTip) {
+		return getGridColumn(column, heading, size, true, true, null, null, toolTip);
+	}
+	
 	protected ColumnConfig getHiddenColumn(String column, String heading, int size, boolean sortable) {
 		return getGridColumn(column, heading, size, true, sortable, null, null);
 	}
@@ -188,6 +192,7 @@ public abstract class GridSupportContainer<I> extends FieldSupportContainer {
 			}
 		};
 		noteExpander.setWidth(32);
+		noteExpander.setResizable(false);
 		noteExpander.setRenderer(noteRenderer);
 		noteExpander.setToolTip("Click the notes icon to expand or collapse the row to display any notes.");
 //		noteExpander.setId("showNotes");

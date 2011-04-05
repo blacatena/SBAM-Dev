@@ -13,7 +13,6 @@ public class AgreementSiteInstance extends BetterRowEditInstance implements Bean
 	private String	siteLocCode;
 	
 	private String	commissionCode;
-	private String	commissionCodeDescription;
 	
 	private Date	activeDate;
 	private Date	inactiveDate;
@@ -21,13 +20,16 @@ public class AgreementSiteInstance extends BetterRowEditInstance implements Bean
 	private String	orgPath;
 	
 	private String	note;
-	
+
+	private String	cancelReasonCode;
 	private char	status;
 	private boolean	active;
 	private Date	createdDatetime;
 	
-	private SiteInstance		site;
-	private InstitutionInstance	institution;
+	private SiteInstance			site;
+//	private InstitutionInstance		institution;
+	private CancelReasonInstance	cancelReason;
+	private CommissionTypeInstance	commissionType;
 	
 	@Override
 	public void markForDeletion() {
@@ -113,20 +115,20 @@ public class AgreementSiteInstance extends BetterRowEditInstance implements Bean
 		this.siteLocCode = siteLocCode;
 	}
 
+	public String getCancelReasonCode() {
+		return cancelReasonCode;
+	}
+
+	public void setCancelReasonCode(String cancelReasonCode) {
+		this.cancelReasonCode = cancelReasonCode;
+	}
+
 	public String getCommissionCode() {
 		return commissionCode;
 	}
 
 	public void setCommissionCode(String commissionCode) {
 		this.commissionCode = commissionCode;
-	}
-
-	public String getCommissionCodeDescription() {
-		return commissionCodeDescription;
-	}
-
-	public void setCommissionCodeDescription(String commissionCodeDescription) {
-		this.commissionCodeDescription = commissionCodeDescription;
 	}
 
 	public Date getActiveDate() {
@@ -169,12 +171,36 @@ public class AgreementSiteInstance extends BetterRowEditInstance implements Bean
 		this.site = site;
 	}
 
-	public InstitutionInstance getInstitution() {
-		return institution;
+//	public InstitutionInstance getInstitution() {
+//		return institution;
+//	}
+//
+//	public void setInstitution(InstitutionInstance institution) {
+//		this.institution = institution;
+//	}
+
+	public CancelReasonInstance getCancelReason() {
+		return cancelReason;
 	}
 
-	public void setInstitution(InstitutionInstance institution) {
-		this.institution = institution;
+	public void setCancelReason(CancelReasonInstance cancelReason) {
+		this.cancelReason = cancelReason;
+		if (this.cancelReason == null)
+			this.cancelReasonCode = "";
+		else
+			this.cancelReasonCode = cancelReason.getCancelReasonCode();
+	}
+
+	public CommissionTypeInstance getCommissionType() {
+		return commissionType;
+	}
+
+	public void setCommissionType(CommissionTypeInstance commissionType) {
+		this.commissionType = commissionType;
+		if (this.commissionType == null)
+			this.commissionCode = "";
+		else
+			this.commissionCode = commissionType.getCommissionCode();
 	}
 	
 	public String getDisplayUcn() {
@@ -182,8 +208,38 @@ public class AgreementSiteInstance extends BetterRowEditInstance implements Bean
 			return siteUcn + "";
 		return siteUcn + " - " + siteUcnSuffix;
 	}
+	
+	public void setValuesFrom(AgreementSiteInstance fromInstance) {
+		this.agreementId				= fromInstance.agreementId;
+		this.siteUcn					= fromInstance.siteUcn;
+		this.siteUcnSuffix				= fromInstance.siteUcnSuffix;
+		this.siteLocCode				= fromInstance.siteLocCode;
+		
+		this.commissionCode				= fromInstance.commissionCode;
+		
+		this.activeDate					= fromInstance.activeDate;
+		this.inactiveDate				= fromInstance.inactiveDate;
+		
+		this.orgPath					= fromInstance.orgPath;
+		
+		this.note						= fromInstance.note;
+
+		this.cancelReasonCode			= fromInstance.cancelReasonCode;
+		this.status						= fromInstance.status;
+		this.active						= fromInstance.active;
+		this.createdDatetime			= fromInstance.createdDatetime;
+		
+		this.site						= fromInstance.site;
+//		this.institution				= fromInstance.institution;
+		this.cancelReason				= fromInstance.cancelReason;
+		this.commissionType				= fromInstance.commissionType;
+	}
+	
+	public String getUniqueKey() {
+		return agreementId + ":" + siteUcn + ":" + siteUcnSuffix + ":" + siteLocCode;
+	}
 
 	public String toString() {
-		return "Site " + agreementId + "-" + siteUcn + "-" + siteUcnSuffix;
+		return "Site " + agreementId + "-" + siteUcn + "-" + siteUcnSuffix + " - " + siteLocCode;
 	}
 }

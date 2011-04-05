@@ -2,10 +2,16 @@ package com.scholastic.sbam.shared.objects;
 
 import java.util.Date;
 
+import com.extjs.gxt.ui.client.data.BeanModel;
+import com.extjs.gxt.ui.client.data.BeanModelFactory;
+import com.extjs.gxt.ui.client.data.BeanModelLookup;
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
+import com.scholastic.sbam.shared.util.AppConstants;
 
 public class SiteInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
+
+	private static BeanModelFactory beanModelfactory;
 
 	private int		ucn;
 	private int		ucnSuffix;
@@ -14,7 +20,6 @@ public class SiteInstance extends BetterRowEditInstance implements BeanModelTag,
 	private String	description;
 	
 	private String	commissionCode;
-	private String	commissionCodeDescription;
 	
 	private char	pseudoSite;
 	
@@ -23,6 +28,9 @@ public class SiteInstance extends BetterRowEditInstance implements BeanModelTag,
 	private char	status;
 	private boolean	active;
 	private Date	createdDatetime;
+	
+	private InstitutionInstance		institution;
+	private CommissionTypeInstance	commissionType;
 	
 	@Override
 	public void markForDeletion() {
@@ -89,14 +97,6 @@ public class SiteInstance extends BetterRowEditInstance implements BeanModelTag,
 		this.commissionCode = commissionCode;
 	}
 
-	public String getCommissionCodeDescription() {
-		return commissionCodeDescription;
-	}
-
-	public void setCommissionCodeDescription(String commissionCodeDescription) {
-		this.commissionCodeDescription = commissionCodeDescription;
-	}
-
 	public char getPseudoSite() {
 		return pseudoSite;
 	}
@@ -146,6 +146,82 @@ public class SiteInstance extends BetterRowEditInstance implements BeanModelTag,
 
 	public void setNote(String note) {
 		this.note = note;
+	}
+
+	public InstitutionInstance getInstitution() {
+		return institution;
+	}
+
+	public void setInstitution(InstitutionInstance institution) {
+		this.institution = institution;
+	}
+
+	public CommissionTypeInstance getCommissionType() {
+		return commissionType;
+	}
+
+	public void setCommissionType(CommissionTypeInstance commissionType) {
+		this.commissionType = commissionType;
+		if (this.commissionType == null)
+			this.commissionCode = "";
+		else
+			this.commissionCode = commissionType.getCommissionCode();
+	}
+	
+	public String getListStyle() {
+		if (status == AppConstants.STATUS_NEW)
+			return "list-new";
+		if (status == AppConstants.STATUS_ALL)
+			return "list-all";
+		return "list-normal";
+	}
+	
+	public String getDescriptionAndCode() {
+		if (status == AppConstants.STATUS_NEW)
+			return "Create a new location at this site.";
+		if (status == AppConstants.STATUS_ALL)
+			return "All locations at this institution.";
+		
+		if (siteLocCode == null || siteLocCode.length() == 0)
+			return description;
+		return description + " [ " + siteLocCode + " ]";
+	}
+	
+	public static SiteInstance getEmptyInstance() {
+		SiteInstance instance = new SiteInstance();
+		instance.ucn = 0;
+		instance.ucnSuffix = 0;
+		instance.siteLocCode = "";
+		instance.description = "";
+		instance.institution = InstitutionInstance.getEmptyInstance();
+		return instance;
+	}
+	
+	public static SiteInstance getAllInstance(int ucn, int ucnSuffix) {
+		SiteInstance instance = new SiteInstance();
+		instance.ucn = ucn;
+		instance.ucnSuffix = ucnSuffix;
+		instance.siteLocCode = "";
+		instance.description = "All Locations";
+		instance.status = AppConstants.STATUS_ALL;
+		instance.institution = InstitutionInstance.getEmptyInstance();
+		return instance;
+	}
+	
+	public static SiteInstance getUnknownInstance(int ucn, int ucnSuffix, String siteLocCode) {
+		SiteInstance instance = new SiteInstance();
+		instance.ucn = ucn;
+		instance.ucnSuffix = ucnSuffix;
+		instance.siteLocCode = siteLocCode;
+		instance.description = "Unknown site " + ucn + " - " + ucnSuffix + " - " + siteLocCode;
+		return instance;
+	}
+
+	public static BeanModel obtainModel(SiteInstance instance) {
+		if (beanModelfactory == null)
+			beanModelfactory  = BeanModelLookup.get().getFactory(SiteInstance.class);
+		BeanModel model = beanModelfactory.createModel(instance);
+		return model;
 	}
 
 	public String toString() {

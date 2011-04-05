@@ -837,6 +837,15 @@ public class InstitutionCache implements Runnable {
 	public void setPubPrivs(HashMap<String, InstitutionPubPrivInstance> pubPrivs) {
 		this.pubPrivs = pubPrivs;
 	}
+	
+	public void setDescriptions(InstitutionInstance institution) {
+		if (institution == null) {
+			return;
+		}
+		institution.setTypeDescription(getInstitutionType(institution.getTypeCode()).getDescription());
+		institution.setGroupDescription(getInstitutionGroup(institution.getGroupCode()).getDescription());
+		institution.setPublicPrivateDescription(getInstitutionPubPriv(institution.getPublicPrivateCode()).getDescription());
+	}
 
 	public InstitutionTypeInstance getInstitutionType(String typeCode) {
 		if (types.containsKey(typeCode))

@@ -107,6 +107,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>updateAgreementSiteNoteServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateAgreementSiteNoteServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>updateAgreementTermNoteServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.UpdateAgreementTermNoteServiceImpl</servlet-class>
   </servlet>
@@ -307,6 +312,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>siteLocationSearchServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.SiteLocationSearchServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>termTypeListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.TermTypeListServiceImpl</servlet-class>
   </servlet>
@@ -434,6 +444,11 @@
   <servlet-mapping>
     <servlet-name>updateAgreementTermServlet</servlet-name>
     <url-pattern>/sbam/updateAgreementTerm</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateAgreementSiteNoteServlet</servlet-name>
+    <url-pattern>/sbam/updateAgreementSiteNote</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>
@@ -619,6 +634,11 @@
   <servlet-mapping>
     <servlet-name>serviceCodeValidationServlet</servlet-name>
     <url-pattern>/sbam/validateServiceCode</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>siteLocationSearchServlet</servlet-name>
+    <url-pattern>/sbam/searchSiteLocations</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

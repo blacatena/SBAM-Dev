@@ -7,9 +7,13 @@ import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
+import com.scholastic.sbam.server.database.codegen.CommissionType;
+import com.scholastic.sbam.server.database.codegen.Institution;
 import com.scholastic.sbam.server.database.codegen.Site;
 import com.scholastic.sbam.server.database.codegen.SiteId;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
+import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
+import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.SiteInstance;
 
 /**
@@ -66,18 +70,21 @@ public class DbSite extends HibernateAccessor {
 		return reasons;
 	}
 	
-	public static List<Site> findByUcn(int ucn, char status, char neStatus) {
+	public static List<Site> findByUcn(int ucn, int ucnSuffix, char status, char neStatus) {
         try
         {
             Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
             if (ucn > 0)
             	crit.add(Restrictions.eq("id.ucn", ucn));
+            if (ucn > 1)
+            	crit.add(Restrictions.eq("id.ucnSuffix", ucn));
             if (status != 0)
             	crit.add(Restrictions.like("status", status));
             if (neStatus != 0)
             	crit.add(Restrictions.ne("status", neStatus));
-            crit.addOrder(Order.asc("siteUcn"));
-            crit.addOrder(Order.asc("siteSuffix"));
+            crit.addOrder(Order.asc("id.ucn"));
+            crit.addOrder(Order.asc("id.ucnSuffix"));
+            crit.addOrder(Order.asc("description"));
             @SuppressWarnings("unchecked")
 			List<Site> objects = crit.list();
             return objects;
@@ -88,5 +95,30 @@ public class DbSite extends HibernateAccessor {
             System.out.println(e.getMessage());
         }
         return new ArrayList<Site>();
+	}
+	
+	public static void setDescriptions(SiteInstance site) {
+		if (site == null)
+			return;
+		
+		if (site.getUcn() > 0) {
+			Institution dbInstitution = DbInstitution.getByCode(site.getUcn());
+			if (dbInstitution != null)
+				site.setInstitution( DbInstitution.getInstance(dbInstitution) );
+			else
+				site.setInstitution( InstitutionInstance.getUnknownInstance( site.getUcn()) );
+		} else {
+			site.setInstitution( InstitutionInstance.getEmptyInstance());
+		}
+		
+		if (site.getCommissionCode() != null && site.getCommissionCode().length() > 0) {
+			CommissionType commissionType = DbCommissionType.getByCode(site.getCommissionCode());
+			if (commissionType != null) {
+				site.setCommissionType(DbCommissionType.getInstance(commissionType));
+			} else {
+				site.setCommissionType(CommissionTypeInstance.getUnknownInstance(site.getCommissionCode()));
+			}
+		} else
+			site.setCommissionType(CommissionTypeInstance.getEmptyInstance());
 	}
 }

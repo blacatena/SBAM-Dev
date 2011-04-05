@@ -248,6 +248,10 @@ div.x-tree3-el.x-ftree2-node-over img.x-tree3-node-icon {
 	filter:alpha(opacity = 100 )  !important;
 }
 
+div.x-form-readonly *.x-form-trigger.trigger-square {
+	background-image: none;
+}
+
 div.x-item-disabled *.x-form-trigger.trigger-square {
 	background-image: none;
 }
@@ -292,6 +296,15 @@ div.noteText {
 	background-image:url(resources/images/icons/colorful/insert.png);
 	background-repeat: no-repeat;
 	padding-left: 20px;
+	padding-bottom: 4px;
+}
+
+.list-all {
+	background-color: #FFEEDD;
+	background-image:url(resources/images/icons/colorful/institution.png);
+	background-repeat: no-repeat;
+	padding-left: 20px;
+	padding-bottom: 4px;
 }
 
 .list-null {
@@ -299,6 +312,7 @@ div.noteText {
 	background-image:url(resources/images/icons/colorful/remove.png);
 	background-repeat: no-repeat;
 	padding-left: 20px;
+	padding-bottom: 4px;
 }
 
 div.x-slider div.ext-el-mask {

@@ -155,7 +155,7 @@ public class AppNavTree {
 	  Folder root = new Folder("root");
 	  root.add(creates);
 	  root.add(searches);
-	  root.add(new SelectionTreeNode("Portlet Finder", IconSupplier.getPortletsIconName()));
+	  root.add(new SelectionTreeNode("Portlet Manager", IconSupplier.getPortletsIconName()));
 	  root.add(new SelectionTreeNode("Help", IconSupplier.getHelpIconName()));
 //	  root.add(agreements);
 

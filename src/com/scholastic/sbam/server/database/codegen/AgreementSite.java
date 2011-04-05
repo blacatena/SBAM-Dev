@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Mar 30, 2011 8:08:56 PM by Hibernate Tools 3.2.4.GA
+// Generated Apr 5, 2011 10:48:26 AM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -12,6 +12,7 @@ public class AgreementSite implements java.io.Serializable {
 	private AgreementSiteId id;
 	private String commissionCode;
 	private String orgPath;
+	private String cancelReasonCode;
 	private Date activeDate;
 	private Date inactiveDate;
 	private String note;
@@ -22,21 +23,24 @@ public class AgreementSite implements java.io.Serializable {
 	}
 
 	public AgreementSite(AgreementSiteId id, String commissionCode,
-			String orgPath, String note, Date createdDatetime, char status) {
+			String orgPath, String cancelReasonCode, String note,
+			Date createdDatetime, char status) {
 		this.id = id;
 		this.commissionCode = commissionCode;
 		this.orgPath = orgPath;
+		this.cancelReasonCode = cancelReasonCode;
 		this.note = note;
 		this.createdDatetime = createdDatetime;
 		this.status = status;
 	}
 
 	public AgreementSite(AgreementSiteId id, String commissionCode,
-			String orgPath, Date activeDate, Date inactiveDate, String note,
-			Date createdDatetime, char status) {
+			String orgPath, String cancelReasonCode, Date activeDate,
+			Date inactiveDate, String note, Date createdDatetime, char status) {
 		this.id = id;
 		this.commissionCode = commissionCode;
 		this.orgPath = orgPath;
+		this.cancelReasonCode = cancelReasonCode;
 		this.activeDate = activeDate;
 		this.inactiveDate = inactiveDate;
 		this.note = note;
@@ -66,6 +70,14 @@ public class AgreementSite implements java.io.Serializable {
 
 	public void setOrgPath(String orgPath) {
 		this.orgPath = orgPath;
+	}
+
+	public String getCancelReasonCode() {
+		return this.cancelReasonCode;
+	}
+
+	public void setCancelReasonCode(String cancelReasonCode) {
+		this.cancelReasonCode = cancelReasonCode;
 	}
 
 	public Date getActiveDate() {

@@ -15,6 +15,7 @@ public class AppConstants {
 	public static final char STATUS_EXPIRED		= 'E';
 	public static final char STATUS_NEW			= 'N';
 	public static final char STATUS_NULL		= '0';
+	public static final char STATUS_ALL			= '*';
 	public static final char STATUS_ANY_NONE	= (char) 0;
 	
 	public static final char PATH_DELIMITER		= '/';

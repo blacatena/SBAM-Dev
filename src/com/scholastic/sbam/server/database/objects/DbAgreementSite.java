@@ -9,8 +9,14 @@ import org.hibernate.criterion.Restrictions;
 
 import com.scholastic.sbam.server.database.codegen.AgreementSite;
 import com.scholastic.sbam.server.database.codegen.AgreementSiteId;
+import com.scholastic.sbam.server.database.codegen.CancelReason;
+import com.scholastic.sbam.server.database.codegen.CommissionType;
+import com.scholastic.sbam.server.database.codegen.Site;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
 import com.scholastic.sbam.shared.objects.AgreementSiteInstance;
+import com.scholastic.sbam.shared.objects.CancelReasonInstance;
+import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
+import com.scholastic.sbam.shared.objects.SiteInstance;
 
 /**
  * Sample database table accessor class, extending HibernateAccessor, and implementing custom get/find methods.
@@ -31,6 +37,8 @@ public class DbAgreementSite extends HibernateAccessor {
 		instance.setSiteLocCode(dbInstance.getId().getSiteLocCode());
 		
 		instance.setCommissionCode(dbInstance.getCommissionCode());
+		
+		instance.setCancelReasonCode(dbInstance.getCancelReasonCode());
 		instance.setActiveDate(dbInstance.getActiveDate());
 		instance.setInactiveDate(dbInstance.getInactiveDate());
 		
@@ -91,5 +99,52 @@ public class DbAgreementSite extends HibernateAccessor {
             System.out.println(e.getMessage());
         }
         return new ArrayList<AgreementSite>();
+	}
+	
+	public static void setDescriptions(AgreementSiteInstance agreementSite) {
+		if (agreementSite == null)
+			return;
+		
+		if (agreementSite.getSiteUcn() > 0) {
+			if (agreementSite.getSiteLocCode() != null && agreementSite.getSiteLocCode().length() > 0) {
+	//			Institution dbInstitution = DbInstitution.getByCode(agreementSite.getSiteUcn());
+	//			if (dbInstitution != null)
+	//				agreementSite.setInstitution( DbInstitution.getInstance(dbInstitution) );
+	//			else
+	//				agreementSite.setInstitution( InstitutionInstance.getUnknownInstance( agreementSite.getSiteUcn()) );
+				Site dbSite = DbSite.getById(agreementSite.getSiteUcn(), agreementSite.getSiteUcnSuffix(), agreementSite.getSiteLocCode());
+				if (dbSite != null)
+					agreementSite.setSite( DbSite.getInstance(dbSite) );
+				else
+					agreementSite.setSite( SiteInstance.getUnknownInstance(agreementSite.getSiteUcn(), agreementSite.getSiteUcnSuffix(), agreementSite.getSiteLocCode()));
+			} else {
+				agreementSite.setSite(SiteInstance.getAllInstance(agreementSite.getSiteUcn(), agreementSite.getSiteUcnSuffix()));
+			}
+			DbSite.setDescriptions(agreementSite.getSite());
+		} else {
+//			agreementSite.setInstitution( InstitutionInstance.getEmptyInstance());
+			agreementSite.setSite(SiteInstance.getEmptyInstance());
+		}
+		
+		if (agreementSite.getCommissionCode() != null && agreementSite.getCommissionCode().length() > 0) {
+			CommissionType commissionType = DbCommissionType.getByCode(agreementSite.getCommissionCode());
+			if (commissionType != null) {
+				agreementSite.setCommissionType(DbCommissionType.getInstance(commissionType));
+			} else {
+				agreementSite.setCommissionType(CommissionTypeInstance.getUnknownInstance(agreementSite.getCommissionCode()));
+			}
+		} else
+			agreementSite.setCommissionType(CommissionTypeInstance.getEmptyInstance());
+		
+		
+		if (agreementSite.getCancelReasonCode() != null && agreementSite.getCancelReasonCode().length() > 0) {
+			CancelReason cancelReason = DbCancelReason.getByCode(agreementSite.getCancelReasonCode());
+			if (cancelReason != null) {
+				agreementSite.setCancelReason(DbCancelReason.getInstance(cancelReason));
+			} else {
+				agreementSite.setCancelReason(CancelReasonInstance.getUnknownInstance(agreementSite.getCancelReasonCode()));
+			}
+		} else
+			agreementSite.setCancelReason(CancelReasonInstance.getEmptyInstance());
 	}
 }

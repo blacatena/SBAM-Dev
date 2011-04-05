@@ -5,14 +5,10 @@ import java.util.List;
 
 import com.scholastic.sbam.client.services.AgreementSiteListService;
 import com.scholastic.sbam.server.database.codegen.AgreementSite;
-import com.scholastic.sbam.server.database.codegen.CommissionType;
-import com.scholastic.sbam.server.database.codegen.Institution;
-import com.scholastic.sbam.server.database.codegen.Site;
 import com.scholastic.sbam.server.database.objects.DbAgreementSite;
-import com.scholastic.sbam.server.database.objects.DbCommissionType;
-import com.scholastic.sbam.server.database.objects.DbInstitution;
-import com.scholastic.sbam.server.database.objects.DbSite;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
+import com.scholastic.sbam.server.fastSearch.InstitutionCache;
+import com.scholastic.sbam.server.fastSearch.InstitutionCache.InstitutionCacheConflict;
 import com.scholastic.sbam.shared.objects.AgreementSiteInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
 import com.scholastic.sbam.shared.util.AppConstants;
@@ -56,23 +52,12 @@ public class AgreementSiteListServiceImpl extends AuthenticatedServiceServlet im
 	
 
 	
-	private void setDescriptions(AgreementSiteInstance agreementSite) {
+	private void setDescriptions(AgreementSiteInstance agreementSite) throws InstitutionCacheConflict {
 		if (agreementSite == null)
 			return;
 		
-		if (agreementSite.getSiteUcn() > 0) {
-			Institution dbInstitution = DbInstitution.getByCode(agreementSite.getSiteUcn());
-			if (dbInstitution != null)
-				agreementSite.setInstitution( DbInstitution.getInstance(dbInstitution) );
-			Site dbSite = DbSite.getById(agreementSite.getSiteUcn(), agreementSite.getSiteUcnSuffix(), agreementSite.getSiteLocCode());
-			if (dbSite != null)
-				agreementSite.setSite( DbSite.getInstance(dbSite) );
-		}
-	
-		if (agreementSite.getCommissionCode() != null) {
-			CommissionType cType = DbCommissionType.getByCode(agreementSite.getCommissionCode());
-			if (cType != null)
-				agreementSite.setCommissionCodeDescription(cType.getDescription());
-		}
+		DbAgreementSite.setDescriptions(agreementSite);
+		if (agreementSite.getSite() != null)
+			InstitutionCache.getSingleton().setDescriptions( agreementSite.getSite().getInstitution() );
 	}
 }
