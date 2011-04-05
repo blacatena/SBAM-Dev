@@ -6,6 +6,7 @@ import com.extjs.gxt.ui.client.widget.Slider;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
@@ -48,6 +49,18 @@ public class FieldFactory {
 		if (value.equalsIgnoreCase("USA"))
 			return "";
 		return "<br/>" + value;
+	}
+	
+	protected static LabelField getLabelField() {
+		return getLabelField(-1);
+	}
+	
+	protected static LabelField getLabelField(int width) {
+		LabelField field = new LabelField();
+		setStandard(field, "");
+		if (width > 0)
+			field.setWidth(width);
+		return field;
 	}
 	
 	protected static NumberField getDollarField(String label) {

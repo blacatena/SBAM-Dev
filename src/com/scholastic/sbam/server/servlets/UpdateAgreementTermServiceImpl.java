@@ -117,7 +117,7 @@ public class UpdateAgreementTermServiceImpl extends AuthenticatedServiceServlet 
 				dbInstance.setPoNumber("");
 			
 			//	Fix cancel values
-			if (dbInstance.getCancelReasonCode() == null || dbInstance.getCancelReasonCode().length() == 0) {
+			if (dbInstance.getCancelReasonCode() != null || dbInstance.getCancelReasonCode().length() > 0) {
 				if (dbInstance.getCancelDate() == null)
 					dbInstance.setCancelDate(new Date());
 				if (dbInstance.getStatus() != AppConstants.STATUS_DELETED)	// If it's already marked DELETED, then that's better than cancelled, so leave it

@@ -113,8 +113,13 @@ public class AppAgreementValidator {
 	}
 	
 	public List<String> validateDeleteReasonCode(String deleteReasonCode, AgreementInstance instance) {
-		if (deleteReasonCode == null || deleteReasonCode.length() == 0)
+		if (deleteReasonCode == null)
 			return messages;
+		
+		if (deleteReasonCode.length() == 0) {
+			instance.setStatus(AppConstants.STATUS_ACTIVE);
+			return messages;
+		}
 
 		DeleteReason dReason = DbDeleteReason.getByCode(deleteReasonCode);
 		if (dReason == null)

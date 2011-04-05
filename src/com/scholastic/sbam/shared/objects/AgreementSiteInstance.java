@@ -2,10 +2,16 @@ package com.scholastic.sbam.shared.objects;
 
 import java.util.Date;
 
+import com.extjs.gxt.ui.client.data.BeanModel;
+import com.extjs.gxt.ui.client.data.BeanModelFactory;
+import com.extjs.gxt.ui.client.data.BeanModelLookup;
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
+import com.scholastic.sbam.shared.util.AppConstants;
 
 public class AgreementSiteInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
+
+	private static BeanModelFactory beanModelfactory;
 
 	private int		agreementId;
 	private int		siteUcn;
@@ -209,6 +215,10 @@ public class AgreementSiteInstance extends BetterRowEditInstance implements Bean
 		return siteUcn + " - " + siteUcnSuffix;
 	}
 	
+	public String getStatusDescription() {
+		return AppConstants.getStatusDescription(status);
+	}
+	
 	public void setValuesFrom(AgreementSiteInstance fromInstance) {
 		this.agreementId				= fromInstance.agreementId;
 		this.siteUcn					= fromInstance.siteUcn;
@@ -237,6 +247,13 @@ public class AgreementSiteInstance extends BetterRowEditInstance implements Bean
 	
 	public String getUniqueKey() {
 		return agreementId + ":" + siteUcn + ":" + siteUcnSuffix + ":" + siteLocCode;
+	}
+
+	public static BeanModel obtainModel(AgreementSiteInstance instance) {
+		if (beanModelfactory == null)
+			beanModelfactory  = BeanModelLookup.get().getFactory(AgreementSiteInstance.class);
+		BeanModel model = beanModelfactory.createModel(instance);
+		return model;
 	}
 
 	public String toString() {

@@ -6,6 +6,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
@@ -60,6 +61,14 @@ public abstract class FieldSupportContainer extends LayoutContainer {
 	
 	protected String brIfNotUsa(String value) {
 		return AddressFormatter.brIfNotUsa(value);
+	}
+	
+	protected LabelField getLabelField() {
+		return FieldFactory.getLabelField();
+	}
+	
+	protected LabelField getLabelField(int width) {
+		return FieldFactory.getLabelField(width);
 	}
 	
 	protected NumberField getDollarField(String label) {

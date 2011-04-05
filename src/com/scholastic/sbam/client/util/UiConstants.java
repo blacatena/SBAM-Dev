@@ -158,6 +158,9 @@ public class UiConstants {
 
 			public void onSuccess(List<DeleteReasonInstance> list) {
 				deleteReasons.removeAll();
+				
+				//	This is special... it doesn't exist in the database as an actual "code"
+				deleteReasons.add(DeleteReasonInstance.obtainModel(DeleteReasonInstance.getNoneActiveInstance()));
 				for (DeleteReasonInstance instance : list) {
 					deleteReasons.add(DeleteReasonInstance.obtainModel(instance));	
 				}
@@ -218,9 +221,13 @@ public class UiConstants {
 
 			public void onSuccess(List<CancelReasonInstance> list) {
 				cancelReasons.removeAll();
+
+				//	This is special... it doesn't exist in the database as an actual "code"
+				cancelReasons.add(CancelReasonInstance.obtainModel(CancelReasonInstance.getNoneActiveInstance()));
 				for (CancelReasonInstance instance : list) {
 					cancelReasons.add(CancelReasonInstance.obtainModel(instance));	
 				}
+				
 			}
 		};
 		

@@ -28,8 +28,8 @@ public class AppAgreementTermValidator {
 	public List<String> validateAgreementTerm(AgreementTermInstance instance) {
 		if (instance.getStatus() == AppConstants.STATUS_DELETED)
 			return null;
-		if (instance.getStatus() == AppConstants.STATUS_ANY_NONE)
-			instance.setStatus(AppConstants.STATUS_ACTIVE);
+//		if (instance.getStatus() == AppConstants.STATUS_ANY_NONE)
+//			instance.setStatus(AppConstants.STATUS_ACTIVE);
 		validateCancelReasonCode(instance.getCancelReasonCode(), instance); // This may change the status to I, set cancel date
 		validateAgreementTermId(instance.getAgreementId(), instance.getTermId(), instance.isNewRecord());
 		validateTermType(instance.getTermTypeCode(), instance);
@@ -120,8 +120,13 @@ public class AppAgreementTermValidator {
 	}
 	
 	public List<String> validateCancelReasonCode(String cancelReasonCode, AgreementTermInstance instance) {
-		if (cancelReasonCode == null || cancelReasonCode.length() == 0)
+		if (cancelReasonCode == null)
 			return messages;
+		
+		if (cancelReasonCode.length() == 0) {
+			instance.setStatus(AppConstants.STATUS_ACTIVE);
+			return messages;
+		}
 
 		CancelReason cReason = DbCancelReason.getByCode(cancelReasonCode);
 		if (cReason == null)

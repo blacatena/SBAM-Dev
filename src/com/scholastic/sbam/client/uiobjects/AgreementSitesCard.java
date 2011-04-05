@@ -21,6 +21,8 @@ import com.scholastic.sbam.client.services.AgreementSiteListService;
 import com.scholastic.sbam.client.services.AgreementSiteListServiceAsync;
 import com.scholastic.sbam.client.services.UpdateAgreementSiteNoteService;
 import com.scholastic.sbam.client.services.UpdateAgreementSiteNoteServiceAsync;
+import com.scholastic.sbam.client.services.UpdateAgreementSiteService;
+import com.scholastic.sbam.client.services.UpdateAgreementSiteServiceAsync;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.AgreementSiteInstance;
 import com.scholastic.sbam.shared.objects.CancelReasonInstance;
@@ -33,7 +35,8 @@ import com.scholastic.sbam.shared.util.AppConstants;
 
 public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> {
 	
-	protected final AgreementSiteListServiceAsync agreementSiteListService = GWT.create(AgreementSiteListService.class);
+	protected final AgreementSiteListServiceAsync 		agreementSiteListService 		= GWT.create(AgreementSiteListService.class);
+	protected final UpdateAgreementSiteServiceAsync		updateAgreementSiteService		= GWT.create(UpdateAgreementSiteService.class);
 	protected final UpdateAgreementSiteNoteServiceAsync	updateAgreementSiteNoteService	= GWT.create(UpdateAgreementSiteNoteService.class);
 	
 	protected FormPanel				formColumn1;
@@ -45,18 +48,18 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 	protected RowExpander			noteExpander;
 
 	protected MultiField<String>			idNotesCombo		= new MultiField<String>("Agreement #");
-	protected LabelField					agreementIdField	= new LabelField();
+	protected LabelField					agreementIdField	= getLabelField();
 	protected NotesIconButtonField<String>	notesField			= getNotesButtonField();
-	protected InstitutionSearchField		institutionField	= getInstitutionField("ucn", "Site", 290, "The institution that will receive the product services.");
-	protected LabelField					addressDisplay		= new LabelField();
+	protected InstitutionSearchField		institutionField	= getInstitutionField("ucn", "Site", 250, "The institution that will receive the product services.");
+	protected LabelField					addressDisplay		= getLabelField();
 	protected TextField<String>				ucnDisplay			= getTextField("ICN+");
-	protected LabelField					customerTypeDisplay	= new LabelField();
-	protected SiteLocationSearchField		siteLocationField	= getSiteLocationField("uniqueKey", "Site Location", 290, "The specific location at the customer site.");
+	protected LabelField					customerTypeDisplay	= getLabelField();
+	protected SiteLocationSearchField		siteLocationField	= getSiteLocationField("uniqueKey", "Site Location", 250, "The specific location at the customer site.");
 	
-	protected EnhancedComboBox<BeanModel>	commissionTypeField	= getComboField("commissionType", 	"Commission",	290,		
+	protected EnhancedComboBox<BeanModel>	commissionTypeField	= getComboField("commissionType", 	"Commission",	250,		
 			"The commission code assigned to this site for reporting purposes.",	
 			UiConstants.getCommissionTypes(UiConstants.CommissionTypeTargets.SITE), "commissionCode", "descriptionAndCode");
-	protected EnhancedComboBox<BeanModel>	cancelReasonField	= getComboField("cancelReason", 	"Cancel",	290,		
+	protected EnhancedComboBox<BeanModel>	cancelReasonField	= getComboField("cancelReason", 	"Cancel",	250,		
 			"The reason for canceling (deactivating) for this site.",
 			UiConstants.getCancelReasons(), "cancelReasonCode", "descriptionAndCode");
 	
@@ -109,6 +112,7 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 		columns.add(getDisplayColumn("site.description",					"Location",					100,
 					"This is the description of the location at the site."));
 		columns.add(getDisplayColumn("site.institution.htmlAddress",		"Address",					180));
+		columns.add(getDisplayColumn("statusDescription",					"Status",					80));
 		
 //		These hidden columns were dropped because they mess up the columns widths and the notes row expander cell... a bug in GXT, it seems.
 //		columns.add(getHiddenColumn("siteUcn",								"UCN",						 40,		true, UiConstants.INTEGER_FORMAT,
@@ -211,11 +215,11 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 		addressDisplay.setToolTip(UiConstants.getQuickTip("The address of the institution."));
 
 		agreementIdField.setReadOnly(true);
-		agreementIdField.setWidth(150);
+		agreementIdField.setWidth(200);
 		idNotesCombo.setSpacing(20);
 		ucnDisplay.setReadOnly(true);
 		
-		addressDisplay.setWidth(300);
+		addressDisplay.setWidth(200);
 
 		
 		idNotesCombo.add(agreementIdField);	
@@ -348,6 +352,87 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 		addressDisplay.setValue(instance.getHtmlAddress());
 		customerTypeDisplay.setValue(instance.getPublicPrivateDescription() + " / " + instance.getGroupDescription() + " &rArr; " + instance.getTypeDescription());
 		
+	}
+
+	@Override
+	protected void asyncUpdate() {
+	
+		// Set field values from form fields
+		
+		if (focusInstance == null) {
+			focusInstance = new AgreementSiteInstance();
+			focusInstance.setNewRecord(true);
+			focusInstance.setAgreementId(getAgreementId());
+			InstitutionInstance institution = institutionField.getSelectedValue().getBean();
+			if (institution == null) {
+				MessageBox.alert("Unexpted Error", "No institution is selected for the site.", null);
+				return;
+			}
+			focusInstance.setSiteUcn(institution.getUcn());
+			focusInstance.setSiteUcnSuffix(1);
+			SiteInstance site = siteLocationField.getSelectedValue().getBean();
+			if (site == null) {
+				MessageBox.alert("Unexpted Error", "No site location is selected for this agreement site.", null);
+				return;
+			}
+			focusInstance.setSiteLocCode(site.getSiteLocCode());
+		}
+		
+		if (commissionTypeField.getSelectedValue() == null)
+			focusInstance.setCommissionType(null);
+		else
+			focusInstance.setCommissionType( (CommissionTypeInstance) commissionTypeField.getSelectedValue().getBean() );
+		
+		if (cancelReasonField.getSelectedValue() == null) {
+			focusInstance.setCancelReason(CancelReasonInstance.getEmptyInstance());
+			focusInstance.setCancelReasonCode("");
+		} else
+			focusInstance.setCancelReason( (CancelReasonInstance) cancelReasonField.getSelectedValue().getBean() );
+		
+		if (focusInstance.isNewRecord())
+			focusInstance.setNote(notesField.getNote());
+		else
+			focusInstance.setNote(null);	//	This will keep the note from being updated by this call
+	
+		//	Issue the asynchronous update request and plan on handling the response
+		updateAgreementSiteService.updateAgreementSite(focusInstance,
+				new AsyncCallback<UpdateResponse<AgreementSiteInstance>>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "Agreement site  update failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+						editButton.enable();
+						newButton.enable();
+					}
+
+					public void onSuccess(UpdateResponse<AgreementSiteInstance> updateResponse) {
+						AgreementSiteInstance updatedAgreementSite = (AgreementSiteInstance) updateResponse.getInstance();
+						if (updatedAgreementSite.isNewRecord()) {
+							updatedAgreementSite.setNewRecord(false);
+							grid.getStore().insert(AgreementSiteInstance.obtainModel(updatedAgreementSite), 0);
+						}
+						
+						focusInstance.setNewRecord(false);
+						focusInstance.setValuesFrom(updatedAgreementSite);
+						setFormFromInstance(updatedAgreementSite);	//	setFormFieldValues(updatedAgreementSite);
+						
+						//	This puts the grid in synch
+						BeanModel gridModel = grid.getStore().findModel(focusInstance.getUniqueKey());
+						if (gridModel != null) {
+							AgreementSiteInstance matchInstance = gridModel.getBean();
+							matchInstance.setValuesFrom(focusInstance);
+							grid.getStore().update(gridModel);
+						}
+						
+						editButton.enable();
+						newButton.enable();
+				}
+			});
 	}
 
 	protected void asyncUpdateNote(String note) {

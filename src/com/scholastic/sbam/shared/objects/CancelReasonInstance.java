@@ -116,6 +116,13 @@ public class CancelReasonInstance extends BetterRowEditInstance implements BeanM
 		instance.description = "";
 		return instance;
 	}
+	
+	public static CancelReasonInstance getNoneActiveInstance() {
+		CancelReasonInstance instance = new CancelReasonInstance();
+		instance.cancelReasonCode = "";
+		instance.description = "None (Active)";
+		return instance;
+	}
 
 	public static BeanModel obtainModel(CancelReasonInstance instance) {
 		if (beanModelfactory == null)
