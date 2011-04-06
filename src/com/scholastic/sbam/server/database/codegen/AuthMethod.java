@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Apr 5, 2011 10:48:26 AM by Hibernate Tools 3.2.4.GA
+// Generated Apr 6, 2011 12:01:48 AM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -10,42 +10,39 @@ import java.util.Date;
 public class AuthMethod implements java.io.Serializable {
 
 	private AuthMethodId id;
+	private String url;
+	private String userId;
+	private long ipLo;
+	private long ipHi;
 	private String password;
-	private Integer proxyId;
-	private Character userType;
+	private int proxyId;
+	private char userType;
 	private char remote;
 	private char approved;
 	private char validated;
 	private char activated;
+	private String orgPath;
 	private String note;
-	private Date createdDatetime;
-	private Date updatedDatetime;
 	private Date activatedDatetime;
 	private Date deactivatedDatetime;
 	private Date reactivatedDatetime;
+	private Date updatedDatetime;
+	private Date createdDatetime;
+	private char status;
 
 	public AuthMethod() {
 	}
 
-	public AuthMethod(AuthMethodId id, char remote, char approved,
-			char validated, char activated, String note, Date createdDatetime,
-			Date updatedDatetime) {
+	public AuthMethod(AuthMethodId id, String url, String userId, long ipLo,
+			long ipHi, String password, int proxyId, char userType,
+			char remote, char approved, char validated, char activated,
+			String orgPath, String note, Date updatedDatetime,
+			Date createdDatetime, char status) {
 		this.id = id;
-		this.remote = remote;
-		this.approved = approved;
-		this.validated = validated;
-		this.activated = activated;
-		this.note = note;
-		this.createdDatetime = createdDatetime;
-		this.updatedDatetime = updatedDatetime;
-	}
-
-	public AuthMethod(AuthMethodId id, String password, Integer proxyId,
-			Character userType, char remote, char approved, char validated,
-			char activated, String note, Date createdDatetime,
-			Date updatedDatetime, Date activatedDatetime,
-			Date deactivatedDatetime, Date reactivatedDatetime) {
-		this.id = id;
+		this.url = url;
+		this.userId = userId;
+		this.ipLo = ipLo;
+		this.ipHi = ipHi;
 		this.password = password;
 		this.proxyId = proxyId;
 		this.userType = userType;
@@ -53,12 +50,39 @@ public class AuthMethod implements java.io.Serializable {
 		this.approved = approved;
 		this.validated = validated;
 		this.activated = activated;
+		this.orgPath = orgPath;
 		this.note = note;
-		this.createdDatetime = createdDatetime;
 		this.updatedDatetime = updatedDatetime;
+		this.createdDatetime = createdDatetime;
+		this.status = status;
+	}
+
+	public AuthMethod(AuthMethodId id, String url, String userId, long ipLo,
+			long ipHi, String password, int proxyId, char userType,
+			char remote, char approved, char validated, char activated,
+			String orgPath, String note, Date activatedDatetime,
+			Date deactivatedDatetime, Date reactivatedDatetime,
+			Date updatedDatetime, Date createdDatetime, char status) {
+		this.id = id;
+		this.url = url;
+		this.userId = userId;
+		this.ipLo = ipLo;
+		this.ipHi = ipHi;
+		this.password = password;
+		this.proxyId = proxyId;
+		this.userType = userType;
+		this.remote = remote;
+		this.approved = approved;
+		this.validated = validated;
+		this.activated = activated;
+		this.orgPath = orgPath;
+		this.note = note;
 		this.activatedDatetime = activatedDatetime;
 		this.deactivatedDatetime = deactivatedDatetime;
 		this.reactivatedDatetime = reactivatedDatetime;
+		this.updatedDatetime = updatedDatetime;
+		this.createdDatetime = createdDatetime;
+		this.status = status;
 	}
 
 	public AuthMethodId getId() {
@@ -69,6 +93,38 @@ public class AuthMethod implements java.io.Serializable {
 		this.id = id;
 	}
 
+	public String getUrl() {
+		return this.url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public String getUserId() {
+		return this.userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public long getIpLo() {
+		return this.ipLo;
+	}
+
+	public void setIpLo(long ipLo) {
+		this.ipLo = ipLo;
+	}
+
+	public long getIpHi() {
+		return this.ipHi;
+	}
+
+	public void setIpHi(long ipHi) {
+		this.ipHi = ipHi;
+	}
+
 	public String getPassword() {
 		return this.password;
 	}
@@ -77,19 +133,19 @@ public class AuthMethod implements java.io.Serializable {
 		this.password = password;
 	}
 
-	public Integer getProxyId() {
+	public int getProxyId() {
 		return this.proxyId;
 	}
 
-	public void setProxyId(Integer proxyId) {
+	public void setProxyId(int proxyId) {
 		this.proxyId = proxyId;
 	}
 
-	public Character getUserType() {
+	public char getUserType() {
 		return this.userType;
 	}
 
-	public void setUserType(Character userType) {
+	public void setUserType(char userType) {
 		this.userType = userType;
 	}
 
@@ -125,28 +181,20 @@ public class AuthMethod implements java.io.Serializable {
 		this.activated = activated;
 	}
 
+	public String getOrgPath() {
+		return this.orgPath;
+	}
+
+	public void setOrgPath(String orgPath) {
+		this.orgPath = orgPath;
+	}
+
 	public String getNote() {
 		return this.note;
 	}
 
 	public void setNote(String note) {
 		this.note = note;
-	}
-
-	public Date getCreatedDatetime() {
-		return this.createdDatetime;
-	}
-
-	public void setCreatedDatetime(Date createdDatetime) {
-		this.createdDatetime = createdDatetime;
-	}
-
-	public Date getUpdatedDatetime() {
-		return this.updatedDatetime;
-	}
-
-	public void setUpdatedDatetime(Date updatedDatetime) {
-		this.updatedDatetime = updatedDatetime;
 	}
 
 	public Date getActivatedDatetime() {
@@ -171,6 +219,30 @@ public class AuthMethod implements java.io.Serializable {
 
 	public void setReactivatedDatetime(Date reactivatedDatetime) {
 		this.reactivatedDatetime = reactivatedDatetime;
+	}
+
+	public Date getUpdatedDatetime() {
+		return this.updatedDatetime;
+	}
+
+	public void setUpdatedDatetime(Date updatedDatetime) {
+		this.updatedDatetime = updatedDatetime;
+	}
+
+	public Date getCreatedDatetime() {
+		return this.createdDatetime;
+	}
+
+	public void setCreatedDatetime(Date createdDatetime) {
+		this.createdDatetime = createdDatetime;
+	}
+
+	public char getStatus() {
+		return this.status;
+	}
+
+	public void setStatus(char status) {
+		this.status = status;
 	}
 
 }

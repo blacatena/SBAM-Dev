@@ -58,6 +58,7 @@
         <mapping resource="com/scholastic/sbam/server/database/codegen/AgreementSite.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/AgreementLink.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/TermType.hbm.xml" />
+        <mapping resource="com/scholastic/sbam/server/database/codegen/RemoteUrl.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/WelcomeMessage.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/SysConfig.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/InstitutionContact.hbm.xml" />

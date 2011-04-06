@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Apr 5, 2011 10:48:27 AM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Apr 6, 2011 12:01:48 AM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.AuthMethod" table="auth_method" catalog="sbam">
         <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.AuthMethodId">
@@ -20,27 +20,30 @@
             <key-property name="methodType" type="string">
                 <column name="method_type" length="8" />
             </key-property>
-            <key-property name="url" type="string">
-                <column name="url" length="512" />
-            </key-property>
-            <key-property name="userId" type="string">
-                <column name="user_id" />
-            </key-property>
-            <key-property name="ipLo" type="long">
-                <column name="ip_lo" />
-            </key-property>
-            <key-property name="ipHi" type="long">
-                <column name="ip_hi" />
+            <key-property name="methodKey" type="string">
+                <column name="method_key" length="512" />
             </key-property>
         </composite-id>
+        <property name="url" type="string">
+            <column name="url" length="512" not-null="true" />
+        </property>
+        <property name="userId" type="string">
+            <column name="user_id" not-null="true" />
+        </property>
+        <property name="ipLo" type="long">
+            <column name="ip_lo" not-null="true" />
+        </property>
+        <property name="ipHi" type="long">
+            <column name="ip_hi" not-null="true" />
+        </property>
         <property name="password" type="string">
-            <column name="password" />
+            <column name="password" not-null="true" />
         </property>
-        <property name="proxyId" type="java.lang.Integer">
-            <column name="proxy_id" />
+        <property name="proxyId" type="int">
+            <column name="proxy_id" not-null="true" />
         </property>
-        <property name="userType" type="java.lang.Character">
-            <column name="user_type" length="1" />
+        <property name="userType" type="char">
+            <column name="user_type" length="1" not-null="true" />
         </property>
         <property name="remote" type="char">
             <column name="remote" length="1" not-null="true" />
@@ -54,14 +57,11 @@
         <property name="activated" type="char">
             <column name="activated" length="1" not-null="true" />
         </property>
+        <property name="orgPath" type="string">
+            <column name="org_path" length="1024" not-null="true" />
+        </property>
         <property name="note" type="string">
             <column name="note" length="4000" not-null="true" />
-        </property>
-        <property name="createdDatetime" type="timestamp">
-            <column name="created_datetime" length="19" not-null="true" />
-        </property>
-        <property name="updatedDatetime" type="timestamp">
-            <column name="updated_datetime" length="19" not-null="true" />
         </property>
         <property name="activatedDatetime" type="timestamp">
             <column name="activated_datetime" length="19" />
@@ -71,6 +71,15 @@
         </property>
         <property name="reactivatedDatetime" type="timestamp">
             <column name="reactivated_datetime" length="19" />
+        </property>
+        <property name="updatedDatetime" type="timestamp">
+            <column name="updated_datetime" length="19" not-null="true" />
+        </property>
+        <property name="createdDatetime" type="timestamp">
+            <column name="created_datetime" length="19" not-null="true" />
+        </property>
+        <property name="status" type="char">
+            <column name="status" length="1" not-null="true" />
         </property>
     </class>
 </hibernate-mapping>
