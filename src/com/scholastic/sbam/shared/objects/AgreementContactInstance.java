@@ -100,6 +100,10 @@ public class AgreementContactInstance extends BetterRowEditInstance implements B
 	public void setContact(ContactInstance contact) {
 		this.contact = contact;
 	}
+	
+	public String getUniqueKey() {
+		return agreementId + ":" + contactId;
+	}
 
 	public String toString() {
 		return "Site " + agreementId + "-" + contactId;

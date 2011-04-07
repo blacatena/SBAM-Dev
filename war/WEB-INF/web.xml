@@ -177,6 +177,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>contactSearchServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.ContactSearchServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>contactTypeListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.ContactTypeListServiceImpl</servlet-class>
   </servlet>
@@ -504,6 +509,11 @@
   <servlet-mapping>
     <servlet-name>commissionCodeValidationServlet</servlet-name>
     <url-pattern>/sbam/validateCommissionCode</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>contactSearchServlet</servlet-name>
+    <url-pattern>/sbam/searchContacts</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

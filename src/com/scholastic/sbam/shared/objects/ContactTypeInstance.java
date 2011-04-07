@@ -2,10 +2,15 @@ package com.scholastic.sbam.shared.objects;
 
 import java.util.Date;
 
+import com.extjs.gxt.ui.client.data.BeanModel;
+import com.extjs.gxt.ui.client.data.BeanModelFactory;
+import com.extjs.gxt.ui.client.data.BeanModelLookup;
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class ContactTypeInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
+
+	private static BeanModelFactory beanModelfactory;
 
 	private String		contactTypeCode;
 	private String		description;
@@ -79,6 +84,27 @@ public class ContactTypeInstance extends BetterRowEditInstance implements BeanMo
 		if (this.status == 'X')
 			return;
 		setStatus(active?'A':'I');
+	}
+	
+	public static ContactTypeInstance getEmptyInstance() {
+		ContactTypeInstance instance = new ContactTypeInstance();
+		instance.contactTypeCode = "";
+		instance.description = "None";
+		return instance;
+	}
+	
+	public static ContactTypeInstance getUnknownInstance(String code) {
+		ContactTypeInstance instance = new ContactTypeInstance();
+		instance.contactTypeCode = code;
+		instance.description = "Unknwon type code " + code;
+		return instance;
+	}
+
+	public static BeanModel obtainModel(ContactTypeInstance instance) {
+		if (beanModelfactory == null)
+			beanModelfactory  = BeanModelLookup.get().getFactory(ContactTypeInstance.class);
+		BeanModel model = beanModelfactory.createModel(instance);
+		return model;
 	}
 
 	public String toString() {

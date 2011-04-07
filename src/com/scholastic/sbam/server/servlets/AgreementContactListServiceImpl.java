@@ -5,10 +5,8 @@ import java.util.List;
 
 import com.scholastic.sbam.client.services.AgreementContactListService;
 import com.scholastic.sbam.server.database.codegen.AgreementContact;
-import com.scholastic.sbam.server.database.codegen.ContactType;
 import com.scholastic.sbam.server.database.codegen.Contact;
 import com.scholastic.sbam.server.database.objects.DbAgreementContact;
-import com.scholastic.sbam.server.database.objects.DbContactType;
 import com.scholastic.sbam.server.database.objects.DbContact;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.objects.AgreementContactInstance;
@@ -24,22 +22,22 @@ public class AgreementContactListServiceImpl extends AuthenticatedServiceServlet
 	@Override
 	public List<AgreementContactInstance> getAgreementContacts(int agreementId, char neStatus) throws IllegalArgumentException {
 		
-		authenticate("get agreement sites", SecurityManager.ROLE_QUERY);
+		authenticate("get agreement contacts", SecurityManager.ROLE_QUERY);
 		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();
 
 		List<AgreementContactInstance> list = new ArrayList<AgreementContactInstance>();
 		try {
-			//	Find only undeleted site types
-			List<AgreementContact> siteInstances = DbAgreementContact.findByAgreementId(agreementId, AppConstants.STATUS_ANY_NONE, neStatus);
+			//	Find only undeleted contact types
+			List<AgreementContact> contactInstances = DbAgreementContact.findByAgreementId(agreementId, AppConstants.STATUS_ANY_NONE, neStatus);
 			
-			for (AgreementContact siteInstance : siteInstances) {
-				list.add(DbAgreementContact.getInstance(siteInstance));
+			for (AgreementContact contactInstance : contactInstances) {
+				list.add(DbAgreementContact.getInstance(contactInstance));
 			}
 			
-			for (AgreementContactInstance site : list) {
-				setDescriptions(site);
+			for (AgreementContactInstance contact : list) {
+				setDescriptions(contact);
 			}
 
 		} catch (Exception exc) {
@@ -62,12 +60,7 @@ public class AgreementContactListServiceImpl extends AuthenticatedServiceServlet
 			Contact dbContact = DbContact.getByCode(agreementContact.getContactId());
 			if (dbContact != null) {
 				agreementContact.setContact( DbContact.getInstance(dbContact) );
-			
-				if (dbContact.getContactTypeCode() != null) {
-					ContactType cType = DbContactType.getByCode(dbContact.getContactTypeCode());
-					if (cType != null)
-						agreementContact.getContact().setContactTypeDescription(cType.getDescription());
-				}
+				DbContact.setDescriptions(agreementContact.getContact());
 			}
 		}
 	}

@@ -315,6 +315,30 @@ div.noteText {
 	padding-bottom: 4px;
 }
 
+.list-institution {
+	background-color: #FFF0EE;
+	background-image:url(resources/images/icons/colorful/institution.png);
+	background-repeat: no-repeat;
+	padding-left: 20px;
+	padding-bottom: 4px;
+}
+
+.list-restart {
+	background-color: #FFFFDD;
+	background-image:url(resources/images/icons/colorful/restart_search.png);
+	background-repeat: no-repeat;
+	padding-left: 20px;
+	padding-bottom: 4px;
+}
+
+.list-contact {
+	background-color: #FFFFFF;
+	background-image:url(resources/images/icons/colorful/contact.png);
+	background-repeat: no-repeat;
+	padding-left: 20px;
+	padding-bottom: 4px;
+}
+
 div.x-slider div.ext-el-mask {
 	opacity:0  !important;
 	-moz-opacity:0  !important;

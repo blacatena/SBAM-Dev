@@ -46,6 +46,7 @@ public class DbInstitution extends HibernateAccessor {
 		instance.setCreatedDate(dbInstance.getCreatedDate());
 		instance.setClosedDate(dbInstance.getClosedDate());
 		instance.setAlternateIds(dbInstance.getAlternateIds());
+		instance.setStatus(dbInstance.getStatus());
 		
 		return instance;
 	}

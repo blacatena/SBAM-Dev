@@ -35,6 +35,7 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable, UserCa
 	private String	alternateIds;
 	private Date	createdDate;
 	private Date	closedDate;
+	private char 	status;
 	
 	private int		agreements;
 	private int		activeAgreements;
@@ -167,7 +168,13 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable, UserCa
 	public void setClosedDate(Date closedDate) {
 		this.closedDate = closedDate;
 	}
-	
+		
+	public char getStatus() {
+		return status;
+	}
+	public void setStatus(char status) {
+		this.status = status;
+	}
 	public int getAgreements() {
 		return agreements;
 	}

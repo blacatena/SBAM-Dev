@@ -4,6 +4,7 @@ import java.util.Date;
 
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
+import com.scholastic.sbam.client.util.AddressFormatter;
 
 public class ContactInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
 
@@ -29,6 +30,8 @@ public class ContactInstance extends BetterRowEditInstance implements BeanModelT
 	private char		status;
 	private boolean		active;
 	private Date		createdDatetime;
+	
+	private ContactTypeInstance	contactType;
 	
 	@Override
 	public void markForDeletion() {
@@ -232,6 +235,22 @@ public class ContactInstance extends BetterRowEditInstance implements BeanModelT
 		if (this.status == 'X')
 			return;
 		setStatus(active?'A':'I');
+	}
+	
+	public ContactTypeInstance getContactType() {
+		return contactType;
+	}
+
+	public void setContactType(ContactTypeInstance contactType) {
+		this.contactType = contactType;
+		if (contactType == null)
+			setContactTypeDescription("None");
+		else
+			setContactTypeDescription(contactType.getDescription());
+	}
+
+	public String getHtmlAddress() {
+		return AddressFormatter.getMultiLineAddress(address1, address2, address3, city, state, zip, country);
 	}
 
 	public String toString() {
