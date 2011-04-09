@@ -35,6 +35,8 @@ import com.scholastic.sbam.shared.util.AppConstants;
 
 public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> {
 	
+	private static final int DEFAULT_FIELD_WIDTH	=	0;	//250;
+	
 	protected final AgreementSiteListServiceAsync 		agreementSiteListService 		= GWT.create(AgreementSiteListService.class);
 	protected final UpdateAgreementSiteServiceAsync		updateAgreementSiteService		= GWT.create(UpdateAgreementSiteService.class);
 	protected final UpdateAgreementSiteNoteServiceAsync	updateAgreementSiteNoteService	= GWT.create(UpdateAgreementSiteNoteService.class);
@@ -50,16 +52,16 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 	protected MultiField<String>			idNotesCombo		= new MultiField<String>("Agreement #");
 	protected LabelField					agreementIdField	= getLabelField();
 	protected NotesIconButtonField<String>	notesField			= getNotesButtonField();
-	protected InstitutionSearchField		institutionField	= getInstitutionField("ucn", "Site", 250, "The institution that will receive the product services.");
+	protected InstitutionSearchField		institutionField	= getInstitutionField("ucn", "Site", DEFAULT_FIELD_WIDTH, "The institution that will receive the product services.");
 	protected LabelField					addressDisplay		= getLabelField();
-	protected TextField<String>				ucnDisplay			= getTextField("ICN+");
+	protected TextField<String>				ucnDisplay			= getTextField("UCN+");
 	protected LabelField					customerTypeDisplay	= getLabelField();
-	protected SiteLocationSearchField		siteLocationField	= getSiteLocationField("uniqueKey", "Site Location", 250, "The specific location at the customer site.");
+	protected SiteLocationSearchField		siteLocationField	= getSiteLocationField("uniqueKey", "Site Location", DEFAULT_FIELD_WIDTH, "The specific location at the customer site.");
 	
-	protected EnhancedComboBox<BeanModel>	commissionTypeField	= getComboField("commissionType", 	"Commission",	250,		
+	protected EnhancedComboBox<BeanModel>	commissionTypeField	= getComboField("commissionType", 	"Commission",	DEFAULT_FIELD_WIDTH,		
 			"The commission code assigned to this site for reporting purposes.",	
 			UiConstants.getCommissionTypes(UiConstants.CommissionTypeTargets.SITE), "commissionCode", "descriptionAndCode");
-	protected EnhancedComboBox<BeanModel>	cancelReasonField	= getComboField("cancelReason", 	"Cancel",	250,		
+	protected EnhancedComboBox<BeanModel>	cancelReasonField	= getComboField("cancelReason", 	"Cancel",	DEFAULT_FIELD_WIDTH,		
 			"The reason for canceling (deactivating) for this site.",
 			UiConstants.getCancelReasons(), "cancelReasonCode", "descriptionAndCode");
 	
@@ -201,6 +203,14 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 			AsyncCallback<List<AgreementSiteInstance>> callback) {
 		agreementSiteListService.getAgreementSites(id, AppConstants.STATUS_DELETED,callback);
 	}
+	
+	@Override
+	public void adjustFormPanelSize(int width, int height) {
+		super.adjustFormPanelSize(width, height);
+		
+		if (formColumn1.isRendered())
+			agreementIdField.setWidth( (formColumn1.getWidth(true) - formColumn1.getLabelWidth()) - 64);
+	}
 
 	@Override
 	protected void addFormFields(FormPanel panel, FormData formData) {
@@ -208,8 +218,8 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 		
 		panel.setLayout(new TableLayout(2));
 		
-		formColumn1 = getNewFormPanel(75);
-		formColumn2 = getNewFormPanel(75);
+		formColumn1 = getNewFormPanel(75); formColumn1.setId("formColumn1"); //formColumn1.setLayoutData(0.5); //formColumn1.setWidth("50%");
+		formColumn2 = getNewFormPanel(75); formColumn2.setId("formColumn2"); //formColumn2.setLayoutData(0.5); //formColumn2.setWidth("50%");
 		
 		ucnDisplay.setToolTip(UiConstants.getQuickTip("The ucn for the site."));
 		addressDisplay.setToolTip(UiConstants.getQuickTip("The address of the institution."));
@@ -220,6 +230,19 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 		ucnDisplay.setReadOnly(true);
 		
 		addressDisplay.setWidth(200);
+		
+		//	Force all field widths to zero, so that they'll be computed based on the width of the enclosing form
+		idNotesCombo.setWidth(0);
+//		agreementIdField.setWidth(0);
+		
+		notesField.setWidth(0);
+		institutionField.setWidth(0);
+		addressDisplay.setWidth(0);
+		ucnDisplay.setWidth(0);
+		customerTypeDisplay.setWidth(0);
+		siteLocationField.setWidth(0);
+		commissionTypeField.setWidth(0);
+		cancelReasonField.setWidth(0);
 
 		
 		idNotesCombo.add(agreementIdField);	
@@ -339,13 +362,24 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 			ucnDisplay.setValue("");
 			addressDisplay.setValue("");
 			customerTypeDisplay.setValue("");
+			siteLocationField.setFor(0, 0);
 			return;
 		}
 		
-		if (focusInstance != null && !focusInstance.isNewRecord()) {
+//		if (focusInstance != null && !focusInstance.isNewRecord()) {
+//			siteLocationField.setFor(instance.getUcn(), 1);
+//			siteLocationField.setValue(SiteInstance.obtainModel(SiteInstance.getAllInstance(instance.getUcn(), 1)));
+////			siteLocationField.setReadOnly(!agreementSite.isNewRecord());
+//		}
+		
+		if (focusInstance != null && focusInstance.getSiteUcn() == instance.getUcn()) {
+			// Same institution as instance, so use the instance UCN
+			siteLocationField.setFor(focusInstance);
+			siteLocationField.setValue(SiteInstance.obtainModel(focusInstance.getSite()));
+		} else {
+			// Different UCN, default to suffix 1
 			siteLocationField.setFor(instance.getUcn(), 1);
 			siteLocationField.setValue(SiteInstance.obtainModel(SiteInstance.getAllInstance(instance.getUcn(), 1)));
-//			siteLocationField.setReadOnly(!agreementSite.isNewRecord());
 		}
 		
 		ucnDisplay.setValue(instance.getUcn() + "");

@@ -27,9 +27,13 @@ public class SiteLocationSearchServiceImpl extends AuthenticatedServiceServlet i
 
 		// This is just a BasePagingLoadResult,but it has a synchronization tag to make sure old, slow, late search results don't overwrite newer, better results
 		SynchronizedPagingLoadResult<SiteInstance> result = null;
+		List<SiteInstance> list = new ArrayList<SiteInstance>();
+		
+		if (ucn <= 0 && (filter == null || filter.trim().length() == 0)) {
+			return new SynchronizedPagingLoadResult<SiteInstance>(list, loadConfig.getOffset(), 0, syncId);
+		}
 	
 		try {
-			List<SiteInstance> list = new ArrayList<SiteInstance>();
 				
 			HibernateUtil.openSession();
 			HibernateUtil.startTransaction();

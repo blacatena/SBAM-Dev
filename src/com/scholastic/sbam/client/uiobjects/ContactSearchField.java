@@ -78,7 +78,8 @@ public class ContactSearchField extends ComboBox<BeanModel> {
 	
 	public void onSelectionChange(ContactSearchResultInstance selected) {
 		if (selected == null) {
-			ucn = 0;
+			if (searchInstitutions)
+				ucn = 0;
 			this.setRawValue("")	;	//	this.setValue(ContactSearchResultInstance.obtainModel(ContactSearchResultInstance.getEmptyInstance()));
 			return;
 		}
@@ -89,7 +90,8 @@ public class ContactSearchField extends ComboBox<BeanModel> {
 			return;
 		}
 		if (selected.getType() == ContactSearchResultInstance.NEW_SEARCH) {
-			ucn = 0;
+			if (searchInstitutions)
+				ucn = 0;
 			this.setRawValue("")	;	//	this.setValue(ContactSearchResultInstance.obtainModel(ContactSearchResultInstance.getEmptyInstance()));
 			return;
 		}
@@ -201,10 +203,12 @@ public class ContactSearchField extends ComboBox<BeanModel> {
 							result.getData().add(0, addInstance);
 						}
 						
-						if (newSearchInstance == null) {
-							newSearchInstance= ContactSearchResultInstance.getNewSearchInstance();
+						if (searchInstitutions) {
+							if (newSearchInstance == null) {
+								newSearchInstance= ContactSearchResultInstance.getNewSearchInstance();
+							}
+							result.getData().add(0, newSearchInstance);
 						}
-						result.getData().add(0, newSearchInstance);
 
 						callback.onSuccess(result);
 					}

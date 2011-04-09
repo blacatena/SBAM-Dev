@@ -32,6 +32,9 @@ import com.scholastic.sbam.shared.util.AppConstants;
  *
  */
 public class InstitutionCache implements Runnable {
+	private static final boolean FIRST_PASS_READY	= false;	//	Are maps ready for use after the first pass?
+	private static final boolean SECOND_PASS_READY	=	true;	//	Are maps ready for use after the second pass?
+	
 	protected static final String INSTITUTION_SQL = "SELECT ucn, institution_name, address1, address2, address3, city, state, zip, country, phone, fax, alternate_ids FROM institution ";
 	
 	public static class InstitutionCacheNotReady extends Exception {
@@ -303,7 +306,7 @@ public class InstitutionCache implements Runnable {
 			System.out.println(wordMap.size() + " word prefixes with " + wordCount1 + " words stored.");
 			System.out.println(countMap.size() + " words with counts only, " + searchMap.size() + " words with UCNs.");
 		
-			mapsReady = true;
+			mapsReady = FIRST_PASS_READY;
 			
 			if (config.useStringPairs) {
 				
@@ -317,6 +320,8 @@ public class InstitutionCache implements Runnable {
 				System.out.println(countMap.size() + " words with counts only, " + searchMap.size() + " words with UCNs.");
 				
 			}
+			
+			mapsReady = SECOND_PASS_READY;
 			
 		} catch (Exception exc) {
 			exc.printStackTrace();

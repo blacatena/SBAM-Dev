@@ -10,7 +10,9 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -24,6 +26,7 @@ import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
@@ -79,12 +82,16 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 			protected void afterRender() {
 				super.afterRender();
 				adjustGridPanelHeight();
+				adjustFormPanelSize(-1, -1);
+			//	dumpSizes("FormPanel afterRender");
 			}
 			
 			@Override
 			public void onResize(int width, int height) {
 				super.onResize(width, height);
 				adjustGridPanelHeight();
+				adjustFormPanelSize(width, height);
+			//	dumpSizes("FormPanel onResize " + width);
 			}
 			
 			@Override
@@ -118,6 +125,8 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 			}
 			
 		};
+		
+		formPanel.setId("formPanelMain");
 		formPanel.setPadding(5);
 		formPanel.setFrame(true);
 		formPanel.addStyleName("inner-panel");
@@ -188,6 +197,60 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		}
 	}
 	
+	/**
+	 * This method automatically adjusts the widths of the components of the FormPanel if it is using a TableLayout.
+	 * 
+	 * Percent widths are set in the components LayoutData if they are Doubles.
+	 * 
+	 * Components without Double layoutData are automatically sized to use a portion of any remaning width.
+	 * 
+	 * @param width
+	 * @param height
+	 */
+	public void adjustFormPanelSize(int width, int height) {
+		
+		if (!formPanel.isRendered())
+			return;
+		
+		if (formPanel.getLayout() != null && formPanel.getLayout() instanceof TableLayout) {
+			int totWidth = formPanel.getWidth(true);
+			//	Compute column widths
+			int widthRemaining = totWidth;
+			int colCount = ((TableLayout) formPanel.getLayout()).getColumns();
+			int [] widths = new int [colCount];
+			int unsizedCols = 0;
+			int i = 0;
+			for (Component item : formPanel.getItems()) {
+				if (item.getLayoutData() == null || !(item.getLayoutData() instanceof Double)) {
+					widths [i] = -1;
+					unsizedCols++;
+				} else
+					widths [i] = (int) (totWidth * ((Double) item.getLayoutData()).doubleValue());
+				i++;
+				if (i >= colCount)
+					break;
+			}
+			//	Distribute remaining width equally among unsized columns
+			if (unsizedCols > 0)
+				for (i = 0; i < widths.length; i++) {
+					if (widths [i] < 0) {
+						if (unsizedCols > 1)
+							widths [i] = widthRemaining / unsizedCols;
+						else
+							widths [i] = widthRemaining - ( ( (int) widthRemaining / unsizedCols) * (unsizedCols - 1));
+					}
+				}
+			//	Assign component item widths
+			i = 0;
+			int PADDING = 5;
+			for (Component item : formPanel.getItems()) {
+				item.setWidth( (widths [i] - PADDING) + "");
+				i++;
+				i = i % widths.length;
+			}
+		}
+	}
+	
 	public void adjustGridPanelHeight() {
 		if (gridPanel == null || !gridPanel.isRendered())
 			return;
@@ -212,6 +275,8 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	protected void afterRender() {
 		super.afterRender();
 		adjustGridPanelHeight();
+		adjustFormPanelSize(-1, -1);
+	//	dumpSizes("afterRender");
 	}
 			
 	
@@ -219,6 +284,29 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	public void onResize(int width, int height) {
 		super.onResize(width, height);
 		adjustGridPanelHeight();
+		adjustFormPanelSize(width, height);
+	//	dumpSizes("onResize " + width);
+	}
+	
+	public void dumpSizes(String title) {
+		System.out.println();
+		System.out.println("___________________" + title);
+	//	dumpSizes(this);		
+	}
+	
+	public void dumpSizes(LayoutContainer container) {
+		if (!container.isRendered()) {
+			System.out.println(container.getId() + " " + container.getClass().getName() + " not rendered");
+		} else {
+			System.out.println(container.getId() + " " + container.getClass().getName() + "   /   " + container.getWidth() + " / " + container.getWidth(true));
+		}
+		for (Component item : container.getItems()) {
+			if (item instanceof LayoutContainer)
+				dumpSizes( (LayoutContainer) item);
+			else if (item instanceof Field) {
+				System.out.println( "Field " + item.getClass().getName() + " / " + ((Field<?>) item).getFieldLabel() + " : " + ((Field<?>) item).getWidth());
+			}
+		}
 	}
 
 	public void setFocusInstance(ModelInstance modelInstance) {

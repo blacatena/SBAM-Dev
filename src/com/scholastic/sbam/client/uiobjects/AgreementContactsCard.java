@@ -19,6 +19,8 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.AgreementContactListService;
 import com.scholastic.sbam.client.services.AgreementContactListServiceAsync;
+import com.scholastic.sbam.client.services.UpdateAgreementContactService;
+import com.scholastic.sbam.client.services.UpdateAgreementContactServiceAsync;
 import com.scholastic.sbam.client.services.UpdateContactNoteService;
 import com.scholastic.sbam.client.services.UpdateContactNoteServiceAsync;
 import com.scholastic.sbam.client.util.UiConstants;
@@ -31,8 +33,9 @@ import com.scholastic.sbam.shared.util.AppConstants;
 
 public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInstance> {
 	
-	protected final AgreementContactListServiceAsync agreementContactListService = GWT.create(AgreementContactListService.class);
-	protected final UpdateContactNoteServiceAsync	updateContactNoteService	= GWT.create(UpdateContactNoteService.class);
+	protected final AgreementContactListServiceAsync 	agreementContactListService 	= GWT.create(AgreementContactListService.class);
+	protected final UpdateAgreementContactServiceAsync	updateAgreementContactService	= GWT.create(UpdateAgreementContactService.class);
+	protected final UpdateContactNoteServiceAsync		updateContactNoteService		= GWT.create(UpdateContactNoteService.class);
 	
 	protected FormPanel				formColumn1;
 	protected FormPanel				formColumn2;
@@ -271,6 +274,70 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 		phoneDisplay.setValue(instance.getPhone());
 		emailDisplay.setValue(instance.geteMail());
 		titleDisplay.setValue(instance.getTitle());
+	}
+
+	@Override
+	protected void asyncUpdate() {
+	
+		// Set field values from form fields
+		ContactInstance contactInstance = contactField.getSelectedValue().getBean();
+		
+		if (focusInstance == null) {
+			focusInstance = new AgreementContactInstance();
+			focusInstance.setNewRecord(true);
+			focusInstance.setAgreementId(getAgreementId());
+			
+			if (contactInstance == null) {
+				MessageBox.alert("Unexpted Error", "No contact is selected.", null);
+				return;
+			}
+			focusInstance.setContactId(contactInstance.getContactId());
+		}
+		
+		if (contactInstance.isNewRecord())
+			contactInstance.setNote(notesField.getNote());
+		else
+			contactInstance.setNote(null);	//	This will keep the note from being updated by this call
+	
+		//	Issue the asynchronous update request and plan on handling the response
+		updateAgreementContactService.updateAgreementContact(focusInstance,
+				new AsyncCallback<UpdateResponse<AgreementContactInstance>>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "Agreement contact  update failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+						editButton.enable();
+						newButton.enable();
+					}
+
+					public void onSuccess(UpdateResponse<AgreementContactInstance> updateResponse) {
+						AgreementContactInstance updatedAgreementContact = (AgreementContactInstance) updateResponse.getInstance();
+						if (updatedAgreementContact.isNewRecord()) {
+							updatedAgreementContact.setNewRecord(false);
+							grid.getStore().insert(AgreementContactInstance.obtainModel(updatedAgreementContact), 0);
+						}
+						
+						focusInstance.setNewRecord(false);
+						focusInstance.setValuesFrom(updatedAgreementContact);
+						setFormFromInstance(updatedAgreementContact);	//	setFormFieldValues(updatedAgreementContact);
+						
+						//	This puts the grid in synch
+						BeanModel gridModel = grid.getStore().findModel(focusInstance.getUniqueKey());
+						if (gridModel != null) {
+							AgreementContactInstance matchInstance = gridModel.getBean();
+							matchInstance.setValuesFrom(focusInstance);
+							grid.getStore().update(gridModel);
+						}
+						
+						editButton.enable();
+						newButton.enable();
+				}
+			});
 	}
 
 	protected void asyncUpdateNote(String note) {

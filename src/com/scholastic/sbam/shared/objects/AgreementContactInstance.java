@@ -2,10 +2,15 @@ package com.scholastic.sbam.shared.objects;
 
 import java.util.Date;
 
+import com.extjs.gxt.ui.client.data.BeanModel;
+import com.extjs.gxt.ui.client.data.BeanModelFactory;
+import com.extjs.gxt.ui.client.data.BeanModelLookup;
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class AgreementContactInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
+
+	private static BeanModelFactory beanModelfactory;
 
 	private int		agreementId;
 	private int		contactId;
@@ -103,6 +108,22 @@ public class AgreementContactInstance extends BetterRowEditInstance implements B
 	
 	public String getUniqueKey() {
 		return agreementId + ":" + contactId;
+	}
+	
+	public void setValuesFrom(AgreementContactInstance fromInstance) {
+		this.agreementId	=	fromInstance.agreementId;
+		this.contactId		=	fromInstance.contactId;
+		this.renewalContact	=	fromInstance.renewalContact;
+		this.status			=	fromInstance.status;
+		this.active			=	fromInstance.active;
+		this.createdDatetime=	fromInstance.createdDatetime;
+	}
+
+	public static BeanModel obtainModel(AgreementContactInstance instance) {
+		if (beanModelfactory == null)
+			beanModelfactory  = BeanModelLookup.get().getFactory(AgreementContactInstance.class);
+		BeanModel model = beanModelfactory.createModel(instance);
+		return model;
 	}
 
 	public String toString() {

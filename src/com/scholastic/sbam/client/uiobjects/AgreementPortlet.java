@@ -112,7 +112,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected ToggleButton			termsButton;
 	protected ToggleButton			sitesButton;
 	protected ToggleButton			methodsButton;
-	protected ToggleButton			remoteButton;
+//	protected ToggleButton			remoteButton;		Remote setup is no longer used
 	protected ToggleButton			contactsButton;
 	
 	protected ToolTipConfig					notesToolTip		= new ToolTipConfig();
@@ -682,17 +682,17 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		methodsButton.setToggleGroup(toggleGroup);
 		toolBar.add(methodsButton);
 		
-		remoteButton = new ToggleButton("Remote Setup");
-		remoteButton.setToolTip(UiConstants.getQuickTip("Define and edit any remote setup for this agreement."));
-		IconSupplier.forceIcon(remoteButton, IconSupplier.getRemoteIconName());
-		remoteButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
-				@Override
-				public void componentSelected(ButtonEvent ce) {
-					remoteButton.toggle(true);
-				}
-			});
-		remoteButton.setToggleGroup(toggleGroup);
-		toolBar.add(remoteButton);
+//		remoteButton = new ToggleButton("Remote Setup");
+//		remoteButton.setToolTip(UiConstants.getQuickTip("Define and edit any remote setup for this agreement."));
+//		IconSupplier.forceIcon(remoteButton, IconSupplier.getRemoteIconName());
+//		remoteButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+//				@Override
+//				public void componentSelected(ButtonEvent ce) {
+//					remoteButton.toggle(true);
+//				}
+//			});
+//		remoteButton.setToggleGroup(toggleGroup);
+//		toolBar.add(remoteButton);
 		
 		contactsButton = new ToggleButton("Contacts");
 		contactsButton.setToolTip(UiConstants.getQuickTip("View, define and edit the contacts for this agreement."));

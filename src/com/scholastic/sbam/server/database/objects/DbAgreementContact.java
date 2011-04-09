@@ -81,4 +81,9 @@ public class DbAgreementContact extends HibernateAccessor {
         }
         return new ArrayList<AgreementContact>();
 	}
+
+	public static void setDescriptions(AgreementContactInstance instance) {
+		// TODO Auto-generated method stub
+		
+	}
 }

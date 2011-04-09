@@ -217,8 +217,9 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable, UserCa
 				if (instance.hasExpired(today)) {
 					activeAgreements++;
 				}
-				if (lastServiceDate == null || ( instance.getEndDate() != null && instance.getEndDate().after(lastServiceDate)) )
-					lastServiceDate = (Date) instance.getEndDate().clone();
+				if (instance.getEndDate() != null)
+					if (lastServiceDate == null || instance.getEndDate().after(lastServiceDate) )
+						lastServiceDate = (Date) instance.getEndDate().clone();
 			}
 		//	System.out.println("UCN " + ucn + " agreements " + agreements + ", active " + activeAgreements + ", last date " + lastServiceDate);
 		}

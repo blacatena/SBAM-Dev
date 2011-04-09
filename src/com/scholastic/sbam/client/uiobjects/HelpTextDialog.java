@@ -1003,4 +1003,11 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 		
 		content.add(searchCard);
 	}
+	public int getHideAnimateTime() {
+		return 500;
+	}
+	
+	public int getShowAnimateTime() {
+		return 500;
+	}
 }
