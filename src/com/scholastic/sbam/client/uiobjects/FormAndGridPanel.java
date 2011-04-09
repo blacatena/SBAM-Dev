@@ -42,6 +42,8 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	public final static String NEW_BUTTON		= "N";
 	public final static String SAVE_BUTTON		= "S";
 	
+	protected boolean				doNotExpandFields = false;
+	
 	protected FormAndGridPanel<ModelInstance>	mainContainer	= this;
 	
 	protected Timer					dirtyFormListener;
@@ -208,6 +210,8 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	 * @param height
 	 */
 	public void adjustFormPanelSize(int width, int height) {
+		if (doNotExpandFields)
+			return;
 		
 		if (!formPanel.isRendered())
 			return;
@@ -248,6 +252,8 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 				i++;
 				i = i % widths.length;
 			}
+//			//	Make sure everything resizes within each child component
+			formPanel.layout(true);
 		}
 	}
 	
@@ -772,5 +778,13 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	 * @param panel
 	 */
 	protected abstract void addFormFields(FormPanel panel, FormData formData);
+
+	public boolean isDoNotExpandFields() {
+		return doNotExpandFields;
+	}
+
+	public void setDoNotExpandFields(boolean doNotExpandFields) {
+		this.doNotExpandFields = doNotExpandFields;
+	}
 	
 }

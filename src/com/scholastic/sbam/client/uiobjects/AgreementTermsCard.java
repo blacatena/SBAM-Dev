@@ -260,6 +260,13 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 	    terminateDateField.bindTarget(terminateDefaultBinder);
 	    endDateField.bindControl(terminateDefaultBinder);
 
+	    startDateField.setWidth(0);
+	    endDateField.setWidth(0);
+	    terminateDateField.setWidth(0);
+	    startEndSliderField.setWidth(0);
+	    endTerminateSliderField.setWidth(0);
+	    termTypeField.setWidth(0);
+	    
 		productField.setAllowBlank(false);
 		termTypeField.setAllowBlank(false);
 		cancelReasonField.setAllowBlank(true);
@@ -285,22 +292,22 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 		
 		//	Form column 2
 		
-		FieldSet datesfieldSet = new FieldSet();
+		FieldSet datesFieldSet = new FieldSet();
 		FormLayout layout = new FormLayout();
 		layout.setLabelAlign(panel.getLabelAlign());
 		layout.setLabelWidth(panel.getLabelWidth() - 10);
-		datesfieldSet.setLayout(layout);
-		datesfieldSet.setBorders(true);
-		datesfieldSet.setHeading("Term Dates");
+		datesFieldSet.setLayout(layout);
+		datesFieldSet.setBorders(true);
+		datesFieldSet.setHeading("Term Dates");
 		
-		datesfieldSet.add(startDateField);
-		datesfieldSet.add(endDateField);
-		datesfieldSet.add(startEndSliderField);
-		datesfieldSet.add(terminateDateField);
-		datesfieldSet.add(endTerminateSliderField);
-		datesfieldSet.add(termTypeField);
+		datesFieldSet.add(startDateField, formData);
+		datesFieldSet.add(endDateField, formData);
+		datesFieldSet.add(startEndSliderField, formData);
+		datesFieldSet.add(terminateDateField, formData);
+		datesFieldSet.add(endTerminateSliderField, formData);
+		datesFieldSet.add(termTypeField, formData);
 		
-		formColumn2.add(datesfieldSet);
+		formColumn2.add(datesFieldSet);
 
 //		FieldSet profileFieldSet = new FieldSet();
 //		FormLayout profileLayout = new FormLayout();
