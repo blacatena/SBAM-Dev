@@ -3,11 +3,13 @@ package com.scholastic.sbam.client.uiobjects;
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Slider;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
+import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.i18n.client.NumberFormat;
@@ -98,6 +100,23 @@ public class FieldFactory {
 //		field.setImages(images);
 //		field.setReadOnly(true);
 		
+		return field;
+	}
+	
+	protected static CheckBox	getCheckBoxField(String label) {
+		CheckBox checkBox = new CheckBox();
+		setStandard(checkBox, null);
+		checkBox.setBoxLabel(label);
+		return checkBox;
+	}
+	
+	protected static TextArea getMultiLineField(String label, int lines) {
+		SizedTextArea field = new SizedTextArea();
+		setStandard(field, label);
+		field.setPreventScrollbars(true);
+		if (lines > 0) {
+			field.setRows(lines);
+		}
 		return field;
 	}
 	

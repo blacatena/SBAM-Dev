@@ -86,6 +86,17 @@ public class ContactSearchResultInstance implements BeanModelTag, IsSerializable
 			return "Start a new, clean search.";
 		return "";
 	}
+	
+	public String getNameInfoHtml() {
+		String info = getName();
+		if (contact != null) {
+			if (contact.getTitle() != null && contact.getTitle().length() > 0)
+				info += "<br/>" + contact.getTitle();
+			else if (contact.getContactType() != null)
+				info += "<br/>" + contact.getContactType().getDescription();
+		}
+		return info;
+	}
 
 	public String getMultiLineAddress() {
 		if (contact != null)

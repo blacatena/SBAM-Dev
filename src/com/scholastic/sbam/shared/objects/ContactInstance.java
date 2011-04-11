@@ -11,6 +11,7 @@ public class ContactInstance extends BetterRowEditInstance implements BeanModelT
 	private int			contactId;
 	private String		contactTypeCode;
 	private String		contactTypeDescription;
+	private int			parentUcn;
 	private String		fullName;
 	private String		title;
 	private String		additionalInfo;
@@ -32,6 +33,7 @@ public class ContactInstance extends BetterRowEditInstance implements BeanModelT
 	private Date		createdDatetime;
 	
 	private ContactTypeInstance	contactType;
+	private InstitutionInstance	institution;
 	
 	@Override
 	public void markForDeletion() {
@@ -210,6 +212,14 @@ public class ContactInstance extends BetterRowEditInstance implements BeanModelT
 		this.contactTypeDescription = contactTypeDescription;
 	}
 
+	public int getParentUcn() {
+		return parentUcn;
+	}
+
+	public void setParentUcn(int parentUcn) {
+		this.parentUcn = parentUcn;
+	}
+
 	public char getStatus() {
 		return status;
 	}
@@ -243,14 +253,58 @@ public class ContactInstance extends BetterRowEditInstance implements BeanModelT
 
 	public void setContactType(ContactTypeInstance contactType) {
 		this.contactType = contactType;
-		if (contactType == null)
+		if (contactType == null) {
+			setContactTypeCode("");
 			setContactTypeDescription("None");
-		else
+		} else {
+			setContactTypeCode(contactType.getContactTypeCode());
 			setContactTypeDescription(contactType.getDescription());
+		}
+	}
+
+	public InstitutionInstance getInstitution() {
+		return institution;
+	}
+
+	public void setInstitution(InstitutionInstance institution) {
+		this.institution = institution;
+		if (institution == null)
+			setParentUcn(0);
+		else
+			setParentUcn(institution.getUcn());
 	}
 
 	public String getHtmlAddress() {
 		return AddressFormatter.getMultiLineAddress(address1, address2, address3, city, state, zip, country);
+	}
+	
+	public void setValuesFrom(ContactInstance fromInstance) {
+		this.contactId				=	fromInstance.contactId;
+		this.contactTypeCode		=	fromInstance.	contactTypeCode;
+		this.contactTypeDescription	=	fromInstance.	contactTypeDescription;
+		this.parentUcn				=	fromInstance.	parentUcn;
+		this.fullName				=	fromInstance.	fullName;
+		this.title					=	fromInstance.	title;
+		this.additionalInfo			=	fromInstance.	additionalInfo;
+		this.address1				=	fromInstance.	address1;
+		this.address2				=	fromInstance.	address2;
+		this.address3				=	fromInstance.	address3;
+		this.city					=	fromInstance.	city;
+		this.state					=	fromInstance.	state;
+		this.zip					=	fromInstance.	zip;
+		this.country				=	fromInstance.	country;
+		this.eMail					=	fromInstance.	eMail;
+		this.eMail2					=	fromInstance.	eMail2;
+		this.phone					=	fromInstance.	phone;
+		this.phone2					=	fromInstance.	phone2;
+		this.fax					=	fromInstance.	fax;
+		this.note					=	fromInstance.	note;
+		this.status					=	fromInstance.	status;
+		this.active					=	fromInstance.	active;
+		this.createdDatetime		=	fromInstance.	createdDatetime;
+			
+		this.contactType			=	fromInstance.	contactType;
+		this.institution			=	fromInstance.	institution;
 	}
 
 	public String toString() {

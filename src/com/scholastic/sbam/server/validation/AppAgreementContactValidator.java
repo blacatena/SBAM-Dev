@@ -10,6 +10,7 @@ import com.scholastic.sbam.server.database.objects.DbAgreementContact;
 import com.scholastic.sbam.server.database.objects.DbInstitution;
 import com.scholastic.sbam.server.database.objects.DbContact;
 import com.scholastic.sbam.shared.objects.AgreementContactInstance;
+import com.scholastic.sbam.shared.objects.ContactInstance;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 public class AppAgreementContactValidator {
@@ -27,7 +28,7 @@ public class AppAgreementContactValidator {
 		
 		validateAgreementContactId(instance.getAgreementId(), instance.getContactId(), instance.isNewRecord());
 //		validateInstitution(instance.getContactUcn());
-		validateContact(instance.getContactId());
+		validateContact(instance.getContact());
 		validateStatus(instance.getStatus());
 		return messages;
 	}
@@ -85,6 +86,25 @@ public class AppAgreementContactValidator {
 		return messages;
 	}
 	
+	public List<String> validateContact(ContactInstance contact) {
+		if (contact == null) {
+			addMessage("The contact data is missing.");
+		} else {
+			if (contact.getContactId() > 0 && !contact.isNewRecord()) {
+				Contact dbContact = DbContact.getByCode(contact.getContactId());
+				if (dbContact == null) {
+					addMessage("Contact not found in the database.");
+				}
+			}
+			if (contact.getFullName() == null || contact.getFullName().trim().length() == 0) {
+				addMessage("A name is required.");
+			}
+		}
+		
+		
+		return messages;
+	}
+	
 	public List<String> validateContact(int contactId) {
 		if (contactId > 0) {
 			Contact contact = DbContact.getByCode(contactId);
@@ -96,7 +116,7 @@ public class AppAgreementContactValidator {
 	}
 	
 	public List<String> validateStatus(char status) {
-		if (status != AppConstants.STATUS_ACTIVE && status != AppConstants.STATUS_INACTIVE && status != AppConstants.STATUS_DELETED)
+		if (status != AppConstants.STATUS_ANY_NONE && status != AppConstants.STATUS_ACTIVE && status != AppConstants.STATUS_INACTIVE && status != AppConstants.STATUS_DELETED)
 			addMessage("Invalid status " + status);
 		return messages;
 	}

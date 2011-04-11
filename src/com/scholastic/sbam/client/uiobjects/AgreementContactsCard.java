@@ -6,9 +6,12 @@ import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
+import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -25,9 +28,11 @@ import com.scholastic.sbam.client.services.UpdateContactNoteService;
 import com.scholastic.sbam.client.services.UpdateContactNoteServiceAsync;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.AgreementContactInstance;
+import com.scholastic.sbam.shared.objects.AgreementInstance;
 import com.scholastic.sbam.shared.objects.ContactInstance;
 import com.scholastic.sbam.shared.objects.ContactSearchResultInstance;
 import com.scholastic.sbam.shared.objects.ContactTypeInstance;
+import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.util.AppConstants;
 
@@ -46,17 +51,31 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 	protected MultiField<String>			idNotesCombo		= new MultiField<String>("Agreement #");
 	protected LabelField					agreementIdField	= getLabelField();
 	protected NotesIconButtonField<String>	notesField			= getNotesButtonField();
+	protected InstitutionSearchField		institutionField	= getInstitutionField("ucn", "Institution", 250, "The parent institution or this contact.");
 	protected ContactSearchField			contactField		= getContactField("contact", "Contact", 250, "Find or create a contact to attach to this agreement");
 	protected EnhancedComboBox<BeanModel>	contactTypeField	= getComboField("contactType", 		"Contact Type",	250,		
 																		"The type for this contact.",	
 																		UiConstants.getContactTypes(), "contactTypeCode", "description");
 	protected TextField<String>				fullNameDisplay		= getTextField("Name");
-	protected LabelField					addressDisplay		= getLabelField(250);
+	protected CheckBoxGroup					renewalContactGroup = new CheckBoxGroup();
+	protected CheckBox						renewalContactCheck	= getCheckBoxField("Renewal Contact");
+	protected TextArea						addressDisplay		= getMultiLineField("Address", 3);
+	protected TextField<String>				cityDisplay			= getTextField("City");
+	protected MultiField<String>			stateZipCountryCombo= new MultiField<String>("State/Zip/Country");
+	protected TextField<String>				stateDisplay		= getTextField("State");
+	protected TextField<String>				zipDisplay			= getTextField("Zip");
+	protected TextField<String>				countryDisplay		= getTextField("Country");
 	protected TextField<String>				titleDisplay		= getTextField("Title");
 	protected TextField<String>				phoneDisplay		= getTextField("Phone");
+	protected TextField<String>				phone2Display		= getTextField("Phone (alt)");
+	protected TextField<String>				faxDisplay			= getTextField("Fax");
 	protected TextField<String>				emailDisplay		= getTextField("E-Mail");
+	protected TextField<String>				email2Display		= getTextField("E-Mail (alt)");
 	
-	protected ContactInstance				contact;
+	protected ContactInstance				selectedContact;
+
+	protected AgreementInstance				agreement;
+	protected InstitutionInstance			billToInstitution;
 	
 	public int getAgreementId() {
 		return getFocusId();
@@ -68,6 +87,14 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 	
 	public void setAgreementContact(AgreementContactInstance instance) {
 		setFocusInstance(instance);
+	}
+
+	public void setAgreement(AgreementInstance agreement) {
+		this.agreement = agreement;
+	}
+
+	public void setBillToInstitution(InstitutionInstance billToInstitution) {
+		this.billToInstitution = billToInstitution;
 	}
 
 	@Override
@@ -119,31 +146,68 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 
 	@Override
 	public void setFormFieldValues(AgreementContactInstance instance) {
-		ContactInstance contact = instance.getContact();
+		selectedContact = instance.getContact();
 		
-		agreementIdField.setValue(AppConstants.appendCheckDigit(instance.getAgreementId()) + " &nbsp;&nbsp;&nbsp;<i>Contact " + AppConstants.getStatusDescription(instance.getStatus()) + "</i>");
+		agreementIdField.setValue(AppConstants.appendCheckDigit(getAgreementId()) + " &nbsp;&nbsp;&nbsp;<i>Contact " + AppConstants.getStatusDescription(instance.getStatus()) + "</i>");
 		
 		contactField.setValue(ContactSearchResultInstance.obtainModel(new ContactSearchResultInstance(instance.getContact())));
 		
-		if (contact != null) {
-			contactTypeField.setValue(ContactTypeInstance.obtainModel(contact.getContactType()));
-			fullNameDisplay.setValue(contact.getFullName());
-			titleDisplay.setValue(contact.getTitle());
-			phoneDisplay.setValue(contact.getPhone());
-			emailDisplay.setValue(contact.geteMail());
-			addressDisplay.setValue(contact.getHtmlAddress());
+		renewalContactCheck.setValue(instance.isRenewalContact());
+			
+		if (selectedContact != null) {
+			institutionField.setValue(InstitutionInstance.obtainModel(selectedContact.getInstitution()));
+			contactTypeField.setValue(ContactTypeInstance.obtainModel(selectedContact.getContactType()));
+			fullNameDisplay.setValue(selectedContact.getFullName());
+			titleDisplay.setValue(selectedContact.getTitle());
+			phoneDisplay.setValue(selectedContact.getPhone());
+			phone2Display.setValue(selectedContact.getPhone2());
+			faxDisplay.setValue(selectedContact.getFax());
+			emailDisplay.setValue(selectedContact.geteMail());
+			email2Display.setValue(selectedContact.geteMail2());
+			addressDisplay.setValue(getAddressLines(selectedContact));
+			cityDisplay.setValue(selectedContact.getCity());
+			stateDisplay.setValue(selectedContact.getState());
+			zipDisplay.setValue(selectedContact.getZip());
+			countryDisplay.setValue(selectedContact.getCountry());
 
-			setNotesField(contact.getNote());
+			setNotesField(selectedContact.getNote());
+			
 		} else {
+			if (billToInstitution != null)
+				institutionField.setValue(InstitutionInstance.obtainModel(billToInstitution));
+			else if (agreement != null && agreement.getInstitution() != null)
+				institutionField.setValue(InstitutionInstance.obtainModel(agreement.getInstitution()));
+			else
+				institutionField.clear();
 			contactTypeField.clear();
 			fullNameDisplay.clear();
 			titleDisplay.clear();
 			phoneDisplay.clear();
+			phone2Display.clear();
+			faxDisplay.clear();
 			emailDisplay.clear();
+			email2Display.clear();
 			addressDisplay.clear();
+			cityDisplay.clear();
+			stateDisplay.clear();
+			zipDisplay.clear();
+			countryDisplay.clear();
 			
 			setNotesField("");
 		}
+	}
+	
+	public String getAddressLines(ContactInstance contact) {
+		return getAddressLines(contact.getAddress1(), contact.getAddress2(), contact.getAddress3());
+	}
+	
+	public String getAddressLines(String address1, String address2, String address3) {
+		String value = address1;
+		if (address2 != null && address2.length() > 0)
+			value += '\n' + address2;
+		if (address3 != null && address3.length() > 0)
+			value += '\n' + address3;
+		return value;
 	}
 
 	public void setNotesField(String note) {
@@ -175,27 +239,53 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 //		contactTypeField.setToolTip(UiConstants.getQuickTip("The type of contact."));
 		fullNameDisplay.setToolTip(UiConstants.getQuickTip("The full name for the contact."));
 		titleDisplay.setToolTip(UiConstants.getQuickTip("The title of the contact at his or her position."));
+		
+		fullNameDisplay.setMinLength(1);
 
 		agreementIdField.setReadOnly(true);
 		agreementIdField.setWidth(200);
 		idNotesCombo.setSpacing(20);
 		
+		stateZipCountryCombo.setSpacing(20);
+		stateDisplay.setWidth(30);
+		zipDisplay.setWidth(60);
+		countryDisplay.setWidth(80);
+		
+//		addressDisplay.setHeight(72);
+		
+		renewalContactGroup.setLabelSeparator("");
+		
 //		contactTypeField.setWidth(200);
-		fullNameDisplay.setWidth(250);
-		titleDisplay.setWidth(250);
-		phoneDisplay.setWidth(200);
-		emailDisplay.setWidth(200);
-		addressDisplay.setWidth(200);
+//		fullNameDisplay.setWidth(250);
+//		titleDisplay.setWidth(250);
+//		phoneDisplay.setWidth(200);
+//		emailDisplay.setWidth(200);
+//		addressDisplay.setWidth(200);
 
 		idNotesCombo.add(agreementIdField);	
 		idNotesCombo.add(notesField);
+		
+		stateZipCountryCombo.add(stateDisplay);
+		stateZipCountryCombo.add(zipDisplay);
+		stateZipCountryCombo.add(countryDisplay);
+		
+		renewalContactGroup.add(renewalContactCheck);
+		
 		formColumn1.add(idNotesCombo,    formData);
-		formColumn1.add(contactField, formData);	
+		formColumn1.add(institutionField, formData);
+		formColumn1.add(contactField, formData);
 		formColumn1.add(contactTypeField, formData);
 		formColumn1.add(fullNameDisplay, formData);
+		formColumn1.add(titleDisplay, formData);
+		formColumn1.add(emailDisplay, formData);
+		formColumn1.add(email2Display, formData);
+		formColumn2.add(renewalContactGroup, formData);
 		formColumn2.add(addressDisplay, formData);
+		formColumn2.add(cityDisplay, formData);
+		formColumn2.add(stateZipCountryCombo, formData);
 		formColumn2.add(phoneDisplay, formData);
-		formColumn2.add(emailDisplay, formData);
+		formColumn2.add(phone2Display, formData);
+		formColumn2.add(faxDisplay, formData);
 
 		panel.add(formColumn1);
 		panel.add(formColumn2);
@@ -254,45 +344,183 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 				ContactSearchResultInstance instance = (ContactSearchResultInstance) contactField.getOriginalValue().getBean();
 				matchToContact( instance.getContact() );
 			} else
-				matchToContact( contact );
+				matchToContact( selectedContact );
 	}
 	
 	protected void matchToContact(ContactInstance instance) {
 //		contactBinding.bind(ContactInstance.obtainModel(billToContact));
+		selectedContact = instance;
 		
 		if (instance == null) {
+			if (billToInstitution != null)
+				institutionField.setValue(InstitutionInstance.obtainModel(billToInstitution));
+			else
+				institutionField.setValue(InstitutionInstance.obtainModel(InstitutionInstance.getEmptyInstance()));
 			contactTypeField.setValue(ContactTypeInstance.obtainModel(ContactTypeInstance.getEmptyInstance()));
 			fullNameDisplay.setValue("");
 			phoneDisplay.setValue("");
+			phone2Display.setValue("");
+			faxDisplay.setValue("");
 			emailDisplay.setValue("");
+			email2Display.setValue("");
 			titleDisplay.setValue("");
+			addressDisplay.setValue("");
+			cityDisplay.setValue("");
+			stateDisplay.setValue("");
+			zipDisplay.setValue("");
+			countryDisplay.setValue("");
+			
+			setNotesField("");
 			return;
 		}
-		
+
+		if (instance.getInstitution() != null)
+			institutionField.setValue(InstitutionInstance.obtainModel(instance.getInstitution()));
+		else
+			institutionField.setValue(InstitutionInstance.obtainModel(InstitutionInstance.getEmptyInstance()));
 		contactTypeField.setValue(ContactTypeInstance.obtainModel(instance.getContactType()));
 		fullNameDisplay.setValue(instance.getFullName());
 		phoneDisplay.setValue(instance.getPhone());
+		phone2Display.setValue(instance.getPhone2());
+		faxDisplay.setValue(instance.getFax());
 		emailDisplay.setValue(instance.geteMail());
+		email2Display.setValue(instance.geteMail2());
 		titleDisplay.setValue(instance.getTitle());
+
+		addressDisplay.setValue(getAddressLines(instance));
+		cityDisplay.setValue(instance.getCity());
+		stateDisplay.setValue(instance.getState());
+		zipDisplay.setValue(instance.getZip());
+		countryDisplay.setValue(instance.getCountry());
+		
+		setNotesField(instance.getNote());
+	}
+
+	
+	protected InstitutionSearchField getInstitutionField(String name, String label, int width, String toolTip) {
+        InstitutionSearchField instCombo = new InstitutionSearchField();
+		FieldFactory.setStandard(instCombo, label);
+		
+		if (toolTip != null)
+			instCombo.setToolTip(toolTip);
+		if (width > 0)
+			instCombo.setWidth(width);
+		instCombo.setDisplayField("institutionName");
+		
+		instCombo.addSelectionChangedListener(new SelectionChangedListener<BeanModel>() {
+
+			@Override
+			public void selectionChanged(SelectionChangedEvent<BeanModel> se) {
+				selectInstitution(se.getSelectedItem());
+			}
+			
+		});
+		
+		return instCombo;
+	}
+	
+	protected void selectInstitution(BeanModel model) {
+		if (model == null) {	// No value selected means leave it as is
+			if (institutionField.getSelectedValue() != null)
+				matchToInstitution( (InstitutionInstance) institutionField.getSelectedValue().getBean() );
+			else
+				if (institutionField.getOriginalValue() != null)
+					matchToInstitution( (InstitutionInstance) institutionField.getOriginalValue().getBean());
+				else
+					matchToInstitution( null );
+		} else {
+			InstitutionInstance instance = (InstitutionInstance) model.getBean();
+			matchToInstitution( instance );
+		}
+	}
+	
+	protected void matchToInstitution( InstitutionInstance instance) {
+		if (instance == null)
+			contactField.setUcn(0);
+		else
+			contactField.setUcn(instance.getUcn());
+	}
+	
+	protected String [] getAddressLines(String addressLines) {
+		if (addressLines == null)
+			return new String [0];
+		String [] address = addressLines.split("\\n");
+		return address;
+	}
+	
+	@Override
+	public void handleNew() {
+		super.handleNew();
+		agreementIdField.setValue(AppConstants.appendCheckDigit(getAgreementId()) + "&nbsp;&nbsp;&nbsp;New" );
 	}
 
 	@Override
 	protected void asyncUpdate() {
 	
 		// Set field values from form fields
-		ContactInstance contactInstance = contactField.getSelectedValue().getBean();
+		ContactInstance contactInstance;
+		
+		if (contactField.getSelectedValue() != null) {
+			ContactSearchResultInstance searchInstance = contactField.getSelectedValue().getBean();
+			contactInstance = searchInstance.getContact();
+			if (searchInstance.getType() == ContactSearchResultInstance.ADD_NEW || searchInstance.getContact() == null) {
+				contactInstance = new ContactInstance();
+				contactInstance.setNewRecord(true);
+			}
+		} else {
+			contactInstance = new ContactInstance();
+			contactInstance.setNewRecord(true);
+		}
+		
+		contactInstance.setFullName(fullNameDisplay.getValue());
+		contactInstance.setContactType( (ContactTypeInstance) contactTypeField.getSelectedValue().getBean());
+		contactInstance.setTitle( titleDisplay.getValue());
+		contactInstance.setPhone(phoneDisplay.getValue());
+		contactInstance.setPhone2(phone2Display.getValue());
+		contactInstance.setFax(faxDisplay.getValue());
+		contactInstance.seteMail(emailDisplay.getValue());
+		contactInstance.seteMail2(email2Display.getValue());
+		
+		if (institutionField.getSelectedValue() != null) {
+			contactInstance.setInstitution( (InstitutionInstance) institutionField.getSelectedValue().getBean());
+		} else
+			contactInstance.setInstitution( null );
+		
+		String [] addressLines = getAddressLines(addressDisplay.getValue());
+		if (addressLines.length > 0)
+			contactInstance.setAddress1(addressLines [0]);
+		else
+			contactInstance.setAddress1("");
+		if (addressLines.length > 1)
+			contactInstance.setAddress2(addressLines [1]);
+		else
+			contactInstance.setAddress2("");
+		if (addressLines.length > 2)
+			contactInstance.setAddress3(addressLines [2]);
+		else
+			contactInstance.setAddress3("");
+		
+		contactInstance.setCity(cityDisplay.getValue());
+		contactInstance.setState(stateDisplay.getValue());
+		contactInstance.setZip(zipDisplay.getValue());
+		contactInstance.setCountry(countryDisplay.getValue());
 		
 		if (focusInstance == null) {
 			focusInstance = new AgreementContactInstance();
 			focusInstance.setNewRecord(true);
 			focusInstance.setAgreementId(getAgreementId());
 			
-			if (contactInstance == null) {
-				MessageBox.alert("Unexpted Error", "No contact is selected.", null);
-				return;
-			}
+//			if (contactInstance == null) {
+//				MessageBox.alert("Unexpected Error", "No contact is selected.", null);
+//				return;
+//			}
+			
 			focusInstance.setContactId(contactInstance.getContactId());
 		}
+		
+		focusInstance.setContact(contactInstance);	
+		focusInstance.setRenewalContact(renewalContactCheck.getValue() ? 'y' : 'n');
+		focusInstance.setStatus(AppConstants.STATUS_ACTIVE);
 		
 		if (contactInstance.isNewRecord())
 			contactInstance.setNote(notesField.getNote());
@@ -324,6 +552,7 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 						
 						focusInstance.setNewRecord(false);
 						focusInstance.setValuesFrom(updatedAgreementContact);
+						focusInstance.getContact().setValuesFrom(updatedAgreementContact.getContact());
 						setFormFromInstance(updatedAgreementContact);	//	setFormFieldValues(updatedAgreementContact);
 						
 						//	This puts the grid in synch

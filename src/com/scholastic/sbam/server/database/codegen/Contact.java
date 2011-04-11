@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Apr 6, 2011 12:01:48 AM by Hibernate Tools 3.2.4.GA
+// Generated Apr 9, 2011 12:50:23 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -11,6 +11,7 @@ public class Contact implements java.io.Serializable {
 
 	private Integer contactId;
 	private String contactTypeCode;
+	private int parentUcn;
 	private String fullName;
 	private String title;
 	private String additionalInfo;
@@ -33,13 +34,14 @@ public class Contact implements java.io.Serializable {
 	public Contact() {
 	}
 
-	public Contact(String contactTypeCode, String fullName, String title,
-			String additionalInfo, String address1, String address2,
-			String address3, String city, String state, String zip,
-			String country, String EMail, String EMail2, String phone,
-			String phone2, String fax, String note, Date createdDatetime,
-			char status) {
+	public Contact(String contactTypeCode, int parentUcn, String fullName,
+			String title, String additionalInfo, String address1,
+			String address2, String address3, String city, String state,
+			String zip, String country, String EMail, String EMail2,
+			String phone, String phone2, String fax, String note,
+			Date createdDatetime, char status) {
 		this.contactTypeCode = contactTypeCode;
+		this.parentUcn = parentUcn;
 		this.fullName = fullName;
 		this.title = title;
 		this.additionalInfo = additionalInfo;
@@ -74,6 +76,14 @@ public class Contact implements java.io.Serializable {
 
 	public void setContactTypeCode(String contactTypeCode) {
 		this.contactTypeCode = contactTypeCode;
+	}
+
+	public int getParentUcn() {
+		return this.parentUcn;
+	}
+
+	public void setParentUcn(int parentUcn) {
+		this.parentUcn = parentUcn;
 	}
 
 	public String getFullName() {

@@ -701,6 +701,8 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 				@Override
 				public void componentSelected(ButtonEvent ce) {
 					contactsCard.setAgreementId(agreementId);
+					contactsCard.setAgreement(agreement);
+					contactsCard.setBillToInstitution(billToInstitution);
 					cards.setActiveItem(contactsCard);
 					contactsButton.toggle(true);
 				}

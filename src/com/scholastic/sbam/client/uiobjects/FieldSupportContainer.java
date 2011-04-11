@@ -4,10 +4,12 @@ import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
+import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.google.gwt.i18n.client.NumberFormat;
@@ -85,6 +87,14 @@ public abstract class FieldSupportContainer extends LayoutContainer {
 	
 	protected NumberField getNumberField(String label, NumberFormat numberFormat) {
 		return FieldFactory.getNumberField(label, numberFormat);
+	}
+	
+	protected static CheckBox	getCheckBoxField(String label) {
+		return FieldFactory.getCheckBoxField(label);
+	}
+	
+	protected static TextArea getMultiLineField(String label, int lines) {
+		return FieldFactory.getMultiLineField(label, lines);
 	}
 	
 	protected TextField<String> getTextField(String label) {

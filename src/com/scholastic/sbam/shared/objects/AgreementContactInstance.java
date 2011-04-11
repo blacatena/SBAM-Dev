@@ -110,6 +110,10 @@ public class AgreementContactInstance extends BetterRowEditInstance implements B
 		return agreementId + ":" + contactId;
 	}
 	
+	public boolean isRenewalContact() {
+		return renewalContact == 'y' || renewalContact == 'Y';
+	}
+	
 	public void setValuesFrom(AgreementContactInstance fromInstance) {
 		this.agreementId	=	fromInstance.agreementId;
 		this.contactId		=	fromInstance.contactId;

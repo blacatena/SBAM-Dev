@@ -33,7 +33,10 @@ public class ContactSearchField extends ComboBox<BeanModel> {
 	private long						searchSyncId		=	0;
 	
 	private	int							ucn;
-	private boolean						searchInstitutions	=	true;
+	/**
+	 * Whether or not this contact search should search both institutions and contacts, or contacts only
+	 */
+	private boolean						searchInstitutions	=	false;
 	
 	private boolean						includeAddOption	=	true;
 	private ContactSearchResultInstance	addInstance			=	null;
@@ -157,7 +160,7 @@ public class ContactSearchField extends ComboBox<BeanModel> {
 	}
 	
 	protected String getMultiLineAddressTemplate() {
-		return "<div class=\"{listStyle}\"><b>{name}</b><br/>{multiLineAddress}</div>";
+		return "<div class=\"{listStyle}\"><b>{nameInfoHtml}</b><br/>{multiLineAddress}</div>";
 		//	This isn't working... it's dying on institution.institutionName and institution.htmlAddress (for today, it is okay to say GXT sucks).
 		//	return "<b>{linkIdCheckDigit} {institution.institutionName}</b><br/>  <span style=\"color:gray\">{institution.htmlAddress}</span>"; // {address1}<br/>{city}, {state} &nbsp;&nbsp;&nbsp; {zip}";
 	}

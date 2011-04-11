@@ -77,6 +77,7 @@ public class UiConstants {
 	public static void refresh() {
 		loadAgreementTypes();
 		loadCommissionTypes();
+		loadContactTypes();
 		loadDeleteReasons();
 		loadCancelReasons();
 		loadProducts();

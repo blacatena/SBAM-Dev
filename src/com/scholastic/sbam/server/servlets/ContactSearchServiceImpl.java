@@ -32,11 +32,11 @@ public class ContactSearchServiceImpl extends AuthenticatedServiceServlet implem
 		authenticate("search contacts", SecurityManager.ROLE_QUERY);
 		
 		if (ucn != 0)
-			return searchWithinInstitution(loadConfig, ucn,searchInstitutions, filter, syncId);
+			return searchWithinInstitution(loadConfig, ucn, searchInstitutions, filter, syncId);
 		else if (searchInstitutions)
-			return searchContactsAndInstitutions(loadConfig, ucn,searchInstitutions, filter, syncId);
+			return searchContactsAndInstitutions(loadConfig, ucn, searchInstitutions, filter, syncId);
 		else
-			return searchContactsOnly(loadConfig, ucn,searchInstitutions, filter, syncId);
+			return searchContactsOnly(loadConfig, ucn, searchInstitutions, filter, syncId);
 	}
 
 	/**
@@ -140,6 +140,7 @@ public class ContactSearchServiceImpl extends AuthenticatedServiceServlet implem
 					//	Paging... start from where asked, and don't return more than requested
 					if (i >= loadConfig.getOffset() && list.size() < loadConfig.getLimit()) {
 						ContactInstance instance = DbContact.getInstance(dbInstance);
+						DbContact.setDescriptions(instance);
 						list.add(new ContactSearchResultInstance(instance));
 					}
 					i++;

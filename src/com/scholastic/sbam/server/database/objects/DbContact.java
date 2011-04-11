@@ -11,9 +11,11 @@ import org.hibernate.criterion.Restrictions;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.scholastic.sbam.server.database.codegen.Contact;
 import com.scholastic.sbam.server.database.codegen.ContactType;
+import com.scholastic.sbam.server.database.codegen.Institution;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
 import com.scholastic.sbam.shared.objects.ContactInstance;
 import com.scholastic.sbam.shared.objects.ContactTypeInstance;
+import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 /**
@@ -32,6 +34,7 @@ public class DbContact extends HibernateAccessor {
 		
 		ContactInstance instance = new ContactInstance();
 		instance.setContactId(dbInstance.getContactId());
+		instance.setParentUcn(dbInstance.getParentUcn());
 		instance.setFullName(dbInstance.getFullName());
 		instance.setContactTypeCode(dbInstance.getContactTypeCode());
 		instance.setTitle(dbInstance.getTitle());
@@ -248,5 +251,16 @@ public class DbContact extends HibernateAccessor {
 				instance.setContactType(DbContactType.getInstance(contactType));
 		} else
 			instance.setContactType(ContactTypeInstance.getEmptyInstance());
+		
+		
+		if (instance.getParentUcn() > 0) {
+			Institution dbInstitution = DbInstitution.getByCode(instance.getParentUcn());
+			if (dbInstitution != null)
+				instance.setInstitution( DbInstitution.getInstance(dbInstitution) );
+			else
+				instance.setInstitution( InstitutionInstance.getUnknownInstance( instance.getParentUcn()) );
+		} else {
+			instance.setInstitution( InstitutionInstance.getEmptyInstance());
+		}
 	}
 }
