@@ -28,6 +28,7 @@ public class DbAuthMethod extends HibernateAccessor {
 	public static AuthMethodInstance getInstance(AuthMethod dbInstance) {
 		AuthMethodInstance instance = new AuthMethodInstance();
 
+		instance.setAgreementId(dbInstance.getId().getAgreementId());
 		instance.setUcn(dbInstance.getId().getUcn());
 		instance.setUcnSuffix(dbInstance.getId().getUcnSuffix());
 		instance.setSiteLocCode(dbInstance.getId().getSiteLocCode());
@@ -90,16 +91,33 @@ public class DbAuthMethod extends HibernateAccessor {
 		return reasons;
 	}
 	
-	public static List<AuthMethod> findByAgreementId(int agreementId, char status, char neStatus) {
+	public static List<AuthMethod> findByAgreementId(int agreementId, String methodType, char status, char neStatus) {
+		return findByOwner(agreementId, 0, 0, null, methodType, status, neStatus);
+	}
+	
+	public static List<AuthMethod> findBySite( int ucn, int ucnSuffix, String siteLocCode, String methodType, char status, char neStatus) {
+		return findByOwner(0, ucn, ucnSuffix, siteLocCode, methodType, status, neStatus);
+	}
+	
+	public static List<AuthMethod> findByOwner(int agreementId, int ucn, int ucnSuffix, String siteLocCode, String methodType, char status, char neStatus) {
         try
         {
             Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
             if (agreementId > 0)
             	crit.add(Restrictions.eq("id.agreementId", agreementId));
+            if (ucn > 0)
+            	crit.add(Restrictions.eq("id.ucn", ucn));
+            if (ucnSuffix > 0)
+            	crit.add(Restrictions.eq("id.ucnSuffix", ucnSuffix));
+            if (siteLocCode != null)
+            	crit.add(Restrictions.eq("id.siteLocCode", siteLocCode));
+            if (methodType != null)
+            	crit.add(Restrictions.eq("id.methodType", methodType));
             if (status != 0)
             	crit.add(Restrictions.like("status", status));
             if (neStatus != 0)
             	crit.add(Restrictions.ne("status", neStatus));
+            crit.addOrder(Order.asc("id.agreementId"));
             crit.addOrder(Order.asc("id.ucn"));
             crit.addOrder(Order.asc("id.ucnSuffix"));
             crit.addOrder(Order.asc("id.siteLocCode"));

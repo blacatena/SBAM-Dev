@@ -142,6 +142,21 @@
   </servlet>
   
   <servlet>
+    <servlet-name>authMethodListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.AuthMethodListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updateAuthMethodServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateAuthMethodServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updateAuthMethodNoteServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateAuthMethodNoteServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>cancelReasonListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.CancelReasonListServiceImpl</servlet-class>
   </servlet>
@@ -484,6 +499,21 @@
   <servlet-mapping>
     <servlet-name>updateAgreementTypeServlet</servlet-name>
     <url-pattern>/sbam/updateAgreementType</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>authMethodListServlet</servlet-name>
+    <url-pattern>/sbam/getAuthMethods</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateAuthMethodServlet</servlet-name>
+    <url-pattern>/sbam/updateAuthMethod</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateAuthMethodNoteServlet</servlet-name>
+    <url-pattern>/sbam/updateAuthMethodNote</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

@@ -19,6 +19,7 @@ import com.scholastic.sbam.client.services.SiteLocationSearchService;
 import com.scholastic.sbam.client.services.SiteLocationSearchServiceAsync;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.AgreementSiteInstance;
+import com.scholastic.sbam.shared.objects.AuthMethodInstance;
 import com.scholastic.sbam.shared.objects.SiteInstance;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
@@ -229,6 +230,11 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> {
 	public void setFor(int ucn, int ucnSuffix) {
 		this.ucn = ucn;
 		this.ucnSuffix = ucnSuffix;
+	}
+	
+	public void setFor(AuthMethodInstance method) {
+		ucn = method.getUcn();
+		ucnSuffix = method.getUcnSuffix();
 	}
 	
 	public void setFor(AgreementSiteInstance site) {
