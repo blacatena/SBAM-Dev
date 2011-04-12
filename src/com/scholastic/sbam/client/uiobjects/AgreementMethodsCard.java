@@ -6,6 +6,8 @@ import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
@@ -61,6 +63,10 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 //	protected LabelField					addressDisplay		= getLabelField();
 	protected TextField<String>				ucnDisplay			= getTextField("UCN+");
 //	protected LabelField					customerTypeDisplay	= getLabelField();
+	protected CheckBox						approvedCheck		= getCheckBoxField("Approved");
+	protected CheckBox						validatedCheck		= getCheckBoxField("Validated");
+	protected CheckBox						remoteCheck			= getCheckBoxField("Remote");
+	protected CheckBoxGroup					statusGroup			= getCheckBoxGroup(null, approvedCheck, validatedCheck, remoteCheck);
 	
 	protected MultiField<String>			ipLoField			= new MultiField<String>("From");
 	protected TextField<String>				ipLoOctet1Field		= getTextField("");
@@ -75,6 +81,12 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 
 	protected TextField<String>				userIdField			= getTextField("User ID");
 	protected TextField<String>				passwordField		= getTextField("Password");
+	protected CheckBox						cookieUidCheck		= getCheckBoxField("Cookie");
+	protected CheckBox						permanentUidCheck	= getCheckBoxField("Permanent");
+	protected CheckBoxGroup					uidTypeGroup		= getCheckBoxGroup("UID Type", permanentUidCheck, cookieUidCheck);
+//	protected EnhancedComboBox<BeanModel>	uidTypeField	= getComboField("uidType", 	"UID Type",	DEFAULT_FIELD_WIDTH,		
+//			"The type of user ID to deploy.",	
+//			UiConstants.getUidTypes(), "code", "name");
 
 	protected TextField<String>				urlField			= getTextField("URL");
 	
@@ -105,9 +117,6 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 																};
 	
 	
-//	protected EnhancedComboBox<BeanModel>	commissionTypeField	= getComboField("commissionType", 	"Commission",	DEFAULT_FIELD_WIDTH,		
-//			"The commission code assigned to this site for reporting purposes.",	
-//			UiConstants.getCommissionTypes(UiConstants.CommissionTypeTargets.SITE), "commissionCode", "descriptionAndCode");
 //	protected EnhancedComboBox<BeanModel>	cancelReasonField	= getComboField("cancelReason", 	"Cancel",	DEFAULT_FIELD_WIDTH,		
 //			"The reason for canceling (deactivating) for this site.",
 //			UiConstants.getCancelReasons(), "cancelReasonCode", "descriptionAndCode");
@@ -181,6 +190,14 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	@Override
 	public void setFormFieldValues(AuthMethodInstance instance) {
 		String displayStatus = "Method " + AppConstants.getStatusDescription(instance.getStatus());
+		if (instance.isActivated())
+			if (instance.getReactivatedDatetime() != null)
+				displayStatus += ", Rectivated " + UiConstants.formatDate(instance.getReactivatedDatetime());
+			else
+				displayStatus += ", Activated " + UiConstants.formatDate(instance.getActivatedDatetime());
+		else
+			if (instance.getDeactivatedDatetime() != null)
+				displayStatus += ", Deactivated " + UiConstants.formatDate(instance.getDeactivatedDatetime());
 		agreementIdField.setValue(AppConstants.appendCheckDigit(instance.getAgreementId()) + " &nbsp;&nbsp;&nbsp;<i>" + displayStatus + "</i>");
 		
 		if (instance.getUcnSuffix() <= 1)
@@ -195,6 +212,10 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		siteLocationField.setValue(SiteInstance.obtainModel(instance.getSite()));
 		siteLocationField.setReadOnly(!instance.isNewRecord());
 		
+		validatedCheck.setValue(instance.isValidated());
+		approvedCheck.setValue(instance.isApproved());
+		remoteCheck.setValue(instance.isRemote());
+		
 		if (AuthMethodInstance.AM_IP.equals(instance.getMethodType())) {
 			String [] [] octets = AuthMethodInstance.getIpOctetStrings(instance.getIpLo(), instance.getIpHi());
 			ipLoOctet1Field.setValue(octets [0] [0]);
@@ -206,18 +227,26 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 			ipHiOctet3Field.setValue(octets [1] [2]);
 			ipHiOctet4Field.setValue(octets [1] [3]);
 			openUrlFields(false);
+			clearUrlFields();
 			openUidFields(false);
+			clearUidFields();
 			openIpFields(true);
 		} else if (AuthMethodInstance.AM_UID.equals(instance.getMethodType())) {
 			userIdField.setValue(instance.getUserId());
 			passwordField.setValue(instance.getPassword());
+			cookieUidCheck.setValue(instance.isUserType(AuthMethodInstance.UserTypes.COOKIE));
+			permanentUidCheck.setValue(instance.isUserType(AuthMethodInstance.UserTypes.PUP));
 			openIpFields(false);
+			clearIpFields();
 			openUrlFields(false);
+			clearUrlFields();
 			openUidFields(true);
 		} else if (AuthMethodInstance.AM_URL.equals(instance.getMethodType())) {
 			urlField.setValue(instance.getUrl());
 			openIpFields(false);
+			clearIpFields();
 			openUidFields(false);
+			clearUidFields();
 			openUrlFields(true);
 		}
 
@@ -239,19 +268,42 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		ipFieldSet.setExpanded(open);
 	}
 	
+	public void clearIpFields() {
+		ipLoOctet1Field.clear();
+		ipLoOctet2Field.clear();
+		ipLoOctet3Field.clear();
+		ipLoOctet4Field.clear();
+		ipHiOctet1Field.clear();
+		ipHiOctet2Field.clear();
+		ipHiOctet3Field.clear();
+		ipHiOctet4Field.clear();
+	}
+	
 	public void openUrlFields(boolean open) {
 		urlField.setReadOnly(!open);
 		urlFieldSet.setEnabled(open);
 		urlFieldSet.setExpanded(open);
 	}
 	
+	public void clearUrlFields() {
+		urlField.clear();
+	}
+	
 	public void openUidFields(boolean open) {
 		userIdField.setReadOnly(!open);
 		passwordField.setReadOnly(!open);
+		uidTypeGroup.setReadOnly(!open);
 		uidFieldSet.setEnabled(open);
 		uidFieldSet.setExpanded(open);
 	}
 	
+	public void clearUidFields() {
+		userIdField.clear();
+		passwordField.clear();
+		cookieUidCheck.clear();
+		permanentUidCheck.clear();
+	}
+ 	
 	public void setNotesField(String note) {
 		if (note != null && note.length() > 0) {
 			notesField.setEditMode();
@@ -395,6 +447,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		formColumn1.add(siteLocationField, formData);
 //		formColumn2.add(commissionTypeField,	formData);
 //		formColumn2.add(cancelReasonField,	formData);
+		formColumn1.add(statusGroup, formData);
 		
 
 		ipFieldSet.setBorders(true);
@@ -424,6 +477,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		
 		uidFieldSet.add(userIdField);
 		uidFieldSet.add(passwordField);
+		uidFieldSet.add(uidTypeGroup);
 		
 		formColumn2.add(uidFieldSet);
 

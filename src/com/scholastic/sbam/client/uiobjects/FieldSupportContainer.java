@@ -5,6 +5,7 @@ import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
@@ -87,6 +88,10 @@ public abstract class FieldSupportContainer extends LayoutContainer {
 	
 	protected NumberField getNumberField(String label, NumberFormat numberFormat) {
 		return FieldFactory.getNumberField(label, numberFormat);
+	}
+	
+	protected static CheckBoxGroup getCheckBoxGroup(String label, CheckBox... boxes) {
+		return FieldFactory.getCheckBoxGroup(label, boxes);
 	}
 	
 	protected static CheckBox	getCheckBoxField(String label) {

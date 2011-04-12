@@ -151,7 +151,7 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 	public void setFormFieldValues(AgreementTermInstance instance) {
 		String displayStatus = "Term " + AppConstants.getStatusDescription(instance.getStatus());
 		if (instance.getStatus() == AppConstants.STATUS_INACTIVE && instance.getCancelReasonCode() != null && instance.getCancelReasonCode().length() > 0 && instance.getCancelDate() != null)
-			displayStatus = "Canceled " + instance.getCancelDate();
+			displayStatus = "Canceled " + UiConstants.formatDate(instance.getCancelDate());
 		agreementIdField.setValue(AppConstants.appendCheckDigit(instance.getAgreementId()) + " &nbsp;&nbsp;&nbsp;<i>" + displayStatus + "</i>");
 		productField.setValue(ProductInstance.obtainModel(instance.getProduct()));
 		dollarValueField.setValue(instance.getDollarValue());

@@ -13,6 +13,23 @@ public class AuthMethodInstance extends BetterRowEditInstance implements BeanMod
 
 	private static BeanModelFactory beanModelfactory;
 	
+	public static enum UserTypes {
+		COOKIE ("C","Cookie"),
+		PUP("P", "Permanent");
+		private String code;
+		private String name;
+		UserTypes(String code, String name) {
+			this.code = code;
+			this.name = name;
+		}
+		public String getCode() {
+			return code;
+		}
+		public String getName() {
+			return name;
+		}
+	}
+	
 	public static final String AM_IP 	= "ip";
 	public static final String AM_URL	= "url";
 	public static final String AM_UID	= "uid";
@@ -179,6 +196,10 @@ public class AuthMethodInstance extends BetterRowEditInstance implements BeanMod
 	public char getUserType() {
 		return userType;
 	}
+	
+	public boolean isUserType(UserTypes type) {
+		return (type.getCode().charAt(0) == userType);
+	}
 
 	public void setUserType(char userType) {
 		this.userType = userType;
@@ -211,6 +232,10 @@ public class AuthMethodInstance extends BetterRowEditInstance implements BeanMod
 	public char getRemote() {
 		return remote;
 	}
+	
+	public boolean isRemote() {
+		return (remote == 'y' || remote == 'Y');
+	}
 
 	public void setRemote(char remote) {
 		this.remote = remote;
@@ -223,9 +248,17 @@ public class AuthMethodInstance extends BetterRowEditInstance implements BeanMod
 	public void setApproved(char approved) {
 		this.approved = approved;
 	}
+	
+	public boolean isApproved() {
+		return (approved == 'y' || approved == 'Y');
+	}
 
 	public char getValidated() {
 		return validated;
+	}
+	
+	public boolean isValidated() {
+		return (validated == 'y' || validated == 'Y');
 	}
 
 	public void setValidated(char validated) {
@@ -234,6 +267,10 @@ public class AuthMethodInstance extends BetterRowEditInstance implements BeanMod
 
 	public char getActivated() {
 		return activated;
+	}
+	
+	public boolean isActivated() {
+		return (activated == 'y' || activated == 'Y');
 	}
 
 	public void setActivated(char activated) {

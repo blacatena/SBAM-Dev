@@ -133,7 +133,7 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 	public void setFormFieldValues(AgreementSiteInstance instance) {
 		String displayStatus = "Site " + AppConstants.getStatusDescription(instance.getStatus());
 		if (instance.getStatus() == AppConstants.STATUS_INACTIVE && instance.getCancelReasonCode() != null && instance.getCancelReasonCode().length() > 0 && instance.getInactiveDate() != null)
-			displayStatus = "Deactivated " + instance.getInactiveDate();
+			displayStatus = "Deactivated " + UiConstants.formatDate(instance.getInactiveDate());
 		agreementIdField.setValue(AppConstants.appendCheckDigit(instance.getAgreementId()) + " &nbsp;&nbsp;&nbsp;<i>" + displayStatus + "</i>");
 		
 		if (instance.getSiteUcnSuffix() <= 1)

@@ -4,6 +4,7 @@ import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Slider;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -101,6 +102,15 @@ public class FieldFactory {
 //		field.setReadOnly(true);
 		
 		return field;
+	}
+	
+	protected static CheckBoxGroup getCheckBoxGroup(String label, CheckBox... boxes) {
+		CheckBoxGroup cbGroup = new CheckBoxGroup();
+		setStandard(cbGroup, label);
+		for (CheckBox cb : boxes) {
+			cbGroup.add(cb);
+		}
+		return cbGroup;
 	}
 	
 	protected static CheckBox	getCheckBoxField(String label) {
@@ -227,7 +237,11 @@ public class FieldFactory {
 		field.setEnabled(false);
 		field.addStyleName("field-or-label");
 	//	field.setLabelStyle("color: saddlebrown;");
+		if (label == null)
+			label = "";
 		field.setFieldLabel(label);
+		if (label == null || label.length() == 0)
+			field.setLabelSeparator("");
 	}
 
 }

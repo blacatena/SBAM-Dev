@@ -1,5 +1,6 @@
 package com.scholastic.sbam.client.util;
 
+import java.util.Date;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BeanModel;
@@ -30,10 +31,12 @@ import com.scholastic.sbam.client.services.TermTypeListService;
 import com.scholastic.sbam.client.services.TermTypeListServiceAsync;
 import com.scholastic.sbam.client.stores.BetterFilterListStore;
 import com.scholastic.sbam.shared.objects.AgreementTypeInstance;
+import com.scholastic.sbam.shared.objects.AuthMethodInstance;
 import com.scholastic.sbam.shared.objects.CancelReasonInstance;
 import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
 import com.scholastic.sbam.shared.objects.ContactTypeInstance;
 import com.scholastic.sbam.shared.objects.DeleteReasonInstance;
+import com.scholastic.sbam.shared.objects.GenericCodeInstance;
 import com.scholastic.sbam.shared.objects.ProductInstance;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.TermTypeInstance;
@@ -66,6 +69,8 @@ public class UiConstants {
 	private static BetterFilterListStore<BeanModel>		cancelReasons = new BetterFilterListStore<BeanModel>();
 	private static BetterFilterListStore<BeanModel>		products = new BetterFilterListStore<BeanModel>();
 	private static ListStore<BeanModel>					termTypes = new ListStore<BeanModel>();
+	
+	private static ListStore<BeanModel>					uidTypes  = getUidTypes();
 	
 	private static Timer								refreshTimer;
 	
@@ -356,6 +361,18 @@ public class UiConstants {
 		
 		return list;
 	}
+	
+	public static ListStore<BeanModel> getUidTypes() {
+		if (uidTypes != null)
+			return uidTypes;
+		ListStore<BeanModel> list = new ListStore<BeanModel>();
+		list.setKeyProvider(new SimpleKeyProvider("code"));
+		for (AuthMethodInstance.UserTypes type : AuthMethodInstance.UserTypes.values()) {
+			GenericCodeInstance instance = new GenericCodeInstance(type.getCode(), type.getName());
+			list.add(GenericCodeInstance.obtainModel(instance));
+		}
+		return list;
+	}
 
 	public static ToolTipConfig getQuickTip(String toolTip) {
 		ToolTipConfig config = new ToolTipConfig();
@@ -366,5 +383,13 @@ public class UiConstants {
 		config.setAnchorOffset(0);
 		config.setAnchorToTarget(true);
 		return config;
+	}
+	
+	public static String formatDateLong(Date date) {
+		return APP_DATE_LONG_FORMAT.format(date);
+	}
+	
+	public static String formatDate(Date date) {
+		return APP_DATE_TIME_FORMAT.format(date);
 	}
 }
