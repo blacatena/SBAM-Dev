@@ -448,6 +448,8 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	
 	protected SiteLocationSearchField getSiteLocationField(String name, String label, int width, String toolTip) {
 		SiteLocationSearchField siteLocCombo = new SiteLocationSearchField();
+		siteLocCombo.setIncludeAllOption(false);
+		siteLocCombo.setIncludeMainOption(true);
 		FieldFactory.setStandard(siteLocCombo, label);
 		
 		if (toolTip != null)
@@ -565,7 +567,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		} else {
 			// Different UCN, default to suffix 1
 			siteLocationField.setFor(instance.getUcn(), 1);
-			siteLocationField.setValue(SiteInstance.obtainModel(SiteInstance.getAllInstance(instance.getUcn(), 1)));
+			siteLocationField.setValue(SiteInstance.obtainModel(SiteInstance.getMainInstance(instance.getUcn(), 1)));
 		}
 		
 		ucnDisplay.setValue(instance.getUcn() + "");

@@ -36,8 +36,10 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> {
 	
 	private boolean					includeAddOption	=	true;
 	private boolean					includeAllOption	=	true;
+	private boolean					includeMainOption	=	false;
 	private SiteInstance			addInstance			=	null;
-	private SiteInstance			allInstance		=	null;
+	private SiteInstance			allInstance			=	null;
+	private SiteInstance			mainInstance		=	null;
 
 	private String					sortField			=	"descriptionAndCode";
 	private SortDir					sortDir				=	SortDir.ASC;
@@ -153,6 +155,7 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> {
 							return;
 						
 						PagingLoadResult<SiteInstance> result = syncResult.getResult();
+						int resultCount = result != null && result.getData() != null ? result.getData().size() : 0;
 						if (includeAddOption) {
 							if (addInstance == null) {
 								addInstance= new SiteInstance();
@@ -166,6 +169,10 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> {
 								allInstance.setStatus(AppConstants.STATUS_ALL);
 							}
 							result.getData().add(0, allInstance);
+						}
+						if (includeMainOption && resultCount == 0) {
+							mainInstance= SiteInstance.getMainInstance(ucn, ucnSuffix);
+							result.getData().add(0, mainInstance);
 						}
 
 						callback.onSuccess(result);
@@ -193,6 +200,22 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> {
 
 	public void setIncludeAddOption(boolean includeAddOption) {
 		this.includeAddOption = includeAddOption;
+	}
+
+	public boolean isIncludeAllOption() {
+		return includeAllOption;
+	}
+
+	public void setIncludeAllOption(boolean includeAllOption) {
+		this.includeAllOption = includeAllOption;
+	}
+
+	public boolean isIncludeMainOption() {
+		return includeMainOption;
+	}
+
+	public void setIncludeMainOption(boolean includeMainOption) {
+		this.includeMainOption = includeMainOption;
 	}
 
 	public String getSortField() {

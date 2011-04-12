@@ -208,6 +208,17 @@ public class SiteInstance extends BetterRowEditInstance implements BeanModelTag,
 		return instance;
 	}
 	
+	public static SiteInstance getMainInstance(int ucn, int ucnSuffix) {
+		SiteInstance instance = new SiteInstance();
+		instance.ucn = ucn;
+		instance.ucnSuffix = ucnSuffix;
+		instance.siteLocCode = "main";
+		instance.description = "Main Location";
+		instance.status = AppConstants.STATUS_ACTIVE;
+		instance.institution = InstitutionInstance.getEmptyInstance();
+		return instance;
+	}
+	
 	public static SiteInstance getUnknownInstance(int ucn, int ucnSuffix, String siteLocCode) {
 		SiteInstance instance = new SiteInstance();
 		instance.ucn = ucn;
