@@ -7,6 +7,7 @@ import com.scholastic.sbam.client.services.UpdateAgreementService;
 import com.scholastic.sbam.server.database.codegen.Agreement;
 import com.scholastic.sbam.server.database.objects.DbAgreement;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
+import com.scholastic.sbam.server.fastSearch.InstitutionCache;
 import com.scholastic.sbam.server.validation.AppAgreementValidator;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.objects.AgreementInstance;
@@ -101,6 +102,9 @@ public class UpdateAgreementServiceImpl extends AuthenticatedServiceServlet impl
 				instance.setIdCheckDigit(AppConstants.appendCheckDigit(instance.getId()));
 				instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
 				DbAgreement.setDescriptions(instance);
+				if (instance.getInstitution() != null) {
+					InstitutionCache.getSingleton().setDescriptions( instance.getInstitution() );
+				}
 				
 				//	Update the check digit in the database based on the now assigned agreement ID
 				dbInstance.setIdCheckDigit(instance.getIdCheckDigit());

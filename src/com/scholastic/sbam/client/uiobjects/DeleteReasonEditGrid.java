@@ -36,7 +36,7 @@ public class DeleteReasonEditGrid extends BetterFilterEditGrid<DeleteReasonInsta
 	
 	@Override
 	public void onRender(Element parent, int index) {
-		setForceHeight(600);
+	//	setForceHeight(600);
 		setAdditionalWidthPadding(0);
 	//	setForceWidth(600);
 	//	setAutoExpandColumn("spacer");

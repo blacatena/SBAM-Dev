@@ -14,6 +14,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.RowExpander;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -216,7 +217,12 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 	protected void addFormFields(FormPanel panel, FormData formData) {
 		formData = new FormData("-24");
 		
-		panel.setLayout(new TableLayout(2));
+		TableLayout tableLayout = new TableLayout(2);
+		tableLayout.setWidth("100%");
+		panel.setLayout(tableLayout);
+		
+		TableData tData1 = new TableData();
+		tData1.setWidth("50%");
 		
 		formColumn1 = getNewFormPanel(75); formColumn1.setId("formColumn1"); //formColumn1.setLayoutData(0.5); //formColumn1.setWidth("50%");
 		formColumn2 = getNewFormPanel(75); formColumn2.setId("formColumn2"); //formColumn2.setLayoutData(0.5); //formColumn2.setWidth("50%");
@@ -256,8 +262,8 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 		formColumn2.add(commissionTypeField,	formData);
 		formColumn2.add(cancelReasonField,	formData);
 		
-		panel.add(formColumn1);
-		panel.add(formColumn2);
+		panel.add(formColumn1,	tData1);
+		panel.add(formColumn2,	tData1);
 	}
 	
 	protected SiteLocationSearchField getSiteLocationField(String name, String label, int width, String toolTip) {

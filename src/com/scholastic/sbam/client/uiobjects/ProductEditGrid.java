@@ -47,7 +47,7 @@ public class ProductEditGrid extends BetterFilterEditGrid<ProductInstance> imple
 	
 	@Override
 	public void onRender(Element parent, int index) {
-		setForceHeight(600);
+	//	setForceHeight(600);
 		setAdditionalWidthPadding(14);
 	//	setForceWidth(600);
 	//	setAutoExpandColumn("spacer");

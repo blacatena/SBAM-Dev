@@ -17,6 +17,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.RowExpander;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -230,7 +231,12 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 	protected void addFormFields(FormPanel panel, FormData formData) {
 		formData = new FormData("-24");
 		
-		panel.setLayout(new TableLayout(2));
+		TableLayout tableLayout = new TableLayout(2);
+		tableLayout.setWidth("100%");
+		panel.setLayout(tableLayout);
+		
+		TableData tData1 = new TableData();
+		tData1.setWidth("50%");
 		
 		formColumn1 = getNewFormPanel(75);
 		formColumn2 = getNewFormPanel(75);
@@ -287,8 +293,8 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 		formColumn2.add(phone2Display, formData);
 		formColumn2.add(faxDisplay, formData);
 
-		panel.add(formColumn1);
-		panel.add(formColumn2);
+		panel.add(formColumn1,	tData1);
+		panel.add(formColumn2,	tData1);
 	}
 	
 	protected NotesIconButtonField<String> getNotesButtonField() {

@@ -71,7 +71,7 @@ import com.scholastic.sbam.shared.util.AppConstants;
 public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> implements AppSleeper {
 	
 	protected final int DIRTY_FORM_LISTEN_TIME	=	250;
-	protected final int PRESUMED_FORM_HEIGHT	=	260;
+	protected final int PRESUMED_FORM_HEIGHT	=	270;
 	
 	protected final AgreementGetServiceAsync		agrementGetService			= GWT.create(AgreementGetService.class);
 	protected final UpdateAgreementServiceAsync		updateAgreementService		= GWT.create(UpdateAgreementService.class);
@@ -718,6 +718,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		toolBar.add(contactsButton);
 
 		agreementButton.toggle(true);
+		enableAgreementButtons(agreementId != -1 && agreement != null);
 		
 		outerContainer.setBottomComponent(toolBar);
 	}
@@ -746,16 +747,29 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		return nibf;
 	}
 	
+	protected void enableAgreementButtons(boolean enabled) {
+		if (editButton != null) editButton.setEnabled(enabled);
+		if (termsButton != null) termsButton.setEnabled(enabled);
+		if (sitesButton != null) sitesButton.setEnabled(enabled);
+		if (methodsButton != null) methodsButton.setEnabled(enabled);
+		if (contactsButton != null) contactsButton.setEnabled(enabled);
+	}
+	
 	/**
 	 * Set an agreement on the form, and load its institution
 	 * @param agreement
 	 */
 	protected void set(AgreementInstance agreement) {
 		this.agreement = agreement;
-		if (agreement == null)
+		if (agreement == null) {
 			this.agreementId = -1;
-		else
+			enableAgreementButtons(false);
+		} else {
 			this.agreementId = agreement.getId();
+			enableAgreementButtons(true);
+		}
+		System.out.println("Set agreement ID to " + agreementId);
+		System.out.println("UCN " + (agreement != null ? agreement.getBillUcn() : " null agreement") );
 		registerUserCache(agreement, identificationTip);
 		setPortletHeading();
 
@@ -777,6 +791,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 			if (agreement.getAgreementLinkId() > 0) {
 				agreementLinkField.setValue(AgreementLinkInstance.obtainModel(agreement.getAgreementLink()));
 				linkTypeDisplay.setValue(agreement.getAgreementLink().getLinkType().getDescription());
+				profileFieldSet.collapse();
 				linkFieldSet.expand();
 			} else {
 				agreementLinkField.setValue(AgreementLinkInstance.obtainModel(agreement.getAgreementLink()));
@@ -991,6 +1006,13 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 					}
 			});
 	}
+	
+	private int getFieldIntValue(NumberField field) {
+		if (field.getValue() == null)
+			return 0;
+		else
+			return field.getValue().intValue();
+	}
 
 	protected void asyncUpdate() {
 	
@@ -1002,6 +1024,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		}
 		
 		agreement.setInstitution( ((InstitutionInstance) institutionField.getSelectedValue().getBean()) );
+		System.out.println("Update agreeement " + agreement.getId() + " for institution " + agreement.getInstitution().getUcn() +  "    / bill UCN " + agreement.getBillUcn());
 		agreement.setAgreementType( (AgreementTypeInstance) agreementTypeField.getSelectedValue().getBean()  );
 		agreement.setCommissionType( (CommissionTypeInstance) commissionTypeField.getSelectedValue().getBean() );
 		if (deleteReasonField.getSelectedValue() == null) {
@@ -1016,10 +1039,10 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 			if (agreement.getAgreementLinkId() > 0)
 				agreement.setAgreementLinkId( - agreement.getAgreementLinkId() );	//	"Delete" by negating
 		
-		agreement.setBuildings(buildingsField.getValue().intValue());
-		agreement.setPopulation(populationField.getValue().intValue());
-		agreement.setEnrollment(enrollmentField.getValue().intValue());
-		agreement.setWorkstations(workstationsField.getValue().intValue());
+		agreement.setBuildings(getFieldIntValue(buildingsField));
+		agreement.setPopulation(getFieldIntValue(populationField));
+		agreement.setEnrollment(getFieldIntValue(enrollmentField));
+		agreement.setWorkstations(getFieldIntValue(workstationsField));
 		
 		if (agreement.isNewRecord())
 			agreement.setNote(notesField.getNote());
@@ -1052,7 +1075,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 						}
 						agreement.setNewRecord(false);
 						set(updatedAgreement);
-						editButton.enable(); 
+				//		enableAgreementButtons(true);
 				}
 			});
 	}

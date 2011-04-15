@@ -8,7 +8,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Composite;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
-import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.scholastic.sbam.client.uiobjects.AppSecurityManager;
 import com.scholastic.sbam.client.util.IconSupplier;
@@ -34,7 +34,21 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 		 * Welcome Messages edit
 		 */
 		
-		cntntpnlMessages = new ContentPanel(new CenterLayout());
+		cntntpnlMessages = new ContentPanel(new FitLayout()) {
+				@Override
+				public void onExpand() {
+					super.onExpand();
+					welcomeMessageEditGrid.resizePanelHeight();
+					layout(true);
+				}
+				
+				@Override
+				public void afterRender() {
+					super.afterRender();
+					layout(true);
+				}
+			};
+		cntntpnlMessages.setBodyStyleName("dual-grid-bg");
 		cntntpnlMessages.setHeading("Messages");
 		cntntpnlMessages.setCollapsible(true);
 		IconSupplier.setIcon(cntntpnlMessages, IconSupplier.getMessagesIconName());
@@ -58,13 +72,21 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 		 * Users edit
 		 */
 		
-		cntntpnlUsers = new ContentPanel(new CenterLayout()) {
+		cntntpnlUsers = new ContentPanel(new FitLayout()) {
 			@Override
 			public void onExpand() {
 				super.onExpand();
+				userEditGrid.resizePanelHeight();
+				layout(true);
+			}
+			
+			@Override
+			public void afterRender() {
+				super.afterRender();
 				layout(true);
 			}
 		};
+		cntntpnlUsers.setBodyStyleName("dual-grid-bg");
 		cntntpnlUsers.setHeading("Users");
 		cntntpnlUsers.setCollapsible(true);
 		IconSupplier.setIcon(cntntpnlUsers, IconSupplier.getUsersIconName());
@@ -81,6 +103,7 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 		});
 		
 		userEditGrid = new UserEditGrid();
+		userEditGrid.setVerticalMargins(100);
 		cntntpnlUsers.add(userEditGrid);
 		layoutContainer.add(cntntpnlUsers);
 		

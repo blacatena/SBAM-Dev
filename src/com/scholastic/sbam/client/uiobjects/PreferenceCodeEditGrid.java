@@ -40,7 +40,7 @@ public class PreferenceCodeEditGrid extends BetterFilterEditGrid<PreferenceCodeI
 	private final PrefCodeSelCodeValidationServiceAsync prefCodeSelCodeValidationService = GWT.create(PrefCodeSelCodeValidationService.class);
 	
 	public PreferenceCodeEditGrid() {
-		setForceHeight(600);
+	//	setForceHeight(600);
 		setAdditionalWidthPadding(0);
 	//	setForceWidth(600);
 	//	setAutoExpandColumn("spacer");

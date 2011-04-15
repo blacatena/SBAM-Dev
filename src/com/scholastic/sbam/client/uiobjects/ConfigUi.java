@@ -89,19 +89,19 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		preferenceCodeEditGrid.setForceWidth(450);
 		preferenceEditGridContainer = new DualEditGridContainer(preferenceCategoryEditGrid, preferenceCodeEditGrid);
 		preferenceEditGridContainer.setForceWidth(preferenceCategoryEditGrid.getForceWidth() + 12);
-		preferenceEditGridContainer.setForceHeight(preferenceCategoryEditGrid.getForceHeight() + 73);
+//		preferenceEditGridContainer.setForceHeight(preferenceCategoryEditGrid.getForceHeight() + 73);
 		tbtmPreferences.add(preferenceEditGridContainer);
 		
 		ProductEditGrid productEditGrid = new ProductEditGrid();
 		productEditGrid.setAutoExpandColumn("description");
 		productEditGrid.setForceWidth(650);
-		productEditGrid.setForceHeight(600);
+//		productEditGrid.setForceHeight(600);
 		ProductServiceSelectTree productServiceSelectTree = new ProductServiceSelectTree();
 		productServiceSelectTree.setWidth(500);
-		productServiceSelectTree.setHeight(600);
+//		productServiceSelectTree.setHeight(600);
 		productEditGridContainer = new DualEditGridContainer(productEditGrid, productServiceSelectTree);
 		productEditGridContainer.setForceWidth(662);	//	productEditGrid.getForceWidth() + 12);
-		productEditGridContainer.setForceHeight(673);	//	productEditGrid.getForceHeight() + 73);
+//		productEditGridContainer.setForceHeight(673);	//	productEditGrid.getForceHeight() + 73);
 		tbtmProducts.add(productEditGridContainer);
 		
 	//	productEditGrid = new ProductEditGrid();

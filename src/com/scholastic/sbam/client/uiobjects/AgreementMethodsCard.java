@@ -3,6 +3,9 @@ package com.scholastic.sbam.client.uiobjects;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BeanModel;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -18,6 +21,7 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.RowExpander;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
+import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -39,13 +43,15 @@ import com.scholastic.sbam.shared.util.AppConstants;
 public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	
 	private static final int DEFAULT_FIELD_WIDTH	=	0;	//250;
-	private static final String OCTET_REGEX = "[0-9]|[0-9][0-9]|[0-1][0-9][0-9]|2[0-4][0-9]|25[0-5]|\\*";
+//	private static final String OCTET_REGEX = "[0-9]|[0-9][0-9]|[0-1][0-9][0-9]|2[0-4][0-9]|25[0-5]|\\*";
+	private static final String OCTET_REGEX = "([0-9])|([0-9][0-9])|([0-1][0-9][0-9])|(2[0-4][0-9])|(25[0-5])|(\\*)";
 	private static final String OCTET_ERROR = "An octet may be any value from 0 to 255, or an *.";
 	
 	protected final AuthMethodListServiceAsync 			authMethodListService 		= GWT.create(AuthMethodListService.class);
 	protected final UpdateAuthMethodServiceAsync		updateAuthMethodService		= GWT.create(UpdateAuthMethodService.class);
 	protected final UpdateAuthMethodNoteServiceAsync	updateAuthMethodNoteService	= GWT.create(UpdateAuthMethodNoteService.class);
-	
+
+	protected FormPanel				formRow1;
 	protected FormPanel				formColumn1;
 	protected FormPanel				formColumn2;
 	protected FormPanel				formRow2;
@@ -91,30 +97,36 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	protected TextField<String>				urlField			= getTextField("URL");
 	
 
-	protected FieldSet						ipFieldSet		= new FieldSet() {
-																	@Override
-																	public void onExpand() {
-																		super.onExpand();
-																		uidFieldSet.collapse();
-																		urlFieldSet.collapse();
-																	}
-																};
-	protected FieldSet						uidFieldSet		= new FieldSet() {
-																	@Override
-																	public void onExpand() {
-																		super.onExpand();
-																		ipFieldSet.collapse();
-																		urlFieldSet.collapse();
-																	}
-																};
-	protected FieldSet						urlFieldSet		= new FieldSet() {
-																	@Override
-																	public void onExpand() {
-																		super.onExpand();
-																		uidFieldSet.collapse();
-																		ipFieldSet.collapse();
-																	}
-																};
+	protected FieldSet						ipFieldSet		= new FieldSet() 
+//																{
+//																	@Override
+//																	public void onExpand() {
+//																		super.onExpand();
+//																		uidFieldSet.collapse();
+//																		urlFieldSet.collapse();
+//																	}
+//																}
+																;
+	protected FieldSet						uidFieldSet		= new FieldSet() 
+//																{
+//																	@Override
+//																	public void onExpand() {
+//																		super.onExpand();
+//																		ipFieldSet.collapse();
+//																		urlFieldSet.collapse();
+//																	}
+//																}
+																;
+	protected FieldSet						urlFieldSet		= new FieldSet() 
+//																{
+//																	@Override
+//																	public void onExpand() {
+//																		super.onExpand();
+//																		uidFieldSet.collapse();
+//																		ipFieldSet.collapse();
+//																	}
+//																}
+																;
 	
 	
 //	protected EnhancedComboBox<BeanModel>	cancelReasonField	= getComboField("cancelReason", 	"Cancel",	DEFAULT_FIELD_WIDTH,		
@@ -357,43 +369,57 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	
 	@Override
 	public void adjustFormPanelSize(int width, int height) {
-		super.adjustFormPanelSize(width, height);
+	//	super.adjustFormPanelSize(width, height);
 		
-		if (formColumn1.isRendered())
-			agreementIdField.setWidth( (formColumn1.getWidth(true) - formColumn1.getLabelWidth()) - 64);
+		if (formRow1.isRendered()) {
+			agreementIdField.setWidth( (formRow1.getWidth(true) - formRow1.getLabelWidth()) - 64);
+		}
+		
+		if (formPanel != null && formPanel.isRendered())
+			formPanel.layout(true);
 	}
 
 	@Override
 	protected void addFormFields(FormPanel panel, FormData formData) {
 		formData = new FormData("-24");
 		
-		panel.setLayout(new TableLayout(2));
-		
+		TableLayout tableLayout = new TableLayout(2);
+		tableLayout.setWidth("100%");
+		panel.setLayout(tableLayout);
+
+		formRow1	= getNewFormPanel(75); formRow1.setId("formRow1");
 		formColumn1 = getNewFormPanel(75); formColumn1.setId("formColumn1"); //formColumn1.setLayoutData(0.5); //formColumn1.setWidth("50%");
 		formColumn2 = getNewFormPanel(75); formColumn2.setId("formColumn2"); //formColumn2.setLayoutData(0.5); //formColumn2.setWidth("50%");
+		formRow2	= getNewFormPanel(75); formRow2.setId("formRow2");
+		
+		TableData tData1 = new TableData();
+		tData1.setWidth("50%");
+		TableData tData2 = new TableData();
+		tData2.setColspan(2);
+		tData2.setWidth("100%");
+		
+		formRow1.setLayoutData(tData2);
+		formRow2.setLayoutData(tData2);
+		
+		formRow1.setPadding(0);
+		formRow2.setPadding(0);
+		formColumn1.setPadding(0);
+		formColumn2.setPadding(0);
 		
 		ucnDisplay.setToolTip(UiConstants.getQuickTip("The ucn for the site."));
-//		addressDisplay.setToolTip(UiConstants.getQuickTip("The address of the institution."));
 
 		agreementIdField.setReadOnly(true);
 		agreementIdField.setWidth(200);
 		idNotesCombo.setSpacing(20);
 		ucnDisplay.setReadOnly(true);
 		
-//		addressDisplay.setWidth(200);
-		
 		//	Force all field widths to zero, so that they'll be computed based on the width of the enclosing form
 		idNotesCombo.setWidth(0);
-//		agreementIdField.setWidth(0);
 		
 		notesField.setWidth(0);
 		institutionField.setWidth(0);
 		ucnDisplay.setWidth(0);
-//		addressDisplay.setWidth(0);
-//		customerTypeDisplay.setWidth(0);
 		siteLocationField.setWidth(0);
-//		commissionTypeField.setWidth(0);
-//		cancelReasonField.setWidth(0);
 
 		
 		idNotesCombo.add(agreementIdField);	
@@ -439,22 +465,11 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		ipHiField.add(ipHiOctet3Field);
 		ipHiField.add(ipHiOctet4Field);
 		
-		formColumn1.add(idNotesCombo,    formData);
-		formColumn1.add(institutionField, formData);
-		formColumn1.add(ucnDisplay, formData);
-//		formColumn1.add(addressDisplay, formData);
-//		formColumn1.add(customerTypeDisplay, formData);
-		formColumn1.add(siteLocationField, formData);
-//		formColumn2.add(commissionTypeField,	formData);
-//		formColumn2.add(cancelReasonField,	formData);
-		formColumn1.add(statusGroup, formData);
-		
 
 		ipFieldSet.setBorders(true);
-		ipFieldSet.setHeading("IP Address");// 		agreementCard.add(new LabelField("<br/><i>Existing Agreements</i>"));
+		ipFieldSet.setHeading("IP Address");
 		ipFieldSet.setCollapsible(true);
 //		linkFieldSet.setCheckboxToggle(true);
-//		linkFieldSet.collapse();
 		FormLayout fLayout = new FormLayout();
 		fLayout.setLabelWidth(60);
 		ipFieldSet.setLayout(fLayout);
@@ -462,42 +477,97 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		
 		ipFieldSet.add(ipLoField);
 		ipFieldSet.add(ipHiField);
-		
-		formColumn2.add(ipFieldSet);
 
 		uidFieldSet.setBorders(true);
-		uidFieldSet.setHeading("User ID and Password");// 		agreementCard.add(new LabelField("<br/><i>Existing Agreements</i>"));
+		uidFieldSet.setHeading("User ID and Password");
 		uidFieldSet.setCollapsible(true);
 //		linkFieldSet.setCheckboxToggle(true);
-//		linkFieldSet.collapse();
 		FormLayout fLayout2 = new FormLayout();
 		fLayout2.setLabelWidth(60);
 		uidFieldSet.setLayout(fLayout2);
 		uidFieldSet.setToolTip(UiConstants.getQuickTip("Define authentication by User ID and password."));
 		
+		userIdField.setWidth(0);
+		passwordField.setWidth(0);
+		
 		uidFieldSet.add(userIdField);
 		uidFieldSet.add(passwordField);
 		uidFieldSet.add(uidTypeGroup);
 		
-		formColumn2.add(uidFieldSet);
-
 
 		urlFieldSet.setBorders(true);
-		urlFieldSet.setHeading("ReferrerURL");// 		agreementCard.add(new LabelField("<br/><i>Existing Agreements</i>"));
+		urlFieldSet.setHeading("ReferrerURL");
 		urlFieldSet.setCollapsible(true);
 //		linkFieldSet.setCheckboxToggle(true);
-//		linkFieldSet.collapse();
 		FormLayout fLayout3 = new FormLayout();
+		fLayout3.setLabelAlign(panel.getLabelAlign());
 		fLayout3.setLabelWidth(60);
 		urlFieldSet.setLayout(fLayout3);
 		urlFieldSet.setToolTip(UiConstants.getQuickTip("Define authentication by a referrer URL."));
-				
-		urlFieldSet.add(urlField);
+
+		urlField.setWidth(0);
 		
-		formColumn2.add(urlFieldSet);
+		urlFieldSet.add(urlField, formData);
+
 		
-		panel.add(formColumn1);
-		panel.add(formColumn2);
+		formRow1.add(idNotesCombo);
+		
+		formColumn1.add(institutionField, formData);
+		formColumn1.add(ucnDisplay, formData);
+		
+		formColumn2.add(siteLocationField, formData);
+		formColumn2.add(statusGroup, formData);
+		
+		formRow2.add(ipFieldSet);
+		formRow2.add(uidFieldSet);
+		formRow2.add(urlFieldSet);
+
+		panel.add(formRow1,		tData2);
+		panel.add(formColumn1,	tData1);
+		panel.add(formColumn2,	tData1);
+		panel.add(formRow2,		tData2);
+		
+		panel.layout(true);
+		
+		addFieldSetListeners();
+	}
+	
+	/**
+	 * Add listeners to automatically close other field sets when one is expanded.
+	 */
+	protected void addFieldSetListeners() {
+		
+		//	Add listeners to collapse field sets in synch
+		
+		urlFieldSet.addListener(Events.BeforeExpand, new Listener<BaseEvent>() {
+				@Override
+				public void handleEvent(BaseEvent be) {
+					if (be.getType().getEventCode() == Events.BeforeExpand.getEventCode()) {
+						ipFieldSet.collapse();
+						uidFieldSet.collapse();
+					}
+				}		
+			});
+		
+		uidFieldSet.addListener(Events.BeforeExpand, new Listener<BaseEvent>() {
+				@Override
+				public void handleEvent(BaseEvent be) {
+					if (be.getType().getEventCode() == Events.BeforeExpand.getEventCode()) {
+						ipFieldSet.collapse();
+						urlFieldSet.collapse();
+					}
+				}		
+			});
+		
+		ipFieldSet.addListener(Events.BeforeExpand, new Listener<BaseEvent>() {
+				@Override
+				public void handleEvent(BaseEvent be) {
+					if (be.getType().getEventCode() == Events.BeforeExpand.getEventCode()) {
+						urlFieldSet.collapse();
+						uidFieldSet.collapse();
+					}
+				}		
+			});
 	}
 	
 	protected SiteLocationSearchField getSiteLocationField(String name, String label, int width, String toolTip) {

@@ -17,6 +17,7 @@ import com.extjs.gxt.ui.client.data.ListLoader;
 import com.extjs.gxt.ui.client.data.LoadConfig;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -45,6 +46,7 @@ import com.extjs.gxt.ui.client.widget.grid.filters.DateFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
 import com.extjs.gxt.ui.client.widget.grid.filters.NumericFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
+import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
@@ -93,6 +95,10 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 	protected	WelcomeMessageInstance					targetInstance;
 	
 	protected	Timer									dirtyListenTimer;
+	/**
+	 * The amount of space to leave at the top and bottom combined between the embedded panel and the container.
+	 */
+	protected int					verticalMargins = 60;
 	
 	public WelcomeMessageEditGrid() {
 	}
@@ -100,13 +106,15 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 	@Override    
 	protected void onRender(Element parent, int index) {    
 	    super.onRender(parent, index);
+	    setLayout(new CenterLayout());
 	    setStyleAttribute("margin", "10px");
+	    setStyleAttribute("background", "transparent !important");
 	
 	    cp = new ContentPanel();
 	
 	    cp.setHeading("Welcome Messages");
 	    cp.setFrame(true);
-	    cp.setSize(1185, 600);
+	    cp.setSize(1185, -1);
 	    cp.setLayout(new RowLayout(Orientation.HORIZONTAL));
 	    IconSupplier.setIcon(cp, IconSupplier.getMessagesIconName());
 		
@@ -134,6 +142,45 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 	    formClear();
 	    
 	    add(cp);
+	    
+	    addResizeListener();
+	    
+	    resizePanelHeight();
+	}
+	
+	/**
+	 * Add a listener to detect a change in the parent container size, and resize the grid panel
+	 */
+	public void addResizeListener() {
+		if (getParent() != null && getParent() instanceof LayoutContainer) {
+			LayoutContainer c = (LayoutContainer) getParent();
+			c.addListener(Events.Resize, new Listener<BaseEvent>() {
+
+				@Override
+				public void handleEvent(BaseEvent be) {
+					if (be.getType().getEventCode() == Events.ResizeEnd.getEventCode()) {
+						resizePanelHeight();
+					}
+				}
+				
+			});
+		}
+	}
+	
+	/**
+	 * Resize the panel height based on the parent container height
+	 */
+	public void resizePanelHeight() {
+		if (getParent() != null && isRendered()) {
+			int newHeight = getParent().getOffsetHeight();
+			if (newHeight > verticalMargins)
+				newHeight -= verticalMargins;
+			if (!cp.isRendered() || cp.getHeight() != newHeight) {
+				cp.setHeight(newHeight);
+				if (isRendered())
+					layout(true);
+			}
+		}	
 	}
 	
 	/**
@@ -734,6 +781,14 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 
 	public FormPanel getFormPanel() {
 		return panel;
+	}
+
+	public int getVerticalMargins() {
+		return verticalMargins;
+	}
+
+	public void setVerticalMargins(int verticalMargins) {
+		this.verticalMargins = verticalMargins;
 	}
 
 	@Override

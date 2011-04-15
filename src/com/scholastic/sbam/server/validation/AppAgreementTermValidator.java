@@ -147,11 +147,11 @@ public class AppAgreementTermValidator {
 			if (instance.getStatus() != AppConstants.STATUS_DELETED)
 				instance.setStatus(AppConstants.STATUS_INACTIVE);
 		
-		if (instance.getStartDate().after(instance.getEndDate()))
+		if (instance.getStartDate() != null && instance.getEndDate() != null && instance.getStartDate().after(instance.getEndDate()))
 			addMessage("Start date cannot follow end data.");
 		if (instance.getTerminateDate() == null)
 			instance.setTerminateDate(instance.getStartDate());
-		else if (instance.getStartDate().after(instance.getTerminateDate()))
+		else if (instance.getStartDate() != null && instance.getTerminateDate() != null && instance.getStartDate().after(instance.getTerminateDate()))
 			addMessage("Terminate date cannot preceed start date.");
 		return messages;
 	}

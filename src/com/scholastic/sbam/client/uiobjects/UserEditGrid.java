@@ -31,7 +31,7 @@ public class UserEditGrid extends BetterFilterEditGrid<UserInstance> {
 
 	@Override
 	public void onRender(Element parent, int index) {
-		setForceHeight(500);
+	//	setForceHeight(500);
 		setAdditionalWidthPadding(14);
 	//	setForceWidth(600);
 	//	setAutoExpandColumn("spacer");

@@ -13,6 +13,7 @@ import com.extjs.gxt.ui.client.data.ListLoadResult;
 import com.extjs.gxt.ui.client.data.ListLoader;
 import com.extjs.gxt.ui.client.data.ModelData; 
 import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ColumnModelEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
@@ -42,7 +43,6 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridView;
 import com.extjs.gxt.ui.client.widget.grid.RowEditor;
-import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Element;
@@ -55,8 +55,8 @@ import com.scholastic.sbam.shared.objects.BetterRowEditInstance;
 
 public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends LayoutContainer implements AppSleeper {
 	
-	private static final int COLUMN_WIDTH_PADDING	= 0; //20;
-	private static final int GRID_WIDTH_PADDING		= 5; //20;
+	private static final int COLUMN_WIDTH_PADDING	= 2; //20;
+	private static final int GRID_WIDTH_PADDING		= 20; //20;
 	
 	protected ListStore<BeanModel>	store;
 	protected Grid<BeanModel>		grid;
@@ -104,6 +104,10 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	 * Should grid buttons (New, Refresh) be placed at the top or bottom of the layout.
 	 */
 	protected boolean				gridButtonsAtBottom	= true;
+	/**
+	 * The amount of space to leave at the top and bottom combined between the embedded panel and the container.
+	 */
+	protected int					verticalMargins = 20;
 	
 	public BetterEditGrid() {
 		super();
@@ -129,12 +133,12 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	protected void onRender(Element parent, int index) {  
 		super.onRender(parent, index);
 		
-//		setLayout(new CenterLayout());
+//		setLayout(new FitLayout());
 		
-		setStyleAttribute("padding", "20px");
+//		setStyleAttribute("padding", "20px");
 		
 		panel = new ContentPanel();
-		panel.setLayout(new CenterLayout());
+//		panel.setLayout(new CenterLayout());
 		
 		// loader and store  
 		ListLoader<ListLoadResult<ModelData>> loader = getLoader();
@@ -161,22 +165,103 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 			panel.setHeading(panelHeading);
 		else
 			panel.setHeaderVisible(false);
+
+//		System.out.println("forceHeight starts at " + forceHeight);
+//		if (getParent() != null && getParent().getOffsetHeight() > 0) {
+//			System.out.println("Using parent hieght " + getParent().getOffsetHeight());
+//			if (getParent().getOffsetHeight() > 200)
+//				forceHeight = getParent().getOffsetHeight() - 200;
+//			else
+//				forceHeight = (int) (getParent().getOffsetHeight() * 0.9);
+//			System.out.println("forceHeight set to " + forceHeight);
+//		}
 		
 		panel.setFrame(true);
+		panel.setWidth(width);
 		if (forceHeight > 0)
 			grid.setSize(width, forceHeight);
-		else
+		else {
 			grid.setWidth(width);
+		}
 		
 		addAutoHeight();
 		
 		//panel.setIcon(Resources.ICONS.table());
 		panel.setLayout(new FitLayout());
 		
+		resizePanelHeight();
+		addResizeListener();
+		
 		add(panel);
 		
 		grid.mask("Loading...");
 		loader.load();
+	}
+	
+//	public void showThingy(Widget c) {
+//		if (c == null) {
+//			System.out.println("--------------------------");
+//			return;
+//		}
+//		if (c instanceof LayoutContainer) {
+//			LayoutContainer l = (LayoutContainer) c;
+//			System.out.println(c.getClass().getName() + ", height " + c.getOffsetHeight() + ", layout " + l.getLayout());
+//		} else
+//			System.out.println(c.getClass().getName() + ", height " + c.getOffsetHeight());
+//		showThingy(c.getParent());
+//	}
+//	@Override
+//	public void afterRender() {
+//		super.afterRender();
+//		System.out.println("afterRender");
+//		if (isRendered()) {
+//			showThingy(grid);
+//			setHeight(getParent().getOffsetHeight() - 50);
+//			layout(true);
+////			System.out.println("Rendered " + getWidth() + " / " + getHeight());
+////			System.out.println(grid + " is " + grid.getOffsetHeight());
+////			System.out.println(panel + " is " + panel.getOffsetHeight());
+//			System.out.println("***********************");
+//			System.out.println(this.getClass().getName() + " is " + getOffsetHeight());
+//			System.out.println(getParent().getClass().getName() + " is " + getParent().getOffsetHeight());
+//			if (getParent().getParent() != null) System.out.println(getParent().getParent().getClass().getName() + " is " + getParent().getParent().getOffsetHeight());
+//		} else System.out.println("NOT rendered");
+//	}
+	
+	
+	/**
+	 * Add a listener to detect a change in the parent container size, and resize the grid panel
+	 */
+	public void addResizeListener() {
+		if (getParent() != null && getParent() instanceof LayoutContainer) {
+			LayoutContainer c = (LayoutContainer) getParent();
+			c.addListener(Events.Resize, new Listener<BaseEvent>() {
+
+				@Override
+				public void handleEvent(BaseEvent be) {
+					if (be.getType().getEventCode() == Events.ResizeEnd.getEventCode()) {
+						resizePanelHeight();
+					}
+				}
+				
+			});
+		}
+	}
+	
+	/**
+	 * Resize the panel height based on the parent container height
+	 */
+	public void resizePanelHeight() {
+		if (forceHeight <= 0 && getParent() != null && isRendered()) {
+			int newHeight = getParent().getOffsetHeight();
+			if (newHeight > verticalMargins)
+				newHeight -= verticalMargins;
+			if (!panel.isRendered() || panel.getHeight() != newHeight) {
+				panel.setHeight(newHeight);
+				if (isRendered())
+					layout(true);
+			}
+		}	
 	}
 	
 	protected void setGridAttributes() {
@@ -881,6 +966,14 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 
 	public void setAutoHeight(boolean autoHeight) {
 		this.autoHeight = autoHeight;
+	}
+
+	public int getVerticalMargins() {
+		return verticalMargins;
+	}
+
+	public void setVerticalMargins(int verticalMargins) {
+		this.verticalMargins = verticalMargins;
 	}
 
 }

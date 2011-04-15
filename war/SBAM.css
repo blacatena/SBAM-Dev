@@ -161,6 +161,11 @@ a.pdocImgLink {
   opacity: .6;
 }
 
+/* Make background for dual grid container transparent */
+.dual-grid-bg {
+	background: transparent !important;
+}
+
 /* Special style to replace forms with white backgrounds with something more subtle */
 .x-portlet .x-panel-body .subtle-form {
 	background-color: #FBEBDB  !important;

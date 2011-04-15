@@ -36,7 +36,7 @@ public class ContactTypeEditGrid extends BetterFilterEditGrid<ContactTypeInstanc
 	
 	@Override
 	public void onRender(Element parent, int index) {
-		setForceHeight(600);
+	//	setForceHeight(600);
 		setAdditionalWidthPadding(12);
 	//	setForceWidth(600);
 	//	setAutoExpandColumn("spacer");

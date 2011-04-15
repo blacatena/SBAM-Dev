@@ -41,7 +41,7 @@ public class PreferenceCategoryEditGrid extends BetterFilterEditGrid<PreferenceC
 	
 	public PreferenceCategoryEditGrid() {
 		super();
-		setForceHeight(600);
+	//	setForceHeight(600);
 		setAdditionalWidthPadding(0);
 		//	setForceWidth(600);
 		//	setAutoExpandColumn("spacer");

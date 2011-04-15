@@ -73,7 +73,7 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 		appNavTree.setSelectionModel(new AppTreeSelectionModel(portletProvider));
 		contentPanel.add(appNavTree);
 		
-		BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, .1f, 100, 200);
+		BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 180f, 180, 200);
 		westData.setCollapsible(true);
 		westData.setFloatable(true);
 		westData.setSplit(true);
