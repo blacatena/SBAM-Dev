@@ -47,6 +47,8 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	private static final String OCTET_REGEX = "([0-9])|([0-9][0-9])|([0-1][0-9][0-9])|(2[0-4][0-9])|(25[0-5])|(\\*)";
 	private static final String OCTET_ERROR = "An octet may be any value from 0 to 255, or an *.";
 	
+//	private static final String MSG_SITE_REQUIRED = "Select a site location.";
+	
 	protected final AuthMethodListServiceAsync 			authMethodListService 		= GWT.create(AuthMethodListService.class);
 	protected final UpdateAuthMethodServiceAsync		updateAuthMethodService		= GWT.create(UpdateAuthMethodService.class);
 	protected final UpdateAuthMethodNoteServiceAsync	updateAuthMethodNoteService	= GWT.create(UpdateAuthMethodNoteService.class);
@@ -341,22 +343,20 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	protected boolean isFormValidAndReady() {
 		boolean ready = formPanel.isValid();
 		
-		//	Check for required fields
-		if (institutionField.getSelectedValue() == null) { 
-			institutionField.markInvalid("Select an institution.");
-			ready = false;
-		} else
-			institutionField.clearInvalid();
-		if (siteLocationField.getSelectedValue() == null) {
-			siteLocationField.markInvalid("Select a site location.");
-			ready = false;
-		} else
-			siteLocationField.clearInvalid();
-//		if (commissionTypeField.getSelectedValue() == null) {
-//			commissionTypeField.markInvalid("Select a commission code.");
+//		//	Check for required fields
+//		if (institutionField.getSelectedValue() == null) { 
+//			institutionField.markInvalid("Select an institution.");
 //			ready = false;
 //		} else
-//			commissionTypeField.clearInvalid();
+//			institutionField.clearInvalid();
+//		
+//		if (siteLocationField.getSelectedValue() == null) {
+//			System.out.println(MSG_SITE_REQUIRED + " vs " + siteLocationField.getErrorMessage());
+//			if (!MSG_SITE_REQUIRED.equals(siteLocationField.getErrorMessage()))
+//				siteLocationField.markInvalid(MSG_SITE_REQUIRED);
+//			ready = false;
+//		} else
+//			siteLocationField.clearInvalid();
 		
 		return ready;
 	}
@@ -508,7 +508,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		urlField.setWidth(0);
 		
 		urlFieldSet.add(urlField, formData);
-
+		urlFieldSet.setAutoWidth(true);
 		
 		formRow1.add(idNotesCombo);
 		
@@ -611,6 +611,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	protected InstitutionSearchField getInstitutionField(String name, String label, int width, String toolTip) {
         InstitutionSearchField instCombo = new InstitutionSearchField();
 		FieldFactory.setStandard(instCombo, label);
+		instCombo.setAllowBlank(true);
 		
 		if (toolTip != null)
 			instCombo.setToolTip(toolTip);

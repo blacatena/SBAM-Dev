@@ -26,7 +26,6 @@ import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
-import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
@@ -76,6 +75,7 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		setLayout(new FlowLayout());
 		
 		formPanel = new FormPanel() {
+			private boolean firstExpand = true;
 			/*
 			 * This panel has to take care of telling the grid panel to grow or shrink as it renders/resizes/expands/collapses
 			 * (non-Javadoc)
@@ -119,6 +119,10 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 			public void afterExpand() {
 				super.afterExpand();
 				adjustGridPanelHeight();
+				if (firstExpand) {
+					adjustFormPanelSize(-1, -1);
+					firstExpand = false;
+				}
 			}
 			
 			@Override
@@ -147,32 +151,13 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		formPanel.setLabelAlign(LabelAlign.RIGHT);
 		formPanel.setLabelWidth(getLabelWidth());
 		formPanel.setCollapsible(true);
-//		formPanel.setHeight(300);
 		if (focusInstance == null) {
 			formPanel.collapse();
 		}
 		
 		addFormFields(formPanel, formData);
 		
-//		formPanel.addListener(Events.OnClick, new Listener<BaseEvent>() {
-//			@Override
-//			public void handleEvent(BaseEvent be) {
-//				enableFields();
-//			}	
-//		});
-		
 		addEditSaveButtons();
-		
-//		Button doneButton = new Button("Done");
-//		doneButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-//			@Override
-//			public void componentSelected(ButtonEvent ce) {
-//				formPanel.collapse();
-//			}
-//			
-//		});
-//		
-//		formPanel.addButton(doneButton);
 		
 		gridPanel = new ContentPanel() {
 			
@@ -292,7 +277,7 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	protected void afterRender() {
 		super.afterRender();
 		adjustGridPanelHeight();
-		adjustFormPanelSize(-1, -1);
+//		adjustFormPanelSize(-1, -1);
 	//	dumpSizes("afterRender");
 	}
 			
@@ -302,7 +287,6 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		super.onResize(width, height);
 		adjustGridPanelHeight();
 		adjustFormPanelSize(width, height);
-		System.out.println("resize width " + width);
 	//	dumpSizes("onResize " + width);
 	}
 	
@@ -511,7 +495,7 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	}
 	
 	protected void handleDirtyForm() {
-		if (isFormValidAndReady() && fieldsOpen) {
+		if (fieldsOpen && isFormValidAndReady() ) {
 			saveButton.enable();
 		} else {
 			saveButton.disable();
