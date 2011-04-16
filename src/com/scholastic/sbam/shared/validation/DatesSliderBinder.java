@@ -6,7 +6,7 @@ import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.SliderField;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
-import com.scholastic.sbam.client.uiobjects.DateFieldsBinder;
+import com.scholastic.sbam.client.uiobjects.fields.DateFieldsBinder;
 
 public class DatesSliderBinder implements DateFieldsBinder {
 	

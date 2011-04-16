@@ -15,7 +15,7 @@ import com.scholastic.sbam.client.services.UserListService;
 import com.scholastic.sbam.client.services.UserListServiceAsync;
 import com.scholastic.sbam.client.services.UserNameValidationService;
 import com.scholastic.sbam.client.services.UserNameValidationServiceAsync;
-import com.scholastic.sbam.client.uiobjects.BetterFilterEditGrid;
+import com.scholastic.sbam.client.uiobjects.foundation.BetterFilterEditGrid;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.objects.UserInstance;

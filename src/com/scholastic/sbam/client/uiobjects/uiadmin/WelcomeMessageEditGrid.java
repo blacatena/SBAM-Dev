@@ -59,7 +59,7 @@ import com.scholastic.sbam.client.services.UpdateWelcomeMessageService;
 import com.scholastic.sbam.client.services.UpdateWelcomeMessageServiceAsync;
 import com.scholastic.sbam.client.services.WelcomeMessageListService;
 import com.scholastic.sbam.client.services.WelcomeMessageListServiceAsync;
-import com.scholastic.sbam.client.uiobjects.AppSleeper;
+import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.objects.WelcomeMessageInstance;

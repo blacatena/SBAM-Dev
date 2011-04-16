@@ -12,10 +12,10 @@ import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.scholastic.sbam.client.uiobjects.AppHolder;
-import com.scholastic.sbam.client.uiobjects.AppNav;
 //import com.scholastic.sbam.client.uiobjects.AppSplash;
-import com.scholastic.sbam.client.uiobjects.LoginUiManager;
+import com.scholastic.sbam.client.uiobjects.uitop.AppHolder;
+import com.scholastic.sbam.client.uiobjects.uitop.AppNav;
+import com.scholastic.sbam.client.uiobjects.uitop.LoginUiManager;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
