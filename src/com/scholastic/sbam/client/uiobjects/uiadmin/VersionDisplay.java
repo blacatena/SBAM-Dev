@@ -1,4 +1,4 @@
-package com.scholastic.sbam.client.uiobjects;
+package com.scholastic.sbam.client.uiobjects.uiadmin;
 
 import com.extjs.gxt.ui.client.widget.Composite;
 import com.extjs.gxt.ui.client.widget.Html;

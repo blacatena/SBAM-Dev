@@ -11,6 +11,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.scholastic.sbam.client.uiobjects.foundation.EffectsDialog;
 import com.scholastic.sbam.client.util.IconSupplier;
 
 /**

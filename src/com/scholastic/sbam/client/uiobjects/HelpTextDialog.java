@@ -56,6 +56,7 @@ import com.scholastic.sbam.client.services.HelpTextService;
 import com.scholastic.sbam.client.services.HelpTextServiceAsync;
 import com.scholastic.sbam.client.services.HelpTextWordService;
 import com.scholastic.sbam.client.services.HelpTextWordServiceAsync;
+import com.scholastic.sbam.client.uiobjects.foundation.EffectsDialog;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.FilterWordInstance;

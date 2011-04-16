@@ -11,6 +11,11 @@ import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.scholastic.sbam.client.uiobjects.AppSecurityManager;
+import com.scholastic.sbam.client.uiobjects.uiadmin.CacheControlPanel;
+import com.scholastic.sbam.client.uiobjects.uiadmin.DocumentationLinksDisplay;
+import com.scholastic.sbam.client.uiobjects.uiadmin.UserEditGrid;
+import com.scholastic.sbam.client.uiobjects.uiadmin.VersionDisplay;
+import com.scholastic.sbam.client.uiobjects.uiadmin.WelcomeMessageEditGrid;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.security.SecurityManager;
 

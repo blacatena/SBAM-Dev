@@ -1,4 +1,4 @@
-package com.scholastic.sbam.client.uiobjects;
+package com.scholastic.sbam.client.uiobjects.foundation;
 
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FxEvent;
@@ -8,6 +8,7 @@ import com.extjs.gxt.ui.client.fx.FxConfig;
 import com.extjs.gxt.ui.client.widget.ModalPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.scholastic.sbam.client.uiobjects.ExtendableDialog;
 
 /**
  * This customized version of GXT Dialog re-implements the original show and hide methods in a way that

@@ -1,4 +1,4 @@
-package com.scholastic.sbam.client.uiobjects;
+package com.scholastic.sbam.client.uiobjects.uiadmin;
 
 import java.util.List;
 
@@ -12,6 +12,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.DocumentationListService;
 import com.scholastic.sbam.client.services.DocumentationListServiceAsync;
+import com.scholastic.sbam.client.uiobjects.AppSleeper;
 import com.scholastic.sbam.shared.objects.DocumentationInstance;
 
 public class DocumentationLinksDisplay extends Composite implements AppSleeper {
