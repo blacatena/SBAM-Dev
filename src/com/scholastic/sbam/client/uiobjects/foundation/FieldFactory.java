@@ -16,6 +16,7 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.scholastic.sbam.client.uiobjects.fields.BoundDateField;
 import com.scholastic.sbam.client.uiobjects.fields.BoundSliderField;
+import com.scholastic.sbam.client.uiobjects.fields.ConstantLabelField;
 import com.scholastic.sbam.client.uiobjects.fields.EnhancedComboBox;
 import com.scholastic.sbam.client.uiobjects.fields.InstitutionSearchField;
 import com.scholastic.sbam.client.uiobjects.fields.SizedTextArea;
@@ -65,7 +66,7 @@ public class FieldFactory {
 	}
 	
 	protected static LabelField getLabelField(int width) {
-		LabelField field = new LabelField();
+		LabelField field = new ConstantLabelField();
 		setStandard(field, "");
 		if (width > 0)
 			field.setWidth(width);

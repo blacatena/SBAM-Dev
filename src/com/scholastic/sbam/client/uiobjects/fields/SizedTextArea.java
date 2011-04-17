@@ -3,6 +3,11 @@ package com.scholastic.sbam.client.uiobjects.fields;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.google.gwt.user.client.Element;
 
+/**
+ * A TextArea field that allows the programmer to specify the number of rows and columns.
+ * @author Bob Lacatena
+ *
+ */
 public class SizedTextArea extends TextArea {
 	protected int rows = 0;
 	protected int cols = 0;

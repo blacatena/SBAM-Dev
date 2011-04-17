@@ -32,6 +32,7 @@ import com.scholastic.sbam.client.services.UpdateAuthMethodNoteServiceAsync;
 import com.scholastic.sbam.client.services.UpdateAuthMethodService;
 import com.scholastic.sbam.client.services.UpdateAuthMethodServiceAsync;
 import com.scholastic.sbam.client.uiobjects.fields.InstitutionSearchField;
+import com.scholastic.sbam.client.uiobjects.fields.IpAddressField;
 import com.scholastic.sbam.client.uiobjects.fields.NotesIconButtonField;
 import com.scholastic.sbam.client.uiobjects.fields.SiteLocationSearchField;
 import com.scholastic.sbam.client.uiobjects.foundation.FieldFactory;
@@ -49,8 +50,8 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	
 	private static final int DEFAULT_FIELD_WIDTH	=	0;	//250;
 //	private static final String OCTET_REGEX = "[0-9]|[0-9][0-9]|[0-1][0-9][0-9]|2[0-4][0-9]|25[0-5]|\\*";
-	private static final String OCTET_REGEX = "([0-9])|([0-9][0-9])|([0-1][0-9][0-9])|(2[0-4][0-9])|(25[0-5])|(\\*)";
-	private static final String OCTET_ERROR = "An octet may be any value from 0 to 255, or an *.";
+//	private static final String OCTET_REGEX = "([0-9])|([0-9][0-9])|([0-1][0-9][0-9])|(2[0-4][0-9])|(25[0-5])|(\\*)";
+//	private static final String OCTET_ERROR = "An octet may be any value from 0 to 255, or an *.";
 	
 //	private static final String MSG_SITE_REQUIRED = "Select a site location.";
 	
@@ -81,16 +82,16 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	protected CheckBox						remoteCheck			= getCheckBoxField("Remote");
 	protected CheckBoxGroup					statusGroup			= getCheckBoxGroup(null, approvedCheck, validatedCheck, remoteCheck);
 	
-	protected MultiField<String>			ipLoField			= new MultiField<String>("From");
-	protected TextField<String>				ipLoOctet1Field		= getTextField("");
-	protected TextField<String>				ipLoOctet2Field		= getTextField("");
-	protected TextField<String>				ipLoOctet3Field		= getTextField("");
-	protected TextField<String>				ipLoOctet4Field		= getTextField("");
-	protected MultiField<String>			ipHiField			= new MultiField<String>("To");
-	protected TextField<String>				ipHiOctet1Field		= getTextField("");
-	protected TextField<String>				ipHiOctet2Field		= getTextField("");
-	protected TextField<String>				ipHiOctet3Field		= getTextField("");
-	protected TextField<String>				ipHiOctet4Field		= getTextField("");
+	protected IpAddressField				ipLoField			= new IpAddressField("From");
+//	protected TextField<String>				ipLoOctet1Field		= getTextField("");
+//	protected TextField<String>				ipLoOctet2Field		= getTextField("");
+//	protected TextField<String>				ipLoOctet3Field		= getTextField("");
+//	protected TextField<String>				ipLoOctet4Field		= getTextField("");
+	protected IpAddressField				ipHiField			= new IpAddressField("To");
+//	protected TextField<String>				ipHiOctet1Field		= getTextField("");
+//	protected TextField<String>				ipHiOctet2Field		= getTextField("");
+//	protected TextField<String>				ipHiOctet3Field		= getTextField("");
+//	protected TextField<String>				ipHiOctet4Field		= getTextField("");
 
 	protected TextField<String>				userIdField			= getTextField("User ID");
 	protected TextField<String>				passwordField		= getTextField("Password");
@@ -236,15 +237,17 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		remoteCheck.setValue(instance.isRemote());
 		
 		if (AuthMethodInstance.AM_IP.equals(instance.getMethodType())) {
-			String [] [] octets = AuthMethodInstance.getIpOctetStrings(instance.getIpLo(), instance.getIpHi());
-			ipLoOctet1Field.setValue(octets [0] [0]);
-			ipLoOctet2Field.setValue(octets [0] [1]);
-			ipLoOctet3Field.setValue(octets [0] [2]);
-			ipLoOctet4Field.setValue(octets [0] [3]);
-			ipHiOctet1Field.setValue(octets [1] [0]);
-			ipHiOctet2Field.setValue(octets [1] [1]);
-			ipHiOctet3Field.setValue(octets [1] [2]);
-			ipHiOctet4Field.setValue(octets [1] [3]);
+//			String [] [] octets = AuthMethodInstance.getIpOctetStrings(instance.getIpLo(), instance.getIpHi());
+			ipLoField.setValue(instance.getIpLo()); //	ipLoField.setValue(octets [0]);
+			ipHiField.setValue(instance.getIpHi()); //	ipHiField.setValue(octets [1]);
+//			ipLoOctet1Field.setValue(octets [0] [0]);
+//			ipLoOctet2Field.setValue(octets [0] [1]);
+//			ipLoOctet3Field.setValue(octets [0] [2]);
+//			ipLoOctet4Field.setValue(octets [0] [3]);
+//			ipHiOctet1Field.setValue(octets [1] [0]);
+//			ipHiOctet2Field.setValue(octets [1] [1]);
+//			ipHiOctet3Field.setValue(octets [1] [2]);
+//			ipHiOctet4Field.setValue(octets [1] [3]);
 			openUrlFields(false);
 			clearUrlFields();
 			openUidFields(false);
@@ -275,27 +278,31 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	}
 	
 	public void openIpFields(boolean open) {
-		ipLoOctet1Field.setReadOnly(!open);
-		ipLoOctet2Field.setReadOnly(!open);
-		ipLoOctet3Field.setReadOnly(!open);
-		ipLoOctet4Field.setReadOnly(!open);
-		ipHiOctet1Field.setReadOnly(!open);
-		ipHiOctet2Field.setReadOnly(!open);
-		ipHiOctet3Field.setReadOnly(!open);
-		ipHiOctet4Field.setReadOnly(!open);
+		ipLoField.setReadOnly(!open);
+		ipHiField.setReadOnly(!open);
+//		ipLoOctet1Field.setReadOnly(!open);
+//		ipLoOctet2Field.setReadOnly(!open);
+//		ipLoOctet3Field.setReadOnly(!open);
+//		ipLoOctet4Field.setReadOnly(!open);
+//		ipHiOctet1Field.setReadOnly(!open);
+//		ipHiOctet2Field.setReadOnly(!open);
+//		ipHiOctet3Field.setReadOnly(!open);
+//		ipHiOctet4Field.setReadOnly(!open);
 		ipFieldSet.setEnabled(open);
 		ipFieldSet.setExpanded(open);
 	}
 	
 	public void clearIpFields() {
-		ipLoOctet1Field.clear();
-		ipLoOctet2Field.clear();
-		ipLoOctet3Field.clear();
-		ipLoOctet4Field.clear();
-		ipHiOctet1Field.clear();
-		ipHiOctet2Field.clear();
-		ipHiOctet3Field.clear();
-		ipHiOctet4Field.clear();
+		ipLoField.clear();
+		ipHiField.clear();
+//		ipLoOctet1Field.clear();
+//		ipLoOctet2Field.clear();
+//		ipLoOctet3Field.clear();
+//		ipLoOctet4Field.clear();
+//		ipHiOctet1Field.clear();
+//		ipHiOctet2Field.clear();
+//		ipHiOctet3Field.clear();
+//		ipHiOctet4Field.clear();
 	}
 	
 	public void openUrlFields(boolean open) {
@@ -418,6 +425,9 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		idNotesCombo.setSpacing(20);
 		ucnDisplay.setReadOnly(true);
 		
+		FieldFactory.setStandard(ipLoField, "From");
+		FieldFactory.setStandard(ipHiField, "To");
+		
 		//	Force all field widths to zero, so that they'll be computed based on the width of the enclosing form
 		idNotesCombo.setWidth(0);
 		
@@ -430,45 +440,45 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		idNotesCombo.add(agreementIdField);	
 		idNotesCombo.add(notesField);
 		
-		ipLoField.setSpacing(10);
-		ipLoOctet1Field.setWidth(30);
-		ipLoOctet2Field.setWidth(30);
-		ipLoOctet3Field.setWidth(30);
-		ipLoOctet4Field.setWidth(30);
-		
-		ipLoOctet1Field.setRegex(OCTET_REGEX);
-		ipLoOctet1Field.getMessages().setRegexText(OCTET_ERROR);
-		ipLoOctet2Field.setRegex(OCTET_REGEX);
-		ipLoOctet2Field.getMessages().setRegexText(OCTET_ERROR);
-		ipLoOctet3Field.setRegex(OCTET_REGEX);
-		ipLoOctet3Field.getMessages().setRegexText(OCTET_ERROR);
-		ipLoOctet4Field.setRegex(OCTET_REGEX);
-		ipLoOctet4Field.getMessages().setRegexText(OCTET_ERROR);
-		
-		ipLoField.add(ipLoOctet1Field);
-		ipLoField.add(ipLoOctet2Field);
-		ipLoField.add(ipLoOctet3Field);
-		ipLoField.add(ipLoOctet4Field);
-		
-		ipHiField.setSpacing(10);
-		ipHiOctet1Field.setWidth(30);
-		ipHiOctet2Field.setWidth(30);
-		ipHiOctet3Field.setWidth(30);
-		ipHiOctet4Field.setWidth(30);
-		
-		ipHiOctet1Field.setRegex(OCTET_REGEX);
-		ipHiOctet1Field.getMessages().setRegexText(OCTET_ERROR);
-		ipHiOctet2Field.setRegex(OCTET_REGEX);
-		ipHiOctet2Field.getMessages().setRegexText(OCTET_ERROR);
-		ipHiOctet3Field.setRegex(OCTET_REGEX);
-		ipHiOctet3Field.getMessages().setRegexText(OCTET_ERROR);
-		ipHiOctet4Field.setRegex(OCTET_REGEX);
-		ipHiOctet4Field.getMessages().setRegexText(OCTET_ERROR);
-		
-		ipHiField.add(ipHiOctet1Field);
-		ipHiField.add(ipHiOctet2Field);
-		ipHiField.add(ipHiOctet3Field);
-		ipHiField.add(ipHiOctet4Field);
+//		ipLoField.setSpacing(10);
+//		ipLoOctet1Field.setWidth(30);
+//		ipLoOctet2Field.setWidth(30);
+//		ipLoOctet3Field.setWidth(30);
+//		ipLoOctet4Field.setWidth(30);
+//		
+//		ipLoOctet1Field.setRegex(OCTET_REGEX);
+//		ipLoOctet1Field.getMessages().setRegexText(OCTET_ERROR);
+//		ipLoOctet2Field.setRegex(OCTET_REGEX);
+//		ipLoOctet2Field.getMessages().setRegexText(OCTET_ERROR);
+//		ipLoOctet3Field.setRegex(OCTET_REGEX);
+//		ipLoOctet3Field.getMessages().setRegexText(OCTET_ERROR);
+//		ipLoOctet4Field.setRegex(OCTET_REGEX);
+//		ipLoOctet4Field.getMessages().setRegexText(OCTET_ERROR);
+//		
+//		ipLoField.add(ipLoOctet1Field);
+//		ipLoField.add(ipLoOctet2Field);
+//		ipLoField.add(ipLoOctet3Field);
+//		ipLoField.add(ipLoOctet4Field);
+//		
+//		ipHiField.setSpacing(10);
+//		ipHiOctet1Field.setWidth(30);
+//		ipHiOctet2Field.setWidth(30);
+//		ipHiOctet3Field.setWidth(30);
+//		ipHiOctet4Field.setWidth(30);
+//		
+//		ipHiOctet1Field.setRegex(OCTET_REGEX);
+//		ipHiOctet1Field.getMessages().setRegexText(OCTET_ERROR);
+//		ipHiOctet2Field.setRegex(OCTET_REGEX);
+//		ipHiOctet2Field.getMessages().setRegexText(OCTET_ERROR);
+//		ipHiOctet3Field.setRegex(OCTET_REGEX);
+//		ipHiOctet3Field.getMessages().setRegexText(OCTET_ERROR);
+//		ipHiOctet4Field.setRegex(OCTET_REGEX);
+//		ipHiOctet4Field.getMessages().setRegexText(OCTET_ERROR);
+//		
+//		ipHiField.add(ipHiOctet1Field);
+//		ipHiField.add(ipHiOctet2Field);
+//		ipHiField.add(ipHiOctet3Field);
+//		ipHiField.add(ipHiOctet4Field);
 		
 
 		ipFieldSet.setBorders(true);
