@@ -32,9 +32,10 @@ import com.scholastic.sbam.client.services.UpdateAuthMethodNoteServiceAsync;
 import com.scholastic.sbam.client.services.UpdateAuthMethodService;
 import com.scholastic.sbam.client.services.UpdateAuthMethodServiceAsync;
 import com.scholastic.sbam.client.uiobjects.fields.InstitutionSearchField;
-import com.scholastic.sbam.client.uiobjects.fields.IpAddressField;
+import com.scholastic.sbam.client.uiobjects.fields.IpAddressRangeField;
 import com.scholastic.sbam.client.uiobjects.fields.NotesIconButtonField;
 import com.scholastic.sbam.client.uiobjects.fields.SiteLocationSearchField;
+import com.scholastic.sbam.client.uiobjects.fields.UserIdPasswordField;
 import com.scholastic.sbam.client.uiobjects.foundation.FieldFactory;
 import com.scholastic.sbam.client.uiobjects.foundation.FormAndGridPanel;
 import com.scholastic.sbam.client.util.UiConstants;
@@ -82,22 +83,25 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	protected CheckBox						remoteCheck			= getCheckBoxField("Remote");
 	protected CheckBoxGroup					statusGroup			= getCheckBoxGroup(null, approvedCheck, validatedCheck, remoteCheck);
 	
-	protected IpAddressField				ipLoField			= new IpAddressField("From");
+	protected IpAddressRangeField			ipRangeField		= new IpAddressRangeField();
+	protected UserIdPasswordField			uidPasswordField	= new UserIdPasswordField();
+	
+//	protected IpAddressField				ipLoField			= new IpAddressField("From");
 //	protected TextField<String>				ipLoOctet1Field		= getTextField("");
 //	protected TextField<String>				ipLoOctet2Field		= getTextField("");
 //	protected TextField<String>				ipLoOctet3Field		= getTextField("");
 //	protected TextField<String>				ipLoOctet4Field		= getTextField("");
-	protected IpAddressField				ipHiField			= new IpAddressField("To");
+//	protected IpAddressField				ipHiField			= new IpAddressField("To");
 //	protected TextField<String>				ipHiOctet1Field		= getTextField("");
 //	protected TextField<String>				ipHiOctet2Field		= getTextField("");
 //	protected TextField<String>				ipHiOctet3Field		= getTextField("");
 //	protected TextField<String>				ipHiOctet4Field		= getTextField("");
 
-	protected TextField<String>				userIdField			= getTextField("User ID");
-	protected TextField<String>				passwordField		= getTextField("Password");
-	protected CheckBox						cookieUidCheck		= getCheckBoxField("Cookie");
-	protected CheckBox						permanentUidCheck	= getCheckBoxField("Permanent");
-	protected CheckBoxGroup					uidTypeGroup		= getCheckBoxGroup("UID Type", permanentUidCheck, cookieUidCheck);
+//	protected TextField<String>				userIdField			= getTextField("User ID");
+//	protected TextField<String>				passwordField		= getTextField("Password");
+//	protected CheckBox						cookieUidCheck		= getCheckBoxField("Cookie");
+//	protected CheckBox						permanentUidCheck	= getCheckBoxField("Permanent");
+//	protected CheckBoxGroup					uidTypeGroup		= getCheckBoxGroup("UID Type", permanentUidCheck, cookieUidCheck);
 //	protected EnhancedComboBox<BeanModel>	uidTypeField	= getComboField("uidType", 	"UID Type",	DEFAULT_FIELD_WIDTH,		
 //			"The type of user ID to deploy.",	
 //			UiConstants.getUidTypes(), "code", "name");
@@ -238,8 +242,9 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		
 		if (AuthMethodInstance.AM_IP.equals(instance.getMethodType())) {
 //			String [] [] octets = AuthMethodInstance.getIpOctetStrings(instance.getIpLo(), instance.getIpHi());
-			ipLoField.setValue(instance.getIpLo()); //	ipLoField.setValue(octets [0]);
-			ipHiField.setValue(instance.getIpHi()); //	ipHiField.setValue(octets [1]);
+			ipRangeField.setValue(instance.getIpLo(), instance.getIpHi());
+//			ipLoField.setValue(instance.getIpLo()); //	ipLoField.setValue(octets [0]);
+//			ipHiField.setValue(instance.getIpHi()); //	ipHiField.setValue(octets [1]);
 //			ipLoOctet1Field.setValue(octets [0] [0]);
 //			ipLoOctet2Field.setValue(octets [0] [1]);
 //			ipLoOctet3Field.setValue(octets [0] [2]);
@@ -254,10 +259,11 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 			clearUidFields();
 			openIpFields(true);
 		} else if (AuthMethodInstance.AM_UID.equals(instance.getMethodType())) {
-			userIdField.setValue(instance.getUserId());
-			passwordField.setValue(instance.getPassword());
-			cookieUidCheck.setValue(instance.isUserType(AuthMethodInstance.UserTypes.COOKIE));
-			permanentUidCheck.setValue(instance.isUserType(AuthMethodInstance.UserTypes.PUP));
+			uidPasswordField.setValue(instance.getUserId(), instance.getPassword(), instance.getUserType());
+//			userIdField.setValue(instance.getUserId());
+//			passwordField.setValue(instance.getPassword());
+//			cookieUidCheck.setValue(instance.isUserType(AuthMethodInstance.UserTypes.COOKIE));
+//			permanentUidCheck.setValue(instance.isUserType(AuthMethodInstance.UserTypes.PUP));
 			openIpFields(false);
 			clearIpFields();
 			openUrlFields(false);
@@ -278,8 +284,9 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	}
 	
 	public void openIpFields(boolean open) {
-		ipLoField.setReadOnly(!open);
-		ipHiField.setReadOnly(!open);
+		ipRangeField.setReadOnly(!open);
+//		ipLoField.setReadOnly(!open);
+//		ipHiField.setReadOnly(!open);
 //		ipLoOctet1Field.setReadOnly(!open);
 //		ipLoOctet2Field.setReadOnly(!open);
 //		ipLoOctet3Field.setReadOnly(!open);
@@ -288,13 +295,14 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 //		ipHiOctet2Field.setReadOnly(!open);
 //		ipHiOctet3Field.setReadOnly(!open);
 //		ipHiOctet4Field.setReadOnly(!open);
-		ipFieldSet.setEnabled(open);
+	//	ipFieldSet.setEnabled(open);
 		ipFieldSet.setExpanded(open);
 	}
 	
 	public void clearIpFields() {
-		ipLoField.clear();
-		ipHiField.clear();
+		ipRangeField.clear();
+//		ipLoField.clear();
+//		ipHiField.clear();
 //		ipLoOctet1Field.clear();
 //		ipLoOctet2Field.clear();
 //		ipLoOctet3Field.clear();
@@ -307,7 +315,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	
 	public void openUrlFields(boolean open) {
 		urlField.setReadOnly(!open);
-		urlFieldSet.setEnabled(open);
+	//	urlFieldSet.setEnabled(open);
 		urlFieldSet.setExpanded(open);
 	}
 	
@@ -316,18 +324,20 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	}
 	
 	public void openUidFields(boolean open) {
-		userIdField.setReadOnly(!open);
-		passwordField.setReadOnly(!open);
-		uidTypeGroup.setReadOnly(!open);
-		uidFieldSet.setEnabled(open);
+//		userIdField.setReadOnly(!open);
+//		passwordField.setReadOnly(!open);
+//		uidTypeGroup.setReadOnly(!open);
+		uidPasswordField.setReadOnly(!open);
+	//	uidFieldSet.setEnabled(open);
 		uidFieldSet.setExpanded(open);
 	}
 	
 	public void clearUidFields() {
-		userIdField.clear();
-		passwordField.clear();
-		cookieUidCheck.clear();
-		permanentUidCheck.clear();
+		uidPasswordField.clear();
+//		userIdField.clear();
+//		passwordField.clear();
+//		cookieUidCheck.clear();
+//		permanentUidCheck.clear();
 	}
  	
 	public void setNotesField(String note) {
@@ -425,8 +435,10 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		idNotesCombo.setSpacing(20);
 		ucnDisplay.setReadOnly(true);
 		
-		FieldFactory.setStandard(ipLoField, "From");
-		FieldFactory.setStandard(ipHiField, "To");
+		FieldFactory.setStandard(ipRangeField, "IP");
+		FieldFactory.setStandard(uidPasswordField, "");
+//		FieldFactory.setStandard(ipLoField, "From");
+//		FieldFactory.setStandard(ipHiField, "To");
 		
 		//	Force all field widths to zero, so that they'll be computed based on the width of the enclosing form
 		idNotesCombo.setWidth(0);
@@ -490,8 +502,9 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		ipFieldSet.setLayout(fLayout);
 		ipFieldSet.setToolTip(UiConstants.getQuickTip("Define authentication by IP address."));
 		
-		ipFieldSet.add(ipLoField);
-		ipFieldSet.add(ipHiField);
+		ipFieldSet.add(ipRangeField);
+//		ipFieldSet.add(ipLoField);
+//		ipFieldSet.add(ipHiField);
 
 		uidFieldSet.setBorders(true);
 		uidFieldSet.setHeading("User ID and Password");
@@ -502,12 +515,13 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		uidFieldSet.setLayout(fLayout2);
 		uidFieldSet.setToolTip(UiConstants.getQuickTip("Define authentication by User ID and password."));
 		
-		userIdField.setWidth(0);
-		passwordField.setWidth(0);
-		
-		uidFieldSet.add(userIdField);
-		uidFieldSet.add(passwordField);
-		uidFieldSet.add(uidTypeGroup);
+//		userIdField.setWidth(0);
+//		passwordField.setWidth(0);
+//		
+//		uidFieldSet.add(userIdField);
+//		uidFieldSet.add(passwordField);
+//		uidFieldSet.add(uidTypeGroup);
+		uidFieldSet.add(uidPasswordField);
 		
 
 		urlFieldSet.setBorders(true);

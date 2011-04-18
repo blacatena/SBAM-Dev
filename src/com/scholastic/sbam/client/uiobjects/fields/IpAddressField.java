@@ -12,7 +12,6 @@ public class IpAddressField extends MultiField<Long> {
 	public static final int		DEFAULT_SEPARATOR_WIDTH = 5;
 	public static final String	DEFAULT_OCTET_SEPARATOR = "&nbsp;.&nbsp;";
 	
-	protected boolean allowWildcards;
 	protected boolean highIp;
 	
 	protected List<TextField<String>>	octetFields		= new ArrayList<TextField<String>>();
@@ -64,13 +63,15 @@ public class IpAddressField extends MultiField<Long> {
 			separatorField.addStyleName(styleName);
 	}
 	
-	public void setValue(String [] octets) {
+	public void setValue(Long value, String [] octets) {
+		super.setValue(value);
 		for (int i = 0; i < octetFields.size(); i++) {
 			octetFields.get(i).setValue(octets [i]);
 		}
 	}
 	
-	public void setOriginalValue(String [] octets) {
+	public void setOriginalValue(Long value, String [] octets) {
+		super.setOriginalValue(value);
 		for (int i = 0; i < octetFields.size(); i++) {
 			octetFields.get(i).setOriginalValue(octets [i]);
 		}
@@ -81,12 +82,9 @@ public class IpAddressField extends MultiField<Long> {
 		long value = 0;
 		long factor = 1;
 		for (int i = octetFields.size() - 1; i >= 0; i--) {
-			System.out.println(i + " : " + octetFields.get(i).getValue());
 			value += getOctetValue(i) * factor;
-			System.out.println(i + " : octet value " + getOctetValue(i) + " * " + factor);
 			factor *= 256l;
 		}
-		System.out.println("Get ip value " + value);
 		return value;
 	}
 	
@@ -104,12 +102,10 @@ public class IpAddressField extends MultiField<Long> {
 	
 	@Override
 	public void setValue(Long value) {
-		System.out.println("Set ip to " + value);
 		super.setValue(value);
 		for (int i = octetFields.size() - 1; i >= 0; i--) {
 			long octet = value % 256;
 			octetFields.get(i).setValue("" + octet);
-			System.out.println(i + " : " + octetFields.get(i).getValue());
 			value /= 256l;
 		}
 	}
@@ -135,6 +131,27 @@ public class IpAddressField extends MultiField<Long> {
 	public void clear() {
 		for (TextField<String> octetField : octetFields)
 			octetField.clear();
+	}
+	
+	@Override
+	public void disable() {
+		super.disable();
+		for (TextField<String> octetField : octetFields)
+			octetField.disable();
+	}
+	
+	@Override
+	public void enable() {
+		super.enable();
+		for (TextField<String> octetField : octetFields)
+			octetField.enable();
+	}
+	
+	@Override
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		for (TextField<String> octetField : octetFields)
+			octetField.setEnabled(enabled);
 	}
 	
 //	@Override
