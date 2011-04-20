@@ -105,6 +105,13 @@ public class UpdateAuthMethodServiceImpl extends AuthenticatedServiceServlet imp
 			if (instance.getValidated() != (char) 0)
 				dbInstance.setValidated(instance.getValidated());
 			
+
+			if (instance.getNote() != null) {
+				if (instance.getNote().equalsIgnoreCase("<br>"))
+					instance.setNote("");
+				dbInstance.setNote(instance.getNote());
+			}
+			
 			//	Fix any nulls
 			if (dbInstance.getOrgPath() == null)
 				dbInstance.setOrgPath("");

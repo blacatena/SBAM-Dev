@@ -2,13 +2,18 @@ package com.scholastic.sbam.client.uiobjects.uiapp;
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
@@ -22,6 +27,7 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.AuthMethodListService;
@@ -39,6 +45,7 @@ import com.scholastic.sbam.client.uiobjects.fields.UrlField;
 import com.scholastic.sbam.client.uiobjects.fields.UserIdPasswordField;
 import com.scholastic.sbam.client.uiobjects.foundation.FieldFactory;
 import com.scholastic.sbam.client.uiobjects.foundation.FormAndGridPanel;
+import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.AgreementInstance;
 import com.scholastic.sbam.shared.objects.AuthMethodInstance;
@@ -62,6 +69,11 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	protected FormPanel				formColumn1;
 	protected FormPanel				formColumn2;
 	protected FormPanel				formRow2;
+	
+	ToggleButton allButton;
+	ToggleButton ipButton;
+	ToggleButton uidButton;
+	ToggleButton urlButton;
 	
 	protected AgreementInstance		agreement;
 	protected InstitutionInstance	siteInstitution;
@@ -153,12 +165,17 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	}
 	
 	@Override
+	public void moreRendering() {
+		addGridSelectButtons(gridPanel);
+	}
+	
+	@Override
 	public void addGridPlugins(Grid<BeanModel> grid) {
 		grid.addPlugin(noteExpander);
 	}
 	
 	/**
-	 * Override to set any further grid atrributes, such as the autoExpandColumn.
+	 * Override to set any further grid attributes, such as the autoExpandColumn.
 	 * @param grid
 	 */
 	@Override
@@ -173,6 +190,12 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 //		columns.add(getDisplayColumn("displayUcn",							"UCN+",						100,		false,
 //					"This is the UCN+ for the site."));
 		columns.add(getDisplayColumn("methodDisplay",						"Method",					180));
+		columns.add(getHiddenColumn("ipLoDisplay",							"Low IP",					90));
+		columns.add(getHiddenColumn("ipHiDisplay",							"High IP",					90));
+		columns.add(getHiddenColumn("userId",								"UID",						75));
+		columns.add(getHiddenColumn("password",								"Password",					75));
+		columns.add(getHiddenColumn("userType",								"",							30));
+		columns.add(getHiddenColumn("url",									"URL",						180));
 		columns.add(getDisplayColumn("site.institution.institutionName",	"Institution",				180,
 					"This is the institution name."));
 		columns.add(getDisplayColumn("site.description",					"Location",					100,
@@ -186,7 +209,6 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	
 		noteExpander = getNoteExpander();
 		columns.add(noteExpander);
-		
 	}
 
 	@Override
@@ -300,7 +322,12 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		super.handleNew();
 //		institutionField.setReadOnly(false);
 //		siteLocationField.setReadOnly(false);
-		ipFieldSet.expand();
+		if (uidButton != null && uidButton.isPressed())
+			uidFieldSet.expand();
+		else if (urlButton != null && urlButton.isPressed())
+			urlFieldSet.expand();
+		else
+			ipFieldSet.expand();
 	}
 
 	
@@ -393,6 +420,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		ipFieldSet.setToolTip(UiConstants.getQuickTip("Define authentication by IP address."));
 		
 		ipFieldSet.add(ipRangeField);
+		ipFieldSet.collapse();
 
 		uidFieldSet.setBorders(true);
 		uidFieldSet.setHeading("User ID and Password");
@@ -403,6 +431,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		uidFieldSet.setToolTip(UiConstants.getQuickTip("Define authentication by User ID and password."));
 		
 		uidFieldSet.add(uidPasswordField);
+		uidFieldSet.collapse();
 		
 
 		urlFieldSet.setBorders(true);
@@ -418,6 +447,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		
 		urlFieldSet.add(urlField, formData);
 		urlFieldSet.setAutoWidth(true);
+		urlFieldSet.collapse();
 		
 		formRow1.add(idNotesCombo);
 		
@@ -789,5 +819,139 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 						notesField.unlockNote();
 				}
 			});
+	}
+	
+	protected void setAllView() {
+		gridStore.filter("methodType", "");
+		setHideGeneralColumns(false);
+		setHideIpColumns(true);
+		setHideUidColumns(true);
+		setHideUrlColumns(true);
+		grid.setAutoExpandColumn("methodDisplay");
+		grid.getView().refresh(true);
+		layout(true);
+	}
+	
+	protected void setIpView() {
+		gridStore.filter("methodType", AuthMethodInstance.AM_IP);
+		setHideGeneralColumns(true);
+		setHideIpColumns(false);
+		setHideUidColumns(true);
+		setHideUrlColumns(true);
+		grid.setAutoExpandColumn("site.institution.institutionName");
+		grid.getView().refresh(true);
+		layout(true);
+	}
+	
+	protected void setUrlView() {
+		gridStore.filter("methodType", AuthMethodInstance.AM_URL);
+		setHideGeneralColumns(true);
+		setHideIpColumns(true);
+		setHideUidColumns(true);
+		setHideUrlColumns(false);
+		grid.setAutoExpandColumn("site.institution.institutionName");
+		grid.getView().refresh(true);
+		layout(true);
+	}
+	
+	protected void setUidView() {
+		gridStore.filter("methodType", AuthMethodInstance.AM_UID);
+		setHideGeneralColumns(true);
+		setHideIpColumns(true);
+		setHideUidColumns(false);
+		setHideUrlColumns(true);
+		grid.setAutoExpandColumn("site.institution.institutionName");
+		grid.getView().refresh(true);
+		layout(true);
+	}
+	
+	protected void setHideGeneralColumns(boolean hide) {
+		grid.getColumnModel().getColumnById("methodDisplay").setHidden(hide);
+	}
+	
+	protected void setHideIpColumns(boolean hide) {
+		grid.getColumnModel().getColumnById("ipLoDisplay").setHidden(hide);
+		grid.getColumnModel().getColumnById("ipHiDisplay").setHidden(hide);
+	}
+	
+	protected void setHideUidColumns(boolean hide) {
+		grid.getColumnModel().getColumnById("userId").setHidden(hide);
+		grid.getColumnModel().getColumnById("password").setHidden(hide);
+		grid.getColumnModel().getColumnById("userType").setHidden(hide);
+	}
+	
+	protected void setHideUrlColumns(boolean hide) {
+		grid.getColumnModel().getColumnById("url").setHidden(hide);
+	}
+	
+	protected void addGridSelectButtons(ContentPanel targetPanel) {
+		
+		String toggleGroup = "av" + System.currentTimeMillis();
+		
+		ToolBar viewToolBar = new ToolBar();
+		viewToolBar.setAlignment(HorizontalAlignment.CENTER);
+		viewToolBar.setBorders(false);
+		viewToolBar.setSpacing(20);
+		viewToolBar.setMinButtonWidth(60);
+//		toolBar.addStyleName("clear-toolbar");
+
+		allButton = new ToggleButton("All");
+		IconSupplier.forceIcon(allButton, IconSupplier.getViewAccessIconName());
+		allButton.enable();
+		allButton.toggle(true);
+		allButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				allButton.toggle(true);
+				setAllView();
+			}  
+		});
+		allButton.setToggleGroup(toggleGroup);
+		viewToolBar.add(allButton);
+
+		ipButton = new ToggleButton("IP Address");
+		IconSupplier.forceIcon(ipButton, IconSupplier.getViewAccessIconName());
+		ipButton.enable();
+		ipButton.toggle(false);
+		ipButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				ipButton.toggle(true);
+				setIpView();
+			}  
+		});
+		ipButton.setToggleGroup(toggleGroup);
+		viewToolBar.add(ipButton);
+
+		uidButton = new ToggleButton("User ID");
+		IconSupplier.forceIcon(uidButton, IconSupplier.getViewAccessIconName());
+		uidButton.enable();
+		uidButton.toggle(false);
+		uidButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				uidButton.toggle(true);
+				setUidView();
+			}  
+		});
+		uidButton.setToggleGroup(toggleGroup);
+		viewToolBar.add(uidButton);
+
+		urlButton = new ToggleButton("URL");
+		IconSupplier.forceIcon(urlButton, IconSupplier.getViewAccessIconName());
+		urlButton.enable();
+		uidButton.toggle(false);
+		urlButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				urlButton.toggle(true);
+				setUrlView();
+			}  
+		});
+		urlButton.setToggleGroup(toggleGroup);
+		viewToolBar.add(urlButton);
+
+		
+		targetPanel.setTopComponent(viewToolBar);
 	}
 }

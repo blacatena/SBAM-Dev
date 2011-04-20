@@ -9,7 +9,7 @@ import com.scholastic.sbam.shared.objects.AuthMethodInstance;
 
 public class UserIdPasswordField extends MultiField<String []> {
 	public final String	USER_ID_LABEL			= "User&nbsp;ID:&nbsp;";
-	public final String PASSWORD_LABEL			= "&nbsp;&nbsp;Password:&nbsp;";
+	public final String PASSWORD_LABEL			= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Password:&nbsp;";
 	public final String USER_TYPE_LABEL			= "Type:&nbsp;";
 	public final int	DEFAULT_LABEL_WIDTH		=	50;
 	public final int	DEFAULT_FIELD_WIDTH		=	100;

@@ -188,6 +188,14 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		if (focusId != 0) {
 			loadGrid(focusId);
 		}
+		
+		moreRendering();
+	}
+	
+	/**
+	 * Override this method to perform any additional rendering steps.
+	 */
+	public void moreRendering() {
 	}
 	
 	/**

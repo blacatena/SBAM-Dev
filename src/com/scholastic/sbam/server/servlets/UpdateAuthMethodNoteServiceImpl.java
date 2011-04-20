@@ -29,7 +29,7 @@ public class UpdateAuthMethodNoteServiceImpl extends AuthenticatedServiceServlet
 
 		try {
 			
-			//	Get existing, or create new
+			//	Get existing
 			dbInstance = DbAuthMethod.getById(instance.getAgreementId(), instance.getUcn(), instance.getUcnSuffix(), instance.getSiteLocCode(), instance.getMethodType(), instance.getMethodKey());
 			if (dbInstance == null)
 				throw new IllegalArgumentException("Authentication Method " + instance + " not found.");

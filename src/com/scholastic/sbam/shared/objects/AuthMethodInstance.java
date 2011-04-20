@@ -372,9 +372,9 @@ public class AuthMethodInstance extends BetterRowEditInstance implements BeanMod
 
 	public void setSite(SiteInstance site) {
 		this.site = site;
-		this.setUcn(site.getUcn());
-		this.setUcnSuffix(site.getUcnSuffix());
-		this.setSiteLocCode(site.getSiteLocCode());
+		this.setForUcn(site.getUcn());
+		this.setForUcnSuffix(site.getUcnSuffix());
+		this.setForSiteLocCode(site.getSiteLocCode());
 	}
 	
 	public String getStatusDescription() {
@@ -394,6 +394,24 @@ public class AuthMethodInstance extends BetterRowEditInstance implements BeanMod
 			return url;
 		}
 		return "Unrecognized method type " + methodType;
+	}
+	
+	public String getIpLoDisplay() {
+		if (AM_IP.equals(methodType)) {
+			if (ipLo == 0)
+				return getOctetForm(ipHi);
+			return getOctetForm(ipLo);
+		}
+		return "";
+	}
+	
+	public String getIpHiDisplay() {
+		if (AM_IP.equals(methodType)) {
+			if (ipHi== 0)
+				return getOctetForm(ipLo);
+			return getOctetForm(ipHi);
+		}
+		return "";
 	}
 	
 	public void setValuesFrom(AuthMethodInstance fromInstance) {

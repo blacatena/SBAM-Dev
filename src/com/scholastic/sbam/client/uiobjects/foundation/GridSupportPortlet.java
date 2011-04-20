@@ -157,7 +157,7 @@ public abstract class GridSupportPortlet<I> extends FieldSupportPortlet {
 				if (hasNote) {
 					config.cellAttr = "rowspan='2'";
 					config.style = "background: url(" + IconSupplier.getColorfulIconPath(IconSupplier.getNoteIconName()) +
-									") no-repeat 10px 2px !important;";
+									") no-repeat 10px 2px !important; width: 32px;";
 			        return "<div class='x-grid3-row-expander'>&#160;</div>";
 				}
 				return "";

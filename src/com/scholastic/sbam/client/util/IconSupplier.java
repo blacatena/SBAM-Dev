@@ -202,6 +202,10 @@ public class IconSupplier {
 		return "portlets.png";
 	}
 	
+	public static String getViewAccessIconName() {
+		return "view_access.png";
+	}
+	
 	public static String getHistoryIconName() {
 		return "history.png";
 	}
@@ -317,6 +321,17 @@ public class IconSupplier {
 	public static void forceIcon(Button button, String iconName) {
 		if (button != null && iconName != null && iconName.length() > 0) {
 			button.setIcon(getButtonIcon(iconName, button.isEnabled()));
+		}
+	}
+	
+	/**
+	 * Force (set) button icons.  This method ignores the application wide BUTTON_ICONS constant, and always applies the icons if supplied.
+	 * @param button
+	 * @param iconName
+	 */
+	public static void forceMonochromeIcon(Button button, String iconName) {
+		if (button != null && iconName != null && iconName.length() > 0) {
+			button.setIcon(getMonochromeIcon(iconName));
 		}
 	}
 	

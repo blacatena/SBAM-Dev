@@ -160,6 +160,7 @@ public abstract class GridSupportContainer<I> extends FieldSupportContainer {
 	
 	protected ColumnConfig getGridColumn(String column, String heading, int size, boolean hidden, boolean sortable, DateTimeFormat dateFormat, NumberFormat numberFormat, String toolTip) {
 		ColumnConfig cc = new ColumnConfig(column,		heading, 		size);
+		cc.setId(column);
 		cc.setHidden(hidden);
 		cc.setSortable(sortable);
 		if (toolTip != null)
@@ -238,7 +239,7 @@ public abstract class GridSupportContainer<I> extends FieldSupportContainer {
 				if (hasNote) {
 					config.cellAttr = "rowspan='2'";
 					config.style = "background: url(" + IconSupplier.getColorfulIconPath(IconSupplier.getNoteIconName()) +
-									") no-repeat 10px 2px !important;";
+									") no-repeat 10px 2px !important; width: 32px !important;";
 			        return "<div class='x-grid3-row-expander'>&#160;</div>";
 				}
 				return "";
@@ -246,6 +247,7 @@ public abstract class GridSupportContainer<I> extends FieldSupportContainer {
 		};
 		noteExpander.setWidth(32);
 		noteExpander.setResizable(false);
+		noteExpander.setFixed(true);
 		noteExpander.setRenderer(noteRenderer);
 		noteExpander.setToolTip("Click the notes icon to expand or collapse the row to display any notes.");
 //		noteExpander.setId("showNotes");
