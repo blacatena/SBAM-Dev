@@ -13,6 +13,7 @@ public class UserIdPasswordField extends MultiField<String []> {
 	public final String USER_TYPE_LABEL			= "Type:&nbsp;";
 	public final int	DEFAULT_LABEL_WIDTH		=	50;
 	public final int	DEFAULT_FIELD_WIDTH		=	100;
+	public final int	DEFAULT_MIN_VAL_LEN		=	6;
 	
 	protected LabelField		userIdLabelField;
 	protected TextField<String>	userIdField;
@@ -48,6 +49,11 @@ public class UserIdPasswordField extends MultiField<String []> {
 		passwordLabelField = new ConstantLabelField();
 		userIdLabelField.setValue(USER_ID_LABEL);
 		passwordLabelField.setValue(PASSWORD_LABEL);
+		
+		userIdField.setAllowBlank(false);
+		passwordField.setAllowBlank(false);
+		userIdField.setMinLength(DEFAULT_MIN_VAL_LEN);
+		passwordField.setMinLength(DEFAULT_MIN_VAL_LEN);
 		
 		setUserIdWidth(DEFAULT_FIELD_WIDTH);
 		setPasswordWidth(DEFAULT_FIELD_WIDTH);
@@ -129,7 +135,7 @@ public class UserIdPasswordField extends MultiField<String []> {
 	
 	@Override
 	public String [] getValue() {
-		return new String [] {getUserId(), getPassword(), getUserType()};
+		return new String [] {getUserId(), getPassword(), getUserTypeString()};
 	}
 	
 	@Override
@@ -165,10 +171,18 @@ public class UserIdPasswordField extends MultiField<String []> {
 		return passwordField.getValue();
 	}
 	
-	public String getUserType() {
+	public String getUserTypeString() {
 		if (cookieCheckBox == null)
 			return null;
 		return cookieCheckBox.getValue() ? AuthMethodInstance.UserTypes.COOKIE.getCode() : AuthMethodInstance.UserTypes.PUP.getCode();
+	}
+	
+	public char getUserType() {
+		String userTypeStr = getUserTypeString();
+		if (userTypeStr == null || userTypeStr.length() == 0)
+			return (char) 0;
+		else
+			return userTypeStr.charAt(0);
 	}
 	
 	@Override

@@ -27,35 +27,41 @@ public class AppAuthMethodValidator {
 
 		patchInstance(instance);
 		
-		validateAuthMethodId(instance.getAgreementId(), instance.getUcn(), instance.getUcnSuffix(), instance.getSiteLocCode(), instance.getMethodType(), instance.getMethodKey(), instance.isNewRecord());
-		validateInstitution(instance.getUcn());
-		validateSite(instance.getUcn(), instance.getUcnSuffix(), instance.getSiteLocCode());
+		validateAuthMethodId(instance, instance.isNewRecord());
+		validateInstitution(instance.getForUcn());
+		validateSite(instance.getForUcn(), instance.getForUcnSuffix(), instance.getForSiteLocCode());
 		validateStatus(instance.getStatus());
 		return messages;
 	}
 	
 	public void patchInstance(AuthMethodInstance instance) {
-//		if (instance.getStatus() == AppConstants.STATUS_ANY_NONE)
-//			instance.setStatus(AppConstants.STATUS_ACTIVE);
+		if (instance.isNewRecord() && instance.getStatus() == AppConstants.STATUS_ANY_NONE)
+			instance.setStatus(AppConstants.STATUS_ACTIVE);
 
-		if (instance.getUcnSuffix() == 0)
+		if (instance.getForUcn() > 0 && instance.getUcnSuffix() == 0)
 			instance.setUcnSuffix(1);
+		if (instance.getForUcn() == 0) {
+			instance.setUcnSuffix(0);
+			instance.setForSiteLocCode("");
+		}
 		
-		if (instance.getSiteLocCode() == null)
-			instance.setSiteLocCode("");
+		if (instance.getForSiteLocCode() == null)
+			instance.setForSiteLocCode("");
 		
+		if (instance.getIpLo() > 0 && instance.getIpHi() == 0)
+			instance.setIpHi(instance.getIpLo());
 	}
 	
-	public List<String> validateAuthMethodId(int agreementId, int ucn, int ucnSuffix, String siteLocCode, String methodType, String methodCode, boolean isNew) {
+	public List<String> validateAuthMethodId(AuthMethodInstance instance, boolean isNew) {
 		if (isNew) {
-			validateNewAuthMethodId(agreementId, ucn, ucnSuffix, siteLocCode, methodType, methodCode);
+			validateNewAuthMethodId(instance.getAgreementId(), instance.getUcn(), instance.getUcnSuffix(), instance.getSiteLocCode(), instance.getMethodType(), instance.getMethodKey());
 		} else {
-			validateOldAuthMethodId(agreementId, ucn, ucnSuffix, siteLocCode, methodType, methodCode);
+			validateOldAuthMethodId(instance.getAgreementId(), instance.getUcn(), instance.getUcnSuffix(), instance.getSiteLocCode(), instance.getMethodType(), instance.getMethodKey());
 		}
 		return messages;
 	}
 	
-	public List<String> validateOldAuthMethodId(int agreementId, int ucn, int ucnSuffix, String siteLocCode, String methodType, String methodCode) {
+	public List<String> validateOldAuthMethodId(int agreementId, int ucn, int ucnSuffix, String siteLocCode, String methodType, int methodCode) {
 		
 		if (!loadAuthMethod())
 			return messages;
@@ -68,19 +74,13 @@ public class AppAuthMethodValidator {
 		if (authMethod.getId().getAgreementId() != agreementId)
 			addMessage("Agreement ID cannot be changed.");
 		
-		if (authMethod.getId().getAgreementId() == 0 && authMethod.getId().getUcn() != ucn)
-			addMessage("UCN cannot be changed.");
-		
-		if (authMethod.getId().getAgreementId() == 0 && authMethod.getId().getUcnSuffix() != ucnSuffix)
-			addMessage("UCN suffix cannot be changed.");
-		
-		if (authMethod.getId().getAgreementId() == 0 && !siteLocCode.equals(authMethod.getId().getSiteLocCode()))
-			addMessage("Site location code cannot be changed.");
+		if (authMethod.getId().getMethodType() != null && !authMethod.getId().getMethodType().equals(methodType))
+			addMessage("Method type cannot be changed.");
 		
 		return messages;
 	}
 	
-	public List<String> validateNewAuthMethodId(int agreementId, int ucn, int ucnSuffix, String siteLocCode, String methodType, String methodCode) {
+	public List<String> validateNewAuthMethodId(int agreementId, int ucn, int ucnSuffix, String siteLocCode, String methodType, int methodCode) {
 		if (agreementId > 0 && ucn > 0 && siteLocCode != null) {
 			AuthMethod conflict = DbAuthMethod.getById(agreementId, ucn, ucnSuffix, siteLocCode, methodType, methodCode);
 			if (conflict != null) {

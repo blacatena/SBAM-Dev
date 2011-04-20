@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Apr 11, 2011 11:14:19 PM by Hibernate Tools 3.2.4.GA
+// Generated Apr 19, 2011 7:45:44 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -10,6 +10,9 @@ import java.util.Date;
 public class AuthMethod implements java.io.Serializable {
 
 	private AuthMethodId id;
+	private int forUcn;
+	private int forUcnSuffix;
+	private String forSiteLocCode;
 	private String url;
 	private String userId;
 	private long ipLo;
@@ -33,12 +36,16 @@ public class AuthMethod implements java.io.Serializable {
 	public AuthMethod() {
 	}
 
-	public AuthMethod(AuthMethodId id, String url, String userId, long ipLo,
+	public AuthMethod(AuthMethodId id, int forUcn, int forUcnSuffix,
+			String forSiteLocCode, String url, String userId, long ipLo,
 			long ipHi, String password, int proxyId, char userType,
 			char remote, char approved, char validated, char activated,
 			String orgPath, String note, Date updatedDatetime,
 			Date createdDatetime, char status) {
 		this.id = id;
+		this.forUcn = forUcn;
+		this.forUcnSuffix = forUcnSuffix;
+		this.forSiteLocCode = forSiteLocCode;
 		this.url = url;
 		this.userId = userId;
 		this.ipLo = ipLo;
@@ -57,13 +64,17 @@ public class AuthMethod implements java.io.Serializable {
 		this.status = status;
 	}
 
-	public AuthMethod(AuthMethodId id, String url, String userId, long ipLo,
+	public AuthMethod(AuthMethodId id, int forUcn, int forUcnSuffix,
+			String forSiteLocCode, String url, String userId, long ipLo,
 			long ipHi, String password, int proxyId, char userType,
 			char remote, char approved, char validated, char activated,
 			String orgPath, String note, Date activatedDatetime,
 			Date deactivatedDatetime, Date reactivatedDatetime,
 			Date updatedDatetime, Date createdDatetime, char status) {
 		this.id = id;
+		this.forUcn = forUcn;
+		this.forUcnSuffix = forUcnSuffix;
+		this.forSiteLocCode = forSiteLocCode;
 		this.url = url;
 		this.userId = userId;
 		this.ipLo = ipLo;
@@ -91,6 +102,30 @@ public class AuthMethod implements java.io.Serializable {
 
 	public void setId(AuthMethodId id) {
 		this.id = id;
+	}
+
+	public int getForUcn() {
+		return this.forUcn;
+	}
+
+	public void setForUcn(int forUcn) {
+		this.forUcn = forUcn;
+	}
+
+	public int getForUcnSuffix() {
+		return this.forUcnSuffix;
+	}
+
+	public void setForUcnSuffix(int forUcnSuffix) {
+		this.forUcnSuffix = forUcnSuffix;
+	}
+
+	public String getForSiteLocCode() {
+		return this.forSiteLocCode;
+	}
+
+	public void setForSiteLocCode(String forSiteLocCode) {
+		this.forSiteLocCode = forSiteLocCode;
 	}
 
 	public String getUrl() {

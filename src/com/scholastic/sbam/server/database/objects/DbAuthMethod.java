@@ -13,6 +13,7 @@ import com.scholastic.sbam.server.database.codegen.AuthMethodId;
 import com.scholastic.sbam.server.database.codegen.Site;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
 import com.scholastic.sbam.shared.objects.AuthMethodInstance;
+import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.SiteInstance;
 
 /**
@@ -35,6 +36,10 @@ public class DbAuthMethod extends HibernateAccessor {
 
 		instance.setMethodType(dbInstance.getId().getMethodType());
 		instance.setMethodKey(dbInstance.getId().getMethodKey());
+
+		instance.setForUcn(dbInstance.getForUcn());
+		instance.setForUcnSuffix(dbInstance.getForUcnSuffix());
+		instance.setForSiteLocCode(dbInstance.getForSiteLocCode());
 		
 		instance.setIpLo(dbInstance.getIpLo());
 		instance.setIpHi(dbInstance.getIpHi());
@@ -64,7 +69,7 @@ public class DbAuthMethod extends HibernateAccessor {
 		return instance;
 	}
 	
-	public static AuthMethod getById(int agreementId, int ucn, int ucnSuffix, String siteLocCode, String methodType, String methodKey) {
+	public static AuthMethod getById(int agreementId, int ucn, int ucnSuffix, String siteLocCode, String methodType, int methodKey) {
 		AuthMethodId amid = new AuthMethodId();
 		amid.setAgreementId(agreementId);
 		amid.setUcn(ucn);
@@ -132,25 +137,44 @@ public class DbAuthMethod extends HibernateAccessor {
         }
         return new ArrayList<AuthMethod>();
 	}
+
+	public static int getNextAuthMethodKey(int agreementId, int ucn, int ucnSuffix, String siteLocCode, String methodType) {
+        Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
+        crit.add(Restrictions.eq("id.agreementId", 	agreementId));
+        crit.add(Restrictions.eq("id.ucn", 			ucn));
+        crit.add(Restrictions.eq("id.ucnSuffix", 	ucnSuffix));
+        crit.add(Restrictions.eq("id.siteLocCode", 	siteLocCode));
+        crit.add(Restrictions.eq("id.methodType", 	methodType));
+        crit.setMaxResults(1);
+        crit.addOrder(Order.desc("id.methodKey"));
+        @SuppressWarnings("unchecked")
+		List<AuthMethod> objects = crit.list();
+        if (objects == null || objects.size() == 0)
+        	return 1;
+        return objects.get(0).getId().getMethodKey() + 1;
+	}
 	
-	public static void setDescriptions(AuthMethodInstance remoteUrl) {
-		if (remoteUrl == null)
+	public static void setDescriptions(AuthMethodInstance authMethod) {
+		if (authMethod == null)
 			return;
 		
-		if (remoteUrl.getUcn() > 0) {
-			if (remoteUrl.getSiteLocCode() != null && remoteUrl.getSiteLocCode().length() > 0) {
-				Site dbSite = DbSite.getById(remoteUrl.getUcn(), remoteUrl.getUcnSuffix(), remoteUrl.getSiteLocCode());
+		if (authMethod.getForUcn() > 0) {
+			if (authMethod.getForSiteLocCode() != null && authMethod.getForSiteLocCode().length() > 0) {
+				Site dbSite = DbSite.getById(authMethod.getForUcn(), authMethod.getForUcnSuffix(), authMethod.getForSiteLocCode());
 				if (dbSite != null)
-					remoteUrl.setSite( DbSite.getInstance(dbSite) );
+					authMethod.setSite( DbSite.getInstance(dbSite) );
 				else
-					remoteUrl.setSite( SiteInstance.getUnknownInstance( remoteUrl.getUcn(), remoteUrl.getUcnSuffix(), remoteUrl.getSiteLocCode()) );
+					authMethod.setSite( SiteInstance.getUnknownInstance( authMethod.getForUcn(), authMethod.getForUcnSuffix(), authMethod.getForSiteLocCode()) );
 			} else {
-				remoteUrl.setSite( SiteInstance.getAllInstance(remoteUrl.getUcn(), remoteUrl.getUcnSuffix()) );
+				authMethod.setSite( SiteInstance.getAllInstance(authMethod.getForUcn(), authMethod.getForUcnSuffix()) );
 			}
-			Institution dbInstitution = DbInstitution.getByCode(remoteUrl.getUcn());
-			remoteUrl.getSite().setInstitution( DbInstitution.getInstance( dbInstitution));
+			Institution dbInstitution = DbInstitution.getByCode(authMethod.getForUcn());
+			if (dbInstitution != null)
+				authMethod.getSite().setInstitution( DbInstitution.getInstance( dbInstitution));
+			else
+				authMethod.getSite().setInstitution( InstitutionInstance.getEmptyInstance() );
 		} else {
-			remoteUrl.setSite( SiteInstance.getEmptyInstance());
+			authMethod.setSite( SiteInstance.getEmptyInstance());
 		}
 	}
 }

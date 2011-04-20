@@ -11,7 +11,6 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
-import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
@@ -33,8 +32,10 @@ import com.scholastic.sbam.client.services.UpdateAuthMethodService;
 import com.scholastic.sbam.client.services.UpdateAuthMethodServiceAsync;
 import com.scholastic.sbam.client.uiobjects.fields.InstitutionSearchField;
 import com.scholastic.sbam.client.uiobjects.fields.IpAddressRangeField;
+import com.scholastic.sbam.client.uiobjects.fields.LockableFieldSet;
 import com.scholastic.sbam.client.uiobjects.fields.NotesIconButtonField;
 import com.scholastic.sbam.client.uiobjects.fields.SiteLocationSearchField;
+import com.scholastic.sbam.client.uiobjects.fields.UrlField;
 import com.scholastic.sbam.client.uiobjects.fields.UserIdPasswordField;
 import com.scholastic.sbam.client.uiobjects.foundation.FieldFactory;
 import com.scholastic.sbam.client.uiobjects.foundation.FormAndGridPanel;
@@ -50,9 +51,6 @@ import com.scholastic.sbam.shared.util.AppConstants;
 public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	
 	private static final int DEFAULT_FIELD_WIDTH	=	0;	//250;
-//	private static final String OCTET_REGEX = "[0-9]|[0-9][0-9]|[0-1][0-9][0-9]|2[0-4][0-9]|25[0-5]|\\*";
-//	private static final String OCTET_REGEX = "([0-9])|([0-9][0-9])|([0-1][0-9][0-9])|(2[0-4][0-9])|(25[0-5])|(\\*)";
-//	private static final String OCTET_ERROR = "An octet may be any value from 0 to 255, or an *.";
 	
 //	private static final String MSG_SITE_REQUIRED = "Select a site location.";
 	
@@ -75,9 +73,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	protected NotesIconButtonField<String>	notesField			= getNotesButtonField();
 	protected InstitutionSearchField		institutionField	= getInstitutionField("ucn", "Site", DEFAULT_FIELD_WIDTH, "The institution that will receive the product services through this authentication method.");
 	protected SiteLocationSearchField		siteLocationField	= getSiteLocationField("uniqueKey", "Site Location", DEFAULT_FIELD_WIDTH, "The specific location at the customer site targeted by this authentication method.");
-//	protected LabelField					addressDisplay		= getLabelField();
 	protected TextField<String>				ucnDisplay			= getTextField("UCN+");
-//	protected LabelField					customerTypeDisplay	= getLabelField();
 	protected CheckBox						approvedCheck		= getCheckBoxField("Approved");
 	protected CheckBox						validatedCheck		= getCheckBoxField("Validated");
 	protected CheckBox						remoteCheck			= getCheckBoxField("Remote");
@@ -85,31 +81,10 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	
 	protected IpAddressRangeField			ipRangeField		= new IpAddressRangeField();
 	protected UserIdPasswordField			uidPasswordField	= new UserIdPasswordField();
-	
-//	protected IpAddressField				ipLoField			= new IpAddressField("From");
-//	protected TextField<String>				ipLoOctet1Field		= getTextField("");
-//	protected TextField<String>				ipLoOctet2Field		= getTextField("");
-//	protected TextField<String>				ipLoOctet3Field		= getTextField("");
-//	protected TextField<String>				ipLoOctet4Field		= getTextField("");
-//	protected IpAddressField				ipHiField			= new IpAddressField("To");
-//	protected TextField<String>				ipHiOctet1Field		= getTextField("");
-//	protected TextField<String>				ipHiOctet2Field		= getTextField("");
-//	protected TextField<String>				ipHiOctet3Field		= getTextField("");
-//	protected TextField<String>				ipHiOctet4Field		= getTextField("");
-
-//	protected TextField<String>				userIdField			= getTextField("User ID");
-//	protected TextField<String>				passwordField		= getTextField("Password");
-//	protected CheckBox						cookieUidCheck		= getCheckBoxField("Cookie");
-//	protected CheckBox						permanentUidCheck	= getCheckBoxField("Permanent");
-//	protected CheckBoxGroup					uidTypeGroup		= getCheckBoxGroup("UID Type", permanentUidCheck, cookieUidCheck);
-//	protected EnhancedComboBox<BeanModel>	uidTypeField	= getComboField("uidType", 	"UID Type",	DEFAULT_FIELD_WIDTH,		
-//			"The type of user ID to deploy.",	
-//			UiConstants.getUidTypes(), "code", "name");
-
-	protected TextField<String>				urlField			= getTextField("URL");
+	protected UrlField						urlField			= new UrlField();
 	
 
-	protected FieldSet						ipFieldSet		= new FieldSet() 
+	protected LockableFieldSet				ipFieldSet		= new LockableFieldSet() 
 //																{
 //																	@Override
 //																	public void onExpand() {
@@ -119,7 +94,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 //																	}
 //																}
 																;
-	protected FieldSet						uidFieldSet		= new FieldSet() 
+	protected LockableFieldSet				uidFieldSet		= new LockableFieldSet() 
 //																{
 //																	@Override
 //																	public void onExpand() {
@@ -129,15 +104,14 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 //																	}
 //																}
 																;
-	protected FieldSet						urlFieldSet		= new FieldSet() 
-//																{
-//																	@Override
-//																	public void onExpand() {
-//																		super.onExpand();
-//																		uidFieldSet.collapse();
-//																		ipFieldSet.collapse();
-//																	}
-//																}
+	protected LockableFieldSet				urlFieldSet		= new LockableFieldSet() 
+																{
+																	@Override
+																	public void onExpand() {
+																		super.onExpand();
+																		formPanel.layout(true);	// Needed because url doesn't behave properly
+																	}
+																}
 																;
 	
 	
@@ -203,8 +177,12 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 					"This is the institution name."));
 		columns.add(getDisplayColumn("site.description",					"Location",					100,
 					"This is the description of the location at the site."));
-		columns.add(getHiddenColumn("siteLocCode",							"Code",						 40,
-				"This is the code for the location at the site."));
+		columns.add(getHiddenColumn("siteLocCode",							"Code",						40,
+					"This is the code for the location at the site."));
+//		columns.add(getDisplayColumn("methodType",							"Type",						40,
+//				"The type of authentication."));
+		columns.add(getDisplayColumn("methodTypeInstance",					"Type",						40,
+					"The type of authentication.", UiConstants.getAuthMethodTypes()));
 	
 		noteExpander = getNoteExpander();
 		columns.add(noteExpander);
@@ -225,34 +203,23 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		agreementIdField.setValue(AppConstants.appendCheckDigit(instance.getAgreementId()) + " &nbsp;&nbsp;&nbsp;<i>" + displayStatus + "</i>");
 		
 		if (instance.getUcnSuffix() <= 1)
-			ucnDisplay.setValue(instance.getUcn() + "");
+			ucnDisplay.setValue(instance.getForUcn() + "");
 		else
-			ucnDisplay.setValue(instance.getUcn() + " - " + instance.getUcnSuffix());
+			ucnDisplay.setValue(instance.getForUcn() + " - " + instance.getForUcnSuffix());
 		
 		set(instance.getSite().getInstitution());
-		institutionField.setReadOnly(!instance.isNewRecord());
+//		institutionField.setReadOnly(!instance.isNewRecord());
 		
 		siteLocationField.setFor(instance);
 		siteLocationField.setValue(SiteInstance.obtainModel(instance.getSite()));
-		siteLocationField.setReadOnly(!instance.isNewRecord());
+//		siteLocationField.setReadOnly(!instance.isNewRecord());
 		
 		validatedCheck.setValue(instance.isValidated());
 		approvedCheck.setValue(instance.isApproved());
 		remoteCheck.setValue(instance.isRemote());
 		
 		if (AuthMethodInstance.AM_IP.equals(instance.getMethodType())) {
-//			String [] [] octets = AuthMethodInstance.getIpOctetStrings(instance.getIpLo(), instance.getIpHi());
 			ipRangeField.setValue(instance.getIpLo(), instance.getIpHi());
-//			ipLoField.setValue(instance.getIpLo()); //	ipLoField.setValue(octets [0]);
-//			ipHiField.setValue(instance.getIpHi()); //	ipHiField.setValue(octets [1]);
-//			ipLoOctet1Field.setValue(octets [0] [0]);
-//			ipLoOctet2Field.setValue(octets [0] [1]);
-//			ipLoOctet3Field.setValue(octets [0] [2]);
-//			ipLoOctet4Field.setValue(octets [0] [3]);
-//			ipHiOctet1Field.setValue(octets [1] [0]);
-//			ipHiOctet2Field.setValue(octets [1] [1]);
-//			ipHiOctet3Field.setValue(octets [1] [2]);
-//			ipHiOctet4Field.setValue(octets [1] [3]);
 			openUrlFields(false);
 			clearUrlFields();
 			openUidFields(false);
@@ -260,10 +227,6 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 			openIpFields(true);
 		} else if (AuthMethodInstance.AM_UID.equals(instance.getMethodType())) {
 			uidPasswordField.setValue(instance.getUserId(), instance.getPassword(), instance.getUserType());
-//			userIdField.setValue(instance.getUserId());
-//			passwordField.setValue(instance.getPassword());
-//			cookieUidCheck.setValue(instance.isUserType(AuthMethodInstance.UserTypes.COOKIE));
-//			permanentUidCheck.setValue(instance.isUserType(AuthMethodInstance.UserTypes.PUP));
 			openIpFields(false);
 			clearIpFields();
 			openUrlFields(false);
@@ -285,38 +248,22 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	
 	public void openIpFields(boolean open) {
 		ipRangeField.setReadOnly(!open);
-//		ipLoField.setReadOnly(!open);
-//		ipHiField.setReadOnly(!open);
-//		ipLoOctet1Field.setReadOnly(!open);
-//		ipLoOctet2Field.setReadOnly(!open);
-//		ipLoOctet3Field.setReadOnly(!open);
-//		ipLoOctet4Field.setReadOnly(!open);
-//		ipHiOctet1Field.setReadOnly(!open);
-//		ipHiOctet2Field.setReadOnly(!open);
-//		ipHiOctet3Field.setReadOnly(!open);
-//		ipHiOctet4Field.setReadOnly(!open);
-	//	ipFieldSet.setEnabled(open);
+	//	ipFieldSet.markLocked(!open);
 		ipFieldSet.setExpanded(open);
+		ipFieldSet.enableFields(false);
+		ipFieldSet.setEnabled(open);
 	}
 	
 	public void clearIpFields() {
 		ipRangeField.clear();
-//		ipLoField.clear();
-//		ipHiField.clear();
-//		ipLoOctet1Field.clear();
-//		ipLoOctet2Field.clear();
-//		ipLoOctet3Field.clear();
-//		ipLoOctet4Field.clear();
-//		ipHiOctet1Field.clear();
-//		ipHiOctet2Field.clear();
-//		ipHiOctet3Field.clear();
-//		ipHiOctet4Field.clear();
 	}
 	
 	public void openUrlFields(boolean open) {
 		urlField.setReadOnly(!open);
-	//	urlFieldSet.setEnabled(open);
+	//	urlFieldSet.markLocked(!open);
 		urlFieldSet.setExpanded(open);
+		urlFieldSet.enableFields(false);
+		urlFieldSet.setEnabled(open);
 	}
 	
 	public void clearUrlFields() {
@@ -324,20 +271,15 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	}
 	
 	public void openUidFields(boolean open) {
-//		userIdField.setReadOnly(!open);
-//		passwordField.setReadOnly(!open);
-//		uidTypeGroup.setReadOnly(!open);
 		uidPasswordField.setReadOnly(!open);
-	//	uidFieldSet.setEnabled(open);
+	//	uidFieldSet.markLocked(!open);
 		uidFieldSet.setExpanded(open);
+		uidFieldSet.enableFields(false);
+		uidFieldSet.setEnabled(open);
 	}
 	
 	public void clearUidFields() {
 		uidPasswordField.clear();
-//		userIdField.clear();
-//		passwordField.clear();
-//		cookieUidCheck.clear();
-//		permanentUidCheck.clear();
 	}
  	
 	public void setNotesField(String note) {
@@ -352,33 +294,19 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	
 	@Override
 	public void handleNew() {
-		super.handleNew();
-		institutionField.setReadOnly(false);
-		siteLocationField.setReadOnly(false);
 		openIpFields(true);
 		openUidFields(true);
 		openUrlFields(true);
+		super.handleNew();
+//		institutionField.setReadOnly(false);
+//		siteLocationField.setReadOnly(false);
+		ipFieldSet.expand();
 	}
 
 	
 	@Override
 	protected boolean isFormValidAndReady() {
 		boolean ready = formPanel.isValid();
-		
-//		//	Check for required fields
-//		if (institutionField.getSelectedValue() == null) { 
-//			institutionField.markInvalid("Select an institution.");
-//			ready = false;
-//		} else
-//			institutionField.clearInvalid();
-//		
-//		if (siteLocationField.getSelectedValue() == null) {
-//			System.out.println(MSG_SITE_REQUIRED + " vs " + siteLocationField.getErrorMessage());
-//			if (!MSG_SITE_REQUIRED.equals(siteLocationField.getErrorMessage()))
-//				siteLocationField.markInvalid(MSG_SITE_REQUIRED);
-//			ready = false;
-//		} else
-//			siteLocationField.clearInvalid();
 		
 		return ready;
 	}
@@ -434,11 +362,11 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		agreementIdField.setWidth(200);
 		idNotesCombo.setSpacing(20);
 		ucnDisplay.setReadOnly(true);
+		urlField.setAllowBlank(false);
 		
 		FieldFactory.setStandard(ipRangeField, "IP");
 		FieldFactory.setStandard(uidPasswordField, "");
-//		FieldFactory.setStandard(ipLoField, "From");
-//		FieldFactory.setStandard(ipHiField, "To");
+		FieldFactory.setStandard(urlField, "URL");
 		
 		//	Force all field widths to zero, so that they'll be computed based on the width of the enclosing form
 		idNotesCombo.setWidth(0);
@@ -452,82 +380,34 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		idNotesCombo.add(agreementIdField);	
 		idNotesCombo.add(notesField);
 		
-//		ipLoField.setSpacing(10);
-//		ipLoOctet1Field.setWidth(30);
-//		ipLoOctet2Field.setWidth(30);
-//		ipLoOctet3Field.setWidth(30);
-//		ipLoOctet4Field.setWidth(30);
-//		
-//		ipLoOctet1Field.setRegex(OCTET_REGEX);
-//		ipLoOctet1Field.getMessages().setRegexText(OCTET_ERROR);
-//		ipLoOctet2Field.setRegex(OCTET_REGEX);
-//		ipLoOctet2Field.getMessages().setRegexText(OCTET_ERROR);
-//		ipLoOctet3Field.setRegex(OCTET_REGEX);
-//		ipLoOctet3Field.getMessages().setRegexText(OCTET_ERROR);
-//		ipLoOctet4Field.setRegex(OCTET_REGEX);
-//		ipLoOctet4Field.getMessages().setRegexText(OCTET_ERROR);
-//		
-//		ipLoField.add(ipLoOctet1Field);
-//		ipLoField.add(ipLoOctet2Field);
-//		ipLoField.add(ipLoOctet3Field);
-//		ipLoField.add(ipLoOctet4Field);
-//		
-//		ipHiField.setSpacing(10);
-//		ipHiOctet1Field.setWidth(30);
-//		ipHiOctet2Field.setWidth(30);
-//		ipHiOctet3Field.setWidth(30);
-//		ipHiOctet4Field.setWidth(30);
-//		
-//		ipHiOctet1Field.setRegex(OCTET_REGEX);
-//		ipHiOctet1Field.getMessages().setRegexText(OCTET_ERROR);
-//		ipHiOctet2Field.setRegex(OCTET_REGEX);
-//		ipHiOctet2Field.getMessages().setRegexText(OCTET_ERROR);
-//		ipHiOctet3Field.setRegex(OCTET_REGEX);
-//		ipHiOctet3Field.getMessages().setRegexText(OCTET_ERROR);
-//		ipHiOctet4Field.setRegex(OCTET_REGEX);
-//		ipHiOctet4Field.getMessages().setRegexText(OCTET_ERROR);
-//		
-//		ipHiField.add(ipHiOctet1Field);
-//		ipHiField.add(ipHiOctet2Field);
-//		ipHiField.add(ipHiOctet3Field);
-//		ipHiField.add(ipHiOctet4Field);
-		
+		ipFieldSet.setId("IPfs");
+		urlFieldSet.setId("URLfs");
+		uidFieldSet.setId("UIDfs");
 
 		ipFieldSet.setBorders(true);
 		ipFieldSet.setHeading("IP Address");
 		ipFieldSet.setCollapsible(true);
-//		linkFieldSet.setCheckboxToggle(true);
 		FormLayout fLayout = new FormLayout();
 		fLayout.setLabelWidth(60);
 		ipFieldSet.setLayout(fLayout);
 		ipFieldSet.setToolTip(UiConstants.getQuickTip("Define authentication by IP address."));
 		
 		ipFieldSet.add(ipRangeField);
-//		ipFieldSet.add(ipLoField);
-//		ipFieldSet.add(ipHiField);
 
 		uidFieldSet.setBorders(true);
 		uidFieldSet.setHeading("User ID and Password");
 		uidFieldSet.setCollapsible(true);
-//		linkFieldSet.setCheckboxToggle(true);
 		FormLayout fLayout2 = new FormLayout();
 		fLayout2.setLabelWidth(60);
 		uidFieldSet.setLayout(fLayout2);
 		uidFieldSet.setToolTip(UiConstants.getQuickTip("Define authentication by User ID and password."));
 		
-//		userIdField.setWidth(0);
-//		passwordField.setWidth(0);
-//		
-//		uidFieldSet.add(userIdField);
-//		uidFieldSet.add(passwordField);
-//		uidFieldSet.add(uidTypeGroup);
 		uidFieldSet.add(uidPasswordField);
 		
 
 		urlFieldSet.setBorders(true);
 		urlFieldSet.setHeading("ReferrerURL");
 		urlFieldSet.setCollapsible(true);
-//		linkFieldSet.setCheckboxToggle(true);
 		FormLayout fLayout3 = new FormLayout();
 		fLayout3.setLabelAlign(panel.getLabelAlign());
 		fLayout3.setLabelWidth(60);
@@ -574,6 +454,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 					if (be.getType().getEventCode() == Events.BeforeExpand.getEventCode()) {
 						ipFieldSet.collapse();
 						uidFieldSet.collapse();
+						urlFieldSet.enable();
 					}
 				}		
 			});
@@ -584,6 +465,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 					if (be.getType().getEventCode() == Events.BeforeExpand.getEventCode()) {
 						ipFieldSet.collapse();
 						urlFieldSet.collapse();
+						uidFieldSet.enable();
 					}
 				}		
 			});
@@ -594,9 +476,41 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 					if (be.getType().getEventCode() == Events.BeforeExpand.getEventCode()) {
 						urlFieldSet.collapse();
 						uidFieldSet.collapse();
+						ipFieldSet.enable();
 					}
 				}		
 			});
+		
+//		urlFieldSet.addListener(Events.BeforeCollapse, new Listener<BaseEvent>() {
+//				@Override
+//				public void handleEvent(BaseEvent be) {
+//					if (be.getType().getEventCode() == Events.BeforeCollapse.getEventCode()) {
+//						ipFieldSet.collapse();
+//						uidFieldSet.collapse();
+//						urlFieldSet.enable();
+//					}
+//				}		
+//			});
+//		
+//		uidFieldSet.addListener(Events.BeforeCollapse, new Listener<BaseEvent>() {
+//				@Override
+//				public void handleEvent(BaseEvent be) {
+//					if (be.getType().getEventCode() == Events.BeforeCollapse.getEventCode()) {
+//						ipFieldSet.collapse();
+//						urlFieldSet.collapse();
+//						uidFieldSet.enable();
+//					}
+//				}		
+//			});
+//		
+//		ipFieldSet.addListener(Events.BeforeCollapse, new Listener<BaseEvent>() {
+//				@Override
+//				public void handleEvent(BaseEvent be) {
+//					if (be.getType().getEventCode() == Events.BeforeCollapse.getEventCode()) {
+//						if (url)
+//					}
+//				}		
+//			});
 	}
 	
 	protected SiteLocationSearchField getSiteLocationField(String name, String label, int width, String toolTip) {
@@ -698,23 +612,14 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	}
 	
 	protected void matchToInstitution(InstitutionInstance instance) {
-//		institutionBinding.bind(InstitutionInstance.obtainModel(billToInstitution));
 		
-		if (instance == null) {
+		if (instance == null || instance.getUcn() == 0) {
 			ucnDisplay.setValue("");
-//			addressDisplay.setValue("");
-//			customerTypeDisplay.setValue("");
 			siteLocationField.setFor(0, 0);
 			return;
 		}
 		
-//		if (focusInstance != null && !focusInstance.isNewRecord()) {
-//			siteLocationField.setFor(instance.getUcn(), 1);
-//			siteLocationField.setValue(SiteInstance.obtainModel(SiteInstance.getAllInstance(instance.getUcn(), 1)));
-////			siteLocationField.setReadOnly(!authMethod.isNewRecord());
-//		}
-		
-		if (focusInstance != null && focusInstance.getUcn() == instance.getUcn()) {
+		if (focusInstance != null && focusInstance.getForUcn() == instance.getUcn()) {
 			// Same institution as instance, so use the instance UCN
 			siteLocationField.setFor(focusInstance);
 			siteLocationField.setValue(SiteInstance.obtainModel(focusInstance.getSite()));
@@ -725,8 +630,6 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		}
 		
 		ucnDisplay.setValue(instance.getUcn() + "");
-//		addressDisplay.setValue(instance.getHtmlAddress());
-//		customerTypeDisplay.setValue(instance.getPublicPrivateDescription() + " / " + instance.getGroupDescription() + " &rArr; " + instance.getTypeDescription());
 		
 	}
 
@@ -739,24 +642,66 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 			focusInstance = new AuthMethodInstance();
 			focusInstance.setNewRecord(true);
 			focusInstance.setAgreementId(getAgreementId());
-			InstitutionInstance institution = institutionField.getSelectedValue().getBean();
-			if (institution == null) {
-				MessageBox.alert("Unexpted Error", "No institution is selected for the site.", null);
-				return;
-			}
-			focusInstance.setUcn(institution.getUcn());
-			focusInstance.setUcnSuffix(1);
-			SiteInstance site = siteLocationField.getSelectedValue().getBean();
-			if (site == null) {
-				MessageBox.alert("Unexpted Error", "No site location is selected for this agreement site.", null);
-				return;
-			}
-			focusInstance.setSiteLocCode(site.getSiteLocCode());
+			focusInstance.setUcn(0);
+			focusInstance.setUcnSuffix(0);
+			focusInstance.setSiteLocCode("");
 		}
 		
-		if (focusInstance.isNewRecord())
+		InstitutionInstance institution = (institutionField.getSelectedValue() == null) ? null : (InstitutionInstance) institutionField.getSelectedValue().getBean();
+		if (institution == null) {
+			focusInstance.setForUcn(0);
+			focusInstance.setForUcnSuffix(0);
+			focusInstance.setForSiteLocCode("");
+		} else {
+			focusInstance.setForUcn(institution.getUcn());
+			focusInstance.setForUcnSuffix(1);
+			SiteInstance site = (siteLocationField.getSelectedValue() == null) ? null : (SiteInstance) siteLocationField.getSelectedValue().getBean();
+			if (site == null) {
+				MessageBox.alert("Unexpected Error", "No site location is selected for this authentication method.", null);
+				return;
+			}
+			focusInstance.setForSiteLocCode(site.getSiteLocCode());
+		}
+		
+		if (focusInstance.isNewRecord()) {
+			if (ipFieldSet.isExpanded()) {
+				focusInstance.setIpLo(ipRangeField.getLowValue());
+				focusInstance.setIpHi(ipRangeField.getHighValue());
+			} else if (uidFieldSet.isExpanded()) {
+				focusInstance.setUserId(uidPasswordField.getUserId());
+				focusInstance.setPassword(uidPasswordField.getPassword());
+				focusInstance.setUserType(uidPasswordField.getUserType());
+			} else if (urlFieldSet.isExpanded()) {
+				focusInstance.setUrl(urlField.getValue());
+			} else {
+				MessageBox.alert("Unexpected Error", "No authentication data has been selected.", null);
+				return;
+			}
+		} else {
+
+			if (AuthMethodInstance.AM_IP.equals(focusInstance.getMethodType())) {
+				focusInstance.setIpLo(ipRangeField.getLowValue());
+				focusInstance.setIpHi(ipRangeField.getHighValue());
+			} else if (AuthMethodInstance.AM_UID.equals(focusInstance.getMethodType())) {
+				focusInstance.setUserId(uidPasswordField.getUserId());
+				focusInstance.setPassword(uidPasswordField.getPassword());
+				focusInstance.setUserType(uidPasswordField.getUserType());
+			} else if (AuthMethodInstance.AM_URL.equals(focusInstance.getMethodType())) {
+				focusInstance.setUrl(urlField.getValue());
+			} else {
+				MessageBox.alert("Unexpected Error", "Invalid authentication method type " + focusInstance.getMethodType() + ".", null);
+				return;
+			}
+		}
+		
+		focusInstance.setRemote(remoteCheck.getValue()?'y':'n');
+		focusInstance.setApproved(approvedCheck.getValue()?'y':'n');
+		focusInstance.setValidated(validatedCheck.getValue()?'y':'n');
+		
+		if (focusInstance.isNewRecord()) {
 			focusInstance.setNote(notesField.getNote());
-		else
+			focusInstance.syncMethodType();
+		} else
 			focusInstance.setNote(null);	//	This will keep the note from being updated by this call
 	
 		//	Issue the asynchronous update request and plan on handling the response
@@ -779,11 +724,13 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 						AuthMethodInstance updatedAuthMethod = (AuthMethodInstance) updateResponse.getInstance();
 						if (updatedAuthMethod.isNewRecord()) {
 							updatedAuthMethod.setNewRecord(false);
+							System.out.println("New key is " + updatedAuthMethod.getUniqueKey());
 							grid.getStore().insert(AuthMethodInstance.obtainModel(updatedAuthMethod), 0);
 						}
 						
 						focusInstance.setNewRecord(false);
 						focusInstance.setValuesFrom(updatedAuthMethod);
+						System.out.println("After update focusInstance " + focusInstance.getUniqueKey());
 						setFormFromInstance(updatedAuthMethod);	//	setFormFieldValues(updatedAuthMethod);
 						
 						//	This puts the grid in synch

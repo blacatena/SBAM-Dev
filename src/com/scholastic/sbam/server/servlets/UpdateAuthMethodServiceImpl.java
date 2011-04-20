@@ -22,7 +22,7 @@ public class UpdateAuthMethodServiceImpl extends AuthenticatedServiceServlet imp
 	@Override
 	public UpdateResponse<AuthMethodInstance> updateAuthMethod(AuthMethodInstance instance) throws IllegalArgumentException {
 		
-		boolean newCreated				= false;
+//		boolean newCreated				= false;
 		
 		String	messages				= null;
 		
@@ -39,11 +39,15 @@ public class UpdateAuthMethodServiceImpl extends AuthenticatedServiceServlet imp
 			validateInput(instance);
 			
 			//	Get existing, or create new
-			dbInstance = DbAuthMethod.getById(instance.getAgreementId(), instance.getUcn(), instance.getUcnSuffix(), instance.getSiteLocCode(), instance.getMethodType(), instance.getMethodKey());
-
+			if (instance.getMethodKey() > 0 && !instance.isNewRecord())
+				dbInstance = DbAuthMethod.getById(instance.getAgreementId(), instance.getUcn(), instance.getUcnSuffix(), instance.getSiteLocCode(), instance.getMethodType(), instance.getMethodKey());
+			
 			//	If none found, create new
 			if (dbInstance == null) {
-				newCreated = true;
+//				newCreated = true;
+				//	For a new entry, set the method type
+				instance.syncMethodType();
+				//	Create the new db instance with key
 				dbInstance = new AuthMethod();
 				AuthMethodId id = new AuthMethodId();
 				id.setAgreementId(instance.getAgreementId());
@@ -51,7 +55,8 @@ public class UpdateAuthMethodServiceImpl extends AuthenticatedServiceServlet imp
 				id.setUcnSuffix(instance.getUcnSuffix());
 				id.setSiteLocCode(instance.getSiteLocCode());
 				id.setMethodType(instance.getMethodType());
-				id.setMethodKey(instance.getMethodKey());
+				id.setMethodKey(DbAuthMethod.getNextAuthMethodKey(instance.getAgreementId(), instance.getUcn(), instance.getUcnSuffix(), instance.getSiteLocCode(), instance.getMethodType()));
+				instance.setMethodKey(id.getMethodKey());
 				dbInstance.setId(id);
 				//	Set the create date/time and status
 				dbInstance.setCreatedDatetime(new Date());
@@ -65,24 +70,74 @@ public class UpdateAuthMethodServiceImpl extends AuthenticatedServiceServlet imp
 				dbInstance.setOrgPath(instance.getOrgPath());
 			if (instance.getNote() != null)
 				dbInstance.setNote(instance.getNote());
+			
+			if (instance.getForUcn() >= 0) {
+				dbInstance.setForUcn(instance.getForUcn());
+				if (instance.getForUcn() > 0) {
+					dbInstance.setForUcnSuffix(instance.getForUcnSuffix());
+					if (instance.getForSiteLocCode() != null)
+						dbInstance.setForSiteLocCode(instance.getForSiteLocCode());
+				} else {
+					dbInstance.setForUcnSuffix(0);
+					dbInstance.setForSiteLocCode("");
+				}
+			}
+			
+			if (instance.getIpLo() > 0)
+				dbInstance.setIpLo(instance.getIpLo());
+			if (instance.getIpHi() > 0)
+				dbInstance.setIpHi(instance.getIpHi());
+			if (instance.getUrl() != null)
+				dbInstance.setUrl(instance.getUrl());
+			if (instance.getUserId() != null)
+				dbInstance.setUserId(instance.getUserId());
+			if (instance.getPassword() != null)
+				dbInstance.setPassword(instance.getPassword());
+			if (instance.getUserType() != (char) 0)
+				dbInstance.setUserType(instance.getUserType());
+			if (instance.getProxyId() >= 0)
+				dbInstance.setProxyId(instance.getProxyId());
 				
+			if (instance.getRemote() != (char) 0)
+				dbInstance.setRemote(instance.getRemote());
+			if (instance.getApproved() != (char) 0)
+				dbInstance.setApproved(instance.getApproved());
+			if (instance.getValidated() != (char) 0)
+				dbInstance.setValidated(instance.getValidated());
+			
 			//	Fix any nulls
 			if (dbInstance.getOrgPath() == null)
 				dbInstance.setOrgPath("");
 			if (dbInstance.getNote() == null)
 				dbInstance.setNote("");
+			if (instance.getUrl() == null)
+				dbInstance.setUrl("");
+			if (instance.getUserId() == null)
+				dbInstance.setUserId("");
+			if (instance.getPassword() == null)
+				dbInstance.setPassword("");
+			if (instance.getUserType() == (char) 0)
+				dbInstance.setUserType(AuthMethodInstance.UserTypes.COOKIE.getCode().charAt(0));
+				
+			if (instance.getRemote() == (char) 0)
+				dbInstance.setRemote('n');
+			if (instance.getApproved() == (char) 0)
+				dbInstance.setApproved('n');
+			if (instance.getValidated() == (char) 0)
+				dbInstance.setValidated('n');
 			
 			dbInstance.setUpdatedDatetime(new Date());
 			
 			//	Persist in database
 			DbAuthMethod.persist(dbInstance);
 			
+			DbAuthMethod.setDescriptions(instance);
+			
 			//	Refresh when new row is created, to get assigned ID
-			if (newCreated) {
-			//	DbAuthMethod.refresh(dbInstance);	// This may not be necessary, but just in case
-				instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
-				DbAuthMethod.setDescriptions(instance);
-			}
+//			if (newCreated) {
+//			//	DbAuthMethod.refresh(dbInstance);	// This may not be necessary, but just in case
+//			//	instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
+//			}
 			
 		} catch (IllegalArgumentException exc) {
 			silentRollback();

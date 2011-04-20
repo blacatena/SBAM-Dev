@@ -40,7 +40,11 @@ public class AuthMethodInstance extends BetterRowEditInstance implements BeanMod
 	private String	siteLocCode;
 	
 	private String	methodType;
-	private String	methodKey;
+	private int		methodKey;
+
+	private int		forUcn;
+	private int		forUcnSuffix;
+	private String	forSiteLocCode;
 	
 	private String	url;
 	private	String	userId;
@@ -68,6 +72,7 @@ public class AuthMethodInstance extends BetterRowEditInstance implements BeanMod
 	private Date	createdDatetime;
 	private Date	updatedDatetime;
 	
+	private GenericCodeInstance methodTypeInstance;
 	private SiteInstance site;
 	
 	@Override
@@ -149,23 +154,48 @@ public class AuthMethodInstance extends BetterRowEditInstance implements BeanMod
 
 	public void setMethodType(String methodType) {
 		this.methodType = methodType;
+		methodTypeInstance = new GenericCodeInstance(methodType, methodType.toUpperCase());
 	}
 
-	public String getMethodKey() {
+	public int getMethodKey() {
 		return methodKey;
 	}
 
-	public void setMethodKey(String methodKey) {
+	public void setMethodKey(int methodKey) {
 		this.methodKey = methodKey;
 	}
 	
-	public void setMethodKey() {
-		if (methodType.equals(AM_IP))
-			methodKey = ipLo + ":" + ipHi;
-		else if (methodType.equals(AM_URL))
-			methodKey = url;
+	public void syncMethodType() {
+		if (ipLo > 0)
+			methodType = AM_IP;
+		else if (url != null && url.length() > 0)
+			methodType = AM_URL;
 		else
-			methodKey = userId;
+			methodType = AM_UID;
+	}
+
+	public int getForUcn() {
+		return forUcn;
+	}
+
+	public void setForUcn(int forUcn) {
+		this.forUcn = forUcn;
+	}
+
+	public int getForUcnSuffix() {
+		return forUcnSuffix;
+	}
+
+	public void setForUcnSuffix(int forUcnSuffix) {
+		this.forUcnSuffix = forUcnSuffix;
+	}
+
+	public String getForSiteLocCode() {
+		return forSiteLocCode;
+	}
+
+	public void setForSiteLocCode(String forSiteLocCode) {
+		this.forSiteLocCode = forSiteLocCode;
 	}
 
 	public String getUrl() {
@@ -174,11 +204,12 @@ public class AuthMethodInstance extends BetterRowEditInstance implements BeanMod
 
 	public void setUrl(String url) {
 		this.url = url;
-		setMethodKey();
+//		syncMethodKey();
 	}
 
 	public String getUserId() {
 		return userId;
+//		syncMethodKey();
 	}
 
 	public void setUserId(String userId) {
@@ -211,6 +242,7 @@ public class AuthMethodInstance extends BetterRowEditInstance implements BeanMod
 
 	public void setIpLo(long ipLo) {
 		this.ipLo = ipLo;
+//		syncMethodKey();
 	}
 
 	public long getIpHi() {
@@ -219,6 +251,7 @@ public class AuthMethodInstance extends BetterRowEditInstance implements BeanMod
 
 	public void setIpHi(long ipHi) {
 		this.ipHi = ipHi;
+//		syncMethodKey();
 	}
 
 	public int getProxyId() {
@@ -325,12 +358,23 @@ public class AuthMethodInstance extends BetterRowEditInstance implements BeanMod
 		this.note = note;
 	}
 
+	public GenericCodeInstance getMethodTypeInstance() {
+		return methodTypeInstance;
+	}
+
+	public void setMethodTypeInstance(GenericCodeInstance methodTypeInstance) {
+		this.methodTypeInstance = methodTypeInstance;
+	}
+
 	public SiteInstance getSite() {
 		return site;
 	}
 
 	public void setSite(SiteInstance site) {
 		this.site = site;
+		this.setUcn(site.getUcn());
+		this.setUcnSuffix(site.getUcnSuffix());
+		this.setSiteLocCode(site.getSiteLocCode());
 	}
 	
 	public String getStatusDescription() {
@@ -359,6 +403,11 @@ public class AuthMethodInstance extends BetterRowEditInstance implements BeanMod
 		this.siteLocCode				=	fromInstance.siteLocCode;
 		
 		this.methodType					=	fromInstance.	methodType;
+		this.methodKey					=	fromInstance.	methodKey;
+		
+		this.forUcn						=	fromInstance.	forUcn;
+		this.forUcnSuffix				=	fromInstance.	forUcnSuffix;
+		this.forSiteLocCode				=	fromInstance.	forSiteLocCode;
 			
 		this.url						=	fromInstance.	url;
 		this.userId						=	fromInstance.	userId;

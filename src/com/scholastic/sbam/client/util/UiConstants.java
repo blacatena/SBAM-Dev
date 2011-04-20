@@ -62,15 +62,16 @@ public class UiConstants {
 	
 	private final static int			REFRESH_PERIOD = 10 * 60 * 1000;	// Every 10 minutes
 	
-	private static BetterFilterListStore<BeanModel>		agreementTypes = new BetterFilterListStore<BeanModel>();
+	private static BetterFilterListStore<BeanModel>		agreementTypes	= new BetterFilterListStore<BeanModel>();
 	private static BetterFilterListStore<BeanModel>		commissionTypes = new BetterFilterListStore<BeanModel>();
-	private static BetterFilterListStore<BeanModel>		contactTypes = new BetterFilterListStore<BeanModel>();
-	private static BetterFilterListStore<BeanModel>		deleteReasons = new BetterFilterListStore<BeanModel>();
-	private static BetterFilterListStore<BeanModel>		cancelReasons = new BetterFilterListStore<BeanModel>();
-	private static BetterFilterListStore<BeanModel>		products = new BetterFilterListStore<BeanModel>();
-	private static ListStore<BeanModel>					termTypes = new ListStore<BeanModel>();
+	private static BetterFilterListStore<BeanModel>		contactTypes	= new BetterFilterListStore<BeanModel>();
+	private static BetterFilterListStore<BeanModel>		deleteReasons	= new BetterFilterListStore<BeanModel>();
+	private static BetterFilterListStore<BeanModel>		cancelReasons 	= new BetterFilterListStore<BeanModel>();
+	private static BetterFilterListStore<BeanModel>		products 		= new BetterFilterListStore<BeanModel>();
+	private static ListStore<BeanModel>					termTypes 		= new ListStore<BeanModel>();
 	
-	private static ListStore<BeanModel>					uidTypes  = getUidTypes();
+	private static ListStore<BeanModel>					uidTypes		= getUidTypes();
+	private static ListStore<BeanModel>					authMethodTypes = getAuthMethodTypes();
 	
 	private static Timer								refreshTimer;
 	
@@ -371,6 +372,26 @@ public class UiConstants {
 			GenericCodeInstance instance = new GenericCodeInstance(type.getCode(), type.getName());
 			list.add(GenericCodeInstance.obtainModel(instance));
 		}
+		return list;
+	}
+	
+	public static ListStore<BeanModel> getAuthMethodTypes() {
+		if (authMethodTypes != null)
+			return authMethodTypes;
+		ListStore<BeanModel> list = new ListStore<BeanModel>();
+		list.setKeyProvider(new SimpleKeyProvider("code"));
+		
+		GenericCodeInstance instance;
+		
+		instance = new GenericCodeInstance(AuthMethodInstance.AM_IP, "IP");
+		list.add(GenericCodeInstance.obtainModel(instance));
+		
+		instance = new GenericCodeInstance(AuthMethodInstance.AM_UID, "UID");
+		list.add(GenericCodeInstance.obtainModel(instance));
+		
+		instance = new GenericCodeInstance(AuthMethodInstance.AM_URL, "URL");
+		list.add(GenericCodeInstance.obtainModel(instance));
+		
 		return list;
 	}
 

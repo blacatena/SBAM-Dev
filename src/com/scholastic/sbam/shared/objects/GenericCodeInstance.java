@@ -13,6 +13,9 @@ public class GenericCodeInstance  implements BeanModelTag, IsSerializable {
 	private String code;
 	private String name;
 	
+	public GenericCodeInstance() {
+	}
+	
 	public GenericCodeInstance(String name) {
 		this.name = name;
 	}
@@ -33,6 +36,14 @@ public class GenericCodeInstance  implements BeanModelTag, IsSerializable {
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	public String getUniqueKey() {
+		return code;
+	}
+	
+	public String toString() {
+		return name;
 	}
 
 	public static BeanModel obtainModel(GenericCodeInstance instance) {

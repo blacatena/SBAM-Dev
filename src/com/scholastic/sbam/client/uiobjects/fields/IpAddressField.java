@@ -5,16 +5,19 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 
 public class IpAddressField extends MultiField<Long> {
 	public static final int		DEFAULT_OCTET_WIDTH = 30;
-	public static final int		DEFAULT_SEPARATOR_WIDTH = 5;
-	public static final String	DEFAULT_OCTET_SEPARATOR = "&nbsp;.&nbsp;";
+	public static final int		DEFAULT_SEPARATOR_WIDTH = 20;
+	public static final String	DEFAULT_OCTET_SEPARATOR = "&nbsp;&nbsp;&loz;&nbsp;&nbsp;";
 	
+	protected boolean allowWildcards = true;
+	/**
+	 * highIp affects how a wildcard character is interpreted when getting the value... 255 for high, 0 for low.
+	 */
 	protected boolean highIp;
 	
-	protected List<TextField<String>>	octetFields		= new ArrayList<TextField<String>>();
+	protected List<OctetField>			octetFields		= new ArrayList<OctetField>();
 	protected List<LabelField>			separatorFields	= new ArrayList<LabelField>();
 	
 	public IpAddressField() {
@@ -27,13 +30,22 @@ public class IpAddressField extends MultiField<Long> {
 	}
 	
 	protected void createFields() {
+		OctetField prevField = null;
 		for (int i = 0; i < 4; i++) {
-			octetFields.add(new TextField<String>());
-			add(octetFields.get(i));
+			OctetField octetField = new OctetField();
+		//	octetField.setId("octet" + i);
+			octetFields.add(octetField);
+			octetField.setPrevField(prevField);
+			if (prevField != null)
+				prevField.setNextField(octetField);
+			
+			add(octetField);
 			if (i < 3) {
 				separatorFields.add(new ConstantLabelField());
 				add(separatorFields.get(i));
 			}
+			
+			prevField = octetField;
 		}
 		
 		setOctetWidths(DEFAULT_OCTET_WIDTH);
@@ -42,7 +54,7 @@ public class IpAddressField extends MultiField<Long> {
 	}
 	
 	protected void setOctetWidths(int width) {
-		for (TextField<String> octetField : octetFields)
+		for (OctetField octetField : octetFields)
 			octetField.setWidth(width);
 	}
 	
@@ -57,7 +69,7 @@ public class IpAddressField extends MultiField<Long> {
 	}
 	
 	public void addStyleName(String styleName) {
-		for (TextField<String> octetField : octetFields)
+		for (OctetField octetField : octetFields)
 			octetField.addStyleName(styleName);
 		for (LabelField separatorField : separatorFields)
 			separatorField.addStyleName(styleName);
@@ -89,10 +101,10 @@ public class IpAddressField extends MultiField<Long> {
 	}
 	
 	public long getOctetValue(int octet) {
-		TextField<String> field = octetFields.get(octet);
+		OctetField field = octetFields.get(octet);
 		if (field.getValue() == null)
 			return 0l;
-		if ("*".equals(field.getValue()))
+		if (field.isWildcard())
 			if (highIp)
 				return 255l;
 			else
@@ -129,45 +141,79 @@ public class IpAddressField extends MultiField<Long> {
 	
 	@Override
 	public void clear() {
-		for (TextField<String> octetField : octetFields)
+		for (OctetField octetField : octetFields)
 			octetField.clear();
 	}
 	
 	@Override
 	public void disable() {
 		super.disable();
-		for (TextField<String> octetField : octetFields)
+		for (OctetField octetField : octetFields)
 			octetField.disable();
 	}
 	
 	@Override
 	public void enable() {
 		super.enable();
-		for (TextField<String> octetField : octetFields)
+		for (OctetField octetField : octetFields)
 			octetField.enable();
 	}
 	
 	@Override
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
-		for (TextField<String> octetField : octetFields)
+		for (OctetField octetField : octetFields)
 			octetField.setEnabled(enabled);
 	}
 	
 //	@Override
-//	public void setEnabled(boolean enabled) {
-//		for (TextField<String> octetField : octetFields)
-//			octetField.setEnabled(enabled);
+//	public boolean validateValue(String value) {
+//		boolean isValid = super.validateValue(value);
+//		if (!isValid)
+//			return isValid;
+//		
+//		for (OctetField octetField : octetFields)
+//			isValid = isValid && octetField.validateValue(octetField.getValue());
+//		return isValid;
 //	}
-//	
-//	@Override
-//	public void setReadOnly(boolean readonly) {
-//		for (TextField<String> octetField : octetFields)
-//			octetField.setReadOnly(readonly);
-//	}
-//	
-//	@Override
-//	public boolean isValid(boolean preventMark) {
-//		return super.isValid(preventMark);
-//	}
+	
+	
+	public boolean isWildcarded() {
+		for (OctetField octetField : octetFields) {
+			if (octetField.isWildcard())
+				return true;
+		}
+		return false;
+	}
+	
+	public boolean isBlank() {
+		for (OctetField octetField : octetFields) {
+			if (!octetField.isBlank())
+				return false;
+		}
+		return true;
+	}
+
+	public boolean isAllowWildcards() {
+		return allowWildcards;
+	}
+
+	public void setAllowWildcards(boolean allowWildcards) {
+		this.allowWildcards = allowWildcards;
+		for (OctetField octetField : octetFields) {
+			octetField.setWildcardAllowed(allowWildcards);
+		}
+	}
+
+	public boolean isHighIp() {
+		return highIp;
+	}
+
+	public void setHighIp(boolean highIp) {
+		this.highIp = highIp;
+		for (OctetField octetField : octetFields) {
+			octetField.setAllBlankAllowed(highIp);
+		}
+	}
+	
 }

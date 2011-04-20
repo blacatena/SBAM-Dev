@@ -85,6 +85,12 @@ public class NotesIconButtonField<D> extends IconButtonField<D> {
 			trigger.dom.setClassName("x-form-trigger " + triggerStyle);
 	}
 	
+	@Override()
+	public void clear() {
+		super.clear();
+		setNote("");
+	}
+	
 	/**
 	 * Do not disable if not allowed.
 	 */

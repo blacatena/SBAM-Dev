@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Apr 11, 2011 11:14:20 PM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Apr 19, 2011 7:45:45 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.AgreementType" table="agreement_type" catalog="sbam">
         <id name="agreementTypeCode" type="string">

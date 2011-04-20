@@ -18,6 +18,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.RowExpander;
 import com.extjs.gxt.ui.client.widget.grid.filters.DateFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
+import com.extjs.gxt.ui.client.widget.grid.filters.ListFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.NumericFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
 import com.google.gwt.i18n.client.DateTimeFormat;
@@ -34,6 +35,40 @@ import com.scholastic.sbam.client.util.IconSupplier;
  * @param <I>
  */
 public abstract class GridSupportContainer<I> extends FieldSupportContainer {
+	
+	/**
+	 * The BetterListFilter improves on the ListFilter by properly distinguishing between a display value and a key value.
+	 * 
+	 * The valueProperty may be set to the name of whatever property uniquely identifies an instance in a list of instances.
+	 * 
+	 * The displayProperty, as before, can be set to the name of whatever property should be displayed to the user to identify an instance.
+	 * 
+	 * @author Bob Llacatena
+	 *
+	 * @param <M>
+	 */
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	public class BetterListFilter<M> extends ListFilter {
+		
+		private String valueProperty;
+
+		public BetterListFilter(String dataIndex, ListStore store) {
+			super(dataIndex, store);
+		}
+
+		@Override
+		protected <X> X getModelValue(ModelData model) {
+			return (X) ((ModelData) model.get(dataIndex)).get(valueProperty);
+		}
+
+		public String getValueProperty() {
+			return valueProperty;
+		}
+
+		public void setValueProperty(String valueProperty) {
+			this.valueProperty = valueProperty;
+		}
+	}
 	
 	protected boolean selectWithNoteExpand;
 	
@@ -158,6 +193,24 @@ public abstract class GridSupportContainer<I> extends FieldSupportContainer {
 		}
 		
 		return cc;
+	}
+	
+	protected ColumnConfig getDisplayColumn(String name, String header, int width, String toolTip, ListStore<BeanModel> listStore) {
+		return getDisplayColumn(name, header, width, toolTip, listStore, "code", "name");
+	}
+	
+	protected ColumnConfig getDisplayColumn(String name, String header, int width, String toolTip, ListStore<BeanModel> listStore, String valueField, String displayField) {
+		
+		ColumnConfig column = getDisplayColumn(name, header, width, toolTip);
+		
+		if (gridFilters != null) {
+			BetterListFilter<BeanModel> listFilter = new BetterListFilter<BeanModel>(name, listStore);   
+			listFilter.setDisplayProperty(displayField); 
+			listFilter.setValueProperty(displayField);
+			gridFilters.addFilter(listFilter);
+		}
+	
+		return column; 
 	}
 	
 	protected RowExpander getNoteExpander() {

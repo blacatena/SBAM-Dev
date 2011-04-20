@@ -4,8 +4,8 @@ import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
 
 public class IpAddressRangeField extends MultiField<Long []> {
-	public final String	LOW_IP_LABEL	= "From:&nbsp;";
-	public final String HIGH_IP_LABEL	= "&nbsp;&nbsp;To:&nbsp;";
+	public final String	LOW_IP_LABEL	= "";	//"From:&nbsp;";
+	public final String HIGH_IP_LABEL	= "&nbsp;&nbsp;&nbsp;&hArr;&nbsp;";	//"&nbsp;&nbsp;To:&nbsp;";
 	
 	protected LabelField		loIpLabelField;
 	protected IpAddressField	loIpField;
@@ -28,6 +28,9 @@ public class IpAddressRangeField extends MultiField<Long []> {
 		hiIpLabelField = new ConstantLabelField();
 		loIpLabelField.setValue(LOW_IP_LABEL);
 		hiIpLabelField.setValue(HIGH_IP_LABEL);
+		
+		hiIpField.setHighIp(true);
+		hiIpField.setAllowWildcards(false);
 		
 		add(loIpLabelField);
 		add(loIpField);
@@ -65,7 +68,10 @@ public class IpAddressRangeField extends MultiField<Long []> {
 	
 	@Override
 	public Long [] getValue() {
-		return new Long [] {loIpField.getValue(), hiIpField.getValue()};
+		long hiIpValue = hiIpField.getValue();
+		if (hiIpValue == 0)
+			hiIpValue = loIpField.getValue();
+		return new Long [] {loIpField.getValue(), hiIpValue};
 	}
 	
 	@Override
@@ -100,6 +106,14 @@ public class IpAddressRangeField extends MultiField<Long []> {
 	
 	public void setOriginalValue(Long loValue, Long hiValue) {
 		setOriginalValue(new Long [] {loValue, hiValue});
+	}
+
+	public long getLowValue() {
+		return loIpField.getValue();
+	}
+
+	public long getHighValue() {
+		return hiIpField.getValue();
 	}
 
 	public String [] getLowValues() {
@@ -142,7 +156,44 @@ public class IpAddressRangeField extends MultiField<Long []> {
 		hiIpField.setEnabled(enabled);
 	}
 	
+	@Override
+	protected boolean validateValue(String value) {
+//		boolean isValid = super.validateValue(value);
+//		if (!isValid)
+//			return false;
+		
+//		if (loIpField.isBlank()) {
+//			markInvalid("An IP address is required.");
+//			return false;
+//		}
+		
+		if (loIpField.isWildcarded() && !hiIpField.isBlank()) {
+			markInvalid("First IP wildcarded.  Do not specify a range.");
+			return false;
+		}
+		
+		if (!loIpField.isBlank() && !hiIpField.isBlank()) {
+			if (loIpField.getValue().compareTo(hiIpField.getValue()) > 0) {
+				markInvalid("First IP cannot be greater than second IP in a range.");
+				return false;
+			}
+		}
+		
+		clearInvalid();
+		return true;
+	}
+	
+//	@Override
+//	public boolean isValid(boolean preventMark) {
+//		boolean loIsValid = loIpField.isValid(preventMark);
+//		if (loIsValid && loIpField.isWildcarded())
+//			return hiIpField.invalidateNonBlank(preventMark, "Must be blank if low IP is wildcarded.");
+//		return loIsValid && hiIpField.isValid(preventMark);
+//	}
+	
 	public static String [] [] getIpOctetStrings(long ipLo, long ipHi) {
+		if (ipHi == 0)
+			ipHi = ipLo;
 		int [] lo = getIpOctets(ipLo);
 		int [] hi = getIpOctets(ipHi);
 		String [] strLo = new String [4];
