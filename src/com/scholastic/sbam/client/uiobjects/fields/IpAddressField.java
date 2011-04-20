@@ -11,11 +11,18 @@ public class IpAddressField extends MultiField<Long> {
 	public static final int		DEFAULT_SEPARATOR_WIDTH = 20;
 	public static final String	DEFAULT_OCTET_SEPARATOR = "&nbsp;&nbsp;&loz;&nbsp;&nbsp;";
 	
-	protected boolean allowWildcards = true;
+	/**
+	 * This determines whether or not wildcards are allowed for this IP address.
+	 */
+	protected boolean 			allowWildcards = true;
 	/**
 	 * highIp affects how a wildcard character is interpreted when getting the value... 255 for high, 0 for low.
 	 */
-	protected boolean highIp;
+	protected boolean 			highIp;
+	/**
+	 * The tiedIpAddressField can be used to auto-fill missing octets, rather than generate an error 
+	 */
+	protected IpAddressField	tiedIpField;
 	
 	protected List<OctetField>			octetFields		= new ArrayList<OctetField>();
 	protected List<LabelField>			separatorFields	= new ArrayList<LabelField>();
@@ -215,5 +222,32 @@ public class IpAddressField extends MultiField<Long> {
 			octetField.setAllBlankAllowed(highIp);
 		}
 	}
+
+	public IpAddressField getTiedIpField() {
+		return tiedIpField;
+	}
+
+	public void setTiedIpField(IpAddressField tiedIpField) {
+		this.tiedIpField = tiedIpField;
+		if (tiedIpField != null) {
+			for (int i = 0; i < octetFields.size(); i++) {
+				octetFields.get(i).setTiedOctetField(tiedIpField.getOctetField(i));
+			}
+		} else {
+			for (OctetField octetField : octetFields)
+				octetField.setTiedOctetField(null);
+		}
+	}
 	
+	public String getOctetRawValue(int index) {
+		if (index < 0 || index >= octetFields.size())
+			return "";
+		return octetFields.get(index).getValue();
+	}
+	
+	public OctetField getOctetField(int index) {
+		if (index < 0 || index >= octetFields.size())
+			return null;
+		return octetFields.get(index);
+	}
 }

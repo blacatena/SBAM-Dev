@@ -29,7 +29,7 @@ public class SiteLocationSearchServiceImpl extends AuthenticatedServiceServlet i
 		SynchronizedPagingLoadResult<SiteInstance> result = null;
 		List<SiteInstance> list = new ArrayList<SiteInstance>();
 		
-		if (ucn <= 0 && (filter == null || filter.trim().length() == 0)) {
+		if (ucn <= 0) {	// && (filter == null || filter.trim().length() == 0)) {
 			return new SynchronizedPagingLoadResult<SiteInstance>(list, loadConfig.getOffset(), 0, syncId);
 		}
 	

@@ -5,6 +5,7 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 public class OctetField extends TextField<String> {
 	public static final String WILDCARD = "*";
 	
+	OctetField tiedOctetField;
 	OctetField prevField;
 	OctetField nextField;
 	
@@ -46,8 +47,10 @@ public class OctetField extends TextField<String> {
 		}
 		
 		if (prevField != null && prevField.isBlank()) {
-			markInvalid("Must be blank.");
-			return false;
+			if (!propagateFills()) {
+				markInvalid("Must be blank.");
+				return false;
+			}
 		}
 		
 		if (prevField != null && prevField.isWildcard()) {
@@ -75,6 +78,31 @@ public class OctetField extends TextField<String> {
 		else
 			markInvalid("Enter 0 to 255.");
 		return false;
+	}
+	
+	/**
+	 * Copy values for previous octest from the tied IP field to here 
+	 * @return
+	 */
+	public boolean propagateFills() {
+		//	If there are not more previous fields, we're okay
+		if (prevField == null)
+			return true;
+		//	If this field is already not blank, we're okay
+		if (prevField.getValue() != null && prevField.getValue().length() > 0)
+			return true;
+		//	If this field doesn't have a tie, we fail
+		if (prevField.getTiedOctetField() == null)
+			return false;
+		//	Get the tied octet's value
+		String copyValue = prevField.getTiedOctetField().getValue();
+		//	If there's no value, we've failed
+		if (copyValue == null || copyValue.length() == 0)
+			return false;
+		//	Copy the value
+		prevField.setValue(copyValue);
+		//	Do any other fields before this one
+		return prevField.propagateFills();
 	}
 
 	public OctetField getPrevField() {
@@ -107,6 +135,14 @@ public class OctetField extends TextField<String> {
 
 	public void setAllBlankAllowed(boolean allBlankAllowed) {
 		this.allBlankAllowed = allBlankAllowed;
+	}
+
+	public OctetField getTiedOctetField() {
+		return tiedOctetField;
+	}
+
+	public void setTiedOctetField(OctetField tiedOctetField) {
+		this.tiedOctetField = tiedOctetField;
 	}
 	
 }

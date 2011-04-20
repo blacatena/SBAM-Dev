@@ -31,6 +31,7 @@ public class IpAddressRangeField extends MultiField<Long []> {
 		
 		hiIpField.setHighIp(true);
 		hiIpField.setAllowWildcards(false);
+		hiIpField.setTiedIpField(loIpField);
 		
 		add(loIpLabelField);
 		add(loIpField);
