@@ -13,7 +13,7 @@ public class UserIdPasswordField extends MultiField<String []> {
 	public final String USER_TYPE_LABEL			= "Type:&nbsp;";
 	public final int	DEFAULT_LABEL_WIDTH		=	50;
 	public final int	DEFAULT_FIELD_WIDTH		=	100;
-	public final int	DEFAULT_MIN_VAL_LEN		=	6;
+	public final int	DEFAULT_MIN_VAL_LEN		=	2;
 	
 	protected LabelField		userIdLabelField;
 	protected TextField<String>	userIdField;

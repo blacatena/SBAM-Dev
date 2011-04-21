@@ -41,6 +41,7 @@ public class AppConstants {
 	
 	public static final char	STRICT_BOOLEAN_SEARCH_FLAG		= '!';
 	public static final char	LOOSE_BOOLEAN_SEARCH_FLAG		= '?';
+	public static final char	OR_MODE_BOOLEAN_SEARCH_FLAG		= '|';
 	public static final char	QUERY_EXPANSION_SEARCH_FLAG		= '~';
 	
 	public static final int[][] CC_SUM_TABLE = {{0,1,2,3,4,5,6,7,8,9},{0,2,4,6,8,1,3,5,7,9}};

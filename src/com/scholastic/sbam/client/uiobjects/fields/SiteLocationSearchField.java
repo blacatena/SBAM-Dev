@@ -160,6 +160,7 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> {
 							if (addInstance == null) {
 								addInstance= new SiteInstance();
 								addInstance.setStatus(AppConstants.STATUS_NEW);
+								result.setTotalLength(result.getTotalLength() + 1);
 							}
 							result.getData().add(0, addInstance);
 						}
@@ -169,10 +170,12 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> {
 								allInstance.setStatus(AppConstants.STATUS_ALL);
 							}
 							result.getData().add(0, allInstance);
+							result.setTotalLength(result.getTotalLength() + 1);
 						}
 						if (includeMainOption && resultCount == 0) {
 							mainInstance= SiteInstance.getMainInstance(ucn, ucnSuffix);
 							result.getData().add(0, mainInstance);
+							result.setTotalLength(result.getTotalLength() + 1);
 						}
 
 						callback.onSuccess(result);

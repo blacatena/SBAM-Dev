@@ -72,6 +72,7 @@ public class AuthMethodInstance extends BetterRowEditInstance implements BeanMod
 	private Date	createdDatetime;
 	private Date	updatedDatetime;
 	
+	private ProxyInstance		proxy;
 	private GenericCodeInstance methodTypeInstance;
 	private SiteInstance site;
 	
@@ -364,6 +365,16 @@ public class AuthMethodInstance extends BetterRowEditInstance implements BeanMod
 
 	public void setMethodTypeInstance(GenericCodeInstance methodTypeInstance) {
 		this.methodTypeInstance = methodTypeInstance;
+	}
+
+	public ProxyInstance getProxy() {
+		return proxy;
+	}
+
+	public void setProxy(ProxyInstance proxy) {
+		this.proxy = proxy;
+		if (proxy != null)
+			this.proxyId = proxy.getProxyId();
 	}
 
 	public SiteInstance getSite() {

@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Apr 21, 2011 10:48:37 AM by Hibernate Tools 3.2.4.GA -->
+<hibernate-mapping>
+    <class name="com.scholastic.sbam.server.database.codegen.ProxyIp" table="proxy_ip" catalog="sbam">
+        <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.ProxyIpId">
+            <key-property name="proxyId" type="int">
+                <column name="proxy_id" />
+            </key-property>
+            <key-property name="ipId" type="int">
+                <column name="ip_id" />
+            </key-property>
+        </composite-id>
+        <property name="ipLo" type="long">
+            <column name="ip_lo" not-null="true" />
+        </property>
+        <property name="ipHi" type="long">
+            <column name="ip_hi" not-null="true" />
+        </property>
+        <property name="approved" type="char">
+            <column name="approved" length="1" not-null="true" />
+        </property>
+        <property name="note" type="string">
+            <column name="note" length="4000" not-null="true" />
+        </property>
+        <property name="createdDatetime" type="timestamp">
+            <column name="created_datetime" length="19" not-null="true" />
+        </property>
+        <property name="status" type="char">
+            <column name="status" length="1" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

@@ -57,12 +57,12 @@ public class AuthMethodListServiceImpl extends AuthenticatedServiceServlet imple
 	
 
 	
-	private void setDescriptions(AuthMethodInstance agreementSite) throws InstitutionCacheConflict {
-		if (agreementSite == null)
+	private void setDescriptions(AuthMethodInstance authMethod) throws InstitutionCacheConflict {
+		if (authMethod == null)
 			return;
 		
-		DbAuthMethod.setDescriptions(agreementSite);
-		if (agreementSite.getSite() != null)
-			InstitutionCache.getSingleton().setDescriptions( agreementSite.getSite().getInstitution() );
+		DbAuthMethod.setDescriptions(authMethod);
+		if (authMethod.getSite() != null)
+			InstitutionCache.getSingleton().setDescriptions( authMethod.getSite().getInstitution() );
 	}
 }

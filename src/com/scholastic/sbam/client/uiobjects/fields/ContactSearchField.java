@@ -204,6 +204,7 @@ public class ContactSearchField extends ComboBox<BeanModel> {
 								addInstance= ContactSearchResultInstance.getAddNewInstance();
 							}
 							result.getData().add(0, addInstance);
+							result.setTotalLength(result.getTotalLength() + 1);
 						}
 						
 						if (searchInstitutions) {
@@ -211,6 +212,7 @@ public class ContactSearchField extends ComboBox<BeanModel> {
 								newSearchInstance= ContactSearchResultInstance.getNewSearchInstance();
 							}
 							result.getData().add(0, newSearchInstance);
+							result.setTotalLength(result.getTotalLength() + 1);
 						}
 
 						callback.onSuccess(result);

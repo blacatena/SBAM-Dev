@@ -81,7 +81,7 @@ public class OctetField extends TextField<String> {
 	}
 	
 	/**
-	 * Copy values for previous octest from the tied IP field to here 
+	 * Copy values for previous blank octets from the tied IP field to here 
 	 * @return
 	 */
 	public boolean propagateFills() {

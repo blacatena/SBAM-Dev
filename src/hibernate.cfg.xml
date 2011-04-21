@@ -20,6 +20,7 @@
         <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
         <property name="hibernate.max_fetch_depth">3</property>
         <property name="hibernate.show_sql">false</property>
+        <mapping resource="com/scholastic/sbam/server/database/codegen/ProxyIp.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/UserCache.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/AlienInstitution.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/ContactType.hbm.xml" />
@@ -28,6 +29,7 @@
         <mapping resource="com/scholastic/sbam/server/database/codegen/ExportAuthUnit.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/Agreement.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/PreferenceCategory.hbm.xml" />
+        <mapping resource="com/scholastic/sbam/server/database/codegen/Proxy.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/AuthUserId.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/Institution.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/StatsAdmin.hbm.xml" />

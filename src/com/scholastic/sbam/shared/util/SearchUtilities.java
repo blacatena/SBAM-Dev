@@ -4,26 +4,103 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SearchUtilities {
+	
+	/**
+	 * Utility class for evaluating search criteria in a standard manner.
+	 * 
+	 * @author Bob Lacatena
+	 *
+	 */
+	public static class SearchSettings {
+		private boolean doLoose		= DEFAULT_LOOSE_SEARCH;
+		private boolean doBoolean	= DEFAULT_BOOLEAN_SEARCH;
+		private boolean doAndMode	= DEFAULT_AND_MODE_SEARCH;
+		private String	filter;
+		
+		public SearchSettings(String filter) {
+
+			if (filter.length() > 0 && filter.charAt(0) == AppConstants.OR_MODE_BOOLEAN_SEARCH_FLAG) {
+				filter = filter.substring(1);
+				doAndMode = false;
+				doLoose = true;
+				doBoolean = true;
+			} else if (filter.length() > 0 && filter.charAt(0) == AppConstants.LOOSE_BOOLEAN_SEARCH_FLAG) {
+				filter = filter.substring(1);
+				doAndMode = true;
+				doLoose = true;
+				doBoolean = true;
+			} else if (filter.length() > 0 && filter.charAt(0) == AppConstants.STRICT_BOOLEAN_SEARCH_FLAG) {
+				filter = filter.substring(1);
+				doAndMode = true;
+				doLoose   = false;
+				doBoolean = true;
+			} else if (filter.length() > 0 && filter.charAt(0) == AppConstants.QUERY_EXPANSION_SEARCH_FLAG) {
+				filter = filter.substring(1);
+				doAndMode = true;
+				doLoose   = false;
+				doBoolean = false;
+			}
+			
+			//	Adjust terms if loose boolean
+			if (doBoolean && doLoose)
+				filter = SearchUtilities.getLooseBoolean(filter, doAndMode);
+			
+			this.filter = filter;
+		}
+
+		public boolean isDoLoose() {
+			return doLoose;
+		}
+
+		public boolean isDoBoolean() {
+			return doBoolean;
+		}
+
+		public boolean isDoAndMode() {
+			return doAndMode;
+		}
+
+		public String getFilter() {
+			return filter;
+		}
+		
+		
+	};
+	
 	public static final int 	FULLTEXT_MIN_LEN		= 3;
 	public static final boolean	DEFAULT_LOOSE_SEARCH	= true;
 	public static final boolean	DEFAULT_BOOLEAN_SEARCH	= true;
+	public static final boolean	DEFAULT_AND_MODE_SEARCH	= true;
 	public static final int		DEFAULT_FRAG_SIZE		= 30;
 	public static final String	CUT_MARKER				= "...";
 
+	public static String getLooseBoolean(String pattern) {
+		return getLooseBoolean(pattern, true);
+	}
 	/**
 	 * Convert a MySQL boolean search string to wildcard any words not in quotes or already wildcarded
+	 * 
+	 * In "and" mode a + will be prepended to any term not already beginning with a + or -, making the term required.
+	 * 
 	 * @param pattern
 	 * 		The original search string.
 	 * @return
 	 * 		The wildcarded search string.
 	 */
-	public static String getLooseBoolean(String pattern) {
+	public static String getLooseBoolean(String pattern, boolean andMode) {
 		StringBuffer sb 	= new StringBuffer(pattern);
 		StringBuffer bool	= new StringBuffer();
 		boolean      lastAlphaNum = false;
 		boolean		 quotes = false;
+		boolean		 newTerm = true;
 		for (int i = 0; i < sb.length(); i++) {
-			if (sb.charAt(i) == '"') {
+			if (andMode && newTerm && isAlphaNumeric(sb.charAt(i))) { // && sb.charAt(i) != '+' && sb.charAt(i) != '-' && sb.charAt(i) != '#') {
+				bool.append('+');
+				newTerm = false;
+			}
+			if (sb.charAt(i) == '|') {
+				newTerm = false;
+			} else if (sb.charAt(i) == '"') {
 				bool.append(sb.charAt(i));
 				quotes = !quotes;
 				lastAlphaNum = false;
@@ -36,6 +113,8 @@ public class SearchUtilities {
 				} else {
 					if (lastAlphaNum && sb.charAt(i) != '*' && sb.charAt(i) != '.')
 						bool.append('*');
+					newTerm = true;
+					bool.append(' ');
 					if (!lastAlphaNum || sb.charAt(i) != '.')
 						bool.append(sb.charAt(i));
 					lastAlphaNum = false;

@@ -10,10 +10,12 @@ import org.hibernate.criterion.Restrictions;
 import com.scholastic.sbam.server.database.codegen.Institution;
 import com.scholastic.sbam.server.database.codegen.AuthMethod;
 import com.scholastic.sbam.server.database.codegen.AuthMethodId;
+import com.scholastic.sbam.server.database.codegen.Proxy;
 import com.scholastic.sbam.server.database.codegen.Site;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
 import com.scholastic.sbam.shared.objects.AuthMethodInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
+import com.scholastic.sbam.shared.objects.ProxyInstance;
 import com.scholastic.sbam.shared.objects.SiteInstance;
 
 /**
@@ -175,6 +177,16 @@ public class DbAuthMethod extends HibernateAccessor {
 				authMethod.getSite().setInstitution( InstitutionInstance.getEmptyInstance() );
 		} else {
 			authMethod.setSite( SiteInstance.getEmptyInstance());
+		}
+		
+		if (authMethod.getProxyId() > 0) {
+			Proxy dbProxy = DbProxy.getById(authMethod.getProxyId());
+			if (dbProxy != null)
+				authMethod.setProxy( DbProxy.getInstance(dbProxy) );
+			else
+				authMethod.setProxy( ProxyInstance.getUnknownInstance( authMethod.getProxyId() ) );
+		} else {
+			authMethod.setProxy(ProxyInstance.getEmptyInstance());
 		}
 	}
 }

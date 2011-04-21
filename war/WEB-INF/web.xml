@@ -327,6 +327,16 @@
   </servlet>
   
   <servlet>
+    <servlet-name>proxyIpListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.ProxyIpListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>proxySearchServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.ProxySearchServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>serviceListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.ServiceListServiceImpl</servlet-class>
   </servlet>
@@ -679,6 +689,16 @@
   <servlet-mapping>
     <servlet-name>updateProductServiceListServlet</servlet-name>
     <url-pattern>/sbam/updateProductServiceList</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>proxyIpListServlet</servlet-name>
+    <url-pattern>/sbam/getProxyIps</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>proxySearchServlet</servlet-name>
+    <url-pattern>/sbam/searchProxies</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>
