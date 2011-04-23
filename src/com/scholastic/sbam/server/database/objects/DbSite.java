@@ -76,8 +76,8 @@ public class DbSite extends HibernateAccessor {
             Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
             if (ucn > 0)
             	crit.add(Restrictions.eq("id.ucn", ucn));
-            if (ucn > 1)
-            	crit.add(Restrictions.eq("id.ucnSuffix", ucn));
+            if (ucnSuffix > 0)
+            	crit.add(Restrictions.eq("id.ucnSuffix", ucnSuffix));
             if (status != 0)
             	crit.add(Restrictions.like("status", status));
             if (neStatus != 0)

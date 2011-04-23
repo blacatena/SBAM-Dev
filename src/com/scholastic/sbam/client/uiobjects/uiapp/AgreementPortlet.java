@@ -679,7 +679,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		sitesButton.setToggleGroup(toggleGroup);
 		toolBar.add(sitesButton);
 		
-		methodsButton = new ToggleButton("Access");
+		methodsButton = new ToggleButton("Methods");
 		methodsButton.setToolTip(UiConstants.getQuickTip("Define and edit access methods for this agreement."));
 		IconSupplier.forceIcon(methodsButton, IconSupplier.getAccessMethodIconName());
 		methodsButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  

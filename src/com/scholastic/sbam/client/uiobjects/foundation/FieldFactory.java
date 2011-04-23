@@ -35,25 +35,25 @@ import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
  */
 public class FieldFactory {
 
-	protected static String plusIfNotEmpty(String value, String prefix) {
+	public static String plusIfNotEmpty(String value, String prefix) {
 		if (value == null || value.length() == 0)
 			return "";
 		return prefix + value;
 	}
 	
-	protected static String brIfNotEmpty(String value) {
+	public static String brIfNotEmpty(String value) {
 		return plusIfNotEmpty(value, "<br/>");
 	}
 	
-	protected static String commaIfNotEmpty(String value) {
+	public static String commaIfNotEmpty(String value) {
 		return plusIfNotEmpty(value, ", ");
 	}
 	
-	protected static String spaceIfNotEmpty(String value) {
+	public static String spaceIfNotEmpty(String value) {
 		return plusIfNotEmpty(value, "&nbsp;&nbsp;&nbsp;");
 	}
 	
-	protected static String brIfNotUsa(String value) {
+	public static String brIfNotUsa(String value) {
 		if (value == null || value.length() == 0)
 			return "";
 		if (value.equalsIgnoreCase("USA"))
@@ -61,39 +61,86 @@ public class FieldFactory {
 		return "<br/>" + value;
 	}
 	
-	protected static LabelField getLabelField() {
-		return getLabelField(-1);
+	public static LabelField getLabelField() {
+		return getLabelField("", -1, null, null);
 	}
 	
-	protected static LabelField getLabelField(int width) {
+	public static LabelField getLabelField(int width) {
+		return getLabelField("", width, null, null);
+	}
+	
+	public static LabelField getLabelField(String label, int width) {
+		return getLabelField(label, width, null, null);
+	}
+	
+	public static LabelField getLabelField(String label, int width, String value) {
+		return getLabelField(label, width, value, null);
+	}
+	
+	public static LabelField getLabelField(String label, String value, String toolTip) {
+		return getLabelField(label, -1, value, toolTip);
+	}
+	
+	public static LabelField getLabelField(String label, int width, String value, String toolTip) {
 		LabelField field = new ConstantLabelField();
-		setStandard(field, "");
-		if (width > 0)
+		setStandard(field, label);
+		if (width >= 0)
 			field.setWidth(width);
+		if (value != null) {
+			field.setOriginalValue(value);
+			field.setValue(value);
+		}
+		if (toolTip != null && toolTip.length() > 0)
+			field.setToolTip(toolTip);
 		return field;
 	}
 	
-	protected static NumberField getDollarField(String label) {
+	public static TextField<String> getStringTextField(String label) {
+		return getStringTextField(label, -1, null);
+	}
+	
+	public static TextField<String> getStringTextField(String label, String toolTip) {
+		return getStringTextField(label, -1, toolTip);
+	}
+	
+	public static TextField<String> getStringTextField(String label, int width) {
+		return getStringTextField(label, width, null);
+	}
+	
+	public static TextField<String> getStringTextField(String label, int width, String toolTip) {
+		TextField<String> field = new TextField<String>();
+		setStandard(field, label);
+		
+		if (width >= 0)
+			field.setWidth(width);
+		
+		if (toolTip != null && toolTip.length() > 0)
+			field.setToolTip(toolTip);
+		
+		return field;
+	}
+	
+	public static NumberField getDollarField(String label) {
 		return getNumberField(label, UiConstants.DOLLARS_FORMAT, -1);
 	}
 	
-	protected static NumberField getDollarField(String label, int width) {
+	public static NumberField getDollarField(String label, int width) {
 		return getNumberField(label, UiConstants.DOLLARS_FORMAT, width);
 	}
 	
-	protected static NumberField getIntegerField(String label) {
+	public static NumberField getIntegerField(String label) {
 		return getIntegerField(label, -1);
 	}
 	
-	protected static NumberField getIntegerField(String label, int width) {
+	public static NumberField getIntegerField(String label, int width) {
 		return getNumberField(label, UiConstants.INTEGER_FORMAT, width);
 	}
 	
-	protected static NumberField getNumberField(String label, NumberFormat numberFormat) {
+	public static NumberField getNumberField(String label, NumberFormat numberFormat) {
 		return getNumberField(label, numberFormat, -1);
 	}
 	
-	protected static NumberField getNumberField(String label, NumberFormat numberFormat, int width) {
+	public static NumberField getNumberField(String label, NumberFormat numberFormat, int width) {
 		NumberField field = new NumberField();
 		setStandard(field, label);
 		
@@ -111,7 +158,7 @@ public class FieldFactory {
 		return field;
 	}
 	
-	protected static CheckBoxGroup getCheckBoxGroup(String label, CheckBox... boxes) {
+	public static CheckBoxGroup getCheckBoxGroup(String label, CheckBox... boxes) {
 		CheckBoxGroup cbGroup = new CheckBoxGroup();
 		setStandard(cbGroup, label);
 		for (CheckBox cb : boxes) {
@@ -120,14 +167,14 @@ public class FieldFactory {
 		return cbGroup;
 	}
 	
-	protected static CheckBox	getCheckBoxField(String label) {
+	public static CheckBox	getCheckBoxField(String label) {
 		CheckBox checkBox = new CheckBox();
 		setStandard(checkBox, null);
 		checkBox.setBoxLabel(label);
 		return checkBox;
 	}
 	
-	protected static TextArea getMultiLineField(String label, int lines) {
+	public static TextArea getMultiLineField(String label, int lines) {
 		SizedTextArea field = new SizedTextArea();
 		setStandard(field, label);
 		field.setPreventScrollbars(true);
@@ -137,13 +184,13 @@ public class FieldFactory {
 		return field;
 	}
 	
-	protected static TextField<String> getTextField(String label) {
+	public static TextField<String> getTextField(String label) {
 		TextField<String> field = new TextField<String>();
 		setStandard(field, label);
 		return field;
 	}
 	
-	protected static DateField getDateField(String label) {
+	public static DateField getDateField(String label) {
 		DateField field = new DateField();
 		setStandard(field, label);
 		field.setPropertyEditor(new DateTimePropertyEditor(UiConstants.APP_DATE_LONG_FORMAT));
@@ -151,7 +198,7 @@ public class FieldFactory {
 		return field;
 	}
 	
-	protected static BoundDateField getBoundDateField(String label) {
+	public static BoundDateField getBoundDateField(String label) {
 		BoundDateField field = new BoundDateField();
 		setStandard(field, label);
 		field.setPropertyEditor(new DateTimePropertyEditor(UiConstants.APP_DATE_LONG_FORMAT));
@@ -159,7 +206,7 @@ public class FieldFactory {
 		return field;
 	}
 	
-	protected static SliderFieldWithDisable getSliderField(String label) {
+	public static SliderFieldWithDisable getSliderField(String label) {
 		Slider		slider = new Slider();
 		SliderFieldWithDisable field = new SliderFieldWithDisable(slider);
 		setStandard(field, label);
@@ -167,7 +214,7 @@ public class FieldFactory {
 		return field;
 	}
 	
-	protected static BoundSliderField getBoundSliderField(String label) {
+	public static BoundSliderField getBoundSliderField(String label) {
 		Slider		slider = new Slider();
 		BoundSliderField field = new BoundSliderField(slider);
 		setStandard(field, label);
@@ -176,15 +223,15 @@ public class FieldFactory {
 		return field;
 	}
 	
-	protected static EnhancedComboBox<BeanModel> getComboField(String name, String label, int width, ListStore<BeanModel> listStore, String displayField) {
+	public static EnhancedComboBox<BeanModel> getComboField(String name, String label, int width, ListStore<BeanModel> listStore, String displayField) {
 		return getComboField(name, label, width, null, listStore, name, displayField);
 	}
 	
-	protected static EnhancedComboBox<BeanModel> getComboField(String name, String label, int width, String toolTip, ListStore<BeanModel> listStore, String displayField) {
+	public static EnhancedComboBox<BeanModel> getComboField(String name, String label, int width, String toolTip, ListStore<BeanModel> listStore, String displayField) {
 		return getComboField(name, label, width, toolTip, listStore, name, displayField);
 	}
 	
-	protected static EnhancedComboBox<BeanModel> getComboField(String name, String label, int width, String toolTip, ListStore<BeanModel> listStore, String valueField, String displayField) {
+	public static EnhancedComboBox<BeanModel> getComboField(String name, String label, int width, String toolTip, ListStore<BeanModel> listStore, String valueField, String displayField) {
 		if (listStore.getKeyProvider() == null)
 			listStore.setKeyProvider(new SimpleKeyProvider(valueField));
 		
@@ -211,19 +258,19 @@ public class FieldFactory {
 		return combo;
 	}
 
-	protected static InstitutionSearchField getInstitutionSearchField(String name, String label) {
+	public static InstitutionSearchField getInstitutionSearchField(String name, String label) {
 		return getInstitutionSearchField(name, label, 0, null, null, null);
 	}
 
-	protected static InstitutionSearchField getInstitutionSearchField(String name, String label, String toolTip) {
+	public static InstitutionSearchField getInstitutionSearchField(String name, String label, String toolTip) {
 		return getInstitutionSearchField(name, label, 0, toolTip, null, null);
 	}
 
-	protected static InstitutionSearchField getInstitutionSearchField(String name, String label, int width, String toolTip) {
+	public static InstitutionSearchField getInstitutionSearchField(String name, String label, int width, String toolTip) {
 		return getInstitutionSearchField(name, label, width, toolTip, null, null);
 	}
 	
-	protected static InstitutionSearchField getInstitutionSearchField(String name, String label, int width, String toolTip, String valueField, String displayField) {
+	public static InstitutionSearchField getInstitutionSearchField(String name, String label, int width, String toolTip, String valueField, String displayField) {
 		InstitutionSearchField instCombo = new InstitutionSearchField();
 		setStandard(instCombo, label);
 		

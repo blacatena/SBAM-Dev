@@ -357,6 +357,16 @@
   </servlet>
   
   <servlet>
+    <servlet-name>siteLocationValidationServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.SiteLocationValidationServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updateSiteLocationServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateSiteLocationServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>termTypeListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.TermTypeListServiceImpl</servlet-class>
   </servlet>
@@ -719,6 +729,16 @@
   <servlet-mapping>
     <servlet-name>siteLocationSearchServlet</servlet-name>
     <url-pattern>/sbam/searchSiteLocations</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>siteLocationValidationServlet</servlet-name>
+    <url-pattern>/sbam/validateSiteLocation</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateSiteLocationServlet</servlet-name>
+    <url-pattern>/sbam/updateSiteLocation</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

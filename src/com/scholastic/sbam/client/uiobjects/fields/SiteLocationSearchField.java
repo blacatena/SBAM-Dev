@@ -179,6 +179,7 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> {
 						}
 
 						callback.onSuccess(result);
+						setRawValue("");
 					}
 				};
 				
@@ -259,8 +260,8 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> {
 	}
 	
 	public void setFor(AuthMethodInstance method) {
-		ucn = method.getUcn();
-		ucnSuffix = method.getUcnSuffix();
+		ucn = method.getForUcn();
+		ucnSuffix = method.getForUcnSuffix();
 	}
 	
 	public void setFor(AgreementSiteInstance site) {

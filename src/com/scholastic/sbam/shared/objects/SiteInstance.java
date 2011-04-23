@@ -176,6 +176,10 @@ public class SiteInstance extends BetterRowEditInstance implements BeanModelTag,
 		return "list-normal";
 	}
 	
+	public boolean isAddNew() {
+		return (status == AppConstants.STATUS_NEW);
+	}
+	
 	public String getDescriptionAndCode() {
 		if (status == AppConstants.STATUS_NEW)
 			return "Create a new location at this site.";
