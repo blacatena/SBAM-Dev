@@ -57,7 +57,7 @@ import com.scholastic.sbam.shared.objects.SiteInstance;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.util.AppConstants;
 
-public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> implements CreateSiteDialog.CreateSiteDialogSaver {
+public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> /* implements CreateSiteDialog.CreateSiteDialogSaver */ {
 	
 	private static final int DEFAULT_FIELD_WIDTH	=	0;	//250;
 	
@@ -522,7 +522,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> i
 	}
 	
 	protected SiteLocationSearchField getSiteLocationField(String name, String label, int width, String toolTip) {
-		final SiteLocationSearchField siteLocCombo = new SiteLocationSearchField();
+		final SiteLocationSearchField siteLocCombo = new SiteLocationSearchField(this);
 		siteLocCombo.setIncludeAllOption(false);
 		siteLocCombo.setIncludeMainOption(true);
 		FieldFactory.setStandard(siteLocCombo, label);
@@ -533,41 +533,41 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> i
 			siteLocCombo.setWidth(width);
 		siteLocCombo.setDisplayField("descriptionAndCode");
 		
-		siteLocCombo.addSelectionChangedListener(new SelectionChangedListener<BeanModel>() {
-
-			@Override
-			public void selectionChanged(SelectionChangedEvent<BeanModel> se) {
-				if (se.getSelectedItem() != null) {
-					SiteInstance instance = se.getSelectedItem().getBean();
-					if (instance.isAddNew()) {
-						openCreateSiteDialog();
-//						if (saveSiteLocation != null)
-//							siteLocCombo.select(SiteInstance.obtainModel(saveSiteLocation));
-					} else {
-						saveSiteLocation = instance;
-					}
-						
-				}
-			}
-			
-		});
+//		siteLocCombo.addSelectionChangedListener(new SelectionChangedListener<BeanModel>() {
+//
+//			@Override
+//			public void selectionChanged(SelectionChangedEvent<BeanModel> se) {
+//				if (se.getSelectedItem() != null) {
+//					SiteInstance instance = se.getSelectedItem().getBean();
+//					if (instance.isAddNew()) {
+//						openCreateSiteDialog();
+////						if (saveSiteLocation != null)
+////							siteLocCombo.select(SiteInstance.obtainModel(saveSiteLocation));
+//					} else {
+//						saveSiteLocation = instance;
+//					}
+//						
+//				}
+//			}
+//			
+//		});
 		
 		return siteLocCombo;
 	}
 	
-	protected void openCreateSiteDialog() {
-		if (siteInstitution == null) {
-			MessageBox.alert("Programming Error", "No institution has been selected for which to create a site location.", null);
-			return;
-		}
-		
-		int useUcnSuffix;
-		if (focusInstance != null && focusInstance.getUcn() == siteInstitution.getUcn())
-			useUcnSuffix = focusInstance.getForUcnSuffix();
-		else
-			useUcnSuffix = 1;
-		new CreateSiteDialog(this, this, siteInstitution.getUcn(), useUcnSuffix, siteInstitution.getInstitutionName()).show();	
-	}
+//	protected void openCreateSiteDialog() {
+//		if (siteInstitution == null) {
+//			MessageBox.alert("Programming Error", "No institution has been selected for which to create a site location.", null);
+//			return;
+//		}
+//		
+//		int useUcnSuffix;
+//		if (focusInstance != null && focusInstance.getUcn() == siteInstitution.getUcn())
+//			useUcnSuffix = focusInstance.getForUcnSuffix();
+//		else
+//			useUcnSuffix = 1;
+//		new CreateSiteDialog(this, this, siteInstitution.getUcn(), useUcnSuffix, siteInstitution.getInstitutionName()).show();	
+//	}
 	
 	protected NotesIconButtonField<String> getNotesButtonField() {
 		NotesIconButtonField<String> nibf = new NotesIconButtonField<String>(this) {
@@ -670,17 +670,17 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> i
 		
 		if (instance == null || instance.getUcn() == 0) {
 			ucnDisplay.setValue("");
-			siteLocationField.setFor(0, 0);
+			siteLocationField.setFor(0, 0, "");
 			return;
 		}
 		
 		if (focusInstance != null && focusInstance.getForUcn() == instance.getUcn()) {
 			// Same institution as instance, so use the instance UCN
-			siteLocationField.setFor(focusInstance);
+			siteLocationField.setFor(focusInstance, instance.getInstitutionName());
 			siteLocationField.setValue(SiteInstance.obtainModel(focusInstance.getSite()));
 		} else {
 			// Different UCN, default to suffix 1
-			siteLocationField.setFor(instance.getUcn(), 1);
+			siteLocationField.setFor(instance.getUcn(), 1, instance.getInstitutionName());
 			siteLocationField.setValue(SiteInstance.obtainModel(SiteInstance.getMainInstance(instance.getUcn(), 1)));
 		}
 		
@@ -708,8 +708,10 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> i
 			focusInstance.setForUcnSuffix(0);
 			focusInstance.setForSiteLocCode("");
 		} else {
-			focusInstance.setForUcn(institution.getUcn());
-			focusInstance.setForUcnSuffix(1);
+			if (focusInstance.getForUcn() != institution.getUcn()) {
+				focusInstance.setForUcn(institution.getUcn());
+				focusInstance.setForUcnSuffix(1);
+			}
 			SiteInstance site = (siteLocationField.getSelectedValue() == null) ? null : (SiteInstance) siteLocationField.getSelectedValue().getBean();
 			if (site == null) {
 				MessageBox.alert("Unexpected Error", "No site location is selected for this authentication method.", null);
@@ -780,13 +782,11 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> i
 						AuthMethodInstance updatedAuthMethod = (AuthMethodInstance) updateResponse.getInstance();
 						if (updatedAuthMethod.isNewRecord()) {
 							updatedAuthMethod.setNewRecord(false);
-							System.out.println("New key is " + updatedAuthMethod.getUniqueKey());
 							grid.getStore().insert(AuthMethodInstance.obtainModel(updatedAuthMethod), 0);
 						}
 						
 						focusInstance.setNewRecord(false);
 						focusInstance.setValuesFrom(updatedAuthMethod);
-						System.out.println("After update focusInstance " + focusInstance.getUniqueKey());
 						setFormFromInstance(updatedAuthMethod);	//	setFormFieldValues(updatedAuthMethod);
 						
 						//	This puts the grid in synch
@@ -981,8 +981,8 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> i
 		targetPanel.setTopComponent(viewToolBar);
 	}
 
-	@Override
-	public void onCreateSiteSave(SiteInstance instance) {
-		System.out.println("onCreateSiteSave " + instance + " BUT MOVE THIS TO THE SITE LOC COMBO FIELD ITSELF!!!!");
-	}
+//	@Override
+//	public void onCreateSiteSave(SiteInstance instance) {
+//		System.out.println("onCreateSiteSave " + instance + " BUT MOVE THIS TO THE SITE LOC COMBO FIELD ITSELF!!!!");
+//	}
 }

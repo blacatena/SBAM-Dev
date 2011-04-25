@@ -11,40 +11,48 @@ import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.SiteLocationSearchService;
 import com.scholastic.sbam.client.services.SiteLocationSearchServiceAsync;
+import com.scholastic.sbam.client.uiobjects.uiapp.CreateSiteDialog;
+import com.scholastic.sbam.client.uiobjects.uiapp.CreateSiteDialog.CreateSiteDialogSaver;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.AgreementSiteInstance;
 import com.scholastic.sbam.shared.objects.AuthMethodInstance;
+import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.SiteInstance;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
 import com.scholastic.sbam.shared.util.AppConstants;
 
-public class SiteLocationSearchField extends ComboBox<BeanModel> {
+public class SiteLocationSearchField extends ComboBox<BeanModel> implements CreateSiteDialogSaver {
 	
 	protected final SiteLocationSearchServiceAsync siteLocationSearchService = GWT.create(SiteLocationSearchService.class);
 	
-	private long					searchSyncId		=	0;
+	protected long						searchSyncId		=	0;
 	
-	private	int						ucn;
-	private	int						ucnSuffix;
+	protected int						ucn;
+	protected int						ucnSuffix;
 	
-	private boolean					includeAddOption	=	true;
-	private boolean					includeAllOption	=	true;
-	private boolean					includeMainOption	=	false;
-	private SiteInstance			addInstance			=	null;
-	private SiteInstance			allInstance			=	null;
-	private SiteInstance			mainInstance		=	null;
+	protected boolean					includeAddOption	=	true;
+	protected boolean					includeAllOption	=	true;
+	protected boolean					includeMainOption	=	false;
+	protected SiteInstance				addInstance			=	null;
+	protected SiteInstance				allInstance			=	null;
+	protected SiteInstance				mainInstance		=	null;
 
-	private String					sortField			=	"descriptionAndCode";
-	private SortDir					sortDir				=	SortDir.ASC;
+	protected String					sortField			=	"descriptionAndCode";
+	protected SortDir					sortDir				=	SortDir.ASC;
+	
+	protected LayoutContainer			createDialogContainer	= null;
+	protected String					institutionName			= null;
 	
 	public SiteLocationSearchField() {
+		super();
 		
 		PagingLoader<PagingLoadResult<SiteInstance>> loader = getSiteLoader(); 
 		
@@ -59,10 +67,17 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> {
 		this.setMinChars(0);
 		this.setHideTrigger(false); 
 		this.setTriggerStyle("trigger-square");
+		this.setTriggerAction(TriggerAction.ALL);
 		this.setPageSize(200);
 		this.setAllowBlank(true);
 		this.setEditable(true);
 		this.setSimpleTemplate(getMultiLineAddressTemplate());
+	}
+	
+
+	public SiteLocationSearchField(LayoutContainer createDialogContainer) {
+		this();
+		this.createDialogContainer = createDialogContainer;
 	}
 	
 	@Override
@@ -104,6 +119,7 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> {
 		return value;
 	}
 	
+	@Override
 	public void onBlur(ComponentEvent ce) {
 		super.onBlur(ce);
 		if (this.value == null) {
@@ -113,6 +129,48 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> {
 			else
 				setRawValue(this.value.get(this.getDisplayField()).toString());
 		}
+	}
+	
+	@Override
+	public void onSelect(BeanModel model, int index) {
+		if (model.getBean() != null) {
+			SiteInstance site = (SiteInstance) model.getBean();
+			if (site.isAddNew()) {
+				openCreateSiteDialog();
+				lastQuery = null;
+			}
+		}
+		
+		super.onSelect(model, index);
+	}
+	
+	protected void openCreateSiteDialog() {
+		if (ucn == 0) {
+			MessageBox.alert("Programming Error", "No institution has been selected for which to create a site location.", null);
+			return;
+		}
+		
+		new CreateSiteDialog(createDialogContainer, this, ucn, ucnSuffix, institutionName).show();	
+	}
+
+	@Override
+	public void onCreateSiteSave(SiteInstance instance) {
+		//	Add the model to the field store and select it
+		BeanModel model = SiteInstance.obtainModel(instance);
+		this.getStore().add(model);
+//		this.select(model);
+		this.setValue(model);
+//		this.setRawValue(instance.getDescriptionAndCode());
+		lastQuery = null;		//	So next trigger click reloads/sorts from database
+	}
+	
+	@Override
+	public void lockTrigger() {
+		this.disable();
+	}
+	
+	public void unlockTrigger() {
+		this.enable();
 	}
 	
 	protected String getMultiLineAddressTemplate() {
@@ -187,7 +245,7 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> {
 				( (PagingLoadConfig) loadConfig).set("sortDir",		sortDir);
 				
 				searchSyncId = System.currentTimeMillis();
-				siteLocationSearchService.searchSiteLocations((PagingLoadConfig) loadConfig, ucn, ucnSuffix, getRawValue(), searchSyncId, myCallback);
+				siteLocationSearchService.searchSiteLocations((PagingLoadConfig) loadConfig, ucn, ucnSuffix, getQueryValue(loadConfig), searchSyncId, myCallback);
 				
 		    }  
 		};
@@ -196,6 +254,13 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> {
 		// loader and store  
 		PagingLoader<PagingLoadResult<SiteInstance>> loader = new BasePagingLoader<PagingLoadResult<SiteInstance>>(proxy, reader);
 		return loader;
+	}
+	
+	public String getQueryValue(Object loadConfig) {
+		String query = (loadConfig != null && loadConfig instanceof PagingLoadConfig) ? ((PagingLoadConfig) loadConfig).get("query").toString() : null;
+		if (query == null)
+			query = getRawValue();
+		return query;
 	}
 
 	public boolean isIncludeAddOption() {
@@ -238,12 +303,29 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> {
 		this.sortDir = sortDir;
 	}
 
+	public LayoutContainer getCreateDialogContainer() {
+		return createDialogContainer;
+	}
+
+	public void setCreateDialogContainer(LayoutContainer createDialogContainer) {
+		this.createDialogContainer = createDialogContainer;
+	}
+
+	public String getInstitutionName() {
+		return institutionName;
+	}
+
+	public void setInstitutionName(String institutionName) {
+		this.institutionName = institutionName;
+	}
+
 	public int getUcn() {
 		return ucn;
 	}
 
 	public void setUcn(int ucn) {
 		this.ucn = ucn;
+		lastQuery = null;	// Necessary so that a trigger click for the new UCN reloads for that UCN
 	}
 
 	public int getUcnSuffix() {
@@ -252,25 +334,49 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> {
 
 	public void setUcnSuffix(int ucnSuffix) {
 		this.ucnSuffix = ucnSuffix;
+		lastQuery = null;	// Necessary so that a trigger click for the new UCN suffix reloads for that UCN
 	}
 	
-	public void setFor(int ucn, int ucnSuffix) {
+	public void setFor(int ucn, int ucnSuffix, String institutionName) {
 		this.ucn = ucn;
 		this.ucnSuffix = ucnSuffix;
+		if (institutionName != null && institutionName.length() > 0)
+			this.institutionName = institutionName;
+		else if (ucn > 0)
+			institutionName = "UCN " + ucn;
+		else
+			institutionName = "";
+		lastQuery = null;	// Necessary so that a trigger click for the new UCN reloads for that UCN
 	}
 	
 	public void setFor(AuthMethodInstance method) {
-		ucn = method.getForUcn();
-		ucnSuffix = method.getForUcnSuffix();
+		if (method.getSite() != null && method.getSite().getInstitution() != null)
+			setFor(method, method.getSite().getInstitution().getInstitutionName());
+		else
+			setFor(method, null);
+	}
+	
+	public void setFor(AuthMethodInstance method, String institutionName) {
+		setFor(method.getForUcn(), method.getForUcnSuffix(), institutionName);
 	}
 	
 	public void setFor(AgreementSiteInstance site) {
-		ucn = site.getSiteUcn();
-		ucnSuffix = site.getSiteUcnSuffix();
+		if (site.getSite() != null && site.getSite().getInstitution() != null)
+			setFor(site.getSiteUcn(), site.getSiteUcnSuffix(), site.getSite().getInstitution().getInstitutionName());
+		else
+			setFor(site.getSiteUcn(), site.getSiteUcnSuffix(), null);
 	}
 	
 	public void setFor(SiteInstance site) {
 		ucn = site.getUcn();
 		ucnSuffix = site.getUcnSuffix();
+		if (site.getInstitution() != null)
+			setFor(site.getUcn(), site.getUcnSuffix(), site.getInstitution().getInstitutionName());
+		else
+			setFor(site.getUcn(), site.getUcnSuffix(), null);
+	}
+	
+	public void setFor(InstitutionInstance institution) {
+		setFor(institution.getUcn(), 1, institution.getInstitutionName());
 	}
 }

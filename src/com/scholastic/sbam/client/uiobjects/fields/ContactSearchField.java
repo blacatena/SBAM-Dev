@@ -59,6 +59,7 @@ public class ContactSearchField extends ComboBox<BeanModel> {
 		this.setStore(contactStore);
 		this.setMinChars(0);
 		this.setHideTrigger(false); 
+		this.setTriggerAction(TriggerAction.ALL);
 		this.setTriggerStyle("trigger-square");
 		this.setPageSize(200);
 		this.setAllowBlank(true);
@@ -83,18 +84,21 @@ public class ContactSearchField extends ComboBox<BeanModel> {
 		if (selected == null) {
 			if (searchInstitutions)
 				ucn = 0;
+			lastQuery = null;
 			this.setRawValue("")	;	//	this.setValue(ContactSearchResultInstance.obtainModel(ContactSearchResultInstance.getEmptyInstance()));
 			return;
 		}
 		if (selected.getType() == ContactSearchResultInstance.INSTITUTION) {
 			ucn = selected.getId();
 			this.setRawValue("");
+			lastQuery = null;
 			this.getStore().getLoader().load();
 			return;
 		}
 		if (selected.getType() == ContactSearchResultInstance.NEW_SEARCH) {
 			if (searchInstitutions)
 				ucn = 0;
+			lastQuery = null;
 			this.setRawValue("")	;	//	this.setValue(ContactSearchResultInstance.obtainModel(ContactSearchResultInstance.getEmptyInstance()));
 			return;
 		}
@@ -223,7 +227,7 @@ public class ContactSearchField extends ComboBox<BeanModel> {
 				( (PagingLoadConfig) loadConfig).set("sortDir",		sortDir);
 				
 				searchSyncId = System.currentTimeMillis();
-				contactSearchService.searchContacts((PagingLoadConfig) loadConfig, ucn, searchInstitutions, getRawValue(), searchSyncId, myCallback);
+				contactSearchService.searchContacts((PagingLoadConfig) loadConfig, ucn, searchInstitutions, getQueryValue(loadConfig), searchSyncId, myCallback);
 				
 		    }  
 		};
@@ -232,6 +236,13 @@ public class ContactSearchField extends ComboBox<BeanModel> {
 		// loader and store  
 		PagingLoader<PagingLoadResult<ContactSearchResultInstance>> loader = new BasePagingLoader<PagingLoadResult<ContactSearchResultInstance>>(proxy, reader);
 		return loader;
+	}
+	
+	public String getQueryValue(Object loadConfig) {
+		String query = (loadConfig != null && loadConfig instanceof PagingLoadConfig) ? ((PagingLoadConfig) loadConfig).get("query").toString() : null;
+		if (query == null)
+			query = getRawValue();
+		return query;
 	}
 
 	public boolean isIncludeAddOption() {
@@ -272,13 +283,16 @@ public class ContactSearchField extends ComboBox<BeanModel> {
 
 	public void setUcn(int ucn) {
 		this.ucn = ucn;
+		lastQuery = null;	// Necessary so that a trigger click for the new UCN reloads for that UCN
 	}
 
 	public void setFor(int ucn) {
 		this.ucn = ucn;
+		lastQuery = null;	// Necessary so that a trigger click for the new UCN reloads for that UCN
 	}
 	
 	public void setFor(InstitutionInstance institution) {
 		ucn = institution.getUcn();
+		lastQuery = null;	// Necessary so that a trigger click for the new UCN reloads for that UCN
 	}
 }

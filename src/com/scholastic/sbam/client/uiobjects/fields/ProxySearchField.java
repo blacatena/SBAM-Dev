@@ -200,7 +200,7 @@ public class ProxySearchField extends ComboBox<BeanModel> {
 				( (PagingLoadConfig) loadConfig).set("sortDir",		sortDir);
 				
 				searchSyncId = System.currentTimeMillis();
-				proxySearchService.searchProxies((PagingLoadConfig) loadConfig, getRawValue(), searchSyncId, myCallback);
+				proxySearchService.searchProxies((PagingLoadConfig) loadConfig, getQueryValue(loadConfig), searchSyncId, myCallback);
 				
 		    }  
 		};
@@ -209,6 +209,13 @@ public class ProxySearchField extends ComboBox<BeanModel> {
 		// loader and store  
 		PagingLoader<PagingLoadResult<ProxyInstance>> loader = new BasePagingLoader<PagingLoadResult<ProxyInstance>>(proxy, reader);
 		return loader;
+	}
+	
+	public String getQueryValue(Object loadConfig) {
+		String query = (loadConfig != null && loadConfig instanceof PagingLoadConfig) ? ((PagingLoadConfig) loadConfig).get("query").toString() : null;
+		if (query == null)
+			query = getRawValue();
+		return query;
 	}
 
 	public boolean isIncludeAddOption() {

@@ -73,6 +73,9 @@ public class ContactSearchServiceImpl extends AuthenticatedServiceServlet implem
 		
 		SynchronizedPagingLoadResult<ContactSearchResultInstance> result = null;
 		List<ContactSearchResultInstance> list = new ArrayList<ContactSearchResultInstance>();
+		
+		if (filter == null || filter.length() == 0)
+			return new SynchronizedPagingLoadResult<ContactSearchResultInstance>(list, loadConfig.getOffset(), 0, syncId);
 
 		try {
 			
@@ -180,6 +183,10 @@ public class ContactSearchServiceImpl extends AuthenticatedServiceServlet implem
 		
 		try {
 			List<ContactSearchResultInstance> list = new ArrayList<ContactSearchResultInstance>();
+			
+			//	If we're looking for institutions, we need some criteria of some sort, or else return nothing
+			if (filter == null || filter.length() == 0)
+				return new SynchronizedPagingLoadResult<ContactSearchResultInstance>(list, loadConfig.getOffset(), 0, syncId);
 			
 			if (InstitutionCache.getSingleton() == null || !InstitutionCache.getSingleton().isMapsReady())
 				throw new ServiceNotReadyException("contact search function institution search");

@@ -38,10 +38,20 @@ public class AppAuthMethodValidator {
 		if (instance.isNewRecord() && instance.getStatus() == AppConstants.STATUS_ANY_NONE)
 			instance.setStatus(AppConstants.STATUS_ACTIVE);
 
-		if (instance.getForUcn() > 0 && instance.getUcnSuffix() == 0)
-			instance.setUcnSuffix(1);
-		if (instance.getForUcn() == 0) {
+		//	Patch the key UCN so that its either 0/0/"", or else >0 and >0 and a value
+		if (instance.getUcn() == 0) {
 			instance.setUcnSuffix(0);
+			instance.setSiteLocCode("");
+		}
+		
+		if (instance.getSiteLocCode() == null)
+			instance.setSiteLocCode("");
+
+		//	Patch the "for" UCN so that its either 0/0/"", or else >0 and >0 and a value
+		if (instance.getForUcn() > 0 && instance.getUcnSuffix() == 0)
+			instance.setForUcnSuffix(1);
+		if (instance.getForUcn() == 0) {
+			instance.setForUcnSuffix(0);
 			instance.setForSiteLocCode("");
 		}
 		

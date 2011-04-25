@@ -32,6 +32,10 @@ public class CreateSiteDialog extends PortletMaskDialog {
 	 */
 	public interface CreateSiteDialogSaver {
 		public void onCreateSiteSave(SiteInstance instance);
+		
+		public void lockTrigger();
+		
+		public void unlockTrigger();
 	}
 	
 	protected CreateSiteDialogSaver			saver;
@@ -157,12 +161,12 @@ public class CreateSiteDialog extends PortletMaskDialog {
 
 	@Override
 	public void lockTrigger() {
-		System.out.println("Lock");
+		saver.lockTrigger();
 	}
 
 	@Override
 	public void unlockTrigger() {
-		System.out.println("Unlock");
+		saver.unlockTrigger();
 	}
 
 	public int getUcn() {

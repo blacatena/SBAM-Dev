@@ -374,7 +374,7 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 			ucnDisplay.setValue("");
 			addressDisplay.setValue("");
 			customerTypeDisplay.setValue("");
-			siteLocationField.setFor(0, 0);
+			siteLocationField.setFor(0, 0, null);
 			return;
 		}
 		
@@ -390,7 +390,7 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 			siteLocationField.setValue(SiteInstance.obtainModel(focusInstance.getSite()));
 		} else {
 			// Different UCN, default to suffix 1
-			siteLocationField.setFor(instance.getUcn(), 1);
+			siteLocationField.setFor(instance);
 			siteLocationField.setValue(SiteInstance.obtainModel(SiteInstance.getAllInstance(instance.getUcn(), 1)));
 		}
 		

@@ -240,6 +240,6 @@ public class SiteInstance extends BetterRowEditInstance implements BeanModelTag,
 	}
 
 	public String toString() {
-		return "Site " + ucn + "-" + ucnSuffix;
+		return "Site " + ucn + "-" + ucnSuffix + "-" + siteLocCode;
 	}
 }
