@@ -347,6 +347,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>updateProxyServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateProxyServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>serviceListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.ServiceListServiceImpl</servlet-class>
   </servlet>
@@ -729,6 +734,11 @@
   <servlet-mapping>
     <servlet-name>proxySearchServlet</servlet-name>
     <url-pattern>/sbam/searchProxies</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateProxyServlet</servlet-name>
+    <url-pattern>/sbam/updateProxy</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

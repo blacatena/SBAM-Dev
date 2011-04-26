@@ -13,18 +13,21 @@ import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.ProxySearchService;
 import com.scholastic.sbam.client.services.ProxySearchServiceAsync;
+import com.scholastic.sbam.client.uiobjects.uiapp.CreateProxyDialog;
+import com.scholastic.sbam.client.uiobjects.uiapp.CreateProxyDialog.CreateProxyDialogSaver;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.ProxyInstance;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
 
-public class ProxySearchField extends ComboBox<BeanModel> {
+public class ProxySearchField extends ComboBox<BeanModel> implements CreateProxyDialogSaver {
 	
 	protected final ProxySearchServiceAsync proxySearchService = GWT.create(ProxySearchService.class);
 	
@@ -38,7 +41,10 @@ public class ProxySearchField extends ComboBox<BeanModel> {
 	private String						sortField			=	"description";
 	private SortDir						sortDir				=	SortDir.ASC;
 	
+	protected LayoutContainer			createDialogContainer	= null;
+	
 	public ProxySearchField() {
+		super();
 		
 		PagingLoader<PagingLoadResult<ProxyInstance>> loader = getProxyLoader(); 
 		
@@ -70,6 +76,11 @@ public class ProxySearchField extends ComboBox<BeanModel> {
 			}
 			
 		});
+	}
+	
+	public ProxySearchField(LayoutContainer createDialogContainer) {
+		this();
+		this.createDialogContainer = createDialogContainer;
 	}
 	
 	public void onSelectionChange(ProxyInstance selected) {
@@ -135,6 +146,43 @@ public class ProxySearchField extends ComboBox<BeanModel> {
 			else
 				setRawValue(this.value.get(this.getDisplayField()).toString());
 		}
+	}
+	
+	@Override
+	public void onSelect(BeanModel model, int index) {
+		if (model.getBean() != null) {
+			ProxyInstance site = (ProxyInstance) model.getBean();
+			if (site.isAddNew()) {
+				openCreateProxyDialog();
+				lastQuery = null;
+			}
+		}
+		
+		super.onSelect(model, index);
+	}
+	
+	protected void openCreateProxyDialog() {
+		new CreateProxyDialog(createDialogContainer, this).show();	
+	}
+
+	@Override
+	public void onCreateProxySave(ProxyInstance instance) {
+		//	Add the model to the field store and select it
+		BeanModel model = ProxyInstance.obtainModel(instance);
+		this.getStore().add(model);
+//		this.select(model);
+		this.setValue(model);
+//		this.setRawValue(instance.getDescriptionAndCode());
+		lastQuery = null;		//	So next trigger click reloads/sorts from database
+	}
+	
+	@Override
+	public void lockTrigger() {
+		this.disable();
+	}
+	
+	public void unlockTrigger() {
+		this.enable();
 	}
 	
 	protected String getResultTemplate() {
@@ -240,5 +288,13 @@ public class ProxySearchField extends ComboBox<BeanModel> {
 
 	public void setSortDir(SortDir sortDir) {
 		this.sortDir = sortDir;
+	}
+
+	public LayoutContainer getCreateDialogContainer() {
+		return createDialogContainer;
+	}
+
+	public void setCreateDialogContainer(LayoutContainer createDialogContainer) {
+		this.createDialogContainer = createDialogContainer;
 	}
 }

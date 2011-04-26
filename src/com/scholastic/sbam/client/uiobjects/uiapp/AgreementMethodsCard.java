@@ -593,7 +593,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> /
 
 	
 	protected ProxySearchField getProxySearchField(String name, String label, int width, String toolTip) {
-		ProxySearchField proxyCombo = new ProxySearchField();
+		ProxySearchField proxyCombo = new ProxySearchField(this);
 		FieldFactory.setStandard(proxyCombo, label);
 		proxyCombo.setAllowBlank(true);
 		
