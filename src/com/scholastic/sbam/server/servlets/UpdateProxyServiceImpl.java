@@ -83,6 +83,10 @@ public class UpdateProxyServiceImpl extends AuthenticatedServiceServlet implemen
 			//	DbProxy.refresh(dbInstance);	// This may not be necessary, but just in case
 				instance.setProxyId(dbInstance.getProxyId());
 				instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
+				
+				//	Need to set the check digit version, and update
+				dbInstance.setIdCheckDigit(instance.getProxyIdCheckDigit());
+				DbProxy.persist(dbInstance);
 			}
 			
 		} catch (IllegalArgumentException exc) {

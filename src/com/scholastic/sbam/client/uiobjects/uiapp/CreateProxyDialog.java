@@ -42,6 +42,7 @@ public class CreateProxyDialog extends PortletMaskDialog {
 	public CreateProxyDialog(LayoutContainer container, CreateProxyDialogSaver saver) {
 		super(container);
 		this.saver = saver;
+		setMarginWidth(50);
 	}
 	
 	@Override
@@ -62,6 +63,7 @@ public class CreateProxyDialog extends PortletMaskDialog {
 		if (noteField == null) {
 			noteField = new HtmlEditor();
 			FieldFactory.setStandard(noteField, "Notes");
+			noteField.setHeight(200);
 		}
 		
 		descriptionField.setAllowBlank(false);
