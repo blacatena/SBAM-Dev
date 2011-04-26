@@ -50,26 +50,29 @@ public class ContactSearchServiceImpl extends AuthenticatedServiceServlet implem
 	 */
 	public SynchronizedPagingLoadResult<ContactSearchResultInstance> searchContactsOnly(PagingLoadConfig loadConfig, int ucn, boolean searchInstitutions, String filter, long syncId) {
 
-		//	Determine search type -- loose boolean, boolean, or natural language
-		boolean doLoose		= SearchUtilities.DEFAULT_LOOSE_SEARCH;
-		boolean doBoolean	= SearchUtilities.DEFAULT_BOOLEAN_SEARCH; 
-		if (filter.length() > 0 && filter.charAt(0) == AppConstants.LOOSE_BOOLEAN_SEARCH_FLAG) {
-			filter = filter.substring(1);
-			doLoose = true;
-			doBoolean = true;
-		} else if (filter.length() > 0 && filter.charAt(0) == AppConstants.STRICT_BOOLEAN_SEARCH_FLAG) {
-			filter = filter.substring(1);
-			doLoose   = false;
-			doBoolean = true;
-		} else if (filter.length() > 0 && filter.charAt(0) == AppConstants.QUERY_EXPANSION_SEARCH_FLAG) {
-			filter = filter.substring(1);
-			doLoose   = false;
-			doBoolean = false;
-		}
+//		//	Determine search type -- loose boolean, boolean, or natural language
+//		boolean doLoose		= SearchUtilities.DEFAULT_LOOSE_SEARCH;
+//		boolean doBoolean	= SearchUtilities.DEFAULT_BOOLEAN_SEARCH; 
+//		if (filter.length() > 0 && filter.charAt(0) == AppConstants.LOOSE_BOOLEAN_SEARCH_FLAG) {
+//			filter = filter.substring(1);
+//			doLoose = true;
+//			doBoolean = true;
+//		} else if (filter.length() > 0 && filter.charAt(0) == AppConstants.STRICT_BOOLEAN_SEARCH_FLAG) {
+//			filter = filter.substring(1);
+//			doLoose   = false;
+//			doBoolean = true;
+//		} else if (filter.length() > 0 && filter.charAt(0) == AppConstants.QUERY_EXPANSION_SEARCH_FLAG) {
+//			filter = filter.substring(1);
+//			doLoose   = false;
+//			doBoolean = false;
+//		}
+//		
+//		//	Adjust terms if loose boolean
+//		if (doBoolean && doLoose)
+//			filter = SearchUtilities.getLooseBoolean(filter);
 		
-		//	Adjust terms if loose boolean
-		if (doBoolean && doLoose)
-			filter = SearchUtilities.getLooseBoolean(filter);
+
+		SearchUtilities.SearchSettings searchSettings = new SearchUtilities.SearchSettings(filter);
 		
 		SynchronizedPagingLoadResult<ContactSearchResultInstance> result = null;
 		List<ContactSearchResultInstance> list = new ArrayList<ContactSearchResultInstance>();
@@ -82,7 +85,7 @@ public class ContactSearchServiceImpl extends AuthenticatedServiceServlet implem
 			HibernateUtil.openSession();
 			HibernateUtil.startTransaction();
 			
-			List<Contact> dbInstances = DbContact.findFiltered(filter, doBoolean, (char) 0, AppConstants.STATUS_DELETED, loadConfig.getSortField(), loadConfig.getSortDir());
+			List<Contact> dbInstances = DbContact.findFiltered(searchSettings.getFilter(), searchSettings.isDoBoolean(), (char) 0, AppConstants.STATUS_DELETED, loadConfig.getSortField(), loadConfig.getSortDir());
 			
 			int i = 0;
 			int totSize = 0;

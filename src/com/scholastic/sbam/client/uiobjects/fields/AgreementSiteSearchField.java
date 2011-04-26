@@ -16,34 +16,40 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.scholastic.sbam.client.services.SiteLocationSearchService;
-import com.scholastic.sbam.client.services.SiteLocationSearchServiceAsync;
-import com.scholastic.sbam.client.uiobjects.uiapp.CreateSiteDialog;
-import com.scholastic.sbam.client.uiobjects.uiapp.CreateSiteDialog.CreateSiteDialogSaver;
+import com.scholastic.sbam.client.services.AgreementSiteSearchService;
+import com.scholastic.sbam.client.services.AgreementSiteSearchServiceAsync;
+import com.scholastic.sbam.client.uiobjects.uiapp.CreateAgreementSiteDialog;
+import com.scholastic.sbam.client.uiobjects.uiapp.CreateAgreementSiteDialog.CreateAgreementSiteDialogSaver;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.AgreementSiteInstance;
-import com.scholastic.sbam.shared.objects.AuthMethodInstance;
-import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.SiteInstance;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
 import com.scholastic.sbam.shared.util.AppConstants;
 
-public class SiteLocationSearchField extends ComboBox<BeanModel> implements CreateSiteDialogSaver {
+/**
+ * INCOMPLETE -- TEST AND FINISH BEFORE USING
+ * 
+ * This class presents a field for finding the sites (ucn+suffix+location) for an agreement.
+ * 
+ * It was abandoned in favor of a two field approach (institution, location).
+ * 
+ * To be used this must be expanded to show the institution and location name and codes in the results, and to select
+ * and provide all three values through a SiteInstance.
+ * 
+ * @author Bob Lacatena
+ *
+ */
+public class AgreementSiteSearchField extends ComboBox<BeanModel> implements CreateAgreementSiteDialogSaver {
 	
-	protected final SiteLocationSearchServiceAsync siteLocationSearchService = GWT.create(SiteLocationSearchService.class);
+	protected final AgreementSiteSearchServiceAsync agreementSiteSearchService = GWT.create(AgreementSiteSearchService.class);
 	
 	protected long						searchSyncId		=	0;
 	
-	protected int						ucn;
-	protected int						ucnSuffix;
+	protected int						agreementId;
 	
 	protected boolean					includeAddOption	=	true;
-	protected boolean					includeAllOption	=	true;
-	protected boolean					includeMainOption	=	false;
-	protected SiteInstance				addInstance			=	null;
-	protected SiteInstance				allInstance			=	null;
-	protected SiteInstance				mainInstance		=	null;
+	protected AgreementSiteInstance		addInstance			=	null;
 
 	protected String					sortField			=	"descriptionAndCode";
 	protected SortDir					sortDir				=	SortDir.ASC;
@@ -51,10 +57,10 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> implements Crea
 	protected LayoutContainer			createDialogContainer	= null;
 	protected String					institutionName			= null;
 	
-	public SiteLocationSearchField() {
+	public AgreementSiteSearchField() {
 		super();
 		
-		PagingLoader<PagingLoadResult<SiteInstance>> loader = getSiteLoader(); 
+		PagingLoader<PagingLoadResult<AgreementSiteInstance>> loader = getSiteLoader(); 
 		
 		ListStore<BeanModel> siteLocationStore = new ListStore<BeanModel>(loader);
 		siteLocationStore.setKeyProvider(new SimpleKeyProvider("uniqueKey"));
@@ -75,7 +81,7 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> implements Crea
 	}
 	
 
-	public SiteLocationSearchField(LayoutContainer createDialogContainer) {
+	public AgreementSiteSearchField(LayoutContainer createDialogContainer) {
 		this();
 		this.createDialogContainer = createDialogContainer;
 	}
@@ -145,18 +151,18 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> implements Crea
 	}
 	
 	protected void openCreateSiteDialog() {
-		if (ucn == 0) {
+		if (agreementId == 0) {
 			MessageBox.alert("Programming Error", "No institution has been selected for which to create a site location.", null);
 			return;
 		}
 		
-		new CreateSiteDialog(createDialogContainer, this, ucn, ucnSuffix, institutionName).show();	
+		new CreateAgreementSiteDialog(createDialogContainer, this, agreementId).show();	
 	}
 
 	@Override
-	public void onCreateSiteSave(SiteInstance instance) {
+	public void onCreateAgreementSiteSave(AgreementSiteInstance instance) {
 		//	Add the model to the field store and select it
-		BeanModel model = SiteInstance.obtainModel(instance);
+		BeanModel model = AgreementSiteInstance.obtainModel(instance);
 		this.getStore().add(model);
 //		this.select(model);
 		this.setValue(model);
@@ -183,17 +189,17 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> implements Crea
 	 * Construct and return a loader to handle returning a list of siteLocations.
 	 * @return
 	 */
-	protected PagingLoader<PagingLoadResult<SiteInstance>> getSiteLoader() {
+	protected PagingLoader<PagingLoadResult<AgreementSiteInstance>> getSiteLoader() {
 		// proxy and reader  
-		RpcProxy<PagingLoadResult<SiteInstance>> proxy = new RpcProxy<PagingLoadResult<SiteInstance>>() {  
+		RpcProxy<PagingLoadResult<AgreementSiteInstance>> proxy = new RpcProxy<PagingLoadResult<AgreementSiteInstance>>() {  
 			@Override  
-			public void load(Object loadConfig, final AsyncCallback<PagingLoadResult<SiteInstance>> callback) {
+			public void load(Object loadConfig, final AsyncCallback<PagingLoadResult<AgreementSiteInstance>> callback) {
 		    	
 				// This could be as simple as calling userListService.getUsers and passing the callback
 				// Instead, here the callback is overridden so that it can catch errors and alert the users.  Then the original callback is told of the failure.
 				// On success, the original callback is just passed the onSuccess message, and the response (the list).
 				
-				AsyncCallback<SynchronizedPagingLoadResult<SiteInstance>> myCallback = new AsyncCallback<SynchronizedPagingLoadResult<SiteInstance>>() {
+				AsyncCallback<SynchronizedPagingLoadResult<AgreementSiteInstance>> myCallback = new AsyncCallback<SynchronizedPagingLoadResult<AgreementSiteInstance>>() {
 					public void onFailure(Throwable caught) {
 						// Show the RPC error message to the user
 						if (caught instanceof IllegalArgumentException)
@@ -208,31 +214,17 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> implements Crea
 						callback.onFailure(caught);
 					}
 
-					public void onSuccess(SynchronizedPagingLoadResult<SiteInstance> syncResult) {
+					public void onSuccess(SynchronizedPagingLoadResult<AgreementSiteInstance> syncResult) {
 						if(syncResult.getSyncId() != searchSyncId)
 							return;
 						
-						PagingLoadResult<SiteInstance> result = syncResult.getResult();
-						int resultCount = result != null && result.getData() != null ? result.getData().size() : 0;
+						PagingLoadResult<AgreementSiteInstance> result = syncResult.getResult();
 						if (includeAddOption) {
 							if (addInstance == null) {
-								addInstance= new SiteInstance();
+								addInstance= new AgreementSiteInstance();
 								addInstance.setStatus(AppConstants.STATUS_NEW);
 							}
 							result.getData().add(0, addInstance);
-							result.setTotalLength(result.getTotalLength() + 1);
-						}
-						if (includeAllOption) {
-							if (allInstance == null) {
-								allInstance= new SiteInstance();
-								allInstance.setStatus(AppConstants.STATUS_ALL);
-							}
-							result.getData().add(0, allInstance);
-							result.setTotalLength(result.getTotalLength() + 1);
-						}
-						if (includeMainOption && resultCount == 0) {
-							mainInstance= SiteInstance.getMainInstance(ucn, ucnSuffix);
-							result.getData().add(0, mainInstance);
 							result.setTotalLength(result.getTotalLength() + 1);
 						}
 
@@ -245,14 +237,14 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> implements Crea
 				( (PagingLoadConfig) loadConfig).set("sortDir",		sortDir);
 				
 				searchSyncId = System.currentTimeMillis();
-				siteLocationSearchService.searchSiteLocations((PagingLoadConfig) loadConfig, ucn, ucnSuffix, getQueryValue(loadConfig), searchSyncId, myCallback);
+				agreementSiteSearchService.searchAgreementSites((PagingLoadConfig) loadConfig, agreementId, getQueryValue(loadConfig), AppConstants.STATUS_DELETED, searchSyncId, myCallback);
 				
 		    }  
 		};
 		BeanModelReader reader = new BeanModelReader();
 		
 		// loader and store  
-		PagingLoader<PagingLoadResult<SiteInstance>> loader = new BasePagingLoader<PagingLoadResult<SiteInstance>>(proxy, reader);
+		PagingLoader<PagingLoadResult<AgreementSiteInstance>> loader = new BasePagingLoader<PagingLoadResult<AgreementSiteInstance>>(proxy, reader);
 		return loader;
 	}
 	
@@ -269,22 +261,6 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> implements Crea
 
 	public void setIncludeAddOption(boolean includeAddOption) {
 		this.includeAddOption = includeAddOption;
-	}
-
-	public boolean isIncludeAllOption() {
-		return includeAllOption;
-	}
-
-	public void setIncludeAllOption(boolean includeAllOption) {
-		this.includeAllOption = includeAllOption;
-	}
-
-	public boolean isIncludeMainOption() {
-		return includeMainOption;
-	}
-
-	public void setIncludeMainOption(boolean includeMainOption) {
-		this.includeMainOption = includeMainOption;
 	}
 
 	public String getSortField() {
@@ -319,64 +295,30 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> implements Crea
 		this.institutionName = institutionName;
 	}
 
-	public int getUcn() {
-		return ucn;
+	public int getAgreementId() {
+		return agreementId;
 	}
 
-	public void setUcn(int ucn) {
-		this.ucn = ucn;
+	public void setAgreementId(int agreementId) {
+		this.agreementId = agreementId;
 		lastQuery = null;	// Necessary so that a trigger click for the new UCN reloads for that UCN
 	}
-
-	public int getUcnSuffix() {
-		return ucnSuffix;
-	}
-
-	public void setUcnSuffix(int ucnSuffix) {
-		this.ucnSuffix = ucnSuffix;
-		lastQuery = null;	// Necessary so that a trigger click for the new UCN suffix reloads for that UCN
-	}
 	
-	public void setFor(int ucn, int ucnSuffix, String institutionName) {
-		this.ucn = ucn;
-		this.ucnSuffix = ucnSuffix;
+	public void setFor(int agreementId, String institutionName) {
+		this.agreementId = agreementId;
 		if (institutionName != null && institutionName.length() > 0)
 			this.institutionName = institutionName;
-		else if (ucn > 0)
-			institutionName = "UCN " + ucn;
+		else if (agreementId > 0)
+			institutionName = "Agreement Id " + agreementId;
 		else
 			institutionName = "";
 		lastQuery = null;	// Necessary so that a trigger click for the new UCN reloads for that UCN
 	}
 	
-	public void setFor(AuthMethodInstance method) {
-		if (method.getSite() != null && method.getSite().getInstitution() != null)
-			setFor(method, method.getSite().getInstitution().getInstitutionName());
-		else
-			setFor(method, null);
-	}
-	
-	public void setFor(AuthMethodInstance method, String institutionName) {
-		setFor(method.getForUcn(), method.getForUcnSuffix(), institutionName);
-	}
-	
 	public void setFor(AgreementSiteInstance site) {
 		if (site.getSite() != null && site.getSite().getInstitution() != null)
-			setFor(site.getSiteUcn(), site.getSiteUcnSuffix(), site.getSite().getInstitution().getInstitutionName());
+			setFor(site.getAgreementId(), site.getSite().getInstitution().getInstitutionName());
 		else
-			setFor(site.getSiteUcn(), site.getSiteUcnSuffix(), null);
-	}
-	
-	public void setFor(SiteInstance site) {
-		ucn = site.getUcn();
-		ucnSuffix = site.getUcnSuffix();
-		if (site.getInstitution() != null)
-			setFor(site.getUcn(), site.getUcnSuffix(), site.getInstitution().getInstitutionName());
-		else
-			setFor(site.getUcn(), site.getUcnSuffix(), null);
-	}
-	
-	public void setFor(InstitutionInstance institution) {
-		setFor(institution.getUcn(), 1, institution.getInstitutionName());
+			setFor(site.getAgreementId(), null);
 	}
 }

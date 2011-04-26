@@ -9,29 +9,31 @@ import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.scholastic.sbam.client.services.InstitutionSearchService;
-import com.scholastic.sbam.client.services.InstitutionSearchServiceAsync;
+import com.scholastic.sbam.client.services.AgreementSiteInstitutionSearchService;
+import com.scholastic.sbam.client.services.AgreementSiteInstitutionSearchServiceAsync;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
+import com.scholastic.sbam.shared.util.AppConstants;
 
-public class InstitutionSearchField extends ComboBox<BeanModel> {
+public class AgreementSiteInstitutionSearchField extends ComboBox<BeanModel> {
 	
-	protected final InstitutionSearchServiceAsync institutionSearchService = GWT.create(InstitutionSearchService.class);
+	protected final AgreementSiteInstitutionSearchServiceAsync institutionSearchService = GWT.create(AgreementSiteInstitutionSearchService.class);
 	
-	private long					searchSyncId	=	0;
+	protected long					searchSyncId	=	0;
+	
+	protected int						agreementId;
 
-	private String					sortField		=	"institutionName";
-	private SortDir					sortDir			=	SortDir.ASC;
+	protected String					sortField		=	"institutionName";
+	protected SortDir					sortDir			=	SortDir.ASC;
 	
-	public InstitutionSearchField() {
+	public AgreementSiteInstitutionSearchField() {
 		super();
 		
 		PagingLoader<PagingLoadResult<InstitutionInstance>> loader = getInstitutionLoader(); 
@@ -39,13 +41,14 @@ public class InstitutionSearchField extends ComboBox<BeanModel> {
 		ListStore<BeanModel> institutionStore = new ListStore<BeanModel>(loader);
 		institutionStore.setKeyProvider(new SimpleKeyProvider("ucn"));
 		
-		this.setWidth(300);
+//		this.setWidth(300);
 		this.setValueField("ucn");
 		this.setDisplayField("nameAndUcn");  
 		this.setEmptyText("Enter institution search criteria here...");
 		this.setStore(institutionStore);
-		this.setMinChars(1);
-		this.setHideTrigger(true); 
+		this.setMinChars(0);
+		this.setHideTrigger(false);
+		this.setTriggerAction(TriggerAction.ALL);
 		this.setTriggerStyle("trigger-square"); 
 		this.setPageSize(200);
 		this.setAllowBlank(false);
@@ -83,25 +86,20 @@ public class InstitutionSearchField extends ComboBox<BeanModel> {
 	    }
 	}
 	
-//	public void dumpValues(String tag) {
-//		if (originalValue == null) System.out.println(tag + ": Original null"); else System.out.println(tag + ": Original " + originalValue.getProperties());
-//		if (value == null) System.out.println(tag + ": Value null"); else System.out.println(tag + ": Value " + value.getProperties());
-//	}
-	
 	public BeanModel getSelectedValue() {
 		return value;
 	}
 	
-	public void onBlur(ComponentEvent ce) {
-		super.onBlur(ce);
-		if (this.value == null) {
-			this.value = this.originalValue;
-			if (this.value == null)
-				setRawValue("");
-			else
-				setRawValue(this.value.get(this.getDisplayField()).toString());
-		}
-	}
+//	public void onBlur(ComponentEvent ce) {
+//		super.onBlur(ce);
+//		if (this.value == null) {
+//			this.value = this.originalValue;
+//			if (this.value == null)
+//				setRawValue("");
+//			else
+//				setRawValue(this.value.get(this.getDisplayField()).toString());
+//		}
+//	}
 	
 	protected String getMultiLineAddressTemplate() {
 		return "<b>{institutionName}</b>  <span style=\"color:gray; font-style: italic\">{ucn}</span><br/>{htmlAddress}"; // {address1}<br/>{city}, {state} &nbsp;&nbsp;&nbsp; {zip}";
@@ -159,7 +157,7 @@ public class InstitutionSearchField extends ComboBox<BeanModel> {
 				( (PagingLoadConfig) loadConfig).set("sortDir",		sortDir);
 				
 				searchSyncId = System.currentTimeMillis();
-				institutionSearchService.getInstitutions((PagingLoadConfig) loadConfig, getQueryValue(loadConfig), false, searchSyncId, myCallback);
+				institutionSearchService.searchAgreementSiteInstitutions((PagingLoadConfig) loadConfig, agreementId, getQueryValue(loadConfig), AppConstants.STATUS_DELETED, searchSyncId, myCallback);
 				
 		    }  
 		};
@@ -191,6 +189,14 @@ public class InstitutionSearchField extends ComboBox<BeanModel> {
 
 	public void setSortDir(SortDir sortDir) {
 		this.sortDir = sortDir;
+	}
+
+	public int getAgreementId() {
+		return agreementId;
+	}
+
+	public void setAgreementId(int agreementId) {
+		this.agreementId = agreementId;
 	}
 	
 }

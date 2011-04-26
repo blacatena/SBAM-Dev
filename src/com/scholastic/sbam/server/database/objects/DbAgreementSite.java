@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Criteria;
+import org.hibernate.SQLQuery;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
@@ -11,12 +12,14 @@ import com.scholastic.sbam.server.database.codegen.AgreementSite;
 import com.scholastic.sbam.server.database.codegen.AgreementSiteId;
 import com.scholastic.sbam.server.database.codegen.CancelReason;
 import com.scholastic.sbam.server.database.codegen.CommissionType;
+import com.scholastic.sbam.server.database.codegen.Institution;
 import com.scholastic.sbam.server.database.codegen.Site;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
 import com.scholastic.sbam.shared.objects.AgreementSiteInstance;
 import com.scholastic.sbam.shared.objects.CancelReasonInstance;
 import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
 import com.scholastic.sbam.shared.objects.SiteInstance;
+import com.scholastic.sbam.shared.util.AppConstants;
 
 /**
  * Sample database table accessor class, extending HibernateAccessor, and implementing custom get/find methods.
@@ -99,6 +102,81 @@ public class DbAgreementSite extends HibernateAccessor {
             System.out.println(e.getMessage());
         }
         return new ArrayList<AgreementSite>();
+	}
+	
+	public static List<AgreementSite> findFiltered(int agreementId, String filter, boolean doBoolean, char neStatus) {
+        try
+        { 	
+        	String sqlQuery = "SELECT agreement_site.* FROM agreement_site,institution WHERE ";
+            sqlQuery += " agreement_site.agreement_id = " + agreementId;
+            sqlQuery += " AND agreement_site.site_ucn = institution.ucn ";
+           
+            if (filter != null) {
+				filter = filter.replaceAll("'", "''");
+				if (doBoolean) {
+					sqlQuery += "AND MATCH (institution_name,address1,adress2,adress3,city,zip,country,ucn,parent_ucn) AGAINST ('" + filter + "' IN BOOLEAN MODE)";
+				} else {
+					sqlQuery += "AND MATCH (institution_name,address1,adress2,adress3,city,zip,country) AGAINST ('" + filter + "')";
+				}
+            }
+			
+            if (neStatus != AppConstants.STATUS_ANY_NONE)
+            	sqlQuery += " AND agreement_site.status <> '" + neStatus + "' ";
+            sqlQuery += " order by institution.institution_name, institution.ucn";
+            
+            SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery);
+            
+            query.addEntity(getObjectReference(objectName));
+            
+            @SuppressWarnings("unchecked")
+			List<AgreementSite> objects = query.list();
+            
+            return objects;
+        }
+        catch(Exception e)
+        {
+        	e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return new ArrayList<AgreementSite>();
+	}
+	
+	public static List<Institution> findInstitutions(int agreementId, String filter, boolean doBoolean, char neStatus) {
+        try
+        { 	
+        	String sqlQuery = "SELECT distinct institution.* FROM institution,agreement_site WHERE ";
+            sqlQuery += " agreement_site.agreement_id = " + agreementId;
+            sqlQuery += " AND agreement_site.site_ucn = institution.ucn ";
+           
+
+            if (filter != null) {
+				filter = filter.replaceAll("'", "''");
+				if (doBoolean) {
+					sqlQuery += "AND MATCH (institution_name,address1,city,zip,ucn,parent_ucn) AGAINST ('" + filter + "' IN BOOLEAN MODE)";
+				} else {
+					sqlQuery += "AND MATCH (institution_name,address1,city,zip,ucn,parent_ucn) AGAINST ('" + filter + "')";
+				}
+            }
+			
+            if (neStatus != AppConstants.STATUS_ANY_NONE)
+            	sqlQuery += " AND agreement_site.status <> '" + neStatus + "' ";
+            sqlQuery += " order by institution.institution_name, institution.ucn";
+            
+            SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery);
+            
+            query.addEntity(DbInstitution.getObjectReference(DbInstitution.objectName));
+            
+            @SuppressWarnings("unchecked")
+			List<Institution> objects = query.list();
+            
+            return objects;
+        }
+        catch(Exception e)
+        {
+        	e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return new ArrayList<Institution>();
 	}
 	
 	public static void setDescriptions(AgreementSiteInstance agreementSite) {

@@ -21,7 +21,7 @@ import com.scholastic.sbam.shared.util.AppConstants;
  */
 public class DbInstitution extends HibernateAccessor {
 	
-	static String objectName = Institution.class.getSimpleName();
+	public static String objectName = Institution.class.getSimpleName();
 	
 	public static InstitutionInstance getInstance(Institution dbInstance) {
 		if (dbInstance == null)

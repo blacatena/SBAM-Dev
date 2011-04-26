@@ -3,9 +3,11 @@ package com.scholastic.sbam.server.validation;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.scholastic.sbam.server.database.codegen.AgreementSite;
 import com.scholastic.sbam.server.database.codegen.AuthMethod;
 import com.scholastic.sbam.server.database.codegen.Institution;
 import com.scholastic.sbam.server.database.codegen.Site;
+import com.scholastic.sbam.server.database.objects.DbAgreementSite;
 import com.scholastic.sbam.server.database.objects.DbAuthMethod;
 import com.scholastic.sbam.server.database.objects.DbInstitution;
 import com.scholastic.sbam.server.database.objects.DbSite;
@@ -30,6 +32,7 @@ public class AppAuthMethodValidator {
 		validateAuthMethodId(instance, instance.isNewRecord());
 		validateInstitution(instance.getForUcn());
 		validateSite(instance.getForUcn(), instance.getForUcnSuffix(), instance.getForSiteLocCode());
+		validateAgreementSite(instance.getAgreementId(), instance.getForUcn(), instance.getForUcnSuffix(), instance.getForSiteLocCode());
 		validateStatus(instance.getStatus());
 		return messages;
 	}
@@ -115,6 +118,25 @@ public class AppAuthMethodValidator {
 			Site site = DbSite.getById(ucn, ucnSuffix, siteLocCode);
 			if (site == null) {
 				addMessage("Site not found in the database.");
+			}
+		}
+		return messages;
+	}
+	
+	/**
+	 * For a method associated with both an agreement and a particular site location, be certain the site location is listed on the agreement.
+	 * 
+	 * @param agreementId
+	 * @param ucn
+	 * @param ucnSuffix
+	 * @param siteLocCode
+	 * @return
+	 */
+	public List<String> validateAgreementSite(int agreementId, int ucn, int ucnSuffix, String siteLocCode) {
+		if (agreementId > 0 && ucn > 0 && siteLocCode != null && siteLocCode.length() > 0) {
+			AgreementSite site = DbAgreementSite.getById(agreementId, ucn, ucnSuffix, siteLocCode);
+			if (site == null) {
+				addMessage("This site location is not (currently) associated with this agreement.");
 			}
 		}
 		return messages;

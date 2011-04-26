@@ -36,7 +36,7 @@ import com.scholastic.sbam.client.services.UpdateAuthMethodNoteService;
 import com.scholastic.sbam.client.services.UpdateAuthMethodNoteServiceAsync;
 import com.scholastic.sbam.client.services.UpdateAuthMethodService;
 import com.scholastic.sbam.client.services.UpdateAuthMethodServiceAsync;
-import com.scholastic.sbam.client.uiobjects.fields.InstitutionSearchField;
+import com.scholastic.sbam.client.uiobjects.fields.AgreementSiteInstitutionSearchField;
 import com.scholastic.sbam.client.uiobjects.fields.IpAddressRangeField;
 import com.scholastic.sbam.client.uiobjects.fields.LockableFieldSet;
 import com.scholastic.sbam.client.uiobjects.fields.NotesIconButtonField;
@@ -86,7 +86,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> /
 	protected MultiField<String>			idNotesCombo		= new MultiField<String>("Agreement #");
 	protected LabelField					agreementIdField	= getLabelField();
 	protected NotesIconButtonField<String>	notesField			= getNotesButtonField();
-	protected InstitutionSearchField		institutionField	= getInstitutionField("ucn", "Site", DEFAULT_FIELD_WIDTH, "The institution that will receive the product services through this authentication method.");
+	protected AgreementSiteInstitutionSearchField		institutionField	= getInstitutionField("ucn", "Site", DEFAULT_FIELD_WIDTH, "The institution that will receive the product services through this authentication method.");
 	protected SiteLocationSearchField		siteLocationField	= getSiteLocationField("uniqueKey", "Site Location", DEFAULT_FIELD_WIDTH, "The specific location at the customer site targeted by this authentication method.");
 	protected TextField<String>				ucnDisplay			= getTextField("UCN+");
 	protected CheckBox						approvedCheck		= getCheckBoxField("Approved");
@@ -217,6 +217,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> /
 
 	@Override
 	public void setFormFieldValues(AuthMethodInstance instance) {
+		
 		String displayStatus = "Method " + AppConstants.getStatusDescription(instance.getStatus());
 		if (instance.isActivated())
 			if (instance.getReactivatedDatetime() != null)
@@ -232,6 +233,8 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> /
 			ucnDisplay.setValue(instance.getForUcn() + "");
 		else
 			ucnDisplay.setValue(instance.getForUcn() + " - " + instance.getForUcnSuffix());
+		
+		institutionField.setAgreementId(instance.getAgreementId());
 		
 		set(instance.getSite().getInstitution());
 //		institutionField.setReadOnly(!instance.isNewRecord());
@@ -606,8 +609,8 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> /
 	}
 
 	
-	protected InstitutionSearchField getInstitutionField(String name, String label, int width, String toolTip) {
-        InstitutionSearchField instCombo = new InstitutionSearchField();
+	protected AgreementSiteInstitutionSearchField getInstitutionField(String name, String label, int width, String toolTip) {
+		AgreementSiteInstitutionSearchField instCombo = new AgreementSiteInstitutionSearchField();
 		FieldFactory.setStandard(instCombo, label);
 		instCombo.setAllowBlank(true);
 		

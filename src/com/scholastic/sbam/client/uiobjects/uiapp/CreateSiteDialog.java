@@ -66,7 +66,7 @@ public class CreateSiteDialog extends PortletMaskDialog {
 	@Override
 	public void addFields(FormPanel formPanel) {
 		
-		if (codeField == null)
+		if (institutionNameField == null)
 			institutionNameField = FieldFactory.getLabelField("Institution", 0, institutionName, "The institution for which a new site location will be created.");
 		
 		if (codeField == null) {
