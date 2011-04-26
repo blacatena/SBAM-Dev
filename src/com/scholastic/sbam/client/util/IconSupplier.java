@@ -226,6 +226,10 @@ public class IconSupplier {
 		return getContactsIconName();
 	}
 	
+	public static String getLinkTypeIconName() {
+		return "link.png";
+	}
+	
 	public static String getFirstIconName() {
 		return "first.png";
 	}

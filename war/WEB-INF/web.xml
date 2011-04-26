@@ -92,6 +92,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>updateAgreementLinkServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateAgreementLinkServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>updateAgreementNoteServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.UpdateAgreementNoteServiceImpl</servlet-class>
   </servlet>
@@ -279,6 +284,21 @@
   <servlet>
     <servlet-name>institutionWordServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.InstitutionWordServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>linkTypeListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.LinkTypeListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updateLinkTypeServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateLinkTypeServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>linkTypeCodeValidationServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.LinkTypeCodeValidationServiceImpl</servlet-class>
   </servlet>
   
   <servlet>
@@ -517,6 +537,11 @@
   </servlet-mapping>
   
   <servlet-mapping>
+    <servlet-name>updateAgreementLinkServlet</servlet-name>
+    <url-pattern>/sbam/updateAgreementLink</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
     <servlet-name>updateAgreementNoteServlet</servlet-name>
     <url-pattern>/sbam/updateAgreementNote</url-pattern>
   </servlet-mapping>
@@ -669,6 +694,21 @@
   <servlet-mapping>
     <servlet-name>institutionWordServlet</servlet-name>
     <url-pattern>/sbam/getInstitutionWords</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>linkTypeListServlet</servlet-name>
+    <url-pattern>/sbam/getLinkTypes</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateLinkTypeServlet</servlet-name>
+    <url-pattern>/sbam/updateLinkType</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>linkTypeCodeValidationServlet</servlet-name>
+    <url-pattern>/sbam/validateLinkTypeCode</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

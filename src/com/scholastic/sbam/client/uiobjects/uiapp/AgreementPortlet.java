@@ -134,7 +134,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected LabelField					addressDisplay		= new LabelField();
 	protected NumberField					ucnDisplay			= getIntegerField("UCN");
 	protected LabelField					customerTypeDisplay	= new LabelField();
-	protected AgreementLinkSearchField		agreementLinkField	= getAgreementLinkField("linkId", "Link", 260, "A link used to relate associated agreements.");
+	protected AgreementLinkSearchField		agreementLinkField	= getAgreementLinkField("linkId", "Link", 0, "A link used to relate associated agreements.");
 	protected LabelField					linkTypeDisplay		= new LabelField();
 	protected FieldSet						linkFieldSet		= new FieldSet() {
 																	@Override
@@ -410,12 +410,12 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	}
 	
 	protected AgreementLinkSearchField getAgreementLinkField(String name, String label, int width, String toolTip) {
-        AgreementLinkSearchField linkCombo = new AgreementLinkSearchField();
+        AgreementLinkSearchField linkCombo = new AgreementLinkSearchField(this);
 		FieldFactory.setStandard(linkCombo, label);
 		
 		if (toolTip != null)
 			linkCombo.setToolTip(toolTip);
-		if (width > 0)
+		if (width >= 0)
 			linkCombo.setWidth(width);
 		linkCombo.setDisplayField("descriptionAndCode");
 		

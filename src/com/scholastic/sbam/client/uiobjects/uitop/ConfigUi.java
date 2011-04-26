@@ -14,6 +14,7 @@ import com.scholastic.sbam.client.uiobjects.uiconfig.CancelReasonEditGrid;
 import com.scholastic.sbam.client.uiobjects.uiconfig.CommissionTypeEditGrid;
 import com.scholastic.sbam.client.uiobjects.uiconfig.ContactTypeEditGrid;
 import com.scholastic.sbam.client.uiobjects.uiconfig.DeleteReasonEditGrid;
+import com.scholastic.sbam.client.uiobjects.uiconfig.LinkTypeEditGrid;
 import com.scholastic.sbam.client.uiobjects.uiconfig.PreferenceCategoryEditGrid;
 import com.scholastic.sbam.client.uiobjects.uiconfig.PreferenceCodeEditGrid;
 import com.scholastic.sbam.client.uiobjects.uiconfig.ProductEditGrid;
@@ -36,6 +37,7 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 	private TabItem  tbtmCommissionTypes;
 	private TabItem  tbtmAgreementTypes;
 	private TabItem  tbtmContactTypes;
+	private TabItem  tbtmLinkTypes;
 	
 	private DeleteReasonEditGrid		deleteReasonEditGrid;
 	private CancelReasonEditGrid		cancelReasonEditGrid;
@@ -44,6 +46,7 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 	private CommissionTypeEditGrid		commissionTypeEditGrid;
 	private AgreementTypeEditGrid		agreementTypeEditGrid;
 	private ContactTypeEditGrid			contactTypeEditGrid;
+	private LinkTypeEditGrid			linkTypeEditGrid;
 //	private PreferenceCategoryEditGrid 	preferenceCategoryEditGrid;
 	private DualEditGridContainer		preferenceEditGridContainer;
 	private DualEditGridContainer		productEditGridContainer;
@@ -72,6 +75,7 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		tbtmCommissionTypes	=	addTab("Commission Types",IconSupplier.getCommissionTypeIconName());
 		tbtmAgreementTypes	=	addTab("Agreement Types",IconSupplier.getAgreementTypeIconName());
 		tbtmContactTypes	=	addTab("Contact Types",IconSupplier.getContactTypeIconName());
+		tbtmLinkTypes		=	addTab("Link Types",IconSupplier.getLinkTypeIconName());
 		
 		deleteReasonEditGrid = new DeleteReasonEditGrid();
 		tbtmDeleteReasons.add(deleteReasonEditGrid);
@@ -93,6 +97,9 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		
 		contactTypeEditGrid = new ContactTypeEditGrid();
 		tbtmContactTypes.add(contactTypeEditGrid);
+		
+		linkTypeEditGrid = new LinkTypeEditGrid();
+		tbtmLinkTypes.add(linkTypeEditGrid);
 		
 		PreferenceCategoryEditGrid preferenceCategoryEditGrid = new PreferenceCategoryEditGrid();
 		preferenceCategoryEditGrid.setAutoExpandColumn("description");
@@ -152,6 +159,7 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 			tbtmDeleteReasons.enable();
 			tbtmCancelReasons.enable();
 			tbtmContactTypes.enable();
+			tbtmLinkTypes.enable();
 			tbtmServices.enable();
 			tbtmTermTypes.enable();
 			tbtmCommissionTypes.enable();
@@ -162,6 +170,7 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 			tbtmDeleteReasons.disable();
 			tbtmCancelReasons.disable();
 			tbtmContactTypes.disable();
+			tbtmLinkTypes.disable();
 			tbtmServices.disable();
 			tbtmTermTypes.disable();
 			tbtmCommissionTypes.disable();
@@ -176,6 +185,7 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 		cancelReasonEditGrid.sleep();
 		serviceEditGrid.sleep();
 		contactTypeEditGrid.sleep();
+		linkTypeEditGrid.sleep();
 		termTypeEditGrid.sleep();
 		commissionTypeEditGrid.sleep();
 		agreementTypeEditGrid.sleep();
@@ -197,6 +207,8 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 			agreementTypeEditGrid.awaken();
 		} else if (advanced.getSelectedItem() == tbtmContactTypes) {
 			contactTypeEditGrid.awaken();
+		} else if (advanced.getSelectedItem() == tbtmLinkTypes) {
+			linkTypeEditGrid.awaken();
 		} else if (advanced.getSelectedItem() == tbtmTermTypes) {
 			termTypeEditGrid.awaken();
 		} else if (advanced.getSelectedItem() == tbtmPreferences) {
@@ -285,6 +297,14 @@ public class ConfigUi extends Composite implements AppSecurityManager, AppSleepe
 
 	public void setTbtmContactTypes(TabItem tbtmContactTypes) {
 		this.tbtmContactTypes = tbtmContactTypes;
+	}
+
+	public TabItem getTbtmLinkTypes() {
+		return tbtmLinkTypes;
+	}
+
+	public void setTbtmLinkTypes(TabItem tbtmLinkTypes) {
+		this.tbtmLinkTypes = tbtmLinkTypes;
 	}
 	
 }

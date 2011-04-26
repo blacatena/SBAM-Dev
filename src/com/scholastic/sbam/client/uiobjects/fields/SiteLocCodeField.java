@@ -5,6 +5,14 @@ import com.scholastic.sbam.client.services.SiteLocationValidationService;
 import com.scholastic.sbam.client.services.SiteLocationValidationServiceAsync;
 import com.scholastic.sbam.client.validation.SimpleAsyncTextField;
 
+/**
+ * A field for free entry of a new site location code for a UCN + suffix.
+ * 
+ * Asynchronous validation is done to be sure the location code has not already been used (created) for that UCN + suffix.
+ * 
+ * @author Bob Lacatena
+ *
+ */
 public class SiteLocCodeField extends SimpleAsyncTextField<String> {
 	protected final SiteLocationValidationServiceAsync		validationService		= GWT.create(SiteLocationValidationService.class);
 	

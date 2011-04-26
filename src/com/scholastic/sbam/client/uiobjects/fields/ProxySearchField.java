@@ -58,6 +58,7 @@ public class ProxySearchField extends ComboBox<BeanModel> implements CreateProxy
 		this.setStore(proxyStore);
 		this.setMinChars(2);
 		this.setHideTrigger(false); 
+		this.setTriggerAction(TriggerAction.QUERY);
 		this.setTriggerStyle("trigger-square");
 		this.setPageSize(200);
 		this.setAllowBlank(true);
@@ -151,8 +152,8 @@ public class ProxySearchField extends ComboBox<BeanModel> implements CreateProxy
 	@Override
 	public void onSelect(BeanModel model, int index) {
 		if (model.getBean() != null) {
-			ProxyInstance site = (ProxyInstance) model.getBean();
-			if (site.isAddNew()) {
+			ProxyInstance proxy = (ProxyInstance) model.getBean();
+			if (proxy.isAddNew()) {
 				openCreateProxyDialog();
 				lastQuery = null;
 			}

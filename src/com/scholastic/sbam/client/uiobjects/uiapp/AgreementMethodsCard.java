@@ -57,7 +57,7 @@ import com.scholastic.sbam.shared.objects.SiteInstance;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.util.AppConstants;
 
-public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> /* implements CreateSiteDialog.CreateSiteDialogSaver */ {
+public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	
 	private static final int DEFAULT_FIELD_WIDTH	=	0;	//250;
 	
@@ -543,41 +543,8 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> /
 			siteLocCombo.setWidth(width);
 		siteLocCombo.setDisplayField("descriptionAndCode");
 		
-//		siteLocCombo.addSelectionChangedListener(new SelectionChangedListener<BeanModel>() {
-//
-//			@Override
-//			public void selectionChanged(SelectionChangedEvent<BeanModel> se) {
-//				if (se.getSelectedItem() != null) {
-//					SiteInstance instance = se.getSelectedItem().getBean();
-//					if (instance.isAddNew()) {
-//						openCreateSiteDialog();
-////						if (saveSiteLocation != null)
-////							siteLocCombo.select(SiteInstance.obtainModel(saveSiteLocation));
-//					} else {
-//						saveSiteLocation = instance;
-//					}
-//						
-//				}
-//			}
-//			
-//		});
-		
 		return siteLocCombo;
 	}
-	
-//	protected void openCreateSiteDialog() {
-//		if (siteInstitution == null) {
-//			MessageBox.alert("Programming Error", "No institution has been selected for which to create a site location.", null);
-//			return;
-//		}
-//		
-//		int useUcnSuffix;
-//		if (focusInstance != null && focusInstance.getUcn() == siteInstitution.getUcn())
-//			useUcnSuffix = focusInstance.getForUcnSuffix();
-//		else
-//			useUcnSuffix = 1;
-//		new CreateSiteDialog(this, this, siteInstitution.getUcn(), useUcnSuffix, siteInstitution.getInstitutionName()).show();	
-//	}
 	
 	protected NotesIconButtonField<String> getNotesButtonField() {
 		NotesIconButtonField<String> nibf = new NotesIconButtonField<String>(this) {
@@ -990,9 +957,5 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> /
 		
 		targetPanel.setTopComponent(viewToolBar);
 	}
-
-//	@Override
-//	public void onCreateSiteSave(SiteInstance instance) {
-//		System.out.println("onCreateSiteSave " + instance + " BUT MOVE THIS TO THE SITE LOC COMBO FIELD ITSELF!!!!");
-//	}
+	
 }

@@ -104,6 +104,8 @@ public class AgreementLinkInstance extends BetterRowEditInstance implements Bean
 
 	public void setLinkType(LinkTypeInstance linkType) {
 		this.linkType = linkType;
+		if (linkType != null)
+			this.linkTypeCode = linkType.getLinkTypeCode();
 	}
 
 	public char getStatus() {
@@ -133,10 +135,18 @@ public class AgreementLinkInstance extends BetterRowEditInstance implements Bean
 		setStatus(active?'A':'I');
 	}
 	
+	public boolean isAddNew() {
+		return (this.status == AppConstants.STATUS_NEW);
+	}
+	
+	public boolean isNone() {
+		return (this.status == AppConstants.STATUS_NULL);
+	}
+	
 	public String getListStyle() {
-		if (status == AppConstants.STATUS_NEW)
+		if (isAddNew())
 			return "list-new";
-		if (status == AppConstants.STATUS_NULL)
+		if (isNone())
 			return "list-null";
 		return "list-normal";
 	}

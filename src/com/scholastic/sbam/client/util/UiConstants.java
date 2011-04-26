@@ -25,6 +25,8 @@ import com.scholastic.sbam.client.services.ContactTypeListService;
 import com.scholastic.sbam.client.services.ContactTypeListServiceAsync;
 import com.scholastic.sbam.client.services.DeleteReasonListService;
 import com.scholastic.sbam.client.services.DeleteReasonListServiceAsync;
+import com.scholastic.sbam.client.services.LinkTypeListService;
+import com.scholastic.sbam.client.services.LinkTypeListServiceAsync;
 import com.scholastic.sbam.client.services.ProductListService;
 import com.scholastic.sbam.client.services.ProductListServiceAsync;
 import com.scholastic.sbam.client.services.TermTypeListService;
@@ -37,6 +39,7 @@ import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
 import com.scholastic.sbam.shared.objects.ContactTypeInstance;
 import com.scholastic.sbam.shared.objects.DeleteReasonInstance;
 import com.scholastic.sbam.shared.objects.GenericCodeInstance;
+import com.scholastic.sbam.shared.objects.LinkTypeInstance;
 import com.scholastic.sbam.shared.objects.ProductInstance;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.TermTypeInstance;
@@ -67,6 +70,7 @@ public class UiConstants {
 	private static BetterFilterListStore<BeanModel>		contactTypes	= new BetterFilterListStore<BeanModel>();
 	private static BetterFilterListStore<BeanModel>		deleteReasons	= new BetterFilterListStore<BeanModel>();
 	private static BetterFilterListStore<BeanModel>		cancelReasons 	= new BetterFilterListStore<BeanModel>();
+	private static BetterFilterListStore<BeanModel>		linkTypes		= new BetterFilterListStore<BeanModel>();
 	private static BetterFilterListStore<BeanModel>		products 		= new BetterFilterListStore<BeanModel>();
 	private static ListStore<BeanModel>					termTypes 		= new ListStore<BeanModel>();
 	
@@ -86,6 +90,7 @@ public class UiConstants {
 		loadContactTypes();
 		loadDeleteReasons();
 		loadCancelReasons();
+		loadLinkTypes();
 		loadProducts();
 		loadTermTypes();
 	}
@@ -311,6 +316,38 @@ public class UiConstants {
 	
 	public static ListStore<BeanModel> getContactTypes() {
 		return contactTypes;
+	}
+	
+	public static void loadLinkTypes() {
+		LinkTypeListServiceAsync linkTypeListService = GWT.create(LinkTypeListService.class);
+		
+		AsyncCallback<List<LinkTypeInstance>> callback = new AsyncCallback<List<LinkTypeInstance>>() {
+			public void onFailure(Throwable caught) {
+				// Show the RPC error message to the user
+				if (caught instanceof IllegalArgumentException)
+					MessageBox.alert("Alert", caught.getMessage(), null);
+				else {
+					MessageBox.alert("Alert", "Link types load failed unexpectedly.", null);
+					System.out.println(caught.getClass().getName());
+					System.out.println(caught.getMessage());
+				}
+			}
+
+			public void onSuccess(List<LinkTypeInstance> list) {
+				linkTypes.removeAll();
+				if (linkTypes.getKeyProvider() == null)
+					linkTypes.setKeyProvider(new SimpleKeyProvider("linkTypeCode"));
+				for (LinkTypeInstance instance : list) {
+					linkTypes.add(LinkTypeInstance.obtainModel(instance));	
+				}
+			}
+		};
+		
+		linkTypeListService.getLinkTypes(null, callback);
+	}
+	
+	public static ListStore<BeanModel> getLinkTypes() {
+		return linkTypes;
 	}
 	
 	public static void loadProducts() {
