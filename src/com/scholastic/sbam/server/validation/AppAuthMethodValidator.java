@@ -134,9 +134,14 @@ public class AppAuthMethodValidator {
 	 */
 	public List<String> validateAgreementSite(int agreementId, int ucn, int ucnSuffix, String siteLocCode) {
 		if (agreementId > 0 && ucn > 0 && siteLocCode != null && siteLocCode.length() > 0) {
-			AgreementSite site = DbAgreementSite.getById(agreementId, ucn, ucnSuffix, siteLocCode);
+			//	First look for an "all sites" entry
+			AgreementSite site = DbAgreementSite.getById(agreementId, ucn, ucnSuffix, "");
 			if (site == null) {
-				addMessage("This site location is not (currently) associated with this agreement.");
+				//	If no "all sites" entry, look for this particular site
+				site = DbAgreementSite.getById(agreementId, ucn, ucnSuffix, siteLocCode);
+				if (site == null) {
+					addMessage("This site location is not (currently) associated with this agreement.");
+				}
 			}
 		}
 		return messages;

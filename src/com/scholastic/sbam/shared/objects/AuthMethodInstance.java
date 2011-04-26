@@ -463,6 +463,8 @@ public class AuthMethodInstance extends BetterRowEditInstance implements BeanMod
 		this.status						=	fromInstance.	status;
 		this.createdDatetime			=	fromInstance.	createdDatetime;
 		this.updatedDatetime			=	fromInstance.	updatedDatetime;
+		
+		this.site						=	fromInstance.	site;
 	}
 	
 	public String getUniqueKey() {

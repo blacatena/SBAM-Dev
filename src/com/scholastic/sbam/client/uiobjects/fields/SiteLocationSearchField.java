@@ -35,6 +35,7 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> implements Crea
 	
 	protected long						searchSyncId		=	0;
 	
+	protected int						agreementId;	// 	This is optional, and will limit the sites found to those available on a particular agreement
 	protected int						ucn;
 	protected int						ucnSuffix;
 	
@@ -245,7 +246,7 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> implements Crea
 				( (PagingLoadConfig) loadConfig).set("sortDir",		sortDir);
 				
 				searchSyncId = System.currentTimeMillis();
-				siteLocationSearchService.searchSiteLocations((PagingLoadConfig) loadConfig, ucn, ucnSuffix, getQueryValue(loadConfig), searchSyncId, myCallback);
+				siteLocationSearchService.searchSiteLocations((PagingLoadConfig) loadConfig, agreementId, ucn, ucnSuffix, getQueryValue(loadConfig), searchSyncId, myCallback);
 				
 		    }  
 		};
@@ -319,6 +320,17 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> implements Crea
 		this.institutionName = institutionName;
 	}
 
+	public int getAgreementId() {
+		return agreementId;
+	}
+
+
+	public void setAgreementId(int agreementId) {
+		this.agreementId = agreementId;
+		lastQuery = null;	// Necessary so that a trigger click for the new UCN reloads for that UCN
+	}
+
+
 	public int getUcn() {
 		return ucn;
 	}
@@ -358,6 +370,7 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> implements Crea
 	
 	public void setFor(AuthMethodInstance method, String institutionName) {
 		setFor(method.getForUcn(), method.getForUcnSuffix(), institutionName);
+		agreementId = method.getAgreementId();
 	}
 	
 	public void setFor(AgreementSiteInstance site) {
@@ -365,6 +378,7 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> implements Crea
 			setFor(site.getSiteUcn(), site.getSiteUcnSuffix(), site.getSite().getInstitution().getInstitutionName());
 		else
 			setFor(site.getSiteUcn(), site.getSiteUcnSuffix(), null);
+		agreementId = site.getAgreementId();
 	}
 	
 	public void setFor(SiteInstance site) {

@@ -141,6 +141,8 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> /
 	
 	public void setAgreementId(int agreementId) {
 		setFocusId(agreementId);
+		if (siteLocationField != null)
+			siteLocationField.setAgreementId(agreementId);
 	}
 	
 	public AgreementInstance getAgreement() {
@@ -204,7 +206,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> /
 					"This is the institution name."));
 		columns.add(getDisplayColumn("site.description",					"Location",					100,
 					"This is the description of the location at the site."));
-		columns.add(getHiddenColumn("siteLocCode",							"Code",						40,
+		columns.add(getHiddenColumn("site.siteLocCode",						"Code",						40,
 					"This is the code for the location at the site."));
 //		columns.add(getDisplayColumn("methodType",							"Type",						40,
 //				"The type of authentication."));
@@ -331,6 +333,8 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> /
 		openUidFields(true);
 		openUrlFields(true);
 		super.handleNew();
+		agreementIdField.setValue(AppConstants.appendCheckDigit(agreement.getId()) + " &nbsp;&nbsp;&nbsp;<i>New Method</i>");
+		//	Originally, these couldn't be changed on a method because they were part of the key, but now they can
 //		institutionField.setReadOnly(false);
 //		siteLocationField.setReadOnly(false);
 		if (uidButton != null && uidButton.isPressed())
@@ -401,6 +405,9 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> /
 		idNotesCombo.setSpacing(20);
 		ucnDisplay.setReadOnly(true);
 		urlField.setAllowBlank(false);
+		
+		if (agreement != null)
+			siteLocationField.setAgreementId(agreement.getId());
 		
 		FieldFactory.setStandard(ipRangeField, "IP");
 		FieldFactory.setStandard(uidPasswordField, "");
