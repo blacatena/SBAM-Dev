@@ -13,7 +13,6 @@ import com.scholastic.sbam.server.validation.AppAgreementTermValidator;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.objects.AgreementTermInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
-import com.scholastic.sbam.shared.util.AppConstants;
 
 /**
  * The server side implementation of the RPC service.
@@ -36,7 +35,7 @@ public class UpdateAgreementTermServiceImpl extends AuthenticatedServiceServlet 
 		HibernateUtil.startTransaction();
 
 		try {
-			
+
 			//	Pre-edit/fix values
 			validateInput(instance);
 			
@@ -117,17 +116,17 @@ public class UpdateAgreementTermServiceImpl extends AuthenticatedServiceServlet 
 				dbInstance.setPoNumber("");
 			
 			//	Fix cancel values
-			if (dbInstance.getCancelReasonCode() != null || dbInstance.getCancelReasonCode().length() > 0) {
-				if (dbInstance.getCancelDate() == null)
-					dbInstance.setCancelDate(new Date());
-				if (dbInstance.getStatus() != AppConstants.STATUS_DELETED)	// If it's already marked DELETED, then that's better than cancelled, so leave it
-					dbInstance.setStatus(AppConstants.STATUS_INACTIVE);
-			} else {
-				if (dbInstance.getCancelDate() != null)
-					dbInstance.setCancelDate(null);
-				if (dbInstance.getStatus() == AppConstants.STATUS_INACTIVE)
-					dbInstance.setStatus(AppConstants.STATUS_ACTIVE);
-			}
+//			if (dbInstance.getCancelReasonCode() != null || dbInstance.getCancelReasonCode().length() > 0) {
+//				if (dbInstance.getCancelDate() == null)
+//					dbInstance.setCancelDate(new Date());
+//				if (dbInstance.getStatus() != AppConstants.STATUS_DELETED)	// If it's already marked DELETED, then that's better than canceled, so leave it
+//					dbInstance.setStatus(AppConstants.STATUS_INACTIVE);
+//			} else {
+//				if (dbInstance.getCancelDate() != null)
+//					dbInstance.setCancelDate(null);
+//				if (dbInstance.getStatus() == AppConstants.STATUS_INACTIVE)
+//					dbInstance.setStatus(AppConstants.STATUS_ACTIVE);
+//			}
 			
 			//	Persist in database
 			DbAgreementTerm.persist(dbInstance);

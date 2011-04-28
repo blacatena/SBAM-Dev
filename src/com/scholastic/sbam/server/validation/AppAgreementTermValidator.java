@@ -143,16 +143,25 @@ public class AppAgreementTermValidator {
 	}
 	
 	public List<String> validateDates(AgreementTermInstance instance) {
-		if (instance.getStartDate() == null || instance.getEndDate() == null)
-			if (instance.getStatus() != AppConstants.STATUS_DELETED)
-				instance.setStatus(AppConstants.STATUS_INACTIVE);
 		
 		if (instance.getStartDate() != null && instance.getEndDate() != null && instance.getStartDate().after(instance.getEndDate()))
 			addMessage("Start date cannot follow end data.");
 		if (instance.getTerminateDate() == null)
-			instance.setTerminateDate(instance.getStartDate());
+			instance.setTerminateDate(instance.getEndDate());
 		else if (instance.getStartDate() != null && instance.getTerminateDate() != null && instance.getStartDate().after(instance.getTerminateDate()))
 			addMessage("Terminate date cannot preceed start date.");
+		
+		if (instance.getStartDate() == null || instance.getEndDate() == null || instance.getTerminateDate() == null) {
+			//	If no dates, then set the status to inactive unless already deleted
+			if (instance.getStatus() != AppConstants.STATUS_DELETED)
+				instance.setStatus(AppConstants.STATUS_INACTIVE);
+		} else {
+			if (instance.getTerminateDate().after(new Date())) {
+				if (instance.getStatus() != AppConstants.STATUS_DELETED && instance.getCancelReasonCode() != null && instance.getCancelReasonCode().length() == 0)
+					instance.setStatus(AppConstants.STATUS_ACTIVE);
+			}
+		}
+		
 		return messages;
 	}
 	
