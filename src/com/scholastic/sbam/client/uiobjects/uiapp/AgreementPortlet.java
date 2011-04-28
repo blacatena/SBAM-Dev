@@ -164,10 +164,10 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 																		linkFieldSet.collapse();
 																	}
 																};
-	protected NumberField					buildingsField		= getIntegerField("Buildings",		50);
-	protected NumberField					populationField		= getIntegerField("Population",		50);
-	protected NumberField					enrollmentField		= getIntegerField("Enrollment",		50);
-	protected NumberField					workstationsField	= getIntegerField("Workstations",	50);
+	protected NumberField					buildingsField		= getIntegerField("Buildings",		0);
+	protected NumberField					populationField		= getIntegerField("Population",		0);
+	protected NumberField					enrollmentField		= getIntegerField("Enrollment",		0);
+	protected NumberField					workstationsField	= getIntegerField("Workstations",	0);
 
 	protected ListStore<BeanModel>	termsStore;
 	protected Grid<BeanModel>		termsGrid;
@@ -270,15 +270,15 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	}
 	
 	private void createDisplayCard() {
-		FormData formData90 = new FormData("-16"); 	//	new FormData("90%");
+		FormData formData90 = new FormData("-24"); 	//	new FormData("90%");
 //		FormData formData	= new FormData("100%");
 		agreementCard = new LayoutContainer(new RowLayout(Orientation.VERTICAL));
 		
 		LayoutContainer sideBySide = new LayoutContainer(new RowLayout(Orientation.HORIZONTAL));
 		
-		formColumn1 = getNewFormPanel();
-		formColumn2 = getNewFormPanel();
-		formRow2	= getNewFormPanel();
+		formColumn1 = getNewOuterFormPanel();
+		formColumn2 = getNewOuterFormPanel();
+		formRow2	= getNewOuterFormPanel();
 		formRow2.setLayout(new FitLayout());
 		
 //		ToolButton returnTool = new ToolButton("x-tool-left") {
@@ -350,13 +350,13 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		profileFieldSet.setLayout(profileLayout);
 		profileFieldSet.setBorders(true);
 		profileFieldSet.setHeading("Profile");
-		profileFieldSet.setWidth(buildingsField.getWidth() + 50);
+		profileFieldSet.setWidth(0);//buildingsField.getWidth() + 50);
 		profileFieldSet.setCollapsible(true);
 		
-		profileFieldSet.add(buildingsField);
-		profileFieldSet.add(populationField);
-		profileFieldSet.add(enrollmentField);
-		profileFieldSet.add(workstationsField);
+		profileFieldSet.add(buildingsField, formData90);
+		profileFieldSet.add(populationField, formData90);
+		profileFieldSet.add(enrollmentField, formData90);
+		profileFieldSet.add(workstationsField, formData90);
 		formColumn2.add(profileFieldSet, formData90);
 		
 		
@@ -630,6 +630,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	 */
 	protected void addPanelSwitchTools() {
 		
+		final int MIN_BUTTON_WIDTH = 80;
 		String toggleGroup = "ag" + System.currentTimeMillis();
 		
 		ToolBar toolBar = new ToolBar();
@@ -639,6 +640,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		toolBar.setToolTip(UiConstants.getQuickTip("Use these buttons to access detailed information for this agreement."));
 		
 		agreementButton = new ToggleButton("Agreement");
+		agreementButton.setMinWidth(MIN_BUTTON_WIDTH);
 		agreementButton.setToolTip(UiConstants.getQuickTip("Define and edit the main agreement."));
 		IconSupplier.forceIcon(agreementButton, IconSupplier.getAgreementIconName());
 		agreementButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
@@ -652,6 +654,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		toolBar.add(agreementButton);
 		
 		termsButton = new ToggleButton("Terms");
+		termsButton.setMinWidth(MIN_BUTTON_WIDTH);
 		termsButton.setToolTip(UiConstants.getQuickTip("Define and edit product terms for this agreement."));
 		IconSupplier.forceIcon(termsButton, IconSupplier.getAgreementTermIconName());
 		termsButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
@@ -666,6 +669,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		toolBar.add(termsButton);
 		
 		sitesButton = new ToggleButton("Sites");
+		sitesButton.setMinWidth(MIN_BUTTON_WIDTH);
 		sitesButton.setToolTip(UiConstants.getQuickTip("Define and edit the list of sites for this agreement."));
 		IconSupplier.forceIcon(sitesButton, IconSupplier.getSiteIconName());
 		sitesButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
@@ -680,6 +684,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		toolBar.add(sitesButton);
 		
 		methodsButton = new ToggleButton("Methods");
+		methodsButton.setMinWidth(MIN_BUTTON_WIDTH);
 		methodsButton.setToolTip(UiConstants.getQuickTip("Define and edit access methods for this agreement."));
 		IconSupplier.forceIcon(methodsButton, IconSupplier.getAccessMethodIconName());
 		methodsButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
@@ -695,6 +700,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		toolBar.add(methodsButton);
 		
 //		remoteButton = new ToggleButton("Remote Setup");
+//		remoteButton.setMinWidth(MIN_BUTTON_WIDTH);
 //		remoteButton.setToolTip(UiConstants.getQuickTip("Define and edit any remote setup for this agreement."));
 //		IconSupplier.forceIcon(remoteButton, IconSupplier.getRemoteIconName());
 //		remoteButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
@@ -707,6 +713,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 //		toolBar.add(remoteButton);
 		
 		contactsButton = new ToggleButton("Contacts");
+		contactsButton.setMinWidth(MIN_BUTTON_WIDTH);
 		contactsButton.setToolTip(UiConstants.getQuickTip("View, define and edit the contacts for this agreement."));
 		IconSupplier.forceIcon(contactsButton, IconSupplier.getContactsIconName());
 		contactsButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
@@ -773,8 +780,10 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 			this.agreementId = agreement.getId();
 			enableAgreementButtons(true);
 		}
-		System.out.println("Set agreement ID to " + agreementId);
-		System.out.println("UCN " + (agreement != null ? agreement.getBillUcn() : " null agreement") );
+		
+//		System.out.println("Set agreement ID to " + agreementId);
+//		System.out.println("UCN " + (agreement != null ? agreement.getBillUcn() : " null agreement") );
+		
 		registerUserCache(agreement, identificationTip);
 		setPortletHeading();
 

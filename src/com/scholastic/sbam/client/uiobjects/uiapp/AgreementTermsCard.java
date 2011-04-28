@@ -33,6 +33,7 @@ import com.scholastic.sbam.client.uiobjects.fields.DateRangeBinder;
 import com.scholastic.sbam.client.uiobjects.fields.EnhancedComboBox;
 import com.scholastic.sbam.client.uiobjects.fields.NotesIconButtonField;
 import com.scholastic.sbam.client.uiobjects.foundation.FormAndGridPanel;
+import com.scholastic.sbam.client.uiobjects.foundation.FormInnerPanel;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.AgreementTermInstance;
 import com.scholastic.sbam.shared.objects.CancelReasonInstance;
@@ -50,9 +51,9 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 	protected final UpdateAgreementTermServiceAsync		updateAgreementTermService		= GWT.create(UpdateAgreementTermService.class);
 	protected final UpdateAgreementTermNoteServiceAsync	updateAgreementTermNoteService	= GWT.create(UpdateAgreementTermNoteService.class);
 	
-	protected FormPanel				formColumn1;
-	protected FormPanel				formColumn2;
-	protected FormPanel				formRow2;
+	protected FormInnerPanel				formColumn1;
+	protected FormInnerPanel				formColumn2;
+	protected FormInnerPanel				formRow2;
 	
 	protected ListStore<BeanModel>	agreementGridStore;
 	
@@ -222,8 +223,8 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 		TableData tData1 = new TableData();
 		tData1.setWidth("50%");
 		
-		formColumn1 = getNewFormPanel(75);
-		formColumn2 = getNewFormPanel(85);
+		formColumn1 = getNewFormInnerPanel(75);
+		formColumn2 = getNewFormInnerPanel(85);
 		
 		agreementIdField.setReadOnly(true);
 		agreementIdField.setWidth(150);

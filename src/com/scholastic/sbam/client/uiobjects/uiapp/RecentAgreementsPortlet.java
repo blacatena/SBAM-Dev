@@ -130,7 +130,8 @@ public class RecentAgreementsPortlet extends GridSupportPortlet<AgreementInstanc
 		agreementsGrid.setWidth(cm.getTotalWidth() + 20);
 		
 		//	Switch to the display card when a row is selected
-		agreementsGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);  
+		agreementsGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+		final AppPortlet thisPortlet = this;
 		agreementsGrid.getSelectionModel().addListener(Events.SelectionChange,  
 				new Listener<SelectionChangedEvent<ModelData>>() {  
 					public void handleEvent(SelectionChangedEvent<ModelData> be) {  
@@ -138,8 +139,8 @@ public class RecentAgreementsPortlet extends GridSupportPortlet<AgreementInstanc
 							UserCacheInstance cacheInstance = (UserCacheInstance) ((BeanModel) be.getSelectedItem()).getBean();
 							AgreementPortlet portlet = (AgreementPortlet) portletProvider.getPortlet(AppPortletIds.AGREEMENT_DISPLAY);
 							portlet.setAgreementId(cacheInstance.getIntKey());
-							portlet.setIdentificationTip(cacheInstance.getHint());
-							portletProvider.addPortlet(portlet, 1);
+							portlet.setIdentificationTip(cacheInstance.getHint());				
+							portletProvider.insertPortlet(portlet, 0, thisPortlet.getInsertColumn());
 							agreementsGrid.getSelectionModel().deselectAll();
 						} 
 					}  

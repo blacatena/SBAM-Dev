@@ -35,7 +35,7 @@ public abstract class FieldSupportContainer extends LayoutContainer {
 		super();
 	}
 	
-	protected FormPanel getNewFormPanel() {
+	protected FormPanel getNewOuterFormPanel() {
 		FormPanel newFormPanel = new FormPanel();
 		
 		newFormPanel.setFrame(false); // true
@@ -46,6 +46,48 @@ public abstract class FieldSupportContainer extends LayoutContainer {
 		newFormPanel.setButtonAlign(HorizontalAlignment.CENTER);
 		newFormPanel.setLabelAlign(LabelAlign.RIGHT);
 		newFormPanel.setLabelWidth(80);
+		
+		return newFormPanel;
+	}
+	
+//	protected FormInnerPanel getNewInnerFormPanel() {
+//		FormInnerPanel newFormPanel = new FormInnerPanel();
+//		
+//		newFormPanel.setFrame(false); // true
+//		newFormPanel.setHeaderVisible(false);  
+//		newFormPanel.setBodyBorder(false);	// true
+//		newFormPanel.setBorders(false);
+//		newFormPanel.setBodyStyleName("subtle-form");
+//		newFormPanel.setButtonAlign(HorizontalAlignment.CENTER);
+//		newFormPanel.setLabelAlign(LabelAlign.RIGHT);
+//		newFormPanel.setLabelWidth(80);
+//		
+//		return newFormPanel;
+//	}
+	
+	protected FormInnerPanel getNewFormInnerPanel() {
+		return getNewFormInnerPanel(75);
+	}
+	
+	protected FormInnerPanel getNewFormInnerPanel(int labelWidth) {
+		return getNewFormInnerPanel(false, labelWidth);
+	}
+	
+	protected FormInnerPanel getNewFormInnerPanel(boolean outerForm) {
+		return getNewFormInnerPanel(outerForm, 75);
+	}
+	
+	protected FormInnerPanel getNewFormInnerPanel(boolean outerForm, int labelWidth) {
+		FormInnerPanel newFormPanel = new FormInnerPanel(outerForm);
+		
+		newFormPanel.setFrame(false); // true
+		newFormPanel.setHeaderVisible(false);  
+		newFormPanel.setBodyBorder(false);	// true
+		newFormPanel.setBorders(false);
+		newFormPanel.setBodyStyleName("subtle-form");
+		newFormPanel.setButtonAlign(HorizontalAlignment.CENTER);
+		newFormPanel.setLabelAlign(LabelAlign.RIGHT);
+		newFormPanel.setLabelWidth(labelWidth);
 		
 		return newFormPanel;
 	}

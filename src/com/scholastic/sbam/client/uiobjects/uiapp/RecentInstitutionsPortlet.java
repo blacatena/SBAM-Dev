@@ -129,7 +129,8 @@ public class RecentInstitutionsPortlet extends GridSupportPortlet<InstitutionIns
 		institutionsGrid.setWidth(cm.getTotalWidth() + 20);
 		
 		//	Switch to the display card when a row is selected
-		institutionsGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);  
+		institutionsGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); 
+		final AppPortlet thisPortlet = this;  
 		institutionsGrid.getSelectionModel().addListener(Events.SelectionChange,  
 				new Listener<SelectionChangedEvent<ModelData>>() {  
 					public void handleEvent(SelectionChangedEvent<ModelData> be) {  
@@ -138,7 +139,8 @@ public class RecentInstitutionsPortlet extends GridSupportPortlet<InstitutionIns
 							InstitutionSearchPortlet portlet = (InstitutionSearchPortlet) portletProvider.getPortlet(AppPortletIds.FULL_INSTITUTION_SEARCH);
 							portlet.setFocusUcn(cacheInstance.getIntKey());
 						//	portlet.setFilter(cacheInstance.getHint());
-							portletProvider.addPortlet(portlet, 1);
+						//	portletProvider.addPortlet(portlet, 1);
+							portletProvider.insertPortlet(portlet, portalRow, thisPortlet.getInsertColumn());
 							institutionsGrid.getSelectionModel().deselectAll();
 						} 
 					}  

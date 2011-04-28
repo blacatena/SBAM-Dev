@@ -33,6 +33,7 @@ import com.scholastic.sbam.client.uiobjects.fields.InstitutionSearchField;
 import com.scholastic.sbam.client.uiobjects.fields.NotesIconButtonField;
 import com.scholastic.sbam.client.uiobjects.foundation.FieldFactory;
 import com.scholastic.sbam.client.uiobjects.foundation.FormAndGridPanel;
+import com.scholastic.sbam.client.uiobjects.foundation.FormInnerPanel;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.AgreementContactInstance;
 import com.scholastic.sbam.shared.objects.AgreementInstance;
@@ -49,9 +50,9 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 	protected final UpdateAgreementContactServiceAsync	updateAgreementContactService	= GWT.create(UpdateAgreementContactService.class);
 	protected final UpdateContactNoteServiceAsync		updateContactNoteService		= GWT.create(UpdateContactNoteService.class);
 	
-	protected FormPanel				formColumn1;
-	protected FormPanel				formColumn2;
-	protected FormPanel				formRow2;
+	protected FormInnerPanel				formColumn1;
+	protected FormInnerPanel				formColumn2;
+	protected FormInnerPanel				formRow2;
 	
 	protected RowExpander			noteExpander;
 
@@ -244,8 +245,8 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 		TableData tData1 = new TableData();
 		tData1.setWidth("50%");
 		
-		formColumn1 = getNewFormPanel(75);
-		formColumn2 = getNewFormPanel(75);
+		formColumn1 = getNewFormInnerPanel(75);
+		formColumn2 = getNewFormInnerPanel(75);
 		
 //		contactIdDisplay.setToolTip(UiConstants.getQuickTip("The unique ID for this contact."));
 //		contactTypeField.setToolTip(UiConstants.getQuickTip("The type of contact."));

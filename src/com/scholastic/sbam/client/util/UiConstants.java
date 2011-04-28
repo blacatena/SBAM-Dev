@@ -450,4 +450,12 @@ public class UiConstants {
 	public static String formatDate(Date date) {
 		return APP_DATE_TIME_FORMAT.format(date);
 	}
+	
+	public static native String getUserAgent() /*-{
+	return navigator.userAgent.toLowerCase();
+	}-*/;
+	
+	public static boolean isInternetExplorer() {
+		return getUserAgent().contains("msie");
+	}
 }

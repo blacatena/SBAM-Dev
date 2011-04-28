@@ -46,6 +46,7 @@ import com.scholastic.sbam.client.uiobjects.fields.UrlField;
 import com.scholastic.sbam.client.uiobjects.fields.UserIdPasswordField;
 import com.scholastic.sbam.client.uiobjects.foundation.FieldFactory;
 import com.scholastic.sbam.client.uiobjects.foundation.FormAndGridPanel;
+import com.scholastic.sbam.client.uiobjects.foundation.FormInnerPanel;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.AgreementInstance;
@@ -67,10 +68,10 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	protected final UpdateAuthMethodServiceAsync		updateAuthMethodService		= GWT.create(UpdateAuthMethodService.class);
 	protected final UpdateAuthMethodNoteServiceAsync	updateAuthMethodNoteService	= GWT.create(UpdateAuthMethodNoteService.class);
 
-	protected FormPanel				formRow1;
-	protected FormPanel				formColumn1;
-	protected FormPanel				formColumn2;
-	protected FormPanel				formRow2;
+	protected FormInnerPanel				formRow1;
+	protected FormInnerPanel				formColumn1;
+	protected FormInnerPanel				formColumn2;
+	protected FormInnerPanel				formRow2;
 	
 	ToggleButton allButton;
 	ToggleButton ipButton;
@@ -379,10 +380,10 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		tableLayout.setWidth("100%");
 		panel.setLayout(tableLayout);
 
-		formRow1	= getNewFormPanel(75); formRow1.setId("formRow1");
-		formColumn1 = getNewFormPanel(75); formColumn1.setId("formColumn1"); //formColumn1.setLayoutData(0.5); //formColumn1.setWidth("50%");
-		formColumn2 = getNewFormPanel(75); formColumn2.setId("formColumn2"); //formColumn2.setLayoutData(0.5); //formColumn2.setWidth("50%");
-		formRow2	= getNewFormPanel(75); formRow2.setId("formRow2");
+		formRow1	= getNewFormInnerPanel(75); formRow1.setId("formRow1");
+		formColumn1 = getNewFormInnerPanel(75); formColumn1.setId("formColumn1"); //formColumn1.setLayoutData(0.5); //formColumn1.setWidth("50%");
+		formColumn2 = getNewFormInnerPanel(75); formColumn2.setId("formColumn2"); //formColumn2.setLayoutData(0.5); //formColumn2.setWidth("50%");
+		formRow2	= getNewFormInnerPanel(75); formRow2.setId("formRow2");
 		
 		TableData tData1 = new TableData();
 		tData1.setWidth("50%");

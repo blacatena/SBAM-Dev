@@ -233,7 +233,8 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 		agreementsGrid.setWidth(cm.getTotalWidth() + 5);
 		
 		//	Open a new portlet to display an agreement when a row is selected
-		agreementsGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);  
+		agreementsGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); 
+		final AppPortlet thisPortlet = this; 
 		agreementsGrid.getSelectionModel().addListener(Events.SelectionChange,  
 				new Listener<SelectionChangedEvent<ModelData>>() {  
 					public void handleEvent(SelectionChangedEvent<ModelData> be) {  
@@ -248,8 +249,11 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 													"UCN " + focusInstitution.getUcn();
 								portlet.setIdentificationTip("Found for " + foundFor + "");
 							}
-							int insertCol = (portalColumn == 0) ? 1 : 0;
-							portletProvider.insertPortlet(portlet, portalRow, insertCol);
+//							Old, simple way
+//							int insertCol = (portalColumn == 0) ? 1 : 0;
+//							portletProvider.insertPortlet(portlet, portalRow, insertCol);
+//							New, more thorough way
+							portletProvider.insertPortlet(portlet, portalRow, thisPortlet.getInsertColumn());
 							agreementsGrid.getSelectionModel().deselectAll();
 						} 
 					}

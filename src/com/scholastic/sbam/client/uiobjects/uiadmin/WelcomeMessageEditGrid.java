@@ -109,7 +109,7 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 	    super.onRender(parent, index);
 	    setLayout(new CenterLayout());
 	    setStyleAttribute("margin", "10px");
-	    setStyleAttribute("background", "transparent !important");
+//	    setStyleAttribute("background", "transparent !important");	// No longer needed, and !important was causing Internet Explorer to gag
 	
 	    cp = new ContentPanel();
 	

@@ -15,6 +15,7 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -26,6 +27,8 @@ import com.scholastic.sbam.shared.objects.UserPortletCacheInstance;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 public class AppPortal extends LayoutContainer implements AppSleeper {
+	public static int DEFAULT_PORTAL_COL_COUNT	=	2;
+	public static int DEFAULT_PORTAL_COL_WIDTH	=	750;
 	
 	public static class AppTreeSelectionModel extends TreePanelSelectionModel<ModelData> {
 		AppPortletProvider provider;
@@ -46,7 +49,8 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 	}
 	
 	//	These must be instantiated now, not on render
-	private AppPortalWithCache		thePortal		=	new AppPortalWithCache(2);
+	private LayoutContainer			thePortalArea	=	new LayoutContainer();
+	private AppPortalWithCache		thePortal		=	new AppPortalWithCache(DEFAULT_PORTAL_COL_COUNT);
 	private AppPortletProvider		portletProvider	=	new AppPortletProvider(thePortal);
 	private TreePanel<ModelData>	appNavTree;
 	
@@ -58,9 +62,14 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 		super.onRender(parent, index);
 		setLayout(new BorderLayout());
 		
+		thePortalArea.setWidth(DEFAULT_PORTAL_COL_COUNT * DEFAULT_PORTAL_COL_WIDTH);
+		thePortalArea.setScrollMode(Scroll.AUTO);
+		
 	//	thePortal = new AppPortalWithCache(2);
-		thePortal.setColumnWidth(0, .5);
-		thePortal.setColumnWidth(1, .5);
+		thePortal.setWidth(DEFAULT_PORTAL_COL_COUNT * DEFAULT_PORTAL_COL_WIDTH);
+		thePortal.setAutoWidth(false);
+		thePortal.setColumnWidth(0, DEFAULT_PORTAL_COL_WIDTH);
+		thePortal.setColumnWidth(1, DEFAULT_PORTAL_COL_WIDTH);
 		BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
 		centerData.setSplit(true);
 		
@@ -80,8 +89,10 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 		westData.setSplit(true);
 		westData.setMargins(new Margins(5));
 
+		thePortalArea.add(thePortal);
+		
 		add(contentPanel, 	westData);
-		add(thePortal, 		centerData);
+		add(thePortalArea, 	centerData);
 	}
 	
 	public void setLoggedIn(Authentication auth) {

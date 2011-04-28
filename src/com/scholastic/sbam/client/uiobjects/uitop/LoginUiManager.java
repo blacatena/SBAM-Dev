@@ -176,7 +176,9 @@ public class LoginUiManager {
 				new AsyncCallback<UserMessageCollection>() {
 					public void onFailure(Throwable caught) {
 						// Show the RPC error message to the user
-						MessageBox.alert("Alert", "Notes load failed unexpectedly.", null);
+						MessageBox.alert("Alert", "Notes load failed unexpectedly: " + caught.getMessage(), null);
+						System.out.println(caught.getMessage());
+						caught.printStackTrace();
 					}
 		
 					public void onSuccess(UserMessageCollection messages) {

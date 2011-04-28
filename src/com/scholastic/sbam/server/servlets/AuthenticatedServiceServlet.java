@@ -1,5 +1,7 @@
 package com.scholastic.sbam.server.servlets;
 
+import java.util.Enumeration;
+
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.scholastic.sbam.shared.objects.Authentication;
 import com.scholastic.sbam.shared.security.SecurityManager;
@@ -28,8 +30,25 @@ public abstract class AuthenticatedServiceServlet extends RemoteServiceServlet {
 		Authentication auth = ((Authentication) getServletContext().getAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE));
 		if (auth != null)
 			authUserName = auth.getUserName();
-		if (auth == null || authUserName == null || authUserName.length() == 0 || !auth.isAuthenticated())
+		if (auth == null || authUserName == null || authUserName.length() == 0 || !auth.isAuthenticated()) {
+			
+			// DEBUG OUTPUT ONLY... remove when this bug is found or verified to be normal system behavior
+			System.out.println("");
+			System.out.println("No logged in user error on " + taskDesc + " for " + roleName);
+			System.out.println("auth " + auth);
+			System.out.println("authUserName " + authUserName);
+			if (auth != null)
+				System.out.println("Authenticated " + auth.isAuthenticated());
+			
+			@SuppressWarnings({ "rawtypes" })
+			Enumeration enu = this.getServletContext().getAttributeNames();
+			while (enu.hasMoreElements()) {
+				String attrName = enu.nextElement().toString();
+				System.out.println(attrName + " : " + this.getServletContext().getAttribute(attrName));
+			}
+			
 			throw new IllegalArgumentException("No logged in user for whom to " + taskDesc + ".");
+		}
 		if (roleName != null && !auth.hasRoleName(roleName))
 			throw new IllegalArgumentException("User is not privileged to " + taskDesc + ".");
 		return auth;

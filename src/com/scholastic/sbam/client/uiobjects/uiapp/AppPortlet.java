@@ -288,6 +288,28 @@ public abstract class AppPortlet extends Portlet {
 			});
 	}
 	
+	public int getInsertColumn() {
+		//	If this portal is not in the first column, just insert left
+		if (portalColumn > 0)
+			return portalColumn - 1;
+			
+		//	If we can get the column count from the parent portal, use it
+		if (getParent() != null && getParent().getParent() != null && getParent().getParent() instanceof Portal) {
+			int columns = ( (Portal) getParent().getParent()).getItemCount();
+			//	We don't have enough columns to insert to the right, so just use the one and only column.
+			if (columns <= 1)
+				return 0;
+			//	We didn't insert left, and we have enough columns, so insert right.
+			return portalColumn + 1;
+		}
+		
+		//	If we're in the leftmost column, just assume we can insert right
+		if (portalColumn <= 0)
+			return 1;
+		else	// If we're in a right column, insert one left
+			return portalColumn - 1;
+	}
+	
 	public int getPortalColumn() {
 		return portalColumn;
 	}

@@ -28,8 +28,27 @@ public abstract class FieldSupportPortlet extends AppPortlet {
 		super(helpTextId);
 	}
 	
-	protected FormPanel getNewFormPanel() {
+	protected FormPanel getNewOuterFormPanel() {
 		FormPanel newFormPanel = new FormPanel();
+		
+		newFormPanel.setFrame(false); // true
+		newFormPanel.setHeaderVisible(false);  
+		newFormPanel.setBodyBorder(false);	// true
+		newFormPanel.setBorders(false);
+		newFormPanel.setBodyStyleName("subtle-form");
+		newFormPanel.setButtonAlign(HorizontalAlignment.CENTER);
+		newFormPanel.setLabelAlign(LabelAlign.RIGHT);
+		newFormPanel.setLabelWidth(75);
+		
+		return newFormPanel;
+	}
+	
+	protected FormInnerPanel getNewInnerFormPanel() {
+		return getNewInnerFormPanel(false);
+	}
+	
+	protected FormInnerPanel getNewInnerFormPanel(boolean outerForm) {
+		FormInnerPanel newFormPanel = new FormInnerPanel(outerForm);
 		
 		newFormPanel.setFrame(false); // true
 		newFormPanel.setHeaderVisible(false);  

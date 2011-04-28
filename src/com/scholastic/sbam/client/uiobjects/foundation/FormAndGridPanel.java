@@ -308,24 +308,32 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		formPanel.collapse();
 	}
 	
-	protected FormPanel getNewFormPanel() {
-		return getNewFormPanel(75);
-	}
-	
-	protected FormPanel getNewFormPanel(int labelWidth) {
-		FormPanel newFormPanel = new FormPanel();
-		
-		newFormPanel.setFrame(false); // true
-		newFormPanel.setHeaderVisible(false);  
-		newFormPanel.setBodyBorder(false);	// true
-		newFormPanel.setBorders(false);
-		newFormPanel.setBodyStyleName("subtle-form");
-		newFormPanel.setButtonAlign(HorizontalAlignment.CENTER);
-		newFormPanel.setLabelAlign(LabelAlign.RIGHT);
-		newFormPanel.setLabelWidth(labelWidth);
-		
-		return newFormPanel;
-	}
+//	protected FormInnerPanel getNewInnerFormPanel() {
+//		return getNewFormPanel(75);
+//	}
+//	
+//	protected FormInnerPanel getNewFormPanel(int labelWidth) {
+//		return getNewFormPanel(false, labelWidth);
+//	}
+//	
+//	protected FormInnerPanel getNewFormPanel(boolean outerForm) {
+//		return getNewFormPanel(outerForm, 75);
+//	}
+//	
+//	protected FormInnerPanel getNewFormPanel(boolean outerForm, int labelWidth) {
+//		FormInnerPanel newFormPanel = new FormInnerPanel(outerForm);
+//		
+//		newFormPanel.setFrame(false); // true
+//		newFormPanel.setHeaderVisible(false);  
+//		newFormPanel.setBodyBorder(false);	// true
+//		newFormPanel.setBorders(false);
+//		newFormPanel.setBodyStyleName("subtle-form");
+//		newFormPanel.setButtonAlign(HorizontalAlignment.CENTER);
+//		newFormPanel.setLabelAlign(LabelAlign.RIGHT);
+//		newFormPanel.setLabelWidth(labelWidth);
+//		
+//		return newFormPanel;
+//	}
 	
 	protected void addEditSaveButtons() {
 		addEditSaveButtons(formPanel, useButtons);

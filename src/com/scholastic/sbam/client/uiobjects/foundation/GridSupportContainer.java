@@ -226,6 +226,7 @@ public abstract class GridSupportContainer<I> extends FieldSupportContainer {
 			}
 		};
 		noteExpander.setTemplate(tpl);
+		noteExpander.setId("note" + ( (int) (Math.random() * 100000) ));
 		
 		/**
 		 * This renderer must replace the one set up by RowExpander, so it must do the same thing, as well as add the Note icon
@@ -236,11 +237,15 @@ public abstract class GridSupportContainer<I> extends FieldSupportContainer {
 					final int colIndex, final ListStore<BeanModel> store, final Grid<BeanModel> grid) {
 				boolean hasNote = (model.get("note") != null && model.get("note").toString().length() > 0);
 				config.style = "";
+//				config.id = "note" + ( (int) (Math.random() * 100000) );
 				if (hasNote) {
 					config.cellAttr = "rowspan='2'";
 					config.style = "background: url(" + IconSupplier.getColorfulIconPath(IconSupplier.getNoteIconName()) +
-									") no-repeat 10px 2px !important; width: 32px !important;";
+									") no-repeat 10px 2px; width: 32px;";
+//									") no-repeat 10px 2px !important; width: 32px !important;";	// Won't work in Internet Explorer
 			        return "<div class='x-grid3-row-expander'>&#160;</div>";
+				} else {
+					config.style = "background: none; width: 32px";
 				}
 				return "";
 			}

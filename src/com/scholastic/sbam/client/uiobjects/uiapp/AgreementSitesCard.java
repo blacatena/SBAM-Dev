@@ -30,6 +30,7 @@ import com.scholastic.sbam.client.uiobjects.fields.NotesIconButtonField;
 import com.scholastic.sbam.client.uiobjects.fields.SiteLocationSearchField;
 import com.scholastic.sbam.client.uiobjects.foundation.FieldFactory;
 import com.scholastic.sbam.client.uiobjects.foundation.FormAndGridPanel;
+import com.scholastic.sbam.client.uiobjects.foundation.FormInnerPanel;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.AgreementSiteInstance;
 import com.scholastic.sbam.shared.objects.CancelReasonInstance;
@@ -48,9 +49,9 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 	protected final UpdateAgreementSiteServiceAsync		updateAgreementSiteService		= GWT.create(UpdateAgreementSiteService.class);
 	protected final UpdateAgreementSiteNoteServiceAsync	updateAgreementSiteNoteService	= GWT.create(UpdateAgreementSiteNoteService.class);
 	
-	protected FormPanel				formColumn1;
-	protected FormPanel				formColumn2;
-	protected FormPanel				formRow2;
+	protected FormInnerPanel				formColumn1;
+	protected FormInnerPanel				formColumn2;
+	protected FormInnerPanel				formRow2;
 	
 	protected InstitutionInstance	siteInstitution;
 	
@@ -230,8 +231,8 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 		TableData tData1 = new TableData();
 		tData1.setWidth("50%");
 		
-		formColumn1 = getNewFormPanel(75); formColumn1.setId("formColumn1"); //formColumn1.setLayoutData(0.5); //formColumn1.setWidth("50%");
-		formColumn2 = getNewFormPanel(75); formColumn2.setId("formColumn2"); //formColumn2.setLayoutData(0.5); //formColumn2.setWidth("50%");
+		formColumn1 = getNewFormInnerPanel(75); formColumn1.setId("formColumn1"); //formColumn1.setLayoutData(0.5); //formColumn1.setWidth("50%");
+		formColumn2 = getNewFormInnerPanel(75); formColumn2.setId("formColumn2"); //formColumn2.setLayoutData(0.5); //formColumn2.setWidth("50%");
 		
 		ucnDisplay.setToolTip(UiConstants.getQuickTip("The ucn for the site."));
 		addressDisplay.setToolTip(UiConstants.getQuickTip("The address of the institution."));
@@ -273,7 +274,7 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 	}
 	
 	protected SiteLocationSearchField getSiteLocationField(String name, String label, int width, String toolTip) {
-		SiteLocationSearchField siteLocCombo = new SiteLocationSearchField();
+		SiteLocationSearchField siteLocCombo = new SiteLocationSearchField(this);
 		FieldFactory.setStandard(siteLocCombo, label);
 		
 		if (toolTip != null)
