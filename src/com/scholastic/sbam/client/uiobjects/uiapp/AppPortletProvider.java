@@ -2,7 +2,6 @@ package com.scholastic.sbam.client.uiobjects.uiapp;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.custom.Portal;
 import com.scholastic.sbam.client.uiobjects.foundation.UnknownPortlet;
 
 /**
@@ -16,14 +15,14 @@ import com.scholastic.sbam.client.uiobjects.foundation.UnknownPortlet;
  */
 public class AppPortletProvider {
 	
-	private Portal portal;
+	private AppPortletPresenter presenter;
 	
-	public AppPortletProvider(Portal portal) {
-		this.portal = portal;
+	public AppPortletProvider(AppPortletPresenter presenter) {
+		this.presenter = presenter;
 	}
 	
 	public boolean addPortlet(ModelData model) {
-		if (portal != null && model.get("portlet") != null) {
+		if (presenter != null && model.get("portlet") != null) {
 			addPortlet(getPortlet((AppPortletIds) model.get("portlet")));
 			return true;
 		}
@@ -35,11 +34,11 @@ public class AppPortletProvider {
 	}
 	
 	public void addPortlet(AppPortlet portlet, int column) { 
-		portal.add(portlet, column);
+		presenter.add(portlet, column);
 	}
 	
 	public boolean insertPortlet(ModelData model, int index, int column) { 
-		if (portal != null && model.get("portlet") != null) {
+		if (presenter != null && model.get("portlet") != null) {
 			insertPortlet(getPortlet((AppPortletIds) model.get("portlet")), index, column);
 			return true;
 		}
@@ -47,7 +46,7 @@ public class AppPortletProvider {
 	}
 	
 	public void insertPortlet(AppPortlet portlet, int index, int column) { 
-		portal.insert(portlet, index, column);
+		presenter.insert(portlet, index, column);
 	}
 	
 	private void configPanel(final ContentPanel panel, final AppPortletIds id) {  
@@ -90,12 +89,12 @@ public class AppPortletProvider {
 		return portlet;
 	}
 
-	public Portal getPortal() {
-		return portal;
+	public AppPortletPresenter getPresenter() {
+		return presenter;
 	}
 
-	public void setPortal(Portal portal) {
-		this.portal = portal;
+	public void setPresenter(AppPortletPresenter portal) {
+		this.presenter = portal;
 	}
 	
 }

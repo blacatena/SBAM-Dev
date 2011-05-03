@@ -11,7 +11,7 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSecurityManager;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
-import com.scholastic.sbam.client.uiobjects.uiapp.AppPortal;
+import com.scholastic.sbam.client.uiobjects.uiapp.AppWorkSpace;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.objects.Authentication;
 import com.scholastic.sbam.shared.security.SecurityManager;
@@ -27,7 +27,7 @@ public class AppNav extends Composite implements AppSecurityManager {
 	private AdminUi adminUi;
 	private ConfigUi configUi;
 	private WelcomeDisplay welcomeDisplay;
-	private AppPortal appPortal;
+	private AppWorkSpace appPortal;
 
 	public AppNav() {
 		
@@ -45,7 +45,7 @@ public class AppNav extends Composite implements AppSecurityManager {
 		tbtmAgreements.setLayout(new FitLayout());
 		IconSupplier.setIcon(tbtmAgreements, IconSupplier.getAgreementIconName());
 		
-		appPortal = new AppPortal();
+		appPortal = new AppWorkSpace();
 		tbtmAgreements.add(appPortal);
 		
 		tabPanel.add(tbtmAgreements);

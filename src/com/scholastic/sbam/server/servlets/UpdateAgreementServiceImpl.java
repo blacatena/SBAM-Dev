@@ -5,7 +5,10 @@ import java.util.List;
 
 import com.scholastic.sbam.client.services.UpdateAgreementService;
 import com.scholastic.sbam.server.database.codegen.Agreement;
+import com.scholastic.sbam.server.database.codegen.AgreementSite;
+import com.scholastic.sbam.server.database.codegen.AgreementSiteId;
 import com.scholastic.sbam.server.database.objects.DbAgreement;
+import com.scholastic.sbam.server.database.objects.DbAgreementSite;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.server.fastSearch.InstitutionCache;
 import com.scholastic.sbam.server.validation.AppAgreementValidator;
@@ -19,6 +22,10 @@ import com.scholastic.sbam.shared.util.AppConstants;
  */
 @SuppressWarnings("serial")
 public class UpdateAgreementServiceImpl extends AuthenticatedServiceServlet implements UpdateAgreementService {
+	/**
+	 * Set to TRUE to automatically add the bill to UCN as a site for a new agreement.
+	 */
+	public static final boolean		AUTO_ADD_BILL_UCN_AS_SITE = false;
 
 	@Override
 	public UpdateResponse<AgreementInstance> updateAgreement(AgreementInstance instance) throws IllegalArgumentException {
@@ -111,6 +118,10 @@ public class UpdateAgreementServiceImpl extends AuthenticatedServiceServlet impl
 				DbAgreement.persist(dbInstance);
 			}
 			
+			if (newCreated) {
+				autoCreateSite(instance, AUTO_ADD_BILL_UCN_AS_SITE);
+			}
+			
 		} catch (IllegalArgumentException exc) {
 			silentRollback();
 			throw exc;
@@ -125,6 +136,38 @@ public class UpdateAgreementServiceImpl extends AuthenticatedServiceServlet impl
 		}
 		
 		return new UpdateResponse<AgreementInstance>(instance, messages);
+	}
+	
+	/**
+	 * Create a site entry for the bill to UCN for this agreement.  NOT CURRENTLY USED.
+	 * 
+	 * @param instance
+	 */
+	private void autoCreateSite(AgreementInstance instance, boolean addSite) {
+		if (!addSite)
+			return;
+		
+		AgreementSite agreementSite = new AgreementSite();
+		
+		AgreementSiteId asId = new AgreementSiteId();
+		asId.setAgreementId(instance.getId());
+		asId.setSiteUcn(instance.getBillUcn());
+		asId.setSiteUcnSuffix(instance.getBillUcnSuffix());
+		if (asId.getSiteUcnSuffix() == 0)
+			asId.setSiteUcnSuffix(1);
+		asId.setSiteLocCode("");
+		
+		agreementSite.setId(asId);
+		agreementSite.setCommissionCode("");
+		agreementSite.setNote("Created automatically with agreement.");
+		agreementSite.setOrgPath("");
+		agreementSite.setCancelReasonCode("");
+		agreementSite.setActiveDate(null);
+		agreementSite.setInactiveDate(null);
+		agreementSite.setCreatedDatetime(new Date());
+		agreementSite.setStatus(AppConstants.STATUS_ACTIVE);
+		
+		DbAgreementSite.persist(agreementSite);
 	}
 	
 	private void validateInput(AgreementInstance instance) throws IllegalArgumentException {

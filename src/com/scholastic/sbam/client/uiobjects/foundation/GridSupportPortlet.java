@@ -69,6 +69,10 @@ public abstract class GridSupportPortlet<I> extends FieldSupportPortlet {
 		return getGridColumn(column, heading, size, false, sortable, null, null);
 	}
 	
+	protected ColumnConfig getDisplayColumn(String column, String heading, int size, boolean sortable, String toolTip) {
+		return getGridColumn(column, heading, size, false, sortable, null, null, toolTip);
+	}
+	
 	protected ColumnConfig getDisplayColumn(String column, String heading, int size, boolean sortable, DateTimeFormat dateFormat) {
 		return getGridColumn(column, heading, size, false, sortable, dateFormat, null);
 	}

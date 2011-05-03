@@ -35,7 +35,7 @@ public class InstitutionCache implements Runnable {
 	private static final boolean FIRST_PASS_READY	= false;	//	Are maps ready for use after the first pass?
 	private static final boolean SECOND_PASS_READY	=	true;	//	Are maps ready for use after the second pass?
 	
-	protected static final String INSTITUTION_SQL = "SELECT ucn, institution_name, address1, address2, address3, city, state, zip, country, phone, fax, alternate_ids FROM institution ";
+	protected static final String INSTITUTION_SQL = "SELECT ucn, parent_ucn, institution_name, address1, address2, address3, city, state, zip, country, phone, fax, alternate_ids FROM institution ";
 	
 	public static class InstitutionCacheNotReady extends Exception {
 		private static final long serialVersionUID = -8657762616708856381L;
@@ -474,6 +474,7 @@ public class InstitutionCache implements Runnable {
 		InstitutionInstance instance = new InstitutionInstance();
 		
 		instance.setUcn(results.getInt("ucn"));
+		instance.setParentUcn(results.getInt("parent_ucn"));
 		instance.setAlternateIds(results.getString("alternate_ids"));
 		instance.setInstitutionName(results.getString("institution_name"));
 		instance.setAddress1(results.getString("address1"));
@@ -500,6 +501,7 @@ public class InstitutionCache implements Runnable {
 		
 		//  Parse all components of the institution address
 		parseAdd(institution.getUcn() + "", strings);
+		parseAdd(institution.getParentUcn() + "", strings);
 		parseAdd(institution.getAlternateIds(), strings);
 		parseAdd(institution.getInstitutionName(), strings);
 		parseAdd(institution.getAddress1(), strings);

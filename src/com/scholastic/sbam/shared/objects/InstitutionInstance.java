@@ -15,6 +15,7 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable, UserCa
 	private static BeanModelFactory beanModelfactory;
 	
 	private	int 	ucn;
+	private int		parentUcn;
 	private	String	institutionName;
 	private	String	address1;
 	private	String	address2;
@@ -47,6 +48,12 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable, UserCa
 	}
 	public void setUcn(int ucn) {
 		this.ucn = ucn;
+	}
+	public int getParentUcn() {
+		return parentUcn;
+	}
+	public void setParentUcn(int parentUcn) {
+		this.parentUcn = parentUcn;
 	}
 	public String getInstitutionName() {
 		return institutionName;
@@ -200,6 +207,11 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable, UserCa
 	}
 	public String getHtmlAddress() {
 		return AddressFormatter.getMultiLineAddress(address1, address2, address3, city, state, zip, country);
+	}
+	public String getAgreementCountCombo() {
+		if (agreements == 0)
+			return "";
+		return activeAgreements + " ( " + agreements + " )";
 	}
 	
 	public SortedMap<Integer, AgreementSummaryInstance> getAgreementSummaryList() {

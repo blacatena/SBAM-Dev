@@ -1,12 +1,16 @@
 package com.scholastic.sbam.client.uiobjects.uitop;
 
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.widget.Composite;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.layout.AnchorLayout;
 import com.extjs.gxt.ui.client.widget.layout.AnchorData;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.google.gwt.user.client.ui.Widget;
+import com.scholastic.sbam.client.util.IconSupplier;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
@@ -43,28 +47,63 @@ public class AppHolder extends Composite {
 		LayoutContainer anchorContainer = new LayoutContainer();
 		anchorContainer.setLayout(new AnchorLayout());
 		
+		//	Create a container for the header elements
+		
 		headerContainer = new LayoutContainer();
-		AnchorData ad_headerContainer = new AnchorData("100% ");
-		ad_headerContainer.setMargins(new Margins(3, 3, 3, 3));
-		headerContainer.setLayout(new AnchorLayout());
+		headerContainer.setLayout(new BorderLayout());
+		headerContainer.setHeight(30);
+		headerContainer.setStyleAttribute("background", "none");
+		
+		//	Create a separate container for the logout widget
 		
 		LayoutContainer logoutContainer = new LayoutContainer();
 		logoutContainer.setWidth(200);
 		logoutContainer.setLayout(new FlowLayout(5));
-		headerContainer.add(logoutContainer, new AnchorData(""));
 		if (headerWidget != null)
 			logoutContainer.add(headerWidget);
 		
+		//	Create a container for the site page heading
+		
 		titleContainer = new LayoutContainer();
-		headerContainer.add(titleContainer, new AnchorData("-100"));
+		titleContainer.setHeight(30);
 		titleContainer.setLayout(new CenterLayout());
 		
-		htmlHeader = new Html("<h1><img src=\"resources/images/logo/logo.png\" align=\"absmiddle\" width=\"24\" height=\"24\"/>&nbsp;Scholastic Site Based Authentication Management System</h1>");
+		htmlHeader = new Html("<h1><img src=\"resources/images/logo/logo.png\" align=\"absmiddle\" width=\"24\" height=\"24\" style=\"margin-top: -4px;\" />&nbsp;Scholastic Site Based Authentication Management System</h1>");
 		titleContainer.add(htmlHeader);
-		titleContainer.setWidth("");
-		anchorContainer.add(headerContainer, ad_headerContainer);
-		headerContainer.setSize("", "");
-		headerContainer.setHeight(30);
+		
+		//	Create a container for the right side toolbar (currently there's only a "new note" button
+		
+		toolbarContainer = new LayoutContainer();
+		
+		buttonBar = new ButtonBar();
+		buttonBar.setWidth(100);
+		
+		Button btnNewNote = new Button("New Note");
+		IconSupplier.forceIcon(btnNewNote, IconSupplier.getNoteAddIconName());
+		
+		ToolTipConfig config = new ToolTipConfig();
+		config.setText("Use this to create an editable sticky note (private to your user name) that will be retained from one session to the next.");  
+		config.setMouseOffset(new int[] {0, -10});
+		config.setTrackMouse(true);
+		config.setAnchor("left");  
+		btnNewNote.setToolTip(config);
+		buttonBar.add(btnNewNote);
+		btnNewNote.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				thisLoginUiManager.createStickyNote("");
+			}
+		});
+		toolbarContainer.add(buttonBar);
+		toolbarContainer.setLayout(new FlowLayout(1));
+		toolbarContainer.setWidth(100);
+		
+		//	Add the three containers (logout, header/title, right toolbar) to the header area
+		
+		headerContainer.add(logoutContainer, new BorderLayoutData(LayoutRegion.WEST, 200f, 200, 200));
+		headerContainer.add(titleContainer, new BorderLayoutData(LayoutRegion.CENTER));
+		headerContainer.add(toolbarContainer, new BorderLayoutData(LayoutRegion.EAST, 100f, 100, 100));
+		
+		//	Create the center container for the application
 		
 		centerContainer = new LayoutContainer();
 		
@@ -80,46 +119,35 @@ public class AppHolder extends Composite {
 		centerContainer.setLayout(new FitLayout());
 		centerContainer.add(contentContainer);
 		contentContainer.setBorders(true);
-		AnchorData ad_centerContainer = new AnchorData("-0 -70");
-		ad_centerContainer.setMargins(new Margins(10, 10, 10, 10));
-		anchorContainer.add(centerContainer, ad_centerContainer);
 		centerContainer.setSize("", "");
 		centerContainer.addStyleName("x-panel");
 		
-		footerContainer = new LayoutContainer();
-		AnchorData ad_footerContainer = new AnchorData("100%");
-		ad_footerContainer.setMargins(new Margins(3, 3, 3, 3));
-		footerContainer.setLayout(new CenterLayout());
+		//	Add the header and center containers to the page
 		
-		toolbarContainer = new LayoutContainer();
-		footerContainer.add(toolbarContainer);
+		AnchorData ad_headerContainer = new AnchorData("100% ");
+		ad_headerContainer.setMargins(new Margins(3, 3, 3, 3));
+		anchorContainer.add(headerContainer, ad_headerContainer);
 		
-		buttonBar = new ButtonBar();
-		buttonBar.setWidth(100);
+		AnchorData ad_centerContainer = new AnchorData("-0 -70");
+		ad_centerContainer.setMargins(new Margins(10, 10, 10, 10));
+		anchorContainer.add(centerContainer, ad_centerContainer);
 		
-		Button btnNewNote = new Button("Note");
-		ToolTipConfig config = new ToolTipConfig();
-//		config.setTitle("What's This?");  
-		config.setText("Use this to create an editable sticky note (private to your user name) that will be retained from one session to the next.");  
-		config.setMouseOffset(new int[] {0, -10});
-		config.setTrackMouse(true);
-		config.setAnchor("left");  
-		btnNewNote.setToolTip(config);
-		buttonBar.add(btnNewNote);
-		btnNewNote.addSelectionListener(new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {
-				thisLoginUiManager.createStickyNote("");
-			}
-		});
-		toolbarContainer.add(buttonBar);
-		toolbarContainer.setLayout(new FlowLayout(1));
-		anchorContainer.add(footerContainer, ad_footerContainer);
-		footerContainer.setSize("", "");
+		//	If there is a footer widget, add a footer container with that
 		
 		if (footerWidget != null) {
+			footerContainer = new LayoutContainer();
+			footerContainer.setLayout(new CenterLayout());
+			footerContainer.setHeight(40);
+		
 			footerContainer.add(footerWidget);
+		
+			AnchorData ad_footerContainer = new AnchorData("100%");
+			ad_footerContainer.setMargins(new Margins(3, 3, 3, 3));
+			anchorContainer.add(footerContainer, ad_footerContainer);
 		}
-		footerContainer.setHeight(40);
+		
+		//	Finish up
+		
 		initComponent(anchorContainer);
 		anchorContainer.setBorders(true);
 	}

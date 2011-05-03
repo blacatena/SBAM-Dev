@@ -4,12 +4,31 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.form.DateField;
+import com.google.gwt.user.client.Element;
 import com.scholastic.sbam.shared.validation.DatesSliderBinder;
 
 public class BoundDateField extends DateField {
 	List<DateFieldsBinder>	binders = new ArrayList<DateFieldsBinder>();
 	protected boolean 		locked	= false;
+	
+	public void onRender(Element parent, int index) {
+		super.onRender(parent, index);
+		
+		this.addListener(Events.Change, new Listener<BaseEvent>() {
+
+			@Override
+			public void handleEvent(BaseEvent be) {
+				if (be.getType().getEventCode() == Events.Change.getEventCode()) {
+					updateBinders(getValue());
+				}
+			}
+			
+		});
+	}
 	
 	public void bindMin(DatesSliderBinder binder) {
 		binders.add(binder);
@@ -51,6 +70,7 @@ public class BoundDateField extends DateField {
 		binder.setTargetDate(this);
 	}
 	
+	@Override
 	public void setValue(Date value) {
 		if (locked) {
 			return;
@@ -58,6 +78,12 @@ public class BoundDateField extends DateField {
 		
 		locked = true;
 		super.setValue(value);
+		updateBinders(value);
+		locked = false;
+	}
+	
+	public void updateBinders(Date value) {
+		locked = true;
 		for (DateFieldsBinder binder : binders) {
 			binder.fieldChanged(this);
 		}

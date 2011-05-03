@@ -75,6 +75,9 @@ import com.scholastic.sbam.shared.util.AppConstants;
 
 public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> implements AppSleeper {
 	
+	protected final boolean ALL_TERMS			=	true;
+	protected final boolean RECENT_TERMS		=	false;
+	
 	protected final int DIRTY_FORM_LISTEN_TIME	=	250;
 	protected final int PRESUMED_FORM_HEIGHT	=	270;
 	
@@ -978,7 +981,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	 * @param id
 	 */
 	protected void loadAgreement(final int id) {
-		agrementGetService.getAgreement(id, false,
+		agrementGetService.getAgreement(id, ALL_TERMS,
 				new AsyncCallback<AgreementInstance>() {
 					public void onFailure(Throwable caught) {
 						// Show the RPC error message to the user
@@ -1140,6 +1143,13 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	public void onCollapse() {
 		super.onCollapse();
 		sleep();
+	}
+	
+	@Override
+	public String getShortPortletName() {
+		if (agreementId > 0)
+			return "#" + AppConstants.appendCheckDigit(agreementId);
+		return "Create Agreement";
 	}
 	
 	/**

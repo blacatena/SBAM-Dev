@@ -232,6 +232,11 @@ public class RecentAgreementsPortlet extends GridSupportPortlet<AgreementInstanc
 		PagingLoader<PagingLoadResult<UserCacheInstance>> loader = new BasePagingLoader<PagingLoadResult<UserCacheInstance>>(proxy, reader);
 		return loader;
 	}
+	
+	@Override
+	public String getShortPortletName() {
+		return "Recent Agreements";
+	}
 
 	@Override
 	public void awaken() {

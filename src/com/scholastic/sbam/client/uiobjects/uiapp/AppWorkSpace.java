@@ -1,17 +1,15 @@
 package com.scholastic.sbam.client.uiobjects.uiapp;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.util.Margins;
-import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.custom.Portlet;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanelSelectionModel;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -26,7 +24,7 @@ import com.scholastic.sbam.shared.objects.Authentication;
 import com.scholastic.sbam.shared.objects.UserPortletCacheInstance;
 import com.scholastic.sbam.shared.util.AppConstants;
 
-public class AppPortal extends LayoutContainer implements AppSleeper {
+public class AppWorkSpace extends LayoutContainer implements AppSleeper {
 	public static int DEFAULT_PORTAL_COL_COUNT	=	2;
 	public static int DEFAULT_PORTAL_COL_WIDTH	=	750;
 	
@@ -50,8 +48,8 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 	
 	//	These must be instantiated now, not on render
 	private LayoutContainer			thePortalArea	=	new LayoutContainer();
-	private AppPortalWithCache		thePortal		=	new AppPortalWithCache(DEFAULT_PORTAL_COL_COUNT);
-	private AppPortletProvider		portletProvider	=	new AppPortletProvider(thePortal);
+	private AppPortletPresenter		thePortal;	//		=	new AppPortalWithCache(DEFAULT_PORTAL_COL_COUNT);
+	private AppPortletProvider		portletProvider;//	=	new AppPortletProvider(thePortal);
 	private TreePanel<ModelData>	appNavTree;
 	
 	private boolean					cachedPortletsLoaded	= false;
@@ -62,14 +60,27 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 		super.onRender(parent, index);
 		setLayout(new BorderLayout());
 		
-		thePortalArea.setWidth(DEFAULT_PORTAL_COL_COUNT * DEFAULT_PORTAL_COL_WIDTH);
-		thePortalArea.setScrollMode(Scroll.AUTO);
+		thePortalArea.setId("portalContainer");
 		
 	//	thePortal = new AppPortalWithCache(2);
-		thePortal.setWidth(DEFAULT_PORTAL_COL_COUNT * DEFAULT_PORTAL_COL_WIDTH);
-		thePortal.setAutoWidth(false);
-		thePortal.setColumnWidth(0, DEFAULT_PORTAL_COL_WIDTH);
-		thePortal.setColumnWidth(1, DEFAULT_PORTAL_COL_WIDTH);
+//		thePortal.setId("thePortal");
+//		thePortal.setWidth(DEFAULT_PORTAL_COL_COUNT * DEFAULT_PORTAL_COL_WIDTH);
+//		thePortal.setAutoWidth(false);
+//		thePortal.setColumnWidth(0, DEFAULT_PORTAL_COL_WIDTH);
+//		thePortal.setColumnWidth(1, DEFAULT_PORTAL_COL_WIDTH);
+		thePortal = getPreferredPortal(parent);
+		//	getPortalWithCache();	
+		//	getTabPortal();
+		portletProvider = new AppPortletProvider(thePortal);
+		if (thePortal instanceof AppTabPortal) {
+			thePortalArea.setWidth(0);
+			thePortalArea.setScrollMode(Scroll.NONE);
+		} else {
+			thePortalArea.setWidth(DEFAULT_PORTAL_COL_COUNT * DEFAULT_PORTAL_COL_WIDTH);
+			thePortalArea.setScrollMode(Scroll.AUTO);
+			thePortalArea.setScrollMode(Scroll.AUTO);
+		}
+		
 		BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
 		centerData.setSplit(true);
 		
@@ -77,6 +88,7 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 		contentPanel.setHeading("Navigation");
 		contentPanel.setCollapsible(false);
 		contentPanel.setBorders(true);
+		contentPanel.setScrollMode(Scroll.AUTOY);
 		
 		appNavTree = AppNavTree.getTreePanel();
 	//	portletProvider = new AppPortletProvider(thePortal);
@@ -89,10 +101,46 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 		westData.setSplit(true);
 		westData.setMargins(new Margins(5));
 
-		thePortalArea.add(thePortal);
+//		thePortalArea.add(thePortal);
 		
 		add(contentPanel, 	westData);
 		add(thePortalArea, 	centerData);
+	}
+	
+	public AppPortletPresenter getPreferredPortal(Element parent) {
+		if (parent != null) {
+			//	If there's enough room for at least two portal columns plus the nav tree, go that route
+			if (parent.getOffsetWidth() > (2 * DEFAULT_PORTAL_COL_WIDTH) + 200)
+				return getPortalWithCache();
+			else
+				return getTabPortal();
+		} else {
+			return getPortalWithCache();
+		}
+	}
+	
+	public AppPortletPresenter getPortalWithCache() {
+
+			AppPortalWithCache thePortal = new AppPortalWithCache(2);
+			thePortal.setId("thePortal");
+			thePortal.setWidth(DEFAULT_PORTAL_COL_COUNT * DEFAULT_PORTAL_COL_WIDTH);
+			thePortal.setAutoWidth(false);
+			thePortal.setColumnWidth(0, DEFAULT_PORTAL_COL_WIDTH);
+			thePortal.setColumnWidth(1, DEFAULT_PORTAL_COL_WIDTH);
+			
+			thePortalArea.add(thePortal);
+			
+			return thePortal;
+	}
+	
+	public AppPortletPresenter getTabPortal() {
+		AppTabPortal thePortal = new AppTabPortal();
+		thePortal.setId("theTabPortal");
+		
+		thePortalArea.setLayout(new FitLayout());
+		thePortalArea.add(thePortal);
+		
+		return thePortal;
 	}
 	
 	public void setLoggedIn(Authentication auth) {
@@ -113,7 +161,7 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 	public void restorePortlets() {
 		/*
 		 * NOTE: Portlets must be reloaded this way, because simply loading them on login, before the portal is actually shown, causes
-		 * 		 discrepencies in the layouts (i.e. portlets get drawn incorrectly when a user logs out then logs back in without
+		 * 		 discrepancies in the layouts (i.e. portlets get drawn incorrectly when a user logs out then logs back in without
 		 * 		 first reloading the entire app in the browser).
 		 */
 		
@@ -145,27 +193,19 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 
 					public void onSuccess(List<UserPortletCacheInstance> list) {
 						//	First, set the column widths
-						boolean [] columnWidthSet = new boolean [thePortal.getItemCount()];	// This only needs as many entries as columns, but why bother... the highest it would be is the number of portlets
-						for (UserPortletCacheInstance instance : list) {
-							if (instance.getRestoreColumn() >= 0 && instance.getRestoreColumn() < columnWidthSet.length) {
-								if (! columnWidthSet [instance.getRestoreColumn()]) {
-									thePortal.setColumnWidth(instance.getRestoreColumn(), instance.getRestoreWidth());
-									thePortal.getItem(instance.getRestoreColumn()).setWidth(instance.getRestoreWidth() + thePortal.getSpacing());
-									columnWidthSet [instance.getRestoreColumn()] = true; // This just makes sure we only do each column once, so first portlet in line decides the width
-								}
-							}
-						}
+						thePortal.restorePresentationState(list);
+						
 						//	Second, create and add the portlets
 						for (UserPortletCacheInstance instance : list) {
 							AppPortlet portlet = portletProvider.getPortlet(instance.getPortletType());
 							if (instance.getRestoreHeight() > 0)
 								portlet.setForceHeight(instance.getRestoreHeight());
-							portlet.setPortletId(instance.getPortletId());
+//							portlet.setPortletId(instance.getPortletId());
 							portlet.setFromKeyData(instance.getKeyData());
 							portlet.setLastCacheInstance(instance);
-							if (instance.isMinimized())
+							if (thePortal instanceof AppPortalWithCache && instance.isMinimized())
 								portlet.collapse();
-							thePortal.reinsert(portlet, instance.getRestoreRow(), instance.getRestoreColumn());
+							thePortal.reinsert(portlet, instance.getRestoreRow(), instance.getRestoreColumn(), instance.getPortletId());
 						}
 						unmask();
 					}
@@ -176,18 +216,7 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 	 * Remove all portlets (without recording them as closed in the user portlet cache)
 	 */
 	public void removeAllPortlets() {
-		for (int col = 0; col < this.getItemCount(); col++) {
-		    LayoutContainer con = thePortal.getItem(col);
-		    List<Component> list = new ArrayList<Component>(con.getItems());
-		    for (int row = 0; row < list.size(); row++) {
-		    	if (list.get(row) instanceof Portlet) {
-		    		if (list.get(row) instanceof AppPortlet)
-		    			((AppPortlet) list.get(row)).setPortletId(-1);
-//		    		((Portlet) list.get(row)).removeFromParent();
-		    		thePortal.remove((Portlet) list.get(row), col);
-		    	}
-		    }
-		}
+		thePortal.removeAllPortlets();
 	}
 
 	@Override
@@ -196,16 +225,16 @@ public class AppPortal extends LayoutContainer implements AppSleeper {
 		if (!cachedPortletsLoaded)
 			restorePortlets();
 		
-		for (LayoutContainer portlet : thePortal.getItems())
-			if (portlet instanceof AppSleeper)
-				((AppSleeper) portlet).awaken();
+//		for (LayoutContainer portlet : thePortal.getItems())
+//			if (portlet instanceof AppSleeper)
+//				((AppSleeper) portlet).awaken();
 	}
 
 	@Override
 	public void sleep() {
-		for (LayoutContainer portlet : thePortal.getItems())
-			if (portlet instanceof AppSleeper)
-				((AppSleeper) portlet).sleep();
+//		for (LayoutContainer portlet : thePortal.getItems())
+//			if (portlet instanceof AppSleeper)
+//				((AppSleeper) portlet).sleep();
 	}
 
 }

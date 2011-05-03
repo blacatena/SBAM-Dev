@@ -67,7 +67,7 @@ public class InstitutionSearchServiceImpl extends AuthenticatedServiceServlet im
 							list.add(instance);
 							
 							if (includeAgreementSummaries)
-								instance.setAgreementSummaryList(DbAgreement.findAgreementSummaries(instance.getUcn(), false, (char) 0, AppConstants.STATUS_DELETED));
+								instance.setAgreementSummaryList(DbAgreement.findAllAgreementSummaries(instance.getUcn(), false, (char) 0, AppConstants.STATUS_DELETED));
 						}
 						i++;
 					}

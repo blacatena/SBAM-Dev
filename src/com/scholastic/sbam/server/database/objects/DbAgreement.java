@@ -90,15 +90,15 @@ public class DbAgreement extends HibernateAccessor {
 	
 	// Combined Agreement Summaries
 	
-	public static SortedMap<Integer, AgreementSummaryInstance> findAgreementSummaries(int ucn,boolean primary, char status, char neStatus) throws Exception {
-		return findAgreementSummaries(ucn, null, primary, status, neStatus);
+	public static SortedMap<Integer, AgreementSummaryInstance> findAllAgreementSummaries(int ucn,boolean primary, char status, char neStatus) throws Exception {
+		return findAllAgreementSummaries(ucn, null, primary, status, neStatus);
 	}
 	
-	public static SortedMap<Integer, AgreementSummaryInstance> findAgreementSummaries(List<Integer> ucns,boolean primary, char status, char neStatus) throws Exception {
-		return findAgreementSummaries(0, ucns, primary, status, neStatus);
+	public static SortedMap<Integer, AgreementSummaryInstance> findAllAgreementSummaries(List<Integer> ucns,boolean primary, char status, char neStatus) throws Exception {
+		return findAllAgreementSummaries(0, ucns, primary, status, neStatus);
 	}
 	
-	public static SortedMap<Integer, AgreementSummaryInstance> findAgreementSummaries(int ucn, List<Integer> ucns, boolean primary, char status, char neStatus) throws Exception {
+	public static SortedMap<Integer, AgreementSummaryInstance> findAllAgreementSummaries(int ucn, List<Integer> ucns, boolean primary, char status, char neStatus) throws Exception {
 		SortedMap<Integer, AgreementSummaryInstance> agreementMap = findBillAgreementSummaries(ucn, null, primary, status, neStatus);
 		agreementMap.putAll(findSiteAgreementSummaries(ucn, primary,status,neStatus));
 		return agreementMap;

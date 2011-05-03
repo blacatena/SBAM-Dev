@@ -230,7 +230,11 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 		agreementIdField.setWidth(150);
 		idNotesCombo.setSpacing(20);
 		
-		dollarValueField.setToolTip(UiConstants.getQuickTip("The total dollar value of this product for this term."));
+//		dollarValueField.setToolTip(UiConstants.getQuickTip("The total dollar value of this product for this term."));
+		dollarValueField.setToolTip("The total dollar value of this product for this term.");
+		referenceSaIdField.setToolTip("Any (single) agreement reference number related to this product term.");
+		poNumberField.setToolTip("The customer's purchase order number for this product term.");
+		groupField.setToolTip("Any text or code value used to group together related product terms for reporting purposes.");
 		startDateField.setToolTip(UiConstants.getQuickTip("The date on which this product term will take effect."));
 		endDateField.setToolTip(UiConstants.getQuickTip("The date on which this product term is scheduled to end."));
 		terminateDateField.setToolTip(UiConstants.getQuickTip("The date on which this product term will no longer be delivered."));

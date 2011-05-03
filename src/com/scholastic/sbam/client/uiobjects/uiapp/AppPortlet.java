@@ -25,6 +25,8 @@ import com.scholastic.sbam.shared.util.AppConstants;
 
 public abstract class AppPortlet extends Portlet {
 	
+	protected AppPortletPresenter presenter;
+	
 	protected int		forceHeight = 550;
 	
 	protected String	helpTextId;
@@ -122,16 +124,24 @@ public abstract class AppPortlet extends Portlet {
 		closeBtn.addListener(Events.Select, new Listener<ComponentEvent>() {
 			public void handleEvent(ComponentEvent ce) {
 				closePortlet();
-				updateUserPortlet();
+//				updateUserPortlet();
 			}
 		});
 		head.addTool(closeBtn);
 	}
 	
 	public void closePortlet() {
-		if(getParent() != null && getParent().getParent() != null && getParent().getParent() instanceof Portal) {
-			Portal thePortal = (Portal) getParent().getParent();
-			thePortal.remove(this, portalColumn);
+		System.out.println("Close AppPortlet");
+		
+		if (presenter != null) {
+			System.out.println("Presenter close");
+			presenter.close(this);
+		} else {
+			System.out.println("Vanilla close");
+			if (getParent() != null && getParent().getParent() != null && getParent().getParent() instanceof Portal) {
+				Portal thePortal = (Portal) getParent().getParent();
+				thePortal.remove(this, portalColumn);
+			}
 		}
 	}
 	
@@ -251,7 +261,7 @@ public abstract class AppPortlet extends Portlet {
 
 		cacheInstance.setRestoreWidth(-1);
 		cacheInstance.setRestoreWidth(-1);
-		if (!closed && !minimized) {
+		if (!closed && !minimized && isRendered()) {
 //			System.out.println("Doing width/height " + getWidth() + ",  " + getHeight());
 			if (getWidth() > 0)
 				cacheInstance.setRestoreWidth(getWidth());
@@ -288,6 +298,10 @@ public abstract class AppPortlet extends Portlet {
 			});
 	}
 	
+	/**
+	 * Get the preferred insert column for a portlet requested/created by this portlet.
+	 * @return
+	 */
 	public int getInsertColumn() {
 		//	If this portal is not in the first column, just insert left
 		if (portalColumn > 0)
@@ -308,6 +322,10 @@ public abstract class AppPortlet extends Portlet {
 			return 1;
 		else	// If we're in a right column, insert one left
 			return portalColumn - 1;
+	}
+	
+	public String getShortPortletName() {
+		return portalColumn + " - " + portalRow;
 	}
 	
 	public int getPortalColumn() {
@@ -348,6 +366,14 @@ public abstract class AppPortlet extends Portlet {
 
 	public void setLastCacheInstance(UserPortletCacheInstance lastCacheInstance) {
 		this.lastCacheInstance = lastCacheInstance;
+	}
+
+	public AppPortletPresenter getPresenter() {
+		return presenter;
+	}
+
+	public void setPresenter(AppPortletPresenter presenter) {
+		this.presenter = presenter;
 	}
 
 	public abstract void setFromKeyData(String keyData);

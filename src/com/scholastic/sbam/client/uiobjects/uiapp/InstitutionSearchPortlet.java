@@ -486,9 +486,10 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 		columns.add(getHiddenColumn("alternateIds",			"Alternate IDs", 	100,	true));
 		
 		//	Agreement Summary columns
-		columns.add(getDisplayColumn("agreements",			"Agreements",		70,		false, NumberFormat.getFormat("BWZ")));
-		columns.add(getHiddenColumn("activeAgreements",		"Active Agreements",70,		false, NumberFormat.getFormat("BWZ")));
-		columns.add(getDisplayColumn("lastServiceDate",		"Expires",			70,		false, UiConstants.APP_DATE_TIME_FORMAT));
+		columns.add(getDisplayColumn("agreementCountCombo",	"Agreements",		70,		false, "The number of active and (total) agreements for this institution."));
+		columns.add(getHiddenColumn("agreements",			"Agreements",		70,		true, 	NumberFormat.getFormat("BWZ")));
+		columns.add(getHiddenColumn("activeAgreements",		"Active Agreements",70,		true, 	NumberFormat.getFormat("BWZ")));
+		columns.add(getDisplayColumn("lastServiceDate",		"Expires",			70,		true, 	UiConstants.APP_DATE_TIME_FORMAT));
 
 		ColumnModel cm = new ColumnModel(columns);  
 
@@ -714,6 +715,17 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 	@Override
 	public void setAppPortletProvider(AppPortletProvider portletProvider) {
 		this.portletProvider = portletProvider;
+	}
+	
+	@Override
+	public String getShortPortletName() {
+		if (focusUcn > 0)
+			return "UCN " + focusUcn;
+		if (filter == null || filter.length() == 0)
+			return "UCN Search";
+		if (filter.length() > 10)
+			return "UCNs for " + filter.substring(0, 10);
+		return "UCNs for " + filter;
 	}
 
 	public int getFocusUcn() {

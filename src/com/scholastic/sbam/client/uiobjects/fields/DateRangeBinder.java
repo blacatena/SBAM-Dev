@@ -24,12 +24,12 @@ public class DateRangeBinder implements DateFieldsBinder {
 		
 		for (BoundDateField loDate : loDates) {
 			if (field == loDate) {
-				setMaxLoDates();
+				setMinHiDates();
 			}
 		}
 		for (BoundDateField hiDate : hiDates) {
 			if (field == hiDate) {
-				setMinHiDates();
+				setMaxLoDates();
 			}
 		}
 	}
