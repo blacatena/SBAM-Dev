@@ -37,7 +37,7 @@ public interface AppPortletPresenter {
 	public void scrollToPortlet(Portlet portlet);
 	
 	/**
-	 * Update the label used to represent the portlet in the presenter.
+	 * Update the label (and optionally the tooltip) used to represent the portlet in the presenter.
 	 * 
 	 * @param portlet
 	 */

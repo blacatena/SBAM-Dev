@@ -6,12 +6,15 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class Authentication implements IsSerializable {
+	public static long LOG_OFF_GRACE_PERIOD	=	1000 * 120;	// Two minute grace period to handle requests after a user has logged off
+	
 	private String			userName;
 	private String			firstName;
 	private String			lastName;
 	private String			message;
 	private boolean			authenticated;
 	private int				cachedPortlets;
+	private long			loggedOff;
 	private List<String>	roleNames = new ArrayList<String>();
 	
 	public Authentication() {
@@ -104,5 +107,17 @@ public class Authentication implements IsSerializable {
 	}
 	public void setRoleNames(List<String> roleNames) {
 		this.roleNames = roleNames;
+	}
+
+	public long getLoggedOff() {
+		return loggedOff;
+	}
+
+	public void setLoggedOff(long loggedOff) {
+		this.loggedOff = loggedOff;
+	}
+	
+	public void setLoggedOff() {
+		setLoggedOff(System.currentTimeMillis());
 	}
 }

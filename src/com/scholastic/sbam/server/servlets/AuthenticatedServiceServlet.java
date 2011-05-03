@@ -28,6 +28,15 @@ public abstract class AuthenticatedServiceServlet extends RemoteServiceServlet {
 	protected Authentication authenticate(String taskDesc, String roleName) throws IllegalArgumentException {
 		String authUserName = null;
 		Authentication auth = ((Authentication) getServletContext().getAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE));
+		if (auth != null) {
+			//	Test if the grace period has expired, and the user needs to be finally, really logged off.
+			if (auth.getLoggedOff() > 0 && auth.getLoggedOff() + Authentication.LOG_OFF_GRACE_PERIOD > System.currentTimeMillis()) {
+				// User log off is now official
+				auth = null;
+				getServletContext().removeAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE);
+			} else if (auth.getLoggedOff() > 0)
+				System.out.println("Grace period processing allowed for " + taskDesc);
+		}
 		if (auth != null)
 			authUserName = auth.getUserName();
 		if (auth == null || authUserName == null || authUserName.length() == 0 || !auth.isAuthenticated()) {

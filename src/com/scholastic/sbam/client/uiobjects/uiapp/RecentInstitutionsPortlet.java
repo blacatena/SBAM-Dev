@@ -82,7 +82,12 @@ public class RecentInstitutionsPortlet extends GridSupportPortlet<InstitutionIns
 		
 		loadFiltered(null);
 	}
+
 	
+	@Override
+	public String getPresenterToolTip() {
+		return "A list of the most recently accessed institutions.";
+	}
 
 	
 	protected void addRecentInstitutionsGrid(FormData formData) {

@@ -218,6 +218,23 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		setHeading(heading);
 	}
 	
+	@Override
+	public String getPresenterToolTip() {
+		String tooltip = "";
+		if (agreementId <= 0) {
+			tooltip = "Create a New Agreement";
+		} else {
+			tooltip = "Agreement #" + AppConstants.appendCheckDigit(agreementId);
+		}
+		if (billToInstitution != null) {
+			tooltip += " &ndash; <i>" + billToInstitution.getInstitutionName() + "</i>";
+		}
+		if (identificationTip != null && identificationTip.length() > 0) {
+			tooltip += "<br/><i>" + identificationTip + "</i>";
+		}
+		return tooltip;
+	}
+	
 	@Override  
 	protected void onRender(Element parent, int index) {
 		super.onRender(parent, index);
@@ -854,6 +871,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 			}
 		}
 
+		updatePresenterLabel();
 		updateUserPortlet();	// This is mostly for a "create" so the portlet knows the agreement ID has been set
 		setOriginalValues();
 //		endEdit(false);
@@ -1041,7 +1059,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		}
 		
 		agreement.setInstitution( ((InstitutionInstance) institutionField.getSelectedValue().getBean()) );
-		System.out.println("Update agreeement " + agreement.getId() + " for institution " + agreement.getInstitution().getUcn() +  "    / bill UCN " + agreement.getBillUcn());
+//		System.out.println("Update agreeement " + agreement.getId() + " for institution " + agreement.getInstitution().getUcn() +  "    / bill UCN " + agreement.getBillUcn());
 		agreement.setAgreementType( (AgreementTypeInstance) agreementTypeField.getSelectedValue().getBean()  );
 		agreement.setCommissionType( (CommissionTypeInstance) commissionTypeField.getSelectedValue().getBean() );
 		if (deleteReasonField.getSelectedValue() == null) {

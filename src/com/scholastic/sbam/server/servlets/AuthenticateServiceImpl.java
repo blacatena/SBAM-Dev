@@ -1,5 +1,6 @@
 package com.scholastic.sbam.server.servlets;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.ServletContext;
@@ -17,6 +18,8 @@ import com.scholastic.sbam.shared.objects.Authentication;
 import com.scholastic.sbam.shared.security.SecurityManager;
 
 /**
+ * Log a user in.
+ * 
  * The server side implementation of the RPC service.
  */
 @SuppressWarnings("serial")
@@ -73,6 +76,8 @@ public class AuthenticateServiceImpl extends RemoteServiceServlet implements Aut
 			//	To optimize loading cached portlets, get them now and count them, but don't include the actual list in the authentication data
 			List<UserPortletCache> portlets = DbUserPortletCache.findByUserName(userName);
 			auth.setCachedPortlets(portlets.size());
+			
+			System.out.println("Logged in " + userName + " at " + new Date());
 		}
 		
 		return auth;

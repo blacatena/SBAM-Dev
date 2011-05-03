@@ -141,6 +141,21 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 			loadInstitution(focusUcn);
 	}
 	
+	@Override
+	public String getPresenterToolTip() {
+		if (focusInstitution != null) {
+			return "UCN " + focusInstitution.getUcn() + " : " + focusInstitution.getInstitutionName();
+		}
+		if (focusUcn != 0)
+			if (filter != null && filter.length() > 0)
+				return "UCN " + focusUcn + " found for '" + filter + "'";
+			else
+				return "UCN " + focusUcn;
+		if (filter != null && filter.length() > 0)
+			return "Institution Search for '" + filter + "'";
+		return "Search for institutions.";
+	}
+	
 	private void initializeFilter() {
 		if (filter.length() > 0) {
 			ModelData model = new BaseModelData();
@@ -166,6 +181,7 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 				@Override
 				protected void onClick(ComponentEvent ce) {
 					cards.setActiveItem(searchPanel);
+					updatePresenterLabel();
 				}
 			};
 		returnTool.enable();
@@ -344,6 +360,8 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 			}
 		
 		cards.setActiveItem(displayCard);
+		if (presenter != null)
+			presenter.updateLabel(this);
 	}
 
 	@Override

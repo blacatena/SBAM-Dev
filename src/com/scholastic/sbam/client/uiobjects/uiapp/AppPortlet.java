@@ -131,18 +131,24 @@ public abstract class AppPortlet extends Portlet {
 	}
 	
 	public void closePortlet() {
-		System.out.println("Close AppPortlet");
-		
 		if (presenter != null) {
-			System.out.println("Presenter close");
 			presenter.close(this);
 		} else {
-			System.out.println("Vanilla close");
 			if (getParent() != null && getParent().getParent() != null && getParent().getParent() instanceof Portal) {
 				Portal thePortal = (Portal) getParent().getParent();
 				thePortal.remove(this, portalColumn);
 			}
 		}
+	}
+	
+	/**
+	 * Override this method to provide a custom tooltip for a portlet when presented in a container like a tab panel.
+	 * @return
+	 */
+	public String getPresenterToolTip() {
+		if (getHeading() != null && getHeading().length() > 0)
+			return getHeading();
+		return getShortPortletName();
 	}
 	
 	public void handleResize() {
@@ -296,6 +302,11 @@ public abstract class AppPortlet extends Portlet {
 						//	Do nothing
 					}
 			});
+	}
+	
+	public void updatePresenterLabel() {
+		if (presenter != null)
+			presenter.updateLabel(this);
 	}
 	
 	/**

@@ -114,6 +114,9 @@ public class AppTabPortal  extends Composite implements AppPortletPresenter {
 		//	Lastly, set the row and column for the portlet, and fix the local next portlet ID
 		if (portlet instanceof AppPortlet) {
 			AppPortlet appPortlet = (AppPortlet) portlet;
+
+			// Set the tooltip for the tab
+			tab.getHeader().setToolTip( appPortlet.getPresenterToolTip() );
 		//	appPortlet.registerUserPortlet(appPortlet.getPortletId(), index, column);
 			appPortlet.setPortalColumn(column);
 			appPortlet.setPortalRow(index);
@@ -183,6 +186,8 @@ public class AppTabPortal  extends Composite implements AppPortletPresenter {
 		TabItem tab = getTab(portlet);
 		if (tab != null) {
 			tab.setText(getTabLabel(portlet, 0, 0));
+			if (portlet instanceof AppPortlet)
+				tab.getHeader().setToolTip( ( (AppPortlet) portlet).getPresenterToolTip() );
 		}
 	}
 

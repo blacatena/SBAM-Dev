@@ -5,13 +5,10 @@ import com.extjs.gxt.ui.client.widget.Composite;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.extjs.gxt.ui.client.widget.Html;
-import com.extjs.gxt.ui.client.widget.layout.AnchorLayout;
-import com.extjs.gxt.ui.client.widget.layout.AnchorData;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.google.gwt.user.client.ui.Widget;
 import com.scholastic.sbam.client.util.IconSupplier;
-import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
@@ -45,19 +42,20 @@ public class AppHolder extends Composite {
 		final LoginUiManager thisLoginUiManager = loginUiManager;
 		
 		LayoutContainer anchorContainer = new LayoutContainer();
-		anchorContainer.setLayout(new AnchorLayout());
+		anchorContainer.setLayout(new BorderLayout());
+		setBorders(false);
 		
 		//	Create a container for the header elements
 		
 		headerContainer = new LayoutContainer();
 		headerContainer.setLayout(new BorderLayout());
 		headerContainer.setHeight(30);
-		headerContainer.setStyleAttribute("background", "none");
+		headerContainer.setStyleAttribute("background-color", "white");
 		
 		//	Create a separate container for the logout widget
 		
 		LayoutContainer logoutContainer = new LayoutContainer();
-		logoutContainer.setWidth(200);
+		logoutContainer.setWidth(180);
 		logoutContainer.setLayout(new FlowLayout(5));
 		if (headerWidget != null)
 			logoutContainer.add(headerWidget);
@@ -67,8 +65,9 @@ public class AppHolder extends Composite {
 		titleContainer = new LayoutContainer();
 		titleContainer.setHeight(30);
 		titleContainer.setLayout(new CenterLayout());
+//		titleContainer.setStyleAttribute("background-color", "white");
 		
-		htmlHeader = new Html("<h1><img src=\"resources/images/logo/logo.png\" align=\"absmiddle\" width=\"24\" height=\"24\" style=\"margin-top: -4px;\" />&nbsp;Scholastic Site Based Authentication Management System</h1>");
+		htmlHeader = new Html("<h1 style=\"padding-top: 10px;\"><img src=\"resources/images/logo/logo.png\" align=\"absmiddle\" width=\"24\" height=\"24\" style=\"margin-top: -4px;\" />&nbsp;Scholastic Site Based Authentication Management System</h1>");
 		titleContainer.add(htmlHeader);
 		
 		//	Create a container for the right side toolbar (currently there's only a "new note" button
@@ -99,7 +98,7 @@ public class AppHolder extends Composite {
 		
 		//	Add the three containers (logout, header/title, right toolbar) to the header area
 		
-		headerContainer.add(logoutContainer, new BorderLayoutData(LayoutRegion.WEST, 200f, 200, 200));
+		headerContainer.add(logoutContainer, new BorderLayoutData(LayoutRegion.WEST, 180f, 180, 180));
 		headerContainer.add(titleContainer, new BorderLayoutData(LayoutRegion.CENTER));
 		headerContainer.add(toolbarContainer, new BorderLayoutData(LayoutRegion.EAST, 100f, 100, 100));
 		
@@ -118,19 +117,23 @@ public class AppHolder extends Composite {
 		}
 		centerContainer.setLayout(new FitLayout());
 		centerContainer.add(contentContainer);
-		contentContainer.setBorders(true);
+		contentContainer.setBorders(false);
+		contentContainer.setStyleAttribute("padding", "4px");
 		centerContainer.setSize("", "");
 		centerContainer.addStyleName("x-panel");
 		
 		//	Add the header and center containers to the page
 		
-		AnchorData ad_headerContainer = new AnchorData("100% ");
-		ad_headerContainer.setMargins(new Margins(3, 3, 3, 3));
-		anchorContainer.add(headerContainer, ad_headerContainer);
+//		AnchorData ad_headerContainer = new AnchorData("100% ");
+//		ad_headerContainer.setMargins(new Margins(3, 3, 3, 3));
+//		anchorContainer.add(headerContainer, ad_headerContainer);
+//		
+//		AnchorData ad_centerContainer = new AnchorData("-0 -0");
+//		ad_centerContainer.setMargins(new Margins(5, 5, 5, 5));
+//		anchorContainer.add(centerContainer, ad_centerContainer);
 		
-		AnchorData ad_centerContainer = new AnchorData("-0 -70");
-		ad_centerContainer.setMargins(new Margins(10, 10, 10, 10));
-		anchorContainer.add(centerContainer, ad_centerContainer);
+		anchorContainer.add(headerContainer, new BorderLayoutData(LayoutRegion.NORTH, 40f, 40, 40));
+		anchorContainer.add(centerContainer, new BorderLayoutData(LayoutRegion.CENTER));
 		
 		//	If there is a footer widget, add a footer container with that
 		
@@ -141,9 +144,10 @@ public class AppHolder extends Composite {
 		
 			footerContainer.add(footerWidget);
 		
-			AnchorData ad_footerContainer = new AnchorData("100%");
-			ad_footerContainer.setMargins(new Margins(3, 3, 3, 3));
-			anchorContainer.add(footerContainer, ad_footerContainer);
+//			AnchorData ad_footerContainer = new AnchorData("100%");
+//			ad_footerContainer.setMargins(new Margins(3, 3, 3, 3));
+//			anchorContainer.add(footerContainer, ad_footerContainer);
+			anchorContainer.add(footerContainer, new BorderLayoutData(LayoutRegion.SOUTH, 40f, 40, 40));
 		}
 		
 		//	Finish up

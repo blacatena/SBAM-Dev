@@ -83,7 +83,12 @@ public class RecentAgreementsPortlet extends GridSupportPortlet<AgreementInstanc
 		
 		loadFiltered(null);
 	}
+
 	
+	@Override
+	public String getPresenterToolTip() {
+		return "A list of the most recently accessed agreements.";
+	}
 
 	
 	protected void addRecentAgreementsGrid(FormData formData) {

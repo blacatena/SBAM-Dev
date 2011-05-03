@@ -188,7 +188,6 @@ public class AppPortalWithCache extends Portal implements AppPortletPresenter {
 	
 	@Override
 	public void close(Portlet portlet) {
-		System.out.println("Close Portal portlet");
 		
 		remove(portlet, this.getPortletColumn(portlet));
 		

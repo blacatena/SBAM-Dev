@@ -3,10 +3,14 @@ package com.scholastic.sbam.client.uiobjects.uiapp;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
@@ -20,6 +24,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.UserPortletCacheListService;
 import com.scholastic.sbam.client.services.UserPortletCacheListServiceAsync;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
+import com.scholastic.sbam.client.uiobjects.uitop.HelpTextDialog;
 import com.scholastic.sbam.shared.objects.Authentication;
 import com.scholastic.sbam.shared.objects.UserPortletCacheInstance;
 import com.scholastic.sbam.shared.util.AppConstants;
@@ -84,7 +89,13 @@ public class AppWorkSpace extends LayoutContainer implements AppSleeper {
 		BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
 		centerData.setSplit(true);
 		
-		ContentPanel contentPanel = new ContentPanel();
+		ContentPanel contentPanel = new ContentPanel() {
+			@Override
+			public void initTools() {
+				addNavHelp(this);
+				super.initTools();
+			}
+		};
 		contentPanel.setHeading("Navigation");
 		contentPanel.setCollapsible(false);
 		contentPanel.setBorders(true);
@@ -105,6 +116,20 @@ public class AppWorkSpace extends LayoutContainer implements AppSleeper {
 		
 		add(contentPanel, 	westData);
 		add(thePortalArea, 	centerData);
+	}
+	
+	protected void addNavHelp(ContentPanel contentPanel) {	
+		ToolButton helpBtn = new ToolButton("x-tool-help");
+//		if (GXT.isAriaEnabled()) {
+//			helpBtn.setTitle(GXT.MESSAGES.pagingToolBar_beforePageText());
+//		}
+		helpBtn.addListener(Events.Select, new Listener<ComponentEvent>() {
+			public void handleEvent(ComponentEvent ce) {
+				HelpTextDialog htd = new HelpTextDialog("NavTree");
+				htd.show();
+			}
+		});
+		contentPanel.getHeader().addTool(helpBtn);
 	}
 	
 	public AppPortletPresenter getPreferredPortal(Element parent) {
