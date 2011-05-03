@@ -241,7 +241,8 @@ public class AppWorkSpace extends LayoutContainer implements AppSleeper {
 	 * Remove all portlets (without recording them as closed in the user portlet cache)
 	 */
 	public void removeAllPortlets() {
-		thePortal.removeAllPortlets();
+		if (thePortal != null)
+			thePortal.removeAllPortlets();
 	}
 
 	@Override
