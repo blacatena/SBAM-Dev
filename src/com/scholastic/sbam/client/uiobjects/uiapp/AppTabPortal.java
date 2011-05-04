@@ -7,6 +7,7 @@ import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Composite;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
@@ -65,8 +66,13 @@ public class AppTabPortal  extends Composite implements AppPortletPresenter {
 			( (AppPortlet) portlet).setPresenter(this);
 		}
 		
+		if (index < 0)
+			index = 0;
+		if (column < 0)
+			column = 0;
+		
 		//	Get the tab we'll add (with the portlet in it)
-		TabItem tab = getPortletTab(portlet, index, column);
+		TabItem tab = getNewPortletTab(portlet, index, column);
 		
 		//	Create all the columns we need
 		while (portletTabs.size() <= column) {
@@ -107,8 +113,16 @@ public class AppTabPortal  extends Composite implements AppPortletPresenter {
 		} else {
 			//	Insert before the specified tab in this column
 			TabItem beforeTab = tabColumn.get(index);
-			tabColumn.add(index, tab);
-			tabPanel.insert(tab, tabPanel.indexOf(beforeTab));
+			if (beforeTab != null) {
+				tabColumn.add(index, tab);
+				int tabIndex = tabPanel.indexOf(beforeTab);
+				if (tabIndex < 0)
+					tabIndex = 0;
+				tabPanel.insert(tab, tabIndex);
+			} else {
+				tabColumn.add(0, tab);
+				tabPanel.insert(tab, 0);
+			}
 		}
 		
 		//	Lastly, set the row and column for the portlet, and fix the local next portlet ID
@@ -126,7 +140,7 @@ public class AppTabPortal  extends Composite implements AppPortletPresenter {
 		
 	}
 	
-	public TabItem getPortletTab(Portlet portlet, int index, int column) {
+	public TabItem getNewPortletTab(Portlet portlet, int index, int column) {
 		TabItem tab = new TabItem(getTabLabel(portlet, index, column));
 		tab.setLayout(new FitLayout());
 		tab.setClosable(true);
@@ -162,14 +176,19 @@ public class AppTabPortal  extends Composite implements AppPortletPresenter {
 	@Override
 	public void close(Portlet portlet) {
 		TabItem tab = getTab(portlet);
-		if (tab != null && tab.getTabPanel() != null) {
-			tab.close();
-		}
+		if (tab != null) {
+			if (tab.getTabPanel() != null)
+				tab.close();
 		
-		//	Take the tab out of the list of tabs
-		for (List<TabItem> column : portletTabs) {
-			if (column.contains(tab))
-				column.remove(tab);
+			//	Take the tab out of the list of tabs
+			for (List<TabItem> column : portletTabs) {
+				for (TabItem targetTab : column) {
+					if (tab.hashCode() == targetTab.hashCode()) {
+						column.remove(targetTab);
+						break;
+					}
+				}
+			}
 		}
 		
 		//	Make sure the portlet is out of the tab itself
@@ -180,6 +199,17 @@ public class AppTabPortal  extends Composite implements AppPortletPresenter {
 		if (portlet instanceof AppPortlet)
 			((AppPortlet) portlet).updateUserPortlet();
 	}
+	
+//	private void dumpTabLists() {
+//		System.out.println("=========== portletTabs");
+//		for (List<TabItem> column : portletTabs) {
+//			System.out.println("Column...");
+//			for (TabItem tab : column) {
+//				System.out.println("Tab: " + tab.getText());
+//			}
+//		}
+//		System.out.println("========================");
+//	}
 	
 	@Override
 	public void updateLabel(Portlet portlet) {
@@ -224,16 +254,18 @@ public class AppTabPortal  extends Composite implements AppPortletPresenter {
 	}
 	
 	public TabItem getTab(Portlet portlet) {
-		for (TabItem tab : tabPanel.getItems()) {
-			if (tab.getItems().contains(portlet))
-				return tab;
+		//	Search using the internal list, in case it's already been removed from the tabPanel by GXT
+		for (List<TabItem> tabs : portletTabs) {
+			for (TabItem tab : tabs) {
+				for (Component component : tab.getItems()) {
+					if (component.hashCode() == portlet.hashCode())
+						if (component.getClass().getName().equals(portlet.getClass().getName())) {
+							return tab;
+						}
+				}
+			}
 		}
-//		for (List<TabItem> tabs : portletTabs) {
-//			for (TabItem tab : tabs) {
-//				if (tab.getItems().contains(portlet))
-//					return tab;
-//			}
-//		}
+
 		return null;
 	}
 

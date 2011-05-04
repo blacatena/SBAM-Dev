@@ -326,6 +326,18 @@ div.noteText {
 .list-normal {
 }
 
+.list-normal .show-name {
+	font-weight: bold;
+}
+
+.list-normal .show-ucn {
+	color:gray;
+	font-style: italic;
+}
+
+.list-normal .show-address {
+}
+
 .list-new {
 	background-color: #EEFFEE;
 	background-image:url(resources/images/icons/colorful/insert.png);
@@ -340,6 +352,25 @@ div.noteText {
 	background-repeat: no-repeat;
 	padding-left: 20px;
 	padding-bottom: 4px;
+}
+
+.list-alert {
+	background-color: #FFFFEE;
+	background-image:url(resources/images/icons/colorful/alert.png);
+	background-repeat: no-repeat;
+	padding-left: 20px;
+	padding-bottom: 4px;
+}
+
+.list-alert .show-name {
+}
+
+.list-alert .show-ucn {
+	display: none;
+}
+
+.list-alert .show-address {
+	display: none;
 }
 
 .list-null {

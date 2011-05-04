@@ -21,6 +21,7 @@ import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
+import com.scholastic.sbam.shared.util.AppConstants;
 
 public class InstitutionSearchField extends ComboBox<BeanModel> {
 	
@@ -103,8 +104,20 @@ public class InstitutionSearchField extends ComboBox<BeanModel> {
 		}
 	}
 	
+	@Override
+	public void onSelect(BeanModel model, int index) {
+		if (model != null) {
+			InstitutionInstance instance = model.getBean();
+			if (instance.getStatus() == AppConstants.STATUS_ERROR) {
+				//	Can't select the error message
+				return;
+			}
+		}
+		super.onSelect(model, index);
+	}
+	
 	protected String getMultiLineAddressTemplate() {
-		return "<b>{institutionName}</b>  <span style=\"color:gray; font-style: italic\">{ucn}</span><br/>{htmlAddress}"; // {address1}<br/>{city}, {state} &nbsp;&nbsp;&nbsp; {zip}";
+		return "<div class=\"{listStyle}\"><span class=\"show-name\">{institutionName}</span><span class=\"show-ucn\"> {ucn}</span><span class=\"show-address\"><br/>{htmlAddress}</span></div>"; // {address1}<br/>{city}, {state} &nbsp;&nbsp;&nbsp; {zip}";
 	}
 	
 	/**
@@ -143,8 +156,12 @@ public class InstitutionSearchField extends ComboBox<BeanModel> {
 						PagingLoadResult<InstitutionInstance> result = syncResult.getResult();
 						
 						//	This code was left, in case some way is determined to display this information when a search returns too many or no results
-//						if ( result.getData() == null || result.getData().size() == 0 ) {
-//							if (result.getTotalLength() > 0)
+						if ( result.getData() == null || result.getData().size() == 0 ) {
+							if (result.getTotalLength() > 0) {
+								result.getData().add(InstitutionInstance.getErrorInstance(result.getTotalLength() + " institutions qualify.<br/>Please narrow your search."));
+								result.setTotalLength(1);
+							}
+						}
 //								liveView.setEmptyText(result.getTotalLength() + " institutions qualify (too many to display).<br/>Please enter filter criteria to narrow your search.");
 //							else if (filter.length() == 0)
 //								liveView.setEmptyText("Enter filter criteria to search for institutions.");

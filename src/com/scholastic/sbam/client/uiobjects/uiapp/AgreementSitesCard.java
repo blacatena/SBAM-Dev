@@ -60,7 +60,7 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 	protected MultiField<String>			idNotesCombo		= new MultiField<String>("Agreement #");
 	protected LabelField					agreementIdField	= getLabelField();
 	protected NotesIconButtonField<String>	notesField			= getNotesButtonField();
-	protected InstitutionSearchField		institutionField	= getInstitutionField("ucn", "Site", DEFAULT_FIELD_WIDTH, "The institution that will receive the product services.");
+	protected InstitutionSearchField		institutionField	= getInstitutionField("ucn", "Institution", DEFAULT_FIELD_WIDTH, "The institution that will receive the product services.");
 	protected LabelField					addressDisplay		= getLabelField();
 	protected TextField<String>				ucnDisplay			= getTextField("UCN+");
 	protected LabelField					customerTypeDisplay	= getLabelField();

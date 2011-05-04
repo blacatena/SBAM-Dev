@@ -9,6 +9,7 @@ import com.extjs.gxt.ui.client.data.BeanModelLookup;
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
 import com.scholastic.sbam.client.util.AddressFormatter;
+import com.scholastic.sbam.shared.util.AppConstants;
 
 public class InstitutionInstance implements BeanModelTag, IsSerializable, UserCacheTarget {
 
@@ -214,6 +215,16 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable, UserCa
 		return activeAgreements + " ( " + agreements + " )";
 	}
 	
+	public String getListStyle() {
+		if (status == AppConstants.STATUS_NEW)
+			return "list-new";
+		if (status == AppConstants.STATUS_ALL)
+			return "list-all";
+		if (status == AppConstants.STATUS_ERROR)
+			return "list-alert";
+		return "list-normal";
+	}
+	
 	public SortedMap<Integer, AgreementSummaryInstance> getAgreementSummaryList() {
 		return agreementSummaryList;
 	}
@@ -254,6 +265,14 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable, UserCa
 		InstitutionInstance instance = new InstitutionInstance();
 		instance.ucn = ucn;
 		instance.institutionName = "Unknown institution " + ucn;
+		return instance;
+	}
+	
+	public static InstitutionInstance getErrorInstance(String message) {
+		InstitutionInstance instance = new InstitutionInstance();
+		instance.ucn = 0;
+		instance.institutionName = message;
+		instance.status = AppConstants.STATUS_ERROR;
 		return instance;
 	}
 

@@ -289,6 +289,7 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 		termTypeField.setAllowBlank(false);
 		cancelReasonField.setAllowBlank(true);
 		commissionTypeField.setAllowBlank(true);
+		dollarValueField.setMaxValue(AppConstants.MAX_DOLLAR_VALUE);
 		
 		//	Form column 1
 		
