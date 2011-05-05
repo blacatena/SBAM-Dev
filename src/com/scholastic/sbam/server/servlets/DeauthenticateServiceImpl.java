@@ -22,6 +22,7 @@ public class DeauthenticateServiceImpl extends RemoteServiceServlet implements D
 			System.out.println("Logging out " + auth.getUserName() + " at " + new Date());
 			//	This method sets the log off time, so that a grace period will be allowed for late requests
 			auth.setLoggedOff();
+			System.out.println(new Date() + ": Grace period starts " + auth.getLoggedOff() + " until " + (auth.getLoggedOff() + Authentication.LOG_OFF_GRACE_PERIOD));
 			
 			//	This is the old method, that simply logged them off immediately (and so slow/late requests caused errors).
 		//	this.getServletContext().setAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE, null);

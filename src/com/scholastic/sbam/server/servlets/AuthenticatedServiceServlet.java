@@ -1,5 +1,6 @@
 package com.scholastic.sbam.server.servlets;
 
+import java.util.Date;
 import java.util.Enumeration;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -30,12 +31,13 @@ public abstract class AuthenticatedServiceServlet extends RemoteServiceServlet {
 		Authentication auth = ((Authentication) getServletContext().getAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE));
 		if (auth != null) {
 			//	Test if the grace period has expired, and the user needs to be finally, really logged off.
-			if (auth.getLoggedOff() > 0 && auth.getLoggedOff() + Authentication.LOG_OFF_GRACE_PERIOD > System.currentTimeMillis()) {
+			if (auth.getLoggedOff() > 0 && (auth.getLoggedOff() + Authentication.LOG_OFF_GRACE_PERIOD) < System.currentTimeMillis()) {
 				// User log off is now official
+				System.out.println(new Date() + ": Grace period now expired for " + auth.getUserName() + " (" + auth.getLoggedOff() + " vs " + System.currentTimeMillis() + ")");
 				auth = null;
 				getServletContext().removeAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE);
 			} else if (auth.getLoggedOff() > 0)
-				System.out.println("Grace period processing allowed for " + taskDesc);
+				System.out.println(new Date() + ": Grace period processing allowed for " + taskDesc);
 		}
 		if (auth != null)
 			authUserName = auth.getUserName();

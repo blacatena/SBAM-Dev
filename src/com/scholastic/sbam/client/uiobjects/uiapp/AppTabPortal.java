@@ -44,12 +44,13 @@ public class AppTabPortal  extends Composite implements AppPortletPresenter {
 	@Override
 	public void insert(Portlet portlet, int index, int column) {
 		int portletId = nextPortalId++;
-		reinsert(portlet, index, column, portletId);
-		if (portlet instanceof AppPortlet) {
-			AppPortlet appPortlet = (AppPortlet) portlet;
-			appPortlet.registerUserPortlet(portletId, index, column);
+		if (reinsert(portlet, index, column, portletId)) {
+			if (portlet instanceof AppPortlet) {
+				AppPortlet appPortlet = (AppPortlet) portlet;
+				appPortlet.registerUserPortlet(portletId, index, column);
+			}
+			scrollToPortlet(portlet);
 		}
-		scrollToPortlet(portlet);
 	}
 
 	@Override
@@ -60,10 +61,19 @@ public class AppTabPortal  extends Composite implements AppPortletPresenter {
 	}
 
 	@Override
-	public void reinsert(Portlet portlet, int index, int column, int portletId) {
+	public boolean reinsert(Portlet portlet, int index, int column, int portletId) {
+		//	Do any AppPortlet specific tasks
 		if (portlet instanceof AppPortlet) {
-			( (AppPortlet) portlet).setPortletId(portletId);
-			( (AppPortlet) portlet).setPresenter(this);
+			AppPortlet appPortlet = (AppPortlet) portlet;
+			//	Make sure there's not already a duplicate portlet, and if so, don't add this one, just jump to that one
+			AppPortlet existingPortlet = (AppPortlet) getByIdentity( appPortlet.getPortletIdentity() );
+			if (existingPortlet != null && !existingPortlet.allowDuplicatePortlets()) {
+				scrollToPortlet(existingPortlet);
+				return false;
+			}
+			//	Otherwise, set the id and stuff
+			appPortlet.setPortletId(portletId);
+			appPortlet.setPresenter(this);
 		}
 		
 		if (index < 0)
@@ -138,6 +148,7 @@ public class AppTabPortal  extends Composite implements AppPortletPresenter {
 				nextPortalId = appPortlet.getPortletId() + 1;
 		}
 		
+		return true;
 	}
 	
 	public TabItem getNewPortletTab(Portlet portlet, int index, int column) {
@@ -274,4 +285,31 @@ public class AppTabPortal  extends Composite implements AppPortletPresenter {
 		// Nothing to do
 	}
 
+	@Override
+	public Portlet getByIdentity(String identity) {
+		if (identity == null)
+			return null;
+		
+		for (List<TabItem> tabs : portletTabs) {
+			for (TabItem tab : tabs) {
+				for (Component component : tab.getItems()) {
+					if (component instanceof AppPortlet) {
+						AppPortlet appPortlet = (AppPortlet) component;
+						if (identity.equals(appPortlet.getPortletIdentity()))
+							return appPortlet;
+					}
+				}
+			}
+		}
+		
+		return null;
+	}
+
+	/**
+	 * Widths do not matter to this presenter.
+	 */
+	@Override
+	public boolean updatePortletCacheWidths() {
+		return false;
+	}
 }

@@ -19,6 +19,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.custom.Portlet;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -142,11 +143,24 @@ public class RecentAgreementsPortlet extends GridSupportPortlet<AgreementInstanc
 					public void handleEvent(SelectionChangedEvent<ModelData> be) {  
 						if (be.getSelection().size() > 0) {
 							UserCacheInstance cacheInstance = (UserCacheInstance) ((BeanModel) be.getSelectedItem()).getBean();
+							
+							//	If this agreement is already in the presenter, just scroll to it
+							//	Note that this would be handled automatically anyway, by the presenter... here we're just avoiding creating a portlet that will just be thrown away
+							if (presenter != null) {
+								Portlet portlet = presenter.getByIdentity(AgreementPortlet.getPortletIdentity(cacheInstance.getIntKey()));
+								if (portlet != null) {
+									presenter.scrollToPortlet(portlet);
+									return;
+								}
+							}
+
+							//	Create and add a new portlet and load the agreement
 							AgreementPortlet portlet = (AgreementPortlet) portletProvider.getPortlet(AppPortletIds.AGREEMENT_DISPLAY);
 							portlet.setAgreementId(cacheInstance.getIntKey());
 							portlet.setIdentificationTip(cacheInstance.getHint());				
 							portletProvider.insertPortlet(portlet, 0, thisPortlet.getInsertColumn());
 							agreementsGrid.getSelectionModel().deselectAll();
+
 						} 
 					}  
 			});
@@ -252,6 +266,11 @@ public class RecentAgreementsPortlet extends GridSupportPortlet<AgreementInstanc
 
 	@Override
 	public void sleep() {
+	}
+	
+	@Override
+	public String getPortletIdentity() {
+		return this.getClass().getName();
 	}
 
 	@Override

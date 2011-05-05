@@ -11,6 +11,7 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
+import com.extjs.gxt.ui.client.widget.layout.AbsoluteLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
@@ -67,24 +68,8 @@ public class AppWorkSpace extends LayoutContainer implements AppSleeper {
 		
 		thePortalArea.setId("portalContainer");
 		
-	//	thePortal = new AppPortalWithCache(2);
-//		thePortal.setId("thePortal");
-//		thePortal.setWidth(DEFAULT_PORTAL_COL_COUNT * DEFAULT_PORTAL_COL_WIDTH);
-//		thePortal.setAutoWidth(false);
-//		thePortal.setColumnWidth(0, DEFAULT_PORTAL_COL_WIDTH);
-//		thePortal.setColumnWidth(1, DEFAULT_PORTAL_COL_WIDTH);
 		thePortal = getPreferredPortal(parent);
-		//	getPortalWithCache();	
-		//	getTabPortal();
 		portletProvider = new AppPortletProvider(thePortal);
-		if (thePortal instanceof AppTabPortal) {
-			thePortalArea.setWidth(0);
-			thePortalArea.setScrollMode(Scroll.NONE);
-		} else {
-			thePortalArea.setWidth(DEFAULT_PORTAL_COL_COUNT * DEFAULT_PORTAL_COL_WIDTH);
-			thePortalArea.setScrollMode(Scroll.AUTO);
-			thePortalArea.setScrollMode(Scroll.AUTO);
-		}
 		
 		BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
 		centerData.setSplit(true);
@@ -146,13 +131,18 @@ public class AppWorkSpace extends LayoutContainer implements AppSleeper {
 	
 	public AppPortletPresenter getPortalWithCache() {
 
-			AppPortalWithCache thePortal = new AppPortalWithCache(2);
+			AppPortalWithCache thePortal = new AppPortalWithCache(DEFAULT_PORTAL_COL_COUNT);
 			thePortal.setId("thePortal");
-			thePortal.setWidth(DEFAULT_PORTAL_COL_COUNT * DEFAULT_PORTAL_COL_WIDTH);
+			thePortal.setWidth((DEFAULT_PORTAL_COL_COUNT * DEFAULT_PORTAL_COL_WIDTH) + 100);
 			thePortal.setAutoWidth(false);
-			thePortal.setColumnWidth(0, DEFAULT_PORTAL_COL_WIDTH);
-			thePortal.setColumnWidth(1, DEFAULT_PORTAL_COL_WIDTH);
+			for (int i = 0; i < DEFAULT_PORTAL_COL_COUNT; i++)
+				thePortal.setColumnWidth(i, DEFAULT_PORTAL_COL_WIDTH);
+			thePortal.setScrollMode(Scroll.NONE);
 			
+			thePortalArea.setLayout(new AbsoluteLayout());
+			thePortalArea.setWidth(DEFAULT_PORTAL_COL_COUNT * DEFAULT_PORTAL_COL_WIDTH);
+			thePortalArea.setAutoWidth(false);
+			thePortalArea.setScrollMode(Scroll.AUTO);
 			thePortalArea.add(thePortal);
 			
 			return thePortal;
@@ -163,6 +153,8 @@ public class AppWorkSpace extends LayoutContainer implements AppSleeper {
 		thePortal.setId("theTabPortal");
 		
 		thePortalArea.setLayout(new FitLayout());
+		thePortalArea.setWidth(0);
+		thePortalArea.setScrollMode(Scroll.NONE);
 		thePortalArea.add(thePortal);
 		
 		return thePortal;

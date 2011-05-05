@@ -48,8 +48,10 @@ public interface AppPortletPresenter {
 	 * @param portlet
 	 * @param index
 	 * @param column
+	 * @param return
+	 * Return true if the portlet was inserted, false if an existing portlet took its place.
 	 */
-	public void reinsert(Portlet portlet, int index, int column, int portletId);
+	public boolean reinsert(Portlet portlet, int index, int column, int portletId);
 	
 	/**
 	 * Close a particular portlet.
@@ -73,4 +75,19 @@ public interface AppPortletPresenter {
 	 * @param list
 	 */
 	public void restorePresentationState(List<UserPortletCacheInstance> list);
+	
+	/**
+	 * Get a portlet in the current presentation based on it's identity.
+	 * 
+	 * Return null if the portlet does not yet exist.
+	 * @param identity
+	 * @return
+	 */
+	public Portlet getByIdentity(String identity);
+	
+	/**
+	 * Does this portlet presenter have a relevant width to update/retain?
+	 * @return
+	 */
+	public boolean updatePortletCacheWidths();
 }

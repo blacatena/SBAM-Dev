@@ -745,6 +745,22 @@ public class InstitutionSearchPortlet extends GridSupportPortlet<AgreementSummar
 			return "UCNs for " + filter.substring(0, 10);
 		return "UCNs for " + filter;
 	}
+	
+	@Override
+	public boolean allowDuplicatePortlets() {
+		//	Not allowed for a particular institution
+		if (focusUcn > 0)
+			return false;
+		//	Allowed for any general search
+		return true;
+	}
+	
+	@Override
+	public String getPortletIdentity() {
+		if (focusUcn <= 0)
+			return super.getPortletIdentity();
+		return this.getClass().getName() + ":" + focusUcn;
+	}
 
 	public int getFocusUcn() {
 		return focusUcn;

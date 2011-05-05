@@ -34,13 +34,21 @@ public class AppPortalWithCache extends Portal implements AppPortletPresenter {
 	 */
 	@Override
 	public void insert(Portlet portlet, int index, int column) {
-		super.insert(portlet, index, column);
-		if (portlet instanceof AppPortlet) {
-			AppPortlet appPortlet = (AppPortlet) portlet;
-			appPortlet.registerUserPortlet(nextPortalId, index, column);
+		int portletId = nextPortalId++;
+		if (reinsert(portlet, index, column, portletId)) {
+			if (portlet instanceof AppPortlet) {
+				AppPortlet appPortlet = (AppPortlet) portlet;
+				appPortlet.registerUserPortlet(portletId, index, column);
+			}
+			scrollToPortlet(portlet);
 		}
-		scrollToPortlet(portlet);
-		nextPortalId++;
+//		super.insert(portlet, index, column);
+//		if (portlet instanceof AppPortlet) {
+//			AppPortlet appPortlet = (AppPortlet) portlet;
+//			appPortlet.registerUserPortlet(nextPortalId, index, column);
+//		}
+//		scrollToPortlet(portlet);
+//		nextPortalId++;
 	}
 	
 	public void scrollToPortlet(Portlet portlet) {
@@ -145,10 +153,19 @@ public class AppPortalWithCache extends Portal implements AppPortletPresenter {
 	 * @param index
 	 * @param column
 	 */
-	public void reinsert(Portlet portlet, int index, int column, int portletId) {
+	public boolean reinsert(Portlet portlet, int index, int column, int portletId) {
+		//	Do any AppPortlet specific tasks
 		if (portlet instanceof AppPortlet) {
-			( (AppPortlet) portlet).setPortletId(portletId);
-			( (AppPortlet) portlet).setPresenter(this);
+			AppPortlet appPortlet = (AppPortlet) portlet;
+			//	Make sure there's not already a duplicate portlet, and if so, don't add this one, just jump to that one
+			AppPortlet existingPortlet = (AppPortlet) getByIdentity( appPortlet.getPortletIdentity() );
+			if (existingPortlet != null && !existingPortlet.allowDuplicatePortlets()) {
+				scrollToPortlet(existingPortlet);
+				return false;
+			}
+			//	Otherwise, set the id and stuff
+			appPortlet.setPortletId(portletId);
+			appPortlet.setPresenter(this);
 		}
 		
 		//	Use this to fix problems where cached portlet locations are out of bounds
@@ -166,6 +183,8 @@ public class AppPortalWithCache extends Portal implements AppPortletPresenter {
 			if (appPortlet.getPortletId() >= nextPortalId)
 				nextPortalId = appPortlet.getPortletId() + 1;
 		}
+		
+		return true;
 	}
 	
 	public void addDragListener() {
@@ -245,5 +264,30 @@ public class AppPortalWithCache extends Portal implements AppPortletPresenter {
 				}
 			}
 		}
+	}
+
+	@Override
+	public Portlet getByIdentity(String identity) {
+		if (identity == null)
+			return null;
+		
+		for (LayoutContainer column : this.getItems())
+			for (Component component : column.getItems()) {
+				if (component instanceof AppPortlet) {
+					AppPortlet appPortlet = (AppPortlet) component;
+					if (identity.equals(appPortlet.getPortletIdentity()))
+						return appPortlet;
+				}
+			}
+		
+		return null;
+	}
+
+	/**
+	 * Widths do matter to this presenter.
+	 */
+	@Override
+	public boolean updatePortletCacheWidths() {
+		return true;
 	}
 }

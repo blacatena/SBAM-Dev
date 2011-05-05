@@ -1170,6 +1170,26 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		return "Create Agreement";
 	}
 	
+	@Override
+	public boolean allowDuplicatePortlets() {
+		//	Not allowed for a particular agreement
+		if (agreementId > 0)
+			return false;
+		//	Allowed for "create new"
+		return true;
+	}
+	
+	@Override
+	public String getPortletIdentity() {
+		return getPortletIdentity(agreementId);
+	}
+	
+	public static String getPortletIdentity(int agreementId) {
+		if (agreementId <= 0)
+			return AgreementPortlet.class.getName();
+		return AgreementPortlet.class.getName() + ":" + agreementId;
+	}
+	
 	/**
 	 * Turn on the listener timer when waking up.
 	 */

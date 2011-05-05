@@ -7,6 +7,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.ResizeEvent;
 import com.extjs.gxt.ui.client.event.ResizeListener;
 import com.extjs.gxt.ui.client.fx.Resizable;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
@@ -158,7 +159,12 @@ public abstract class AppPortlet extends Portlet {
 				if (getParent().getParent() instanceof Portal) {
 					Portal myPortal = (Portal) getParent().getParent();
 					myPortal.setColumnWidth(portalColumn, getWidth());
-					myPortal.getItem(portalColumn).setWidth(getWidth() + myPortal.getSpacing());
+					myPortal.getItem(portalColumn).setWidth(getWidth());	// + myPortal.getSpacing());
+					int totWidth = 0;
+					for (Component component : myPortal.getItems()) {
+						totWidth += component.getOffsetWidth();
+					}
+					myPortal.setWidth(totWidth);
 				}
 			}
 		}
@@ -267,8 +273,7 @@ public abstract class AppPortlet extends Portlet {
 
 		cacheInstance.setRestoreWidth(-1);
 		cacheInstance.setRestoreWidth(-1);
-		if (!closed && !minimized && isRendered()) {
-//			System.out.println("Doing width/height " + getWidth() + ",  " + getHeight());
+		if (!closed && !minimized && isRendered() && (presenter == null || presenter.updatePortletCacheWidths())) {
 			if (getWidth() > 0)
 				cacheInstance.setRestoreWidth(getWidth());
 			if (getHeight() > 0)
@@ -385,6 +390,20 @@ public abstract class AppPortlet extends Portlet {
 
 	public void setPresenter(AppPortletPresenter presenter) {
 		this.presenter = presenter;
+	}
+	
+	/**
+	 * Override this method to determine if a portlet instance is subject to duplication checks.
+	 * 
+	 * When this method returns true, only one portlet with the value from getPortletIdentity will be allowed.
+	 * @return
+	 */
+	public boolean allowDuplicatePortlets() {
+		return false;
+	}
+	
+	public String getPortletIdentity() {
+		return this.getClass().getName();
 	}
 
 	public abstract void setFromKeyData(String keyData);
