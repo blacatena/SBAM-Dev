@@ -8,6 +8,7 @@ import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.scholastic.sbam.client.services.InstitutionWordService;
 import com.scholastic.sbam.server.fastSearch.InstitutionCache;
+import com.scholastic.sbam.server.fastSearch.InstitutionCache.InstitutionCacheConflict;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.FilterWordInstance;
 
@@ -18,15 +19,18 @@ import com.scholastic.sbam.shared.objects.FilterWordInstance;
 public class InstitutionWordServiceImpl extends AuthenticatedServiceServlet implements InstitutionWordService {
 
 	@Override
-	public PagingLoadResult<FilterWordInstance> getInstitutionWords(PagingLoadConfig loadConfig) throws IllegalArgumentException, ServiceNotReadyException {
-		
-		authenticate("institution word list");	//	SecurityManager.ROLE_CONFIG);
-
+	public PagingLoadResult<FilterWordInstance> getInstitutionWords(PagingLoadConfig loadConfig) throws IllegalArgumentException, ServiceNotReadyException {		
+		authenticate(getSubjectName() + " word list");	//	SecurityManager.ROLE_CONFIG);
+		return doWordSearch(loadConfig);
+	}
+	
+	public PagingLoadResult<FilterWordInstance> doWordSearch(PagingLoadConfig loadConfig) throws IllegalArgumentException, ServiceNotReadyException {
 		BasePagingLoadResult<FilterWordInstance> result = null;
 		try {
 			
-			if (InstitutionCache.getSingleton() == null || !InstitutionCache.getSingleton().isMapsReady())
-				throw new ServiceNotReadyException("institution word filter function");
+			InstitutionCache searchCache = getSearchCache();
+			if (searchCache == null || !searchCache.isMapsReady())
+				throw new ServiceNotReadyException(getSubjectName() + " word filter function");
 
 			List<FilterWordInstance> list = new ArrayList<FilterWordInstance>();
 			
@@ -37,7 +41,7 @@ public class InstitutionWordServiceImpl extends AuthenticatedServiceServlet impl
 			// The point of this test is to make sure the user has started typing a new word, i.e. isn't at something like "Space " or "Dash-"
 			if (search.length() > 0) {
 				String prefix = query.substring(0, query.length() - search.length());
-				String [] words = InstitutionCache.getSingleton().getWords(search);
+				String [] words = searchCache.getWords(search);
 				wordCount = words.length;
 				for (int i = loadConfig.getOffset(); i < words.length; i++) {
 					FilterWordInstance word = new FilterWordInstance();
@@ -52,7 +56,7 @@ public class InstitutionWordServiceImpl extends AuthenticatedServiceServlet impl
 			
 
 		} catch (InstitutionCache.InstitutionCacheNotReady exc) {
-			throw new ServiceNotReadyException("institution word filter function");
+			throw new ServiceNotReadyException(getSubjectName() + " word filter function");
 		} catch (ServiceNotReadyException exc) {
 			throw exc;
 		} catch (Exception exc) {
@@ -60,6 +64,14 @@ public class InstitutionWordServiceImpl extends AuthenticatedServiceServlet impl
 		}
 		
 		return result;
+	}
+	
+	public String getSubjectName() {
+		return "institution";
+	}
+	
+	public InstitutionCache getSearchCache() throws InstitutionCacheConflict {
+		return InstitutionCache.getSingleton();
 	}
 	
 	/**

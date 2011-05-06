@@ -112,33 +112,33 @@ public class AppNavTree {
 	public static Folder getTreeModel() {
 		
 	  Folder creates = new Folder("Create", IconSupplier.getNewIconName());
-	  creates.add(new SelectionTreeNode("New Agreement", IconSupplier.getAgreementIconName(), AppPortletIds.AGREEMENT_DISPLAY));
-	  creates.add(new SelectionTreeNode("New Site", IconSupplier.getSiteIconName()));
-	  creates.add(new SelectionTreeNode("New Proxy", IconSupplier.getProxyIconName()));
-	  creates.add(new SelectionTreeNode("New Link", IconSupplier.getAgreementLinkIconName()));
+	  creates.add(new SelectionTreeNode("New Agreement", 		IconSupplier.getAgreementIconName(), AppPortletIds.AGREEMENT_DISPLAY));
+	  creates.add(new SelectionTreeNode("New Site", 			IconSupplier.getSiteIconName()));
+	  creates.add(new SelectionTreeNode("New Proxy", 			IconSupplier.getProxyIconName()));
+	  creates.add(new SelectionTreeNode("New Link", 			IconSupplier.getAgreementLinkIconName()));
 		
 	  Folder searches = new Folder("Searches", IconSupplier.getSearchIconName());
 	  
 	  Folder custSrch = new Folder("Customers", IconSupplier.getInstitutionIconName());
 	  custSrch.add(new SelectionTreeNode("Full Institution",	AppPortletIds.FULL_INSTITUTION_SEARCH));
-	  custSrch.add(new SelectionTreeNode("Customer", IconSupplier.getCustomerIconName()));
-	  custSrch.add(new SelectionTreeNode("Site List", IconSupplier.getSiteIconName()));
-	  custSrch.add(new SelectionTreeNode("Contacts", IconSupplier.getContactsIconName()));
+	  custSrch.add(new SelectionTreeNode("Customer",			AppPortletIds.CUSTOMER_SEARCH));
+	  custSrch.add(new SelectionTreeNode("Site List", 			IconSupplier.getSiteIconName()));
+	  custSrch.add(new SelectionTreeNode("Contacts", 			IconSupplier.getContactsIconName()));
 	  
 	  Folder agreeSrch = new Folder("Agreements", IconSupplier.getAgreementIconName());
-	  agreeSrch.add(new SelectionTreeNode("Agreement", IconSupplier.getAgreementIconName()));
-	  agreeSrch.add(new SelectionTreeNode("Product Terms", IconSupplier.getAgreementTermIconName()));
-	  agreeSrch.add(new SelectionTreeNode("Sites", IconSupplier.getSiteIconName()));
-	  agreeSrch.add(new SelectionTreeNode("Methods", IconSupplier.getAccessMethodIconName()));
-	  agreeSrch.add(new SelectionTreeNode("Notes", IconSupplier.getNoteIconName()));
-	  agreeSrch.add(new SelectionTreeNode("Contacts", IconSupplier.getContactsIconName()));
-	  agreeSrch.add(new SelectionTreeNode("Proxies", IconSupplier.getProxyIconName()));
-	  agreeSrch.add(new SelectionTreeNode("Links", IconSupplier.getAgreementLinkIconName()));
+	  agreeSrch.add(new SelectionTreeNode("Agreement", 			IconSupplier.getAgreementIconName()));
+	  agreeSrch.add(new SelectionTreeNode("Product Terms", 		IconSupplier.getAgreementTermIconName()));
+	  agreeSrch.add(new SelectionTreeNode("Sites", 				IconSupplier.getSiteIconName()));
+	  agreeSrch.add(new SelectionTreeNode("Methods", 			IconSupplier.getAccessMethodIconName()));
+	  agreeSrch.add(new SelectionTreeNode("Notes", 				IconSupplier.getNoteIconName()));
+	  agreeSrch.add(new SelectionTreeNode("Contacts", 			IconSupplier.getContactsIconName()));
+	  agreeSrch.add(new SelectionTreeNode("Proxies", 			IconSupplier.getProxyIconName()));
+	  agreeSrch.add(new SelectionTreeNode("Links", 				IconSupplier.getAgreementLinkIconName()));
 	  
 	  Folder recentSrch = new Folder("Recent", IconSupplier.getRecentIconName());
-	  recentSrch.add(new SelectionTreeNode("Agreements",	AppPortletIds.RECENT_AGREEMENTS_DISPLAY));
-	  recentSrch.add(new SelectionTreeNode("Customers",		AppPortletIds.RECENT_INSTITUTIONS_DISPLAY));
-	  recentSrch.add(new SelectionTreeNode("Proxies",		IconSupplier.getProxyIconName()));
+	  recentSrch.add(new SelectionTreeNode("Agreements",		AppPortletIds.RECENT_AGREEMENTS_DISPLAY));
+	  recentSrch.add(new SelectionTreeNode("Customers",			AppPortletIds.RECENT_INSTITUTIONS_DISPLAY));
+	  recentSrch.add(new SelectionTreeNode("Proxies",			IconSupplier.getProxyIconName()));
 	  
 	  searches.add(custSrch);
 	  searches.add(agreeSrch);

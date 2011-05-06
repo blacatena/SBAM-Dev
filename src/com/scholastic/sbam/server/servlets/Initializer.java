@@ -4,6 +4,7 @@ import javax.servlet.*;
 
 import javax.servlet.http.HttpServlet;
 
+import com.scholastic.sbam.server.fastSearch.CustomerCache;
 import com.scholastic.sbam.server.fastSearch.HelpTextCache;
 import com.scholastic.sbam.server.fastSearch.InstitutionCache;
 import com.scholastic.sbam.server.util.AppServerConstants;
@@ -18,6 +19,7 @@ public class Initializer extends HttpServlet {
 		try {
 			AppServerConstants.init(config.getServletContext().getRealPath("/"));	//, ">>>  ");
 			System.out.println("Institution cache object is " + InstitutionCache.getSingleton(AppServerConstants.getInstCacheConfig()));
+			System.out.println("Customer cache object is " + CustomerCache.getSingleton());
 			System.out.println("Help Text cache object is " + HelpTextCache.getSingleton());
 		} catch (Exception e) {
 			e.printStackTrace();

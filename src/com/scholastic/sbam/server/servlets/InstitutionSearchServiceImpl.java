@@ -10,6 +10,7 @@ import com.scholastic.sbam.server.database.objects.DbAgreement;
 import com.scholastic.sbam.server.database.objects.DbInstitution;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.server.fastSearch.InstitutionCache;
+import com.scholastic.sbam.server.fastSearch.InstitutionCache.InstitutionCacheConflict;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
@@ -24,24 +25,32 @@ public class InstitutionSearchServiceImpl extends AuthenticatedServiceServlet im
 
 	@Override
 	public SynchronizedPagingLoadResult<InstitutionInstance> getInstitutions(PagingLoadConfig loadConfig, String filter, boolean includeAgreementSummaries, long syncId) throws IllegalArgumentException, ServiceNotReadyException {
-		
 		authenticate("search institutions", SecurityManager.ROLE_QUERY);
-
+		return doSearch(loadConfig, filter, includeAgreementSummaries, syncId);
+	}
+	
+	protected InstitutionCache getSearchCache() throws InstitutionCacheConflict {
+		if (InstitutionCache.getSingleton() == null || !InstitutionCache.getSingleton().isMapsReady())
+			throw new ServiceNotReadyException("institution search function");
+		return InstitutionCache.getSingleton();
+	}
+	
+	protected SynchronizedPagingLoadResult<InstitutionInstance> doSearch(PagingLoadConfig loadConfig, String filter, boolean includeAgreementSummaries, long syncId) throws IllegalArgumentException, ServiceNotReadyException {
+		
 		// This is just a BasePagingLoadResult,but it has a synchronization tag to make sure old, slow, late search results don't overwrite newer, better results
 		SynchronizedPagingLoadResult<InstitutionInstance> result = null;
 		try {
 			List<InstitutionInstance> list = new ArrayList<InstitutionInstance>();
 			
-			if (InstitutionCache.getSingleton() == null || !InstitutionCache.getSingleton().isMapsReady())
-				throw new ServiceNotReadyException("institution search function");
+			InstitutionCache searchCache = getSearchCache();
 			
 			//	Filtering... only get the UCNs for all of the terms listed, using the cache
-			String filters [] = InstitutionCache.getSingleton().parseFilter(filter);
-			List<Integer> ucns = InstitutionCache.getSingleton().getFilteredUcns(filter);
+			String filters [] = searchCache.parseFilter(filter);
+			List<Integer> ucns = searchCache.getFilteredUcns(filter);
 			
 			if (ucns == null || ucns.size() == 0) {
 				// Nothing qualified, so look in the counts to see if there were too many
-				int bestCount = InstitutionCache.getSingleton().getFilteredUcnCount(filters);
+				int bestCount = searchCache.getFilteredUcnCount(filters);
 				
 				//	This is an "error" result with no data, but the count of how many might have qualified
 				result = new SynchronizedPagingLoadResult<InstitutionInstance>(list, loadConfig.getOffset(), bestCount, syncId);
@@ -61,9 +70,9 @@ public class InstitutionSearchServiceImpl extends AuthenticatedServiceServlet im
 						//	Paging... start from where asked, and don't return more than requested
 						if (i >= loadConfig.getOffset() && list.size() < loadConfig.getLimit()) {
 							InstitutionInstance instance = DbInstitution.getInstance(dbInstance);
-							instance.setTypeDescription(InstitutionCache.getSingleton().getInstitutionType(instance.getTypeCode()).getDescription());
-							instance.setGroupDescription(InstitutionCache.getSingleton().getInstitutionGroup(instance.getGroupCode()).getDescription());
-							instance.setPublicPrivateDescription(InstitutionCache.getSingleton().getInstitutionPubPriv(instance.getPublicPrivateCode()).getDescription());
+							instance.setTypeDescription(searchCache.getInstitutionType(instance.getTypeCode()).getDescription());
+							instance.setGroupDescription(searchCache.getInstitutionGroup(instance.getGroupCode()).getDescription());
+							instance.setPublicPrivateDescription(searchCache.getInstitutionPubPriv(instance.getPublicPrivateCode()).getDescription());
 							list.add(instance);
 							
 							if (includeAgreementSummaries)

@@ -32,17 +32,17 @@ import com.scholastic.sbam.shared.util.AppConstants;
  *
  */
 public class InstitutionCache implements Runnable {
-	private static final boolean FIRST_PASS_READY	= false;	//	Are maps ready for use after the first pass?
-	private static final boolean SECOND_PASS_READY	=	true;	//	Are maps ready for use after the second pass?
+	protected static final boolean FIRST_PASS_READY	= false;	//	Are maps ready for use after the first pass?
+	protected static final boolean SECOND_PASS_READY	=	true;	//	Are maps ready for use after the second pass?
 	
-	protected static final String INSTITUTION_SQL = "SELECT ucn, parent_ucn, institution_name, address1, address2, address3, city, state, zip, country, phone, fax, alternate_ids FROM institution ";
+	protected static final String INSTITUTION_SQL = "SELECT ucn, parent_ucn, institution_name, address1, address2, address3, city, state, zip, country, phone, fax, alternate_ids FROM institution WHERE ucn > 0 ";
 	
 	public static class InstitutionCacheNotReady extends Exception {
-		private static final long serialVersionUID = -8657762616708856381L;
+		protected static final long serialVersionUID = -8657762616708856381L;
 	}
 	
 	public static class InstitutionCacheConflict extends Exception {
-		private static final long serialVersionUID = -5649410161902019748L;
+		protected static final long serialVersionUID = -5649410161902019748L;
 	}
 	
 	public static class InstitutionCacheConfig {
@@ -65,7 +65,7 @@ public class InstitutionCache implements Runnable {
 		/**
 		 * Whether or not pairs of strings should be used, or only the strings alone.
 		 */
-		protected boolean	useStringPairs		= true;
+		protected boolean	useStringPairs		= false;
 		/**
 		 * The minimum length to bother even considering for a search string.
 		 */
@@ -87,6 +87,10 @@ public class InstitutionCache implements Runnable {
 		 */
 		protected int		maxWordListLength	= 500;
 		protected String	loadStatusList;
+		/**
+		 * Can this cache be updated (by adding more institutions) after it is generated?  If true, more memory is required.
+		 */
+		protected boolean	updateable			= false;
 		
 		public String toString() {
 			return "Institution Cache Config : [Inner = " + useInnerStrings + ", Pairs = " + useStringPairs + ", min len = " + minStringLength + ", min inner = " + minInnerStringLength + 
@@ -153,13 +157,17 @@ public class InstitutionCache implements Runnable {
 		public void setLoadLimit(int loadLimit) {
 			this.loadLimit = loadLimit;
 		}
-
 		public String getLoadStatusList() {
 			return loadStatusList;
 		}
-
 		public void setLoadStatusList(String loadStatusList) {
 			this.loadStatusList = loadStatusList;
+		}
+		public boolean isUpdateable() {
+			return updateable;
+		}
+		public void setUpdateable(boolean updateable) {
+			this.updateable = updateable;
 		}
 		
 	}
@@ -183,6 +191,7 @@ public class InstitutionCache implements Runnable {
 	protected HashMap<String, SortedSet<String>>	wordMap	  = new HashMap<String, SortedSet<String>>();
 	protected HashMap<String, List<Integer>>		searchMap = new HashMap<String, List<Integer>>();
 	protected HashMap<String, Integer>				countMap  = new HashMap<String, Integer>();
+	protected HashSet<Integer>						ucnSet	  = new HashSet<Integer>();
 	
 	// These can just be server side, because they only change when the institutions change (i.e. its externally defined data)
 	protected HashMap<String, InstitutionGroupInstance>	groups		= new HashMap<String, InstitutionGroupInstance>();
@@ -190,12 +199,12 @@ public class InstitutionCache implements Runnable {
 	protected HashMap<String, InstitutionPubPrivInstance>	pubPrivs= new HashMap<String, InstitutionPubPrivInstance>();
 	
 	
-	private InstitutionCache() {
+	protected InstitutionCache() {
 		config = new InstitutionCacheConfig();
 		init();
 	}
 	
-	private InstitutionCache(InstitutionCacheConfig config) {
+	protected InstitutionCache(InstitutionCacheConfig config) {
 		if (config != null)
 			this.config = config;
 		init(this.config);
@@ -234,11 +243,11 @@ public class InstitutionCache implements Runnable {
 		return singleton;
 	}
 	
-	private boolean init() {
+	protected boolean init() {
 		return init(config);
 	}
 	
-	private static boolean configsAreEqual(InstitutionCacheConfig config1, InstitutionCacheConfig config2) {
+	protected static boolean configsAreEqual(InstitutionCacheConfig config1, InstitutionCacheConfig config2) {
 		if (config1.useInnerStrings != config2.useInnerStrings)
 			return false;
 		if (config1.useStringPairs != config2.useStringPairs)
@@ -256,10 +265,14 @@ public class InstitutionCache implements Runnable {
 		return true;
 	}
 	
+	public String getCacheName() {
+		return "Institution Cache";
+	}
+	
 	/**
 	 * Initialize the map from the institutions in the database.
 	 */
-	private synchronized boolean init(InstitutionCacheConfig config) {
+	protected synchronized boolean init(InstitutionCacheConfig config) {
 		if (initRunning)
 			return false;
 		
@@ -268,11 +281,11 @@ public class InstitutionCache implements Runnable {
 		this.config = config;
 		
 		System.out.println(this.config);
-		System.out.println("Institution cache thread starting...");
+		System.out.println(getCacheName() + " cache thread starting...");
 		Thread initThread = new Thread(this);
 		initThread.setDaemon(true);
 		initThread.start();
-		System.out.println("Institution cache thread running.");
+		System.out.println(getCacheName() + " cache thread running.");
 		return true;
 	}
 
@@ -302,9 +315,9 @@ public class InstitutionCache implements Runnable {
 			int wordCount1 = cleanUp();
 
 			System.out.println(new Date());
-			System.out.println(count1 + " institutions parsed and loaded into a map of size " + searchMap.size() + ".");
-			System.out.println(wordMap.size() + " word prefixes with " + wordCount1 + " words stored.");
-			System.out.println(countMap.size() + " words with counts only, " + searchMap.size() + " words with UCNs.");
+			System.out.println(getCacheName() + " : " + count1 + " institutions parsed and loaded into a map of size " + searchMap.size() + ".");
+			System.out.println(getCacheName() + " : " + wordMap.size() + " word prefixes with " + wordCount1 + " words stored.");
+			System.out.println(getCacheName() + " : " + countMap.size() + " words with counts only, " + searchMap.size() + " words with UCNs.");
 		
 			mapsReady = FIRST_PASS_READY;
 			
@@ -315,9 +328,9 @@ public class InstitutionCache implements Runnable {
 			//	int wordCount2 = cleanUp();	Don't need this, because the pairs didn't change the word map
 				
 				System.out.println(new Date());
-				System.out.println(count2 + " institutions parsed and loaded into a map of size " + searchMap.size() + ".");
-			//	System.out.println(wordMap.size() + " word prefixes with " + wordCount2 + " words stored.");
-				System.out.println(countMap.size() + " words with counts only, " + searchMap.size() + " words with UCNs.");
+				System.out.println(getCacheName() + " : " + count2 + " institutions parsed and loaded into a map of size " + searchMap.size() + ".");
+			//	System.out.println(getCacheName() + " : " + wordMap.size() + " word prefixes with " + wordCount2 + " words stored.");
+				System.out.println(getCacheName() + " : " + countMap.size() + " words with counts only, " + searchMap.size() + " words with UCNs.");
 				
 			}
 			
@@ -331,9 +344,9 @@ public class InstitutionCache implements Runnable {
 		HibernateUtil.closeSession();
 
 		Runtime.getRuntime().gc();
-		System.out.println("Total memory: " + Runtime.getRuntime().totalMemory());
-		System.out.println("Free  memory: " + Runtime.getRuntime().freeMemory());
-		System.out.println("Max   memory: " + Runtime.getRuntime().maxMemory());
+		System.out.println(getCacheName() + " : " + "Total memory: " + Runtime.getRuntime().totalMemory());
+		System.out.println(getCacheName() + " : " + "Free  memory: " + Runtime.getRuntime().freeMemory());
+		System.out.println(getCacheName() + " : " + "Max   memory: " + Runtime.getRuntime().maxMemory());
 		
 		initRunning = false;
 		
@@ -342,16 +355,20 @@ public class InstitutionCache implements Runnable {
 //			if (mapped.indexOf(' ') >= 0) System.out.println(mapped);
 	}
 	
-	private String getSqlStatement() {
-		StringBuffer sb = new StringBuffer(INSTITUTION_SQL);
+	protected String getBaseSqlStatement() {
+		return INSTITUTION_SQL;
+	}
+	
+	protected String getSqlStatement() {
+		StringBuffer sb = new StringBuffer(getBaseSqlStatement());
 		if (config.loadStatusList != null && config.loadStatusList.length() > 0) {
 			for (int i = 0; i < config.loadStatusList.length(); i++) {
 				char status = config.loadStatusList.charAt(i);
 				if (i == 0) {
 					if (status == '~') {
-						sb.append(" WHERE `status` not in (");
+						sb.append(" AND `institution`.`status` not in (");
 					} else {
-						sb.append(" WHERE `status` in (");
+						sb.append(" AND `institution`.`status` in (");
 					}
 				}
 				if (status != '~' && status != '=') {
@@ -368,7 +385,7 @@ public class InstitutionCache implements Runnable {
 		return sb.toString();
 	}
 	
-	private void loadCodes() {
+	protected void loadCodes() {
 		types.clear();
 		groups.clear();
 		pubPrivs.clear();
@@ -386,9 +403,9 @@ public class InstitutionCache implements Runnable {
 			pubPrivs.put(pubPriv.getPubPrivCode(), DbInstitutionPubPriv.getInstance(pubPriv));
 	}
 	
-	private int loadPass(int pass) throws SQLException {
+	protected int loadPass(int pass) throws SQLException {
 		System.out.println(new Date());
-		System.out.println("Pass: "+ pass + " Loading institutions (statuses " + config.loadStatusList + ")...");
+		System.out.println(getCacheName() + " : " + "Pass: "+ pass + " Loading institutions (statuses " + config.loadStatusList + ")...");
 		
 		// 	We must use SQL, because normal Hibernate access wants to load the full dataset into memory, which uses just too much space.
 		Connection conn   = HibernateUtil.getConnection();
@@ -397,7 +414,7 @@ public class InstitutionCache implements Runnable {
 		
 		int count = 0;
 		System.out.println(new Date());
-		System.out.println("Parsing institutions...");
+		System.out.println(getCacheName() + " : " + "Parsing institutions...");
 		while (results.next()) {
 			
 			if (config.loadLimit > -1 && count >= config.loadLimit) {
@@ -408,8 +425,13 @@ public class InstitutionCache implements Runnable {
 			parse(getInstance(results), pass);
 			
 			if (config.loadWatchPoint > 0 && count % config.loadWatchPoint == 0) {
-				System.out.print(pass + " :: " + count + " | ");
-				System.out.println(new Date() + "   |   " + searchMap.size() + " tags  |   "  + countMap.size() + " counts  |   "+ (Math.round(Runtime.getRuntime().freeMemory() / 1000000d) / 1000d) + "Gb Free  |  " + (Math.round(Runtime.getRuntime().totalMemory() / 1000000d) / 1000d) + "Gb Total  |   " + (Math.round(Runtime.getRuntime().maxMemory() / 1000000d) / 1000d) + "Gb Max   ");
+				System.out.print(getCacheName() + " : " + pass + " :: " + count + " | " +
+						new Date() + "   |   " + 
+						searchMap.size() + " tags  |   "  + 
+						countMap.size() + " counts  |   " + 
+						(Math.round(Runtime.getRuntime().freeMemory() / 1000000d) / 1000d) + "Gb Free  |  " + 
+						(Math.round(Runtime.getRuntime().totalMemory() / 1000000d) / 1000d) + "Gb Total  |   " + 
+						(Math.round(Runtime.getRuntime().maxMemory() / 1000000d) / 1000d) + "Gb Max   ");
 			}
 			if (config.loadGcPoint > 0 && count % config.loadGcPoint == 0)
 				Runtime.getRuntime().gc();
@@ -425,7 +447,7 @@ public class InstitutionCache implements Runnable {
 		return count;
 	}
 	
-	private int cleanUp() {
+	protected int cleanUp() {
 //		Clean up the map words (remove anything that had too many entries to be used in a search)
 		int wordCount = 0;
 		HashSet<String> nullWords = new HashSet<String>();
@@ -437,13 +459,13 @@ public class InstitutionCache implements Runnable {
 //				System.out.println(string + " : " + wordMap.get(string));
 			}
 		}
-		System.out.println("Null words count is " + nullWords.size());
+		System.out.println(getCacheName() + " : " + "Null words count is " + nullWords.size());
 		for (String string : nullWords)
 			wordMap.remove(string);
 
-		System.out.println("Loaded.");
+		System.out.println(getCacheName() + " : " + "Loaded.");
 		Runtime.getRuntime().gc();
-		System.out.println("Cleaned.");
+		System.out.println(getCacheName() + " : " + "Cleaned.");
 		
 		return wordCount;
 	}
@@ -465,12 +487,12 @@ public class InstitutionCache implements Runnable {
 			}
 		}
 		for (Integer length : wordCountMap.keySet()) {
-			System.out.println("length " + length + "  : " + prefixCountMap.get(length) + " prefixes, " + wordCountMap.get(length) + " words");
+			System.out.println(getCacheName() + " : " + "length " + length + "  : " + prefixCountMap.get(length) + " prefixes, " + wordCountMap.get(length) + " words");
 		}
 		
 	}
 	
-	private InstitutionInstance getInstance(ResultSet results) throws SQLException {
+	protected InstitutionInstance getInstance(ResultSet results) throws SQLException {
 		InstitutionInstance instance = new InstitutionInstance();
 		
 		instance.setUcn(results.getInt("ucn"));
@@ -490,29 +512,33 @@ public class InstitutionCache implements Runnable {
 		return instance;
 	}
 	
+	public boolean addInstitution(InstitutionInstance institution) throws Exception {
+		if (!config.updateable)
+			throw new Exception("Attempted to update a non-updateable " + getCacheName() + ".");
+
+		if (ucnSet.contains(institution.getUcn()))
+			return false;
+		
+		parse(institution, 1);
+		parse(institution, 2);
+		
+		return true;
+	}
+	
 	/**
 	 * Parse one institution and add it to the supplied, temporary (list based) map of strings.
 	 * 
 	 * @param institution
 	 * @param tempMap
 	 */
-	private void parse(InstitutionInstance institution, int pass) {
+	protected void parse(InstitutionInstance institution, int pass) {
+		if (config.updateable && pass == 1)
+			ucnSet.add(institution.getUcn());
+		
 		HashSet<String> strings = new HashSet<String>();
 		
 		//  Parse all components of the institution address
-		parseAdd(institution.getUcn() + "", strings);
-		parseAdd(institution.getParentUcn() + "", strings);
-		parseAdd(institution.getAlternateIds(), strings);
-		parseAdd(institution.getInstitutionName(), strings);
-		parseAdd(institution.getAddress1(), strings);
-		parseAdd(institution.getAddress2(), strings);
-		parseAdd(institution.getAddress3(), strings);
-		parseAdd(institution.getCity(), strings);
-		parseAdd(institution.getState(), strings);
-		parseAdd(institution.getZip(), strings);
-		parseAdd(institution.getCountry(), strings);
-		parseAddContinuous(institution.getPhone(), strings);
-		parseAddContinuous(institution.getFax(), strings);
+		parseAdd(institution, strings);
 		
 		//	Add more substrings for inner strings, if the option is activated
 		if (config.useInnerStrings) {
@@ -586,6 +612,22 @@ public class InstitutionCache implements Runnable {
 //		System.out.println("---------------------------------------------------------------------------------------------------");
 	}
 	
+	protected void parseAdd(InstitutionInstance institution, HashSet<String> strings) {
+		parseAdd(institution.getUcn() + "", strings);
+		parseAdd(institution.getParentUcn() + "", strings);
+		parseAdd(institution.getAlternateIds(), strings);
+		parseAdd(institution.getInstitutionName(), strings);
+		parseAdd(institution.getAddress1(), strings);
+		parseAdd(institution.getAddress2(), strings);
+		parseAdd(institution.getAddress3(), strings);
+		parseAdd(institution.getCity(), strings);
+		parseAdd(institution.getState(), strings);
+		parseAdd(institution.getZip(), strings);
+		parseAdd(institution.getCountry(), strings);
+		parseAddContinuous(institution.getPhone(), strings);
+		parseAddContinuous(institution.getFax(), strings);	
+	}
+	
 	/**
 	 * Parse a string into word strings, broken (and ignoring) by any non-alphanumeric characters into a hash set of such strings.
 	 * 
@@ -593,7 +635,7 @@ public class InstitutionCache implements Runnable {
 	 * @param string
 	 * @param strings
 	 */
-	private void parseAdd(String string, HashSet<String> strings) {
+	protected void parseAdd(String string, HashSet<String> strings) {
 		string = string.toUpperCase();
 		StringBuffer word = new StringBuffer();
 		for (int i = 0; i < string.length(); i++) {
@@ -617,7 +659,7 @@ public class InstitutionCache implements Runnable {
 	 * Add a word to the word map
 	 * @param word
 	 */
-	private void mapWord(StringBuffer word) {
+	protected void mapWord(StringBuffer word) {
 		if (word == null || word.length() == 0)
 			return;
 		String mapWord;
@@ -650,7 +692,7 @@ public class InstitutionCache implements Runnable {
 	 * @param string
 	 * @param strings
 	 */
-	private void parseAddContinuous(String string, HashSet<String> strings) {
+	protected void parseAddContinuous(String string, HashSet<String> strings) {
 		if (string == null || string.length() == 0)
 			return;
 		string = string.toUpperCase();

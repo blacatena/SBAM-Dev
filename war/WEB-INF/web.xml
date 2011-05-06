@@ -232,6 +232,16 @@
   </servlet>
   
   <servlet>
+    <servlet-name>customerSearchServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.CustomerSearchServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>customerWordServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.CustomerWordServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>deleteReasonListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.DeleteReasonListServiceImpl</servlet-class>
   </servlet>
@@ -639,6 +649,16 @@
   <servlet-mapping>
     <servlet-name>contactTypeCodeValidationServlet</servlet-name>
     <url-pattern>/sbam/validateContactTypeCode</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>customerSearchServlet</servlet-name>
+    <url-pattern>/sbam/getCustomers</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>customerWordServlet</servlet-name>
+    <url-pattern>/sbam/getCustomerWords</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

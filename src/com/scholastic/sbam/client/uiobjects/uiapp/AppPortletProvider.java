@@ -70,6 +70,8 @@ public class AppPortletProvider {
 		AppPortlet portlet;
 		if (id == AppPortletIds.FULL_INSTITUTION_SEARCH)
 			portlet = new InstitutionSearchPortlet();
+		else if (id == AppPortletIds.CUSTOMER_SEARCH)
+			portlet = new CustomerSearchPortlet();
 		else if (id == AppPortletIds.AGREEMENT_DISPLAY)
 			portlet = new AgreementPortlet();
 		else if (id == AppPortletIds.RECENT_AGREEMENTS_DISPLAY)
