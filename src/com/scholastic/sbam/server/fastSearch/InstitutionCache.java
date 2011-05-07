@@ -46,6 +46,7 @@ public class InstitutionCache implements Runnable {
 	}
 	
 	public static class InstitutionCacheConfig {
+		protected long		id = System.currentTimeMillis();
 		/**
 		 * Load garbage collection point
 		 */
@@ -93,7 +94,7 @@ public class InstitutionCache implements Runnable {
 		protected boolean	updateable			= false;
 		
 		public String toString() {
-			return "Institution Cache Config : [Inner = " + useInnerStrings + ", Pairs = " + useStringPairs + ", min len = " + minStringLength + ", min inner = " + minInnerStringLength + 
+			return "Institution Cache Config : [ID = " + id + ", Inner = " + useInnerStrings + ", Pairs = " + useStringPairs + ", min len = " + minStringLength + ", min inner = " + minInnerStringLength + 
 					", max pair = " + maxStringPairLength + ", max ucn list = " + maxListLength + ", max word list = " + maxWordListLength + ", load statuses " + loadStatusList + "]";
 		}
 		
@@ -169,7 +170,25 @@ public class InstitutionCache implements Runnable {
 		public void setUpdateable(boolean updateable) {
 			this.updateable = updateable;
 		}
-		
+
+		public InstitutionCacheConfig clone() {
+			InstitutionCacheConfig clone = new InstitutionCacheConfig();
+			
+			clone.loadGcPoint			=	this.loadGcPoint;
+			clone.loadWatchPoint		=	this.loadWatchPoint;
+			clone.loadLimit				=	this.loadLimit;
+			clone.useInnerStrings		=	this.useInnerStrings;
+			clone.useStringPairs		=	this.useStringPairs;
+			clone.minStringLength		=	this.minStringLength;
+			clone.minInnerStringLength	=	this.minInnerStringLength;
+			clone.maxStringPairLength	=	this.maxStringPairLength;
+			clone.maxListLength			=	this.maxListLength;
+			clone.maxWordListLength		=	this.maxWordListLength;
+			clone.loadStatusList		=	this.loadStatusList;
+			clone.updateable			=	this.updateable;
+			
+			return clone;
+		}
 	}
 	
 	protected static InstitutionCache singleton;	//	 = new InstitutionCache();
@@ -200,8 +219,8 @@ public class InstitutionCache implements Runnable {
 	
 	
 	protected InstitutionCache() {
-		config = new InstitutionCacheConfig();
-		init();
+//		config = new InstitutionCacheConfig();
+//		init(config);
 	}
 	
 	protected InstitutionCache(InstitutionCacheConfig config) {
@@ -280,7 +299,7 @@ public class InstitutionCache implements Runnable {
 		
 		this.config = config;
 		
-		System.out.println(this.config);
+		System.out.println(getCacheName() + " init with " + this.config);
 		System.out.println(getCacheName() + " cache thread starting...");
 		Thread initThread = new Thread(this);
 		initThread.setDaemon(true);
@@ -425,7 +444,7 @@ public class InstitutionCache implements Runnable {
 			parse(getInstance(results), pass);
 			
 			if (config.loadWatchPoint > 0 && count % config.loadWatchPoint == 0) {
-				System.out.print(getCacheName() + " : " + pass + " :: " + count + " | " +
+				System.out.println(getCacheName() + " : " + pass + " :: " + count + " | " +
 						new Date() + "   |   " + 
 						searchMap.size() + " tags  |   "  + 
 						countMap.size() + " counts  |   " + 

@@ -10,22 +10,22 @@ package com.scholastic.sbam.server.fastSearch;
  * @author Bob Lacatena
  *
  */
-public class CustomerCache extends InstitutionCache {
+public class SiteInstitutionCache extends InstitutionCache {
 	
-	protected static CustomerCache singleton = null;
+	protected static SiteInstitutionCache singleton = null;
 	
 	/**
 	 * SQL statement with a join to agreement
 	 */
-	protected static final String CUSTOMER_SQL = "SELECT DISTINCT ucn, parent_ucn, institution_name, address1, address2, address3, city, state, zip, country, phone, fax, alternate_ids FROM institution, agreement WHERE institution.ucn = agreement.bill_ucn ";
+	protected static final String SITE_SQL = "SELECT DISTINCT ucn, parent_ucn, institution_name, address1, address2, address3, city, state, zip, country, phone, fax, alternate_ids FROM institution WHERE institution.ucn in (select distinct site_ucn from agreement_site) ";
 	
-//	public CustomerCache() {
+//	public SiteInstitutionCache() {
 //		config = new InstitutionCacheConfig();
 //		config.setUpdateable(true);
 //		init();
 //	}
 	
-	public CustomerCache(InstitutionCacheConfig config) {
+	public SiteInstitutionCache(InstitutionCacheConfig config) {
 		if (config == null)
 			config = new InstitutionCacheConfig();
 		config.setUpdateable(true);
@@ -35,17 +35,17 @@ public class CustomerCache extends InstitutionCache {
 	
 	@Override
 	public String getCacheName() {
-		return "Customer Cache";
+		return "Site Institution Cache";
 	}
 	
 	@Override
 	protected String getBaseSqlStatement() {
-		return CUSTOMER_SQL;
+		return SITE_SQL;
 	}
 	
-	public static synchronized CustomerCache getSingleton(InstitutionCacheConfig config) throws InstitutionCacheConflict {
+	public static synchronized SiteInstitutionCache getSingleton(InstitutionCacheConfig config) throws InstitutionCacheConflict {
 		if (singleton == null) {
-			singleton = new CustomerCache(config);
+			singleton = new SiteInstitutionCache(config);
 		} else {
 			if (config != null && singleton.config != config && !configsAreEqual(singleton.config, config)) {
 			//	Config has changed, so we need to re-initialize the singleton	
@@ -62,7 +62,7 @@ public class CustomerCache extends InstitutionCache {
 	}
 
 	
-	public static synchronized CustomerCache getSingleton() throws InstitutionCacheConflict {
+	public static synchronized SiteInstitutionCache getSingleton() throws InstitutionCacheConflict {
 		return getSingleton(null);
 	}
 }

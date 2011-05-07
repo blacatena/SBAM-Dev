@@ -7,8 +7,11 @@ import com.scholastic.sbam.client.services.UpdateAgreementSiteService;
 import com.scholastic.sbam.server.database.codegen.AgreementSite;
 import com.scholastic.sbam.server.database.codegen.AgreementSiteId;
 import com.scholastic.sbam.server.database.objects.DbAgreementSite;
+import com.scholastic.sbam.server.database.objects.DbInstitution;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
+import com.scholastic.sbam.server.fastSearch.SiteInstitutionCache;
 import com.scholastic.sbam.server.validation.AppAgreementSiteValidator;
+import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.objects.AgreementSiteInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
@@ -105,6 +108,16 @@ public class UpdateAgreementSiteServiceImpl extends AuthenticatedServiceServlet 
 			//	DbAgreementSite.refresh(dbInstance);	// This may not be necessary, but just in case
 				instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
 				DbAgreementSite.setDescriptions(instance);
+			}
+			
+			//	Finally, record the customer in the customer cache
+			if (SiteInstitutionCache.getSingleton() != null) {
+				InstitutionInstance institution = instance.getSite().getInstitution();
+				if (institution == null && instance.getSiteUcn() > 0) {
+					institution = DbInstitution.getInstance(DbInstitution.getByCode(instance.getSiteUcn()));
+				}
+				if (institution != null)
+					SiteInstitutionCache.getSingleton().addInstitution(institution);
 			}
 			
 		} catch (IllegalArgumentException exc) {

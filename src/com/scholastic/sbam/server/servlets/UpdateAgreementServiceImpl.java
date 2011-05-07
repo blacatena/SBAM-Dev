@@ -9,9 +9,12 @@ import com.scholastic.sbam.server.database.codegen.AgreementSite;
 import com.scholastic.sbam.server.database.codegen.AgreementSiteId;
 import com.scholastic.sbam.server.database.objects.DbAgreement;
 import com.scholastic.sbam.server.database.objects.DbAgreementSite;
+import com.scholastic.sbam.server.database.objects.DbInstitution;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
+import com.scholastic.sbam.server.fastSearch.CustomerCache;
 import com.scholastic.sbam.server.fastSearch.InstitutionCache;
 import com.scholastic.sbam.server.validation.AppAgreementValidator;
+import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.objects.AgreementInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
@@ -120,6 +123,16 @@ public class UpdateAgreementServiceImpl extends AuthenticatedServiceServlet impl
 			
 			if (newCreated) {
 				autoCreateSite(instance, AUTO_ADD_BILL_UCN_AS_SITE);
+			}
+			
+			//	Finally, record the customer in the customer cache
+			if (CustomerCache.getSingleton() != null) {
+				InstitutionInstance institution = instance.getInstitution();
+				if (institution == null && instance.getBillUcn() > 0) {
+					institution = DbInstitution.getInstance(DbInstitution.getByCode(instance.getBillUcn()));
+				}
+				if (institution != null)
+					CustomerCache.getSingleton().addInstitution(institution);
 			}
 			
 		} catch (IllegalArgumentException exc) {

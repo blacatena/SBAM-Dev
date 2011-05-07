@@ -122,7 +122,7 @@ public class AppNavTree {
 	  Folder custSrch = new Folder("Customers", IconSupplier.getInstitutionIconName());
 	  custSrch.add(new SelectionTreeNode("Full Institution",	AppPortletIds.FULL_INSTITUTION_SEARCH));
 	  custSrch.add(new SelectionTreeNode("Customer",			AppPortletIds.CUSTOMER_SEARCH));
-	  custSrch.add(new SelectionTreeNode("Site List", 			IconSupplier.getSiteIconName()));
+	  custSrch.add(new SelectionTreeNode("Site List", 			AppPortletIds.SITE_INSTITUTION_SEARCH));
 	  custSrch.add(new SelectionTreeNode("Contacts", 			IconSupplier.getContactsIconName()));
 	  
 	  Folder agreeSrch = new Folder("Agreements", IconSupplier.getAgreementIconName());

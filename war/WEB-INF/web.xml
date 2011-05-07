@@ -397,6 +397,16 @@
   </servlet>
   
   <servlet>
+    <servlet-name>siteInstitutionSearchServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.SiteInstitutionSearchServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>siteInstitutionWordServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.SiteInstitutionWordServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>siteLocationSearchServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.SiteLocationSearchServiceImpl</servlet-class>
   </servlet>
@@ -814,6 +824,16 @@
   <servlet-mapping>
     <servlet-name>serviceCodeValidationServlet</servlet-name>
     <url-pattern>/sbam/validateServiceCode</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>siteInstitutionSearchServlet</servlet-name>
+    <url-pattern>/sbam/getSiteInstitutions</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>siteInstitutionWordServlet</servlet-name>
+    <url-pattern>/sbam/getSiteInstitutionWords</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

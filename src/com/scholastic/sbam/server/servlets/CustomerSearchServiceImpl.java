@@ -18,7 +18,7 @@ public class CustomerSearchServiceImpl extends InstitutionSearchServiceImpl impl
 
 	@Override
 	public SynchronizedPagingLoadResult<InstitutionInstance> getCustomers(PagingLoadConfig loadConfig, String filter, boolean includeAgreementSummaries, long syncId) throws IllegalArgumentException, ServiceNotReadyException {
-		authenticate("search institutions", SecurityManager.ROLE_QUERY);
+		authenticate("search customers", SecurityManager.ROLE_QUERY);
 		return doSearch(loadConfig, filter, includeAgreementSummaries, syncId);
 	}
 	
