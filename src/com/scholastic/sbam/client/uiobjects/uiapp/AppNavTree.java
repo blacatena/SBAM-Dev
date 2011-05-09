@@ -113,7 +113,7 @@ public class AppNavTree {
 		
 	  Folder creates = new Folder("Create", IconSupplier.getNewIconName());
 	  creates.add(new SelectionTreeNode("New Agreement", 		IconSupplier.getAgreementIconName(), AppPortletIds.AGREEMENT_DISPLAY));
-	  creates.add(new SelectionTreeNode("New Site", 			IconSupplier.getSiteIconName()));
+	  creates.add(new SelectionTreeNode("New Site", 			AppPortletIds.SITE_LOCATION_DISPLAY));
 	  creates.add(new SelectionTreeNode("New Proxy", 			IconSupplier.getProxyIconName()));
 	  creates.add(new SelectionTreeNode("New Link", 			IconSupplier.getAgreementLinkIconName()));
 		

@@ -37,7 +37,6 @@ public class SiteLocationSearchServiceImpl extends AuthenticatedServiceServlet i
 		}
 	
 		try {
-				
 			HibernateUtil.openSession();
 			HibernateUtil.startTransaction();
 			

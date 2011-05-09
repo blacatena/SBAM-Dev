@@ -149,9 +149,9 @@ public class AppConstants {
 	}
 	
 	public static String [] parseFilterTerms(String filter) {
-		filter = filter.toUpperCase();
 		HashSet<String> terms = new HashSet<String>();
 		if (filter != null) {
+			filter = filter.trim().toUpperCase();
 			StringBuffer word = new StringBuffer();
 			for (int i = 0; i < filter.length(); i++) {
 				if ( (filter.charAt(i) >= 'a' && filter.charAt(i) <= 'z')

@@ -89,13 +89,14 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 	protected LabelField			altIds;
 	protected ListStore<ModelData>	agreementsStore;
 	protected Grid<ModelData>		agreementsGrid;
+	protected FieldSet				agreementsFieldSet;
 	
 	protected AppPortletProvider	portletProvider;
 	
-	private int						focusUcn;
-	private InstitutionInstance		focusInstitution;
+	protected int					focusUcn;
+	protected InstitutionInstance	focusInstitution;
 	
-	private long					searchSyncId = 0;
+	protected long					searchSyncId = 0;
 	
 	public InstitutionSearchPortletBase() {
 		super();
@@ -170,7 +171,7 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 		FormData formData = new FormData("100%");
 		displayCard = new FormPanel();
 
-		displayCard.setPadding(40);  
+		displayCard.setPadding(10);  
 		displayCard.setFrame(true); 
 		displayCard.setHeaderVisible(false);  
 		displayCard.setBodyBorder(true);
@@ -244,7 +245,7 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 		
 		agreementsGrid = new Grid<ModelData>(agreementsStore, cm);  
 		agreementsGrid.setBorders(true);
-		agreementsGrid.setHeight(140);
+		agreementsGrid.setHeight(180);
 		agreementsGrid.setStripeRows(true);
 		agreementsGrid.setColumnLines(true);
 		agreementsGrid.setHideHeaders(false);
@@ -277,15 +278,15 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 					}
 			});
 	
-		FieldSet fieldSet = new FieldSet();
-		fieldSet.setBorders(true);
-		fieldSet.setHeading("Existing Agreements");// 		displayCard.add(new LabelField("<br/><i>Existing Agreements</i>"));
-		fieldSet.setCollapsible(true);
-		fieldSet.setToolTip(UiConstants.getQuickTip("These are the existing agreements for which this institution is either the buyer or a listed site.  Click an agreement to review or edit."));
-		fieldSet.add(agreementsGrid, new FormData(cm.getTotalWidth() + 10, 200));
+		agreementsFieldSet = new FieldSet();
+		agreementsFieldSet.setBorders(true);
+		agreementsFieldSet.setHeading("Existing Agreements");// 		displayCard.add(new LabelField("<br/><i>Existing Agreements</i>"));
+		agreementsFieldSet.setCollapsible(true);
+		agreementsFieldSet.setToolTip(UiConstants.getQuickTip("These are the existing agreements for which this institution is either the buyer or a listed site.  Click an agreement to review or edit."));
+		agreementsFieldSet.add(agreementsGrid, new FormData(cm.getTotalWidth() + 10, 200));
 		
-		displayCard.add(new LabelField(""));	// Used as a spacer
-		displayCard.add(fieldSet, new FormData("95%")); // new FormData(cm.getTotalWidth() + 20, 200));
+	//	displayCard.add(new LabelField(""));	// Used as a spacer
+		displayCard.add(agreementsFieldSet, formData);	//	new FormData("95%")); // new FormData(cm.getTotalWidth() + 20, 200));
 		
 	}
 	
@@ -337,6 +338,8 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 		
 		if (instance == null)
 			return;
+		
+		focusUcn = focusInstitution.getUcn();
 		
 		registerUserCache(focusInstitution, focusInstitution.getInstitutionName());
 		updateUserPortlet();
