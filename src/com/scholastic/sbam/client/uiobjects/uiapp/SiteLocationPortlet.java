@@ -1,6 +1,8 @@
 package com.scholastic.sbam.client.uiobjects.uiapp;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -11,6 +13,8 @@ import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -47,6 +51,8 @@ import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
+import com.scholastic.sbam.shared.objects.PreferenceCategoryInstance;
+import com.scholastic.sbam.shared.objects.PreferenceCodeInstance;
 import com.scholastic.sbam.shared.objects.SiteInstance;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.util.AppConstants;
@@ -199,6 +205,14 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 		}
 	}
 	
+	@Override
+	protected void onResize(int width, int height) {
+		super.onResize(width, height);
+		if (height > 0 && preferencesFieldSet != null) {
+			System.out.println("HANDLE RESIZE OF SITE LOCATION PORTLET TO GIVE MAX SPACE AVAILABLE TO PREFERENCES");
+		}
+	}
+	
 	private void createDisplay() {
 		FormData formData90 = new FormData("-24"); 	//	new FormData("90%");
 //		FormData formData	= new FormData("100%");
@@ -271,14 +285,14 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 		preferencesFieldSet.setHeight(200);
 		
 		FormLayout fLayout = new FormLayout();
-		fLayout.setLabelWidth(60);
+		if (formPanel.getWidth() == 0)
+			fLayout.setLabelWidth(200);
+		else
+			fLayout.setLabelWidth(formPanel.getWidth() / 3);
 		preferencesFieldSet.setLayout(fLayout);
 		preferencesFieldSet.setToolTip(UiConstants.getQuickTip("Use these fields to set the product delivery preferences associated with this site."));
-		
-		for (int i = 1; i <= 10; i++) {
-			preferencesFieldSet.add(this.getTextField("Whatever " + i), formData);
-			preferencesFieldSet.add(this.getTextField("And this " + i), formData);
-		}
+
+		//	Fields will be added dynamically, from the database, when a site is loaded
 		
 		formPanel.add(preferencesFieldSet);
 	}
@@ -476,6 +490,13 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 			enableEditButton(true);
 		}
 		
+		//	Clear all fields from the preferencesFieldSet
+		for (Component component : preferencesFieldSet.getItems()) {
+			if (component instanceof Field) {
+				component.removeFromParent();
+			}
+		}
+		
 		if (site != null)
 			registerUserCache(site, identificationTip);
 		setPortletHeading();
@@ -498,13 +519,12 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 			}
 			
 			addressDisplay.setValue("<i>Loading...</i>");
-//			customerTypeDisplay.setValue("");
-			
-			
+			customerTypeDisplay.setValue("");
 			
 			statusDisplay.setValue(AppConstants.getStatusDescription(site.getStatus()));
 			commissionTypeField.setValue(CommissionTypeInstance.obtainModel(site.getCommissionType()));
-//			deleteReasonField.setValue(DeleteReasonInstance.obtainModel(site.getCancelReason()));
+			
+			setPreferenceFields(site);
 			
 			if (site.getInstitution() != null) {
 				set(site.getInstitution());
@@ -521,6 +541,44 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 		updateUserPortlet();	// This is mostly for a "create" so the portlet knows the agreement ID has been set
 		setOriginalValues();
 //		endEdit(false);
+	}
+	
+	protected void setPreferenceFields(SiteInstance site) {
+		if (site == null || site.getAllPreferenceCategories() == null || site.getAllPreferenceCategories().size() == 0) {
+			preferencesFieldSet.add(getLabelField("There are no preferences available."));
+			preferencesFieldSet.layout(true);
+			return;
+		}
+		
+		FormData formData24 = new FormData("-24");
+		
+		for (PreferenceCategoryInstance prefCat : site.getAllPreferenceCategories()) {
+			if (prefCat.getPreferenceCodes() == null || prefCat.getPreferenceCodes().size() == 0) {
+				TextField<String> textField = getTextField(prefCat.getDescription());
+				if (site.getSelectedPreferences().containsKey(prefCat.getPrefCatCode()))
+					textField.setValue(site.getSelectedPreferences().get(prefCat.getPrefCatCode()));
+				preferencesFieldSet.add(textField, formData24);
+			} else {
+				PreferenceCodeInstance selected = null;
+				ListStore<BeanModel> prefCodeStore = new ListStore<BeanModel>();
+				for (PreferenceCodeInstance prefCode : prefCat.getPreferenceCodes()) {
+					prefCodeStore.add(PreferenceCodeInstance.obtainModel(prefCode));
+					if (selected == null 
+					&&  site.getSelectedPreferences() != null
+					&&	site.getSelectedPreferences().containsKey(prefCat.getPrefCatCode())
+					&&  site.getSelectedPreferences().get(prefCat.getPrefCatCode()).equals(prefCode.getPrefCatCode()))
+						selected = prefCode;
+				}
+				EnhancedComboBox<BeanModel> comboBox = this.getComboField(prefCat.getPrefCatCode(), prefCat.getDescription(), 0, prefCodeStore, "description");
+				if (selected != null) {
+					List<BeanModel> selection = new ArrayList<BeanModel>();
+					selection.add(PreferenceCodeInstance.obtainModel(selected));
+					comboBox.setSelection(selection);
+				}
+				preferencesFieldSet.add(comboBox, formData24);
+			}
+			preferencesFieldSet.layout(true);
+		}
 	}
 	
 	/**
@@ -655,7 +713,8 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 	 * @param id
 	 */
 	protected void loadSiteLocation(final int siteUcn, final int siteUcnSuffix, final String siteLocCode) {
-		siteGetService.getSiteLocation(siteUcn, siteUcnSuffix, siteLocCode,
+		siteGetService.getSiteLocation(siteUcn, siteUcnSuffix, siteLocCode, 
+				true, true,	// Include site preferences, and the full list of preference categories and codes to work with
 				new AsyncCallback<SiteInstance>() {
 					public void onFailure(Throwable caught) {
 						// Show the RPC error message to the user

@@ -9,6 +9,7 @@ import org.hibernate.criterion.Restrictions;
 
 import com.scholastic.sbam.server.database.codegen.PreferenceCode;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
+import com.scholastic.sbam.shared.objects.PreferenceCodeInstance;
 
 /**
  * Sample database table accessor class, extending HibernateAccessor, and implementing custom get/find methods.
@@ -19,6 +20,19 @@ import com.scholastic.sbam.server.database.util.HibernateAccessor;
 public class DbPreferenceCode extends HibernateAccessor {
 	
 	static String objectName = PreferenceCode.class.getSimpleName();
+	
+	public static PreferenceCodeInstance getInstance(PreferenceCode dbInstance) {
+		PreferenceCodeInstance instance = new PreferenceCodeInstance();
+		
+		instance.setPrefCatCode(dbInstance.getId().getPrefCatCode());
+		instance.setPrefSelCode(dbInstance.getId().getPrefSelCode());
+		instance.setDescription(dbInstance.getDescription());
+		instance.setSeq(dbInstance.getSeq());
+		instance.setStatus(dbInstance.getStatus());
+		instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
+		
+		return instance;
+	}
 	
 	public static PreferenceCode getByCode(String catCode, String selCode) {
 		List<PreferenceCode> list = findFiltered(catCode, selCode, null, null, (char) 0, (char) 0);

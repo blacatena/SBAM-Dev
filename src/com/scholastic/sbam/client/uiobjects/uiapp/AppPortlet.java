@@ -158,8 +158,8 @@ public abstract class AppPortlet extends Portlet {
 			if (getParent().getParent() != null) { 
 				if (getParent().getParent() instanceof Portal) {
 					Portal myPortal = (Portal) getParent().getParent();
-					myPortal.setColumnWidth(portalColumn, getWidth());
-					myPortal.getItem(portalColumn).setWidth(getWidth());	// + myPortal.getSpacing());
+					myPortal.setColumnWidth(portalColumn, getWidth() + myPortal.getSpacing());
+					myPortal.getItem(portalColumn).setWidth(getWidth() + myPortal.getSpacing());
 					int totWidth = 0;
 					for (Component component : myPortal.getItems()) {
 						totWidth += component.getOffsetWidth();

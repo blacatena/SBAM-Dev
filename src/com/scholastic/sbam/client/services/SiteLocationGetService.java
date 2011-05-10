@@ -10,5 +10,5 @@ import com.scholastic.sbam.shared.objects.SiteInstance;
  */
 @RemoteServiceRelativePath("getSiteLocation")
 public interface SiteLocationGetService extends RemoteService {
-	SiteInstance getSiteLocation(int ucn, int ucnSuffix, String siteLocCode) throws IllegalArgumentException, ServiceNotReadyException;
+	SiteInstance getSiteLocation(int ucn, int ucnSuffix, String siteLocCode, boolean includePreferences, boolean includePreferenceList) throws IllegalArgumentException, ServiceNotReadyException;
 }

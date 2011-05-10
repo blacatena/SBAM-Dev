@@ -2,10 +2,15 @@ package com.scholastic.sbam.shared.objects;
 
 import java.util.Date;
 
+import com.extjs.gxt.ui.client.data.BeanModel;
+import com.extjs.gxt.ui.client.data.BeanModelFactory;
+import com.extjs.gxt.ui.client.data.BeanModelLookup;
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class PreferenceCodeInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
+
+	private static BeanModelFactory beanModelfactory;
 
 	private String prefCatCode;
 	private String prefSelCode;
@@ -106,6 +111,13 @@ public class PreferenceCodeInstance extends BetterRowEditInstance implements Bea
 		if (this.status == 'X')
 			return;
 		setStatus(active?'A':'I');
+	}
+
+	public static BeanModel obtainModel(PreferenceCodeInstance instance) {
+		if (beanModelfactory == null)
+			beanModelfactory  = BeanModelLookup.get().getFactory(PreferenceCodeInstance.class);
+		BeanModel model = beanModelfactory.createModel(instance);
+		return model;
 	}
 
 }

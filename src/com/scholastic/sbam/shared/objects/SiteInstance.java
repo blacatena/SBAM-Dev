@@ -1,6 +1,8 @@
 package com.scholastic.sbam.shared.objects;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.data.BeanModelFactory;
@@ -31,6 +33,9 @@ public class SiteInstance extends BetterRowEditInstance implements BeanModelTag,
 	
 	private InstitutionInstance		institution;
 	private CommissionTypeInstance	commissionType;
+	
+	private HashMap<String, String> selectedPreferences;
+	private List<PreferenceCategoryInstance> allPreferenceCategories;
 	
 	@Override
 	public void markForDeletion() {
@@ -168,6 +173,23 @@ public class SiteInstance extends BetterRowEditInstance implements BeanModelTag,
 			this.commissionCode = commissionType.getCommissionCode();
 	}
 	
+	public HashMap<String, String> getSelectedPreferences() {
+		return selectedPreferences;
+	}
+
+	public void setSelectedPreferences(HashMap<String, String> selectedPreferences) {
+		this.selectedPreferences = selectedPreferences;
+	}
+
+	public List<PreferenceCategoryInstance> getAllPreferenceCategories() {
+		return allPreferenceCategories;
+	}
+
+	public void setAllPreferenceCategories(
+			List<PreferenceCategoryInstance> allPreferenceCategories) {
+		this.allPreferenceCategories = allPreferenceCategories;
+	}
+
 	public String getListStyle() {
 		if (status == AppConstants.STATUS_NEW)
 			return "list-new";

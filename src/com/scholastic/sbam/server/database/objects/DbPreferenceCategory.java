@@ -4,11 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Criteria;
+import org.hibernate.SQLQuery;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 import com.scholastic.sbam.server.database.codegen.PreferenceCategory;
+import com.scholastic.sbam.server.database.codegen.PreferenceCode;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
+import com.scholastic.sbam.shared.objects.PreferenceCategoryInstance;
+import com.scholastic.sbam.shared.objects.PreferenceCodeInstance;
 
 /**
  * Sample database table accessor class, extending HibernateAccessor, and implementing custom get/find methods.
@@ -22,6 +26,18 @@ public class DbPreferenceCategory extends HibernateAccessor {
 	
 	public static PreferenceCategory getByCode(String code) {
 		return (PreferenceCategory) getByField(objectName, "prefCatCode", code, "description");
+	}
+	
+	public static PreferenceCategoryInstance getInstance(PreferenceCategory dbInstance) {
+		PreferenceCategoryInstance instance = new PreferenceCategoryInstance();
+		
+		instance.setPrefCatCode(dbInstance.getPrefCatCode());
+		instance.setDescription(dbInstance.getDescription());
+		instance.setSeq(dbInstance.getSeq());
+		instance.setStatus(dbInstance.getStatus());
+		instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
+		
+		return instance;
 	}
 	
 	public static List<PreferenceCategory> findAll() {
@@ -55,5 +71,36 @@ public class DbPreferenceCategory extends HibernateAccessor {
             System.out.println(e.getMessage());
         }
         return new ArrayList<PreferenceCategory>();
+	}
+	
+	public static List<PreferenceCategoryInstance> findAllCatsAndCodes() {
+
+		String sqlQuery = "SELECT {preference_category.*}, {preference_code.*} FROM preference_category LEFT JOIN preference_code ON preference_category.pref_cat_code = preference_code.pref_cat_code  order by preference_category.seq, preference_code.seq";
+
+        SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery);            
+        query.addEntity("preference_category", PreferenceCategory.class);
+        query.addEntity("preference_code", PreferenceCode.class);
+            
+        List<PreferenceCategoryInstance> result = new ArrayList<PreferenceCategoryInstance>();
+        
+        PreferenceCategoryInstance prevPrefCat = null;
+        
+        @SuppressWarnings("unchecked")
+		List<Object []> objects = query.list();
+		for (Object [] pair : objects) {
+			PreferenceCategory	prefCat  = (PreferenceCategory) pair [0];
+			PreferenceCode		prefCode = (PreferenceCode)		pair [1];
+			
+			if (prevPrefCat == null || !prevPrefCat.getPrefCatCode().equals(prefCat.getPrefCatCode())) {
+				prevPrefCat = getInstance(prefCat);
+				result.add(prevPrefCat);
+				prevPrefCat.setPreferenceCodes(new ArrayList<PreferenceCodeInstance>());
+			}
+			
+			if (prefCode != null)
+				prevPrefCat.getPreferenceCodes().add(DbPreferenceCode.getInstance(prefCode));
+		}
+        
+		return result;
 	}
 }

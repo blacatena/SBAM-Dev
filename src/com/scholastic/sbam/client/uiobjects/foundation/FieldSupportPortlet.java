@@ -5,6 +5,7 @@ import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
@@ -104,6 +105,14 @@ public abstract class FieldSupportPortlet extends AppPortlet {
 	
 	protected NumberField getNumberField(String label, NumberFormat numberFormat, int width) {
 		return FieldFactory.getNumberField(label, numberFormat, width);
+	}
+	
+	protected LabelField getLabelField(String label) {
+		return FieldFactory.getLabelField(label, 0);
+	}
+	
+	protected LabelField getLabelField(String label, int width) {
+		return FieldFactory.getLabelField(label, 0);
 	}
 	
 	protected TextField<String> getTextField(String label) {

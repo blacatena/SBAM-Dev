@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Apr 21, 2011 10:48:36 AM by Hibernate Tools 3.2.4.GA
+// Generated May 10, 2011 5:37:29 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -12,13 +12,13 @@ public class SitePreference implements java.io.Serializable {
 	private SitePreferenceId id;
 	private String prefSelCode;
 	private Date createdDatetime;
-	private String status;
+	private char status;
 
 	public SitePreference() {
 	}
 
 	public SitePreference(SitePreferenceId id, String prefSelCode,
-			Date createdDatetime, String status) {
+			Date createdDatetime, char status) {
 		this.id = id;
 		this.prefSelCode = prefSelCode;
 		this.createdDatetime = createdDatetime;
@@ -49,11 +49,11 @@ public class SitePreference implements java.io.Serializable {
 		this.createdDatetime = createdDatetime;
 	}
 
-	public String getStatus() {
+	public char getStatus() {
 		return this.status;
 	}
 
-	public void setStatus(String status) {
+	public void setStatus(char status) {
 		this.status = status;
 	}
 

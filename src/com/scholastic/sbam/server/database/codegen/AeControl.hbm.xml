@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated May 10, 2011 5:37:29 PM by Hibernate Tools 3.2.4.GA -->
+<hibernate-mapping>
+    <class name="com.scholastic.sbam.server.database.codegen.AeControl" table="ae_control" catalog="sbam">
+        <id name="aeId" type="java.lang.Integer">
+            <column name="ae_id" />
+            <generator class="identity" />
+        </id>
+        <property name="initiatedDatetime" type="timestamp">
+            <column name="initiated_datetime" length="19" not-null="true" />
+        </property>
+        <property name="terminatedDatetime" type="timestamp">
+            <column name="terminated_datetime" length="19" not-null="true" />
+        </property>
+        <property name="completedDatetime" type="timestamp">
+            <column name="completed_datetime" length="19" not-null="true" />
+        </property>
+        <property name="elapsedSeconds" type="int">
+            <column name="elapsed_seconds" not-null="true" />
+        </property>
+        <property name="countAgreements" type="int">
+            <column name="count_agreements" not-null="true" />
+        </property>
+        <property name="countSites" type="int">
+            <column name="count_sites" not-null="true" />
+        </property>
+        <property name="countIps" type="int">
+            <column name="count_ips" not-null="true" />
+        </property>
+        <property name="countUids" type="int">
+            <column name="count_uids" not-null="true" />
+        </property>
+        <property name="countProxyUids" type="int">
+            <column name="count_proxy_uids" not-null="true" />
+        </property>
+        <property name="countUrls" type="int">
+            <column name="count_urls" not-null="true" />
+        </property>
+        <property name="countProducts" type="int">
+            <column name="count_products" not-null="true" />
+        </property>
+        <property name="countErrors" type="int">
+            <column name="count_errors" not-null="true" />
+        </property>
+        <property name="status" type="char">
+            <column name="status" length="1" not-null="true" />
+        </property>
+        <property name="createdDatetime" type="timestamp">
+            <column name="created_datetime" length="19" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

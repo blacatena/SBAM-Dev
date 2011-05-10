@@ -1,6 +1,7 @@
 package com.scholastic.sbam.shared.objects;
 
 import java.util.Date;
+import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
@@ -13,6 +14,8 @@ public class PreferenceCategoryInstance extends BetterRowEditInstance implements
 	private char   status;
 	private boolean active;
 	private Date   createdDatetime;
+	
+	private List<PreferenceCodeInstance> preferenceCodes;
 	
 	@Override
 	public void markForDeletion() {
@@ -88,6 +91,14 @@ public class PreferenceCategoryInstance extends BetterRowEditInstance implements
 		if (this.status == 'X')
 			return;
 		setStatus(active?'A':'I');
+	}
+
+	public List<PreferenceCodeInstance> getPreferenceCodes() {
+		return preferenceCodes;
+	}
+
+	public void setPreferenceCodes(List<PreferenceCodeInstance> preferenceCodes) {
+		this.preferenceCodes = preferenceCodes;
 	}
 
 	@Override
