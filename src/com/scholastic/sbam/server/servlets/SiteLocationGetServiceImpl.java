@@ -34,6 +34,7 @@ public class SiteLocationGetServiceImpl extends AuthenticatedServiceServlet impl
 			
 			if (dbInstance != null) {
 				result = DbSite.getInstance(dbInstance);
+				DbSite.setDescriptions(result);
 			}
 			
 		} catch (Exception exc) {

@@ -322,6 +322,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>updatePreferenceCategorySeqServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdatePreferenceCategorySeqServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>prefCatCodeValidationServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.PrefCatCodeValidationServiceImpl</servlet-class>
   </servlet>
@@ -334,6 +339,11 @@
   <servlet>
     <servlet-name>updatePreferenceCodeServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.UpdatePreferenceCodeServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updatePreferenceCodeSeqServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdatePreferenceCodeSeqServiceImpl</servlet-class>
   </servlet>
   
   <servlet>
@@ -407,6 +417,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>siteLocationGetServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.SiteLocationGetServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>siteLocationSearchServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.SiteLocationSearchServiceImpl</servlet-class>
   </servlet>
@@ -419,6 +434,11 @@
   <servlet>
     <servlet-name>updateSiteLocationServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.UpdateSiteLocationServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updateSiteLocationNoteServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateSiteLocationNoteServiceImpl</servlet-class>
   </servlet>
   
   <servlet>
@@ -752,6 +772,11 @@
   </servlet-mapping>
   
   <servlet-mapping>
+    <servlet-name>updatePreferenceCategorySeqServlet</servlet-name>
+    <url-pattern>/sbam/updatePreferenceCategorySeq</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
     <servlet-name>prefCatCodeValidationServlet</servlet-name>
     <url-pattern>/sbam/validatePrefCatCode</url-pattern>
   </servlet-mapping>
@@ -764,6 +789,11 @@
   <servlet-mapping>
     <servlet-name>updatePreferenceCodeServlet</servlet-name>
     <url-pattern>/sbam/updatePreferenceCode</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updatePreferenceCodeSeqServlet</servlet-name>
+    <url-pattern>/sbam/updatePreferenceCodeSeq</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>
@@ -837,6 +867,11 @@
   </servlet-mapping>
   
   <servlet-mapping>
+    <servlet-name>siteLocationGetServlet</servlet-name>
+    <url-pattern>/sbam/getSiteLocation</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
     <servlet-name>siteLocationSearchServlet</servlet-name>
     <url-pattern>/sbam/searchSiteLocations</url-pattern>
   </servlet-mapping>
@@ -849,6 +884,11 @@
   <servlet-mapping>
     <servlet-name>updateSiteLocationServlet</servlet-name>
     <url-pattern>/sbam/updateSiteLocation</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateSiteLocationNoteServlet</servlet-name>
+    <url-pattern>/sbam/updateSiteLocationNote</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

@@ -90,4 +90,8 @@ public class PreferenceCategoryInstance extends BetterRowEditInstance implements
 		setStatus(active?'A':'I');
 	}
 
+	@Override
+	public String toString() {
+		return prefCatCode + " (" + seq + ") " + description;
+	}
 }

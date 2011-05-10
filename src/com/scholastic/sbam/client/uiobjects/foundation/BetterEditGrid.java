@@ -28,6 +28,7 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
@@ -48,6 +49,7 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.FieldValidationServiceAsync;
+import com.scholastic.sbam.client.uiobjects.uitop.HelpTextDialog;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.client.validation.AsyncTextField;
@@ -57,6 +59,8 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	
 	private static final int COLUMN_WIDTH_PADDING	= 2; //20;
 	private static final int GRID_WIDTH_PADDING		= 20; //20;
+	
+	protected String				helpTextId;
 	
 	protected ListStore<BeanModel>	store;
 	protected Grid<BeanModel>		grid;
@@ -111,20 +115,23 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	
 	public BetterEditGrid() {
 		super();
+		this.helpTextId = this.getClass().getName();
+		if (helpTextId.lastIndexOf('.') >= 0)
+			helpTextId = helpTextId.substring(helpTextId.lastIndexOf('.') + 1);
 	}
 	
 	public BetterEditGrid(final String autoExpandColumn) {
-		super();
+		this();
 		this.autoExpandColumn = autoExpandColumn;
 	}
 	
 	public BetterEditGrid(final int forceWidth) {
-		super();
+		this();
 		this.forceWidth = forceWidth;
 	}
 	
 	public BetterEditGrid(final int forceWidth, final String autoExpandColumn) {
-		super();
+		this();
 		this.forceWidth = forceWidth;
 		this.autoExpandColumn = autoExpandColumn;
 	}
@@ -137,7 +144,13 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 		
 //		setStyleAttribute("padding", "20px");
 		
-		panel = new ContentPanel();
+		panel = new ContentPanel() {
+			@Override
+			protected void initTools() {
+				addHelp(this);
+				super.initTools();
+			}		
+		};
 //		panel.setLayout(new CenterLayout());
 		
 		// loader and store  
@@ -196,6 +209,24 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 		
 		grid.mask("Loading...");
 		loader.load();
+	}
+
+	
+	protected void addHelp(ContentPanel panel) {
+		if (helpTextId == null)
+			return;
+		
+		ToolButton helpBtn = new ToolButton("x-tool-help");
+//		if (GXT.isAriaEnabled()) {
+//			helpBtn.setTitle(GXT.MESSAGES.pagingToolBar_beforePageText());
+//		}
+		helpBtn.addListener(Events.Select, new Listener<ComponentEvent>() {
+			public void handleEvent(ComponentEvent ce) {
+				HelpTextDialog htd = new HelpTextDialog(helpTextId);
+				htd.show();
+			}
+		});
+		panel.getHeader().addTool(helpBtn);
 	}
 	
 //	public void showThingy(Widget c) {
@@ -974,6 +1005,14 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 
 	public void setVerticalMargins(int verticalMargins) {
 		this.verticalMargins = verticalMargins;
+	}
+
+	public String getHelpTextId() {
+		return helpTextId;
+	}
+
+	public void setHelpTextId(String helpTextId) {
+		this.helpTextId = helpTextId;
 	}
 
 }

@@ -12,6 +12,8 @@ import com.scholastic.sbam.server.database.codegen.Institution;
 import com.scholastic.sbam.server.database.codegen.Site;
 import com.scholastic.sbam.server.database.codegen.SiteId;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
+import com.scholastic.sbam.server.fastSearch.InstitutionCache;
+import com.scholastic.sbam.server.fastSearch.InstitutionCache.InstitutionCacheConflict;
 import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.SiteInstance;
@@ -103,12 +105,19 @@ public class DbSite extends HibernateAccessor {
 		
 		if (site.getUcn() > 0) {
 			Institution dbInstitution = DbInstitution.getByCode(site.getUcn());
-			if (dbInstitution != null)
+			if (dbInstitution != null) {
 				site.setInstitution( DbInstitution.getInstance(dbInstitution) );
-			else
+			} else
 				site.setInstitution( InstitutionInstance.getUnknownInstance( site.getUcn()) );
 		} else {
 			site.setInstitution( InstitutionInstance.getEmptyInstance());
+		}
+		
+		try {
+			if (InstitutionCache.getSingleton() != null)
+				InstitutionCache.getSingleton().setDescriptions(site.getInstitution());
+		} catch (InstitutionCacheConflict e) {
+			e.printStackTrace();
 		}
 		
 		if (site.getCommissionCode() != null && site.getCommissionCode().length() > 0) {

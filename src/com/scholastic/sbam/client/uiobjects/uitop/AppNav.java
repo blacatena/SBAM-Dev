@@ -13,6 +13,7 @@ import com.scholastic.sbam.client.uiobjects.foundation.AppSecurityManager;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
 import com.scholastic.sbam.client.uiobjects.uiapp.AppWorkSpace;
 import com.scholastic.sbam.client.util.IconSupplier;
+import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.Authentication;
 import com.scholastic.sbam.shared.security.SecurityManager;
 
@@ -35,7 +36,7 @@ public class AppNav extends Composite implements AppSecurityManager {
 		
 		tbtmWelcome = new TabItem("Welcome");
 		IconSupplier.setIcon(tbtmWelcome, IconSupplier.getWelcomeIconName());
-		tbtmWelcome.getHeader().setToolTip("Use the Welcome tab to see important user and system messages.");
+		tbtmWelcome.getHeader().setToolTip(UiConstants.getQuickTip("Use the Welcome tab to see important user and system messages."));
 		
 		welcomeDisplay = new WelcomeDisplay();
 		tbtmWelcome.add(welcomeDisplay);
@@ -45,7 +46,7 @@ public class AppNav extends Composite implements AppSecurityManager {
 		tbtmAgreements = new TabItem("Agreements");
 		tbtmAgreements.setLayout(new FitLayout());
 		IconSupplier.setIcon(tbtmAgreements, IconSupplier.getAgreementIconName());
-		tbtmAgreements.getHeader().setToolTip("Use the Agreements tab to review and maintain agreements.");
+		tbtmAgreements.getHeader().setToolTip(UiConstants.getQuickTip("Use the Agreements tab to review and maintain agreements."));
 		
 		appPortal = new AppWorkSpace();
 		tbtmAgreements.add(appPortal);
@@ -55,7 +56,7 @@ public class AppNav extends Composite implements AppSecurityManager {
 		tbtmConfiguration = new TabItem("Configuration");
 		tbtmConfiguration.setLayout(new FitLayout());
 		IconSupplier.setIcon(tbtmConfiguration, IconSupplier.getConfigurationIconName());
-		tbtmConfiguration.getHeader().setToolTip("Use the Configuration tab to maintain system wide configuration data and tables.");
+		tbtmConfiguration.getHeader().setToolTip(UiConstants.getQuickTip("Use the Configuration tab to maintain system wide configuration data and tables."));
 
 		configUi = new ConfigUi();
 		tbtmConfiguration.add(configUi);
@@ -63,13 +64,13 @@ public class AppNav extends Composite implements AppSecurityManager {
 		
 		tbtmReports = new TabItem("Reports");
 		IconSupplier.setIcon(tbtmReports, IconSupplier.getReportIconName());
-		tbtmReports.getHeader().setToolTip("Use the Reports tab to query, summarize, aggregate, graph and report on data.");
+		tbtmReports.getHeader().setToolTip(UiConstants.getQuickTip("Use the Reports tab to query, summarize, aggregate, graph and report on data."));
 		
 		tabPanel.add(tbtmReports);
 		
 		tbtmAdministration = new TabItem("Administration");
 		IconSupplier.setIcon(tbtmAdministration, IconSupplier.getAdministrationIconName());
-		tbtmAdministration.getHeader().setToolTip("Use the Administration tab to perform system management tasks.");
+		tbtmAdministration.getHeader().setToolTip(UiConstants.getQuickTip("Use the Administration tab to perform system management tasks."));
 		tbtmAdministration.setLayout(new FitLayout());
 		
 		adminUi = new AdminUi();
@@ -79,7 +80,7 @@ public class AppNav extends Composite implements AppSecurityManager {
 		
 		tbtmProfile = new TabItem("Profile");
 		IconSupplier.setIcon(tbtmProfile, IconSupplier.getProfileIconName());
-		tbtmProfile.getHeader().setToolTip("Use the Profile tab to modify your personal profile.");
+		tbtmProfile.getHeader().setToolTip(UiConstants.getQuickTip("Use the Profile tab to modify your personal profile."));
 		tbtmProfile.setLayout(new FitLayout());
 		
 		tabPanel.add(tbtmProfile);

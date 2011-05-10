@@ -231,9 +231,11 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 		
 		// Suspend Async edits for now. because it may start happening before everything is properly set up
 		for (ColumnConfig c : grid.getColumnModel().getColumns()) {
-			Field<?> f = c.getEditor().getField();
-			if (f instanceof AsyncField) {
-				((AsyncField) f).setAsyncReady(false);
+			if (c.getEditor() != null) {
+				Field<?> f = c.getEditor().getField();
+				if (f instanceof AsyncField) {
+					((AsyncField) f).setAsyncReady(false);
+				}
 			}
 		}
 		
@@ -246,9 +248,11 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 		//	Reset any async text fields and assign current model to any AsyncFields -- must be done here, before the super call, because it will start validating right away
 			BetterRowEditInstance instance = (BetterRowEditInstance) store.getAt(rowIndex).getBean();
 			for (ColumnConfig c : grid.getColumnModel().getColumns()) {
-				Field<?> f = c.getEditor().getField();
-				if (f instanceof AsyncField) {
-					((AsyncField) f).reset(instance);
+				if (c.getEditor() != null) {
+					Field<?> f = c.getEditor().getField();
+					if (f instanceof AsyncField) {
+						((AsyncField) f).reset(instance);
+					}
 				}
 			}
 	
@@ -270,9 +274,11 @@ public class BetterRowEditor<M extends ModelData> extends RowEditor<ModelData> {
 		
 		//	Turn asynch editing back on (whether for the same old row, or a newly edited row)
 		for (ColumnConfig c : grid.getColumnModel().getColumns()) {
-			Field<?> f = c.getEditor().getField();
-			if (f instanceof AsyncField) {
-				((AsyncField) f).setAsyncReady(true);
+			if (c.getEditor() != null) {
+				Field<?> f = c.getEditor().getField();
+				if (f instanceof AsyncField) {
+					((AsyncField) f).setAsyncReady(true);
+				}
 			}
 		}
 	}
