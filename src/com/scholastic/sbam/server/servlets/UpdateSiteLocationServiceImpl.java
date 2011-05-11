@@ -4,9 +4,14 @@ import java.util.Date;
 import java.util.List;
 
 import com.scholastic.sbam.client.services.UpdateSiteLocationService;
+import com.scholastic.sbam.server.database.codegen.PreferenceCategory;
 import com.scholastic.sbam.server.database.codegen.Site;
 import com.scholastic.sbam.server.database.codegen.SiteId;
+import com.scholastic.sbam.server.database.codegen.SitePreference;
+import com.scholastic.sbam.server.database.codegen.SitePreferenceId;
+import com.scholastic.sbam.server.database.objects.DbPreferenceCategory;
 import com.scholastic.sbam.server.database.objects.DbSite;
+import com.scholastic.sbam.server.database.objects.DbSitePreference;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.server.validation.AppSiteValidator;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
@@ -92,6 +97,8 @@ public class UpdateSiteLocationServiceImpl extends AuthenticatedServiceServlet i
 				DbSite.setDescriptions(instance);
 			}
 			
+			updateSitePreferences(instance);
+			
 		} catch (IllegalArgumentException exc) {
 			silentRollback();
 			throw exc;
@@ -106,6 +113,42 @@ public class UpdateSiteLocationServiceImpl extends AuthenticatedServiceServlet i
 		}
 		
 		return new UpdateResponse<SiteInstance>(instance, messages);
+	}
+	
+	private void updateSitePreferences(SiteInstance site) {
+		//	A null hash map means we're not updating preferences... it's a don't know/don't care situation
+		if (site.getSelectedPreferences() == null)
+			return;
+		
+		List<PreferenceCategory> categories = DbPreferenceCategory.findAll();
+		for (PreferenceCategory category : categories) {
+			SitePreference preference = DbSitePreference.getById(site.getUcn(), site.getUcnSuffix(), site.getSiteLocCode(), category.getPrefCatCode());
+			if (site.getSelectedPreferences().containsKey(category.getPrefCatCode())) {
+				String value = site.getSelectedPreferences().get(category.getPrefCatCode());
+				if (value == null || value.trim().length() == 0) {
+					if (preference != null)
+						DbSitePreference.delete(preference);	// Could instead set status to DELETED
+				} else {
+					if (preference == null) {
+						preference = new SitePreference();
+						SitePreferenceId preferenceId = new SitePreferenceId();
+						preferenceId.setUcn(site.getUcn());
+						preferenceId.setUcnSuffix(site.getUcnSuffix());
+						preferenceId.setSiteLocCode(site.getSiteLocCode());
+						preferenceId.setPrefCatCode(category.getPrefCatCode());
+						preference.setId(preferenceId);
+					}
+					preference.setPrefSelCode(value);
+					preference.setStatus(AppConstants.STATUS_ACTIVE);
+					preference.setCreatedDatetime(new Date());
+					
+					DbSitePreference.persist(preference);
+				}
+			} else {
+				if (preference != null)
+					DbSitePreference.delete(preference);		//	Could instead set status to DELETED
+			}
+		}
 	}
 	
 	private void validateInput(SiteInstance instance) throws IllegalArgumentException {

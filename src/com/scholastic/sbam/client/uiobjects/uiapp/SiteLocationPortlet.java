@@ -2,6 +2,7 @@ package com.scholastic.sbam.client.uiobjects.uiapp;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -17,6 +18,8 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
@@ -41,6 +44,7 @@ import com.scholastic.sbam.client.services.UpdateSiteLocationNoteServiceAsync;
 import com.scholastic.sbam.client.services.UpdateSiteLocationService;
 import com.scholastic.sbam.client.services.UpdateSiteLocationServiceAsync;
 import com.scholastic.sbam.client.uiobjects.fields.EnhancedComboBox;
+import com.scholastic.sbam.client.uiobjects.fields.EnhancedMultiField;
 import com.scholastic.sbam.client.uiobjects.fields.InstitutionSearchField;
 import com.scholastic.sbam.client.uiobjects.fields.LockableFieldSet;
 import com.scholastic.sbam.client.uiobjects.fields.NotesIconButtonField;
@@ -53,6 +57,7 @@ import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.PreferenceCategoryInstance;
 import com.scholastic.sbam.shared.objects.PreferenceCodeInstance;
+import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.SiteInstance;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.util.AppConstants;
@@ -85,13 +90,14 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 	
 	protected Timer					dirtyFormListener;
 	
+	protected ToolBar				editSaveToolBar;
 	protected Button				editButton;
 	protected Button				cancelButton;
 	protected Button				saveButton;
 	
 	protected ToolTipConfig					notesToolTip		= new ToolTipConfig();
 	
-	protected MultiField<String>			codeNotesCombo		= new MultiField<String>("Code");
+	protected MultiField<String>			codeNotesCombo		= new EnhancedMultiField<String>("Code");
 //	protected TextField<String>				siteLocationIdField	= getTextField("UCN + Code");
 	protected TextField<String>				descriptionField	= getTextField("Description");
 	protected TextField<String>				siteLocCodeField	= getTextField("Code");
@@ -106,6 +112,8 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 	protected EnhancedComboBox<BeanModel>	commissionTypeField	= getComboField("commissionType", 	"Commission",	150,		
 								"The commission code assigned to this agreement for reporting purposes.",	
 								UiConstants.getCommissionTypes(UiConstants.CommissionTypeTargets.AGREEMENT), "commissionCode", "descriptionAndCode");
+	protected CheckBox						statusField			= FieldFactory.getCheckBoxField("Site is Active");
+	
 	
 	protected LockableFieldSet				preferencesFieldSet	= new LockableFieldSet();
 	
@@ -177,17 +185,11 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 
 		setPortletHeading();
 		
-//		setLayout(new FitLayout());
-		
 		setThis();
 		
-		outerContainer = getNewOuterFormPanel();	//	new ContentPanel();
-//		outerContainer.setBorders(false);
-//		outerContainer.setHeaderVisible(false);
-//		outerContainer.addStyleName("subtle-form");
+		outerContainer = getNewOuterFormPanel();
 		
 		createDisplay();
-//		outerContainer.add(siteCard);
 		
 		add(outerContainer);
 		
@@ -198,7 +200,13 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 	@Override
 	protected void afterRender() {
 		super.afterRender();
-		if (siteLocCode == null) {
+		resizePreferencesFieldSet();
+		layout(true);
+
+		//	Handle "new site" automatically
+		if (siteLocCode == null || siteLocCode.length() == 0) {
+			statusField.setOriginalValue(true);
+			statusField.setValue(true);
 			if (createForInstitution != null)
 				set(createForInstitution);
 			beginEdit();
@@ -208,39 +216,30 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 	@Override
 	protected void onResize(int width, int height) {
 		super.onResize(width, height);
-		if (height > 0 && preferencesFieldSet != null) {
-			System.out.println("HANDLE RESIZE OF SITE LOCATION PORTLET TO GIVE MAX SPACE AVAILABLE TO PREFERENCES");
+		resizePreferencesFieldSet();
+	}
+	
+	protected void resizePreferencesFieldSet() {
+		if (preferencesFieldSet != null && preferencesFieldSet.isRendered() && isRendered() && getOffsetHeight() > 0) {
+			int desiredHeight = (getHeight(true) - preferencesFieldSet.getAbsoluteTop()) - 10;
+			if (editSaveToolBar != null && editSaveToolBar.isRendered()) {
+				desiredHeight = editSaveToolBar.getAbsoluteTop() - preferencesFieldSet.getAbsoluteTop() - 10;	// 10 = padding
+			}
+
+			preferencesFieldSet.setHeight(desiredHeight);
+			preferencesFieldSet.layout(true);
 		}
 	}
 	
 	private void createDisplay() {
 		FormData formData90 = new FormData("-24"); 	//	new FormData("90%");
-//		FormData formData	= new FormData("100%");
-//		siteCard = new LayoutContainer(new RowLayout(Orientation.VERTICAL));
-		
-//		LayoutContainer sideBySide = new LayoutContainer(new RowLayout(Orientation.HORIZONTAL));
-		
-//		formColumn1 = getNewOuterFormPanel();
-//		formColumn2 = getNewOuterFormPanel();
-//		formRow2	= getNewOuterFormPanel();
-//		formRow2.setLayout(new FitLayout());
-		
-//		ToolButton returnTool = new ToolButton("x-tool-left") {
-//				@Override
-//				protected void onClick(ComponentEvent ce) {
-//					cards.setActiveItem(searchPanel);
-//				}
-//			};
-//		returnTool.enable();
-//		
-//		ToolBar displayBar = new ToolBar();
-//		displayBar.add(returnTool);
-//		displayBar.add(new SeparatorToolItem());
-//		displayBar.add(new Html("<b>Selected Institution</b>"));
-//		agreementCard.setTopComponent(displayBar);
 
-//		siteLocationIdField.setReadOnly(true);
-		siteLocCodeField.setReadOnly(true);
+		//	Required fields
+		siteLocCodeField.setAllowBlank(false);
+		institutionField.setAllowBlank(false);
+		descriptionField.setAllowBlank(false);
+		commissionTypeField.setAllowBlank(true);
+		
 		ucnDisplay.setReadOnly(true);
 		
 		codeNotesCombo.setSpacing(20);
@@ -255,10 +254,6 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 		outerContainer.add(idTipField, formData90);
 		outerContainer.add(institutionField, formData90);
 		
-//		ucnDisplay = new LabelField();
-//		ucnDisplay.setFieldLabel("Bill Institution :");
-//		agreementCard.add(ucnDisplay, formData90);
-		
 		outerContainer.add(addressDisplay, formData90); 
 		outerContainer.add(ucnDisplay, formData90);
 		outerContainer.add(customerTypeDisplay, formData90); 
@@ -266,16 +261,11 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 		outerContainer.add(commissionTypeField, formData90); 
 			
 		statusDisplay.setFieldLabel("Status:");
-		outerContainer.add(statusDisplay, formData90);
+		outerContainer.add(statusField, formData90);
 		
 		addPreferencesFieldSet(outerContainer, formData90);
 		
 		addEditSaveButtons(outerContainer);
-		
-//		sideBySide.add(formColumn1, new RowData(	0.52,	PRESUMED_FORM_HEIGHT));
-//		sideBySide.add(formColumn2, new RowData(	0.48,	PRESUMED_FORM_HEIGHT));
-//		siteCard.add(sideBySide, new RowData(	1,		PRESUMED_FORM_HEIGHT));
-//		siteCard.add(formRow2,   new RowData(	1,		1));
 	}
 	
 	protected void addPreferencesFieldSet(FormPanel formPanel, FormData formData) {
@@ -335,11 +325,11 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 
 	protected void addEditSaveButtons(FormPanel targetPanel) {
 		
-		ToolBar toolBar = new ToolBar();
-		toolBar.setAlignment(HorizontalAlignment.CENTER);
-		toolBar.setBorders(false);
-		toolBar.setSpacing(20);
-		toolBar.setMinButtonWidth(60);
+		editSaveToolBar = new ToolBar();
+		editSaveToolBar.setAlignment(HorizontalAlignment.CENTER);
+		editSaveToolBar.setBorders(false);
+		editSaveToolBar.setSpacing(20);
+		editSaveToolBar.setMinButtonWidth(60);
 //		toolBar.addStyleName("clear-toolbar");
 		
 		editButton = new Button("Edit");
@@ -350,7 +340,7 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 				beginEdit();
 			}  
 		});
-		toolBar.add(editButton);
+		editSaveToolBar.add(editButton);
 		
 		cancelButton = new Button("Cancel");
 		IconSupplier.forceIcon(cancelButton, IconSupplier.getCancelIconName());
@@ -361,7 +351,7 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 				endEdit(false);
 			}  
 		});
-		toolBar.add(cancelButton);
+		editSaveToolBar.add(cancelButton);
 		
 		saveButton = new Button("Save");
 		IconSupplier.forceIcon(saveButton, IconSupplier.getSaveIconName());
@@ -372,9 +362,9 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 				handleSave();
 			}  
 		});
-		toolBar.add(saveButton);
+		editSaveToolBar.add(saveButton);
 		
-		targetPanel.setBottomComponent(toolBar);
+		targetPanel.setBottomComponent(editSaveToolBar);
 		
 		addDirtyFormListener();
 	}
@@ -423,18 +413,18 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 	}
 	
 	protected void handleDirtyForm() {
-		boolean ready = true;
+		boolean ready = outerContainer.isValid();
 		
 		if (institutionField.getSelectedValue() == null) { 
 			institutionField.markInvalid("Select an instituion.");
 			ready = false;
 		} else
 			institutionField.clearInvalid();
-		if (commissionTypeField.getSelectedValue() == null) {
-			commissionTypeField.markInvalid("Select a commission code.");
-			ready = false;
-		} else
-			commissionTypeField.clearInvalid();
+//		if (commissionTypeField.getSelectedValue() == null) {
+//			commissionTypeField.markInvalid("Select a commission code.");
+//			ready = false;
+//		} else
+//			commissionTypeField.clearInvalid();
 		
 		if (ready)
 			saveButton.enable();
@@ -491,11 +481,12 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 		}
 		
 		//	Clear all fields from the preferencesFieldSet
-		for (Component component : preferencesFieldSet.getItems()) {
-			if (component instanceof Field) {
-				component.removeFromParent();
-			}
-		}
+		preferencesFieldSet.removeAll();
+		
+		//	For existing records, set fields that cannot be changed to read only
+		boolean isNew = site == null || site.isNewRecord() || site.isAddNew() || site.getUcn() == 0 || site.getSiteLocCode() == null;
+		siteLocCodeField.setReadOnly(!isNew);
+		institutionField.setReadOnly(!isNew);
 		
 		if (site != null)
 			registerUserCache(site, identificationTip);
@@ -504,7 +495,10 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 		if (site == null) {
 			MessageBox.alert("Site not found.", "The requested site was not found.", null);
 			clearFormValues();
+			statusField.setOriginalValue(true);
+			statusField.setValue(true);
 		} else {
+			
 //			siteLocationIdField.setValue(siteUcn + "-" + siteUcnSuffix + " : " + siteLocCode);
 			siteLocCodeField.setValue(site.getSiteLocCode());
 			descriptionField.setValue(site.getDescription());
@@ -522,6 +516,7 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 			customerTypeDisplay.setValue("");
 			
 			statusDisplay.setValue(AppConstants.getStatusDescription(site.getStatus()));
+			statusField.setValue(AppConstants.STATUS_ACTIVE == site.getStatus());
 			commissionTypeField.setValue(CommissionTypeInstance.obtainModel(site.getCommissionType()));
 			
 			setPreferenceFields(site);
@@ -536,6 +531,10 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 				}
 			}
 		}
+		
+		//	Resize things to account for the data
+		layout(true);
+		resizePreferencesFieldSet();
 
 		updatePresenterLabel();
 		updateUserPortlet();	// This is mostly for a "create" so the portlet knows the agreement ID has been set
@@ -544,6 +543,7 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 	}
 	
 	protected void setPreferenceFields(SiteInstance site) {
+		//	Error trap, in case there's no site or preference categories
 		if (site == null || site.getAllPreferenceCategories() == null || site.getAllPreferenceCategories().size() == 0) {
 			preferencesFieldSet.add(getLabelField("There are no preferences available."));
 			preferencesFieldSet.layout(true);
@@ -552,31 +552,64 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 		
 		FormData formData24 = new FormData("-24");
 		
+		//	Handle each category code
 		for (PreferenceCategoryInstance prefCat : site.getAllPreferenceCategories()) {
+			
 			if (prefCat.getPreferenceCodes() == null || prefCat.getPreferenceCodes().size() == 0) {
+				//	There are not selection values, so create a free format text field
 				TextField<String> textField = getTextField(prefCat.getDescription());
+				textField.setData("prefCatCode", prefCat.getPrefCatCode());
 				if (site.getSelectedPreferences().containsKey(prefCat.getPrefCatCode()))
 					textField.setValue(site.getSelectedPreferences().get(prefCat.getPrefCatCode()));
 				preferencesFieldSet.add(textField, formData24);
+				
 			} else {
-				PreferenceCodeInstance selected = null;
+				
+				//	There is one or more selection choice, so create a combo box
+				PreferenceCodeInstance defaultPc = null;
+				PreferenceCodeInstance selected  = null;
 				ListStore<BeanModel> prefCodeStore = new ListStore<BeanModel>();
+				prefCodeStore.setKeyProvider(new SimpleKeyProvider("uniqueKey"));
+				//	Create a combo field for the category
+				EnhancedComboBox<BeanModel> comboBox = this.getComboField(prefCat.getPrefCatCode(), prefCat.getDescription(), 0, prefCodeStore, "descriptionAndCode");
+				comboBox.setSimpleTemplate("<div class=\"{listStyle}\">{descriptionAndCode}</div>");
+				//	Go through and add the preference codes to the store for the combo field
 				for (PreferenceCodeInstance prefCode : prefCat.getPreferenceCodes()) {
+					//	Make the first pref code encountered the default (no code) value
+					if (defaultPc == null) {
+						defaultPc = new PreferenceCodeInstance();
+						defaultPc.setPrefCatCode(prefCat.getPrefCatCode());
+						defaultPc.setPrefSelCode("");
+						defaultPc.setDescription(prefCode.getDescription());
+						prefCodeStore.add(PreferenceCodeInstance.obtainModel(defaultPc));
+					}
+					//	Add the preference code to the store
 					prefCodeStore.add(PreferenceCodeInstance.obtainModel(prefCode));
+					//	If this code is selected for this category for this site location, save it
 					if (selected == null 
 					&&  site.getSelectedPreferences() != null
 					&&	site.getSelectedPreferences().containsKey(prefCat.getPrefCatCode())
-					&&  site.getSelectedPreferences().get(prefCat.getPrefCatCode()).equals(prefCode.getPrefCatCode()))
+					&&  site.getSelectedPreferences().get(prefCat.getPrefCatCode()).equals(prefCode.getPrefSelCode()))
 						selected = prefCode;
 				}
-				EnhancedComboBox<BeanModel> comboBox = this.getComboField(prefCat.getPrefCatCode(), prefCat.getDescription(), 0, prefCodeStore, "description");
+				
+				//	If nothing is selected and there is a default, select that
+				if (selected == null)
+					selected = defaultPc;
+
+				//	If there is a selection, apply it to the combo box
 				if (selected != null) {
 					List<BeanModel> selection = new ArrayList<BeanModel>();
 					selection.add(PreferenceCodeInstance.obtainModel(selected));
 					comboBox.setSelection(selection);
 				}
+				
+				//	Add the combo box to the preferences field set
 				preferencesFieldSet.add(comboBox, formData24);
 			}
+			
+			//	Force it to redraw
+//			resizePreferencesFieldSet();
 			preferencesFieldSet.layout(true);
 		}
 	}
@@ -643,20 +676,14 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 	
 	public void clearFormValues() {
 		outerContainer.clear();
-//		formColumn1.clear();
-//		formColumn2.clear();
 	}
 	
 	public void resetFormValues() {
 		outerContainer.reset();
-//		formColumn1.reset();
-//		formColumn2.reset();
 	}
 	
 	public void setOriginalValues() {
 		setOriginalValues(outerContainer);
-//		setOriginalValues(formColumn1);
-//		setOriginalValues(formColumn2);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -668,8 +695,9 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 			} else if (field instanceof InstitutionSearchField) {
 				InstitutionSearchField  isf = (InstitutionSearchField) field;
 				isf.setOriginalValue(isf.getSelectedValue());
-			} else
-			((Field<Object>) field).setOriginalValue(field.getValue());
+			} else {
+				((Field<Object>) field).setOriginalValue(field.getValue());
+			}
 		}
 	}
 	
@@ -681,31 +709,15 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 			} else 
 				field.enable();
 		}
-//		for (Field<?> field : outerContainer.getFields()) {
-//			System.out.println("enable " + field.getFieldLabel());
-//			field.enable();
-//		}
-//		for (Field<?> field : formColumn1.getFields()) {
-//			field.enable();
-//		}
-//		for (Field<?> field : formColumn2.getFields()) {
-//			field.enable();
-//		}
 	}
 	
 	public void disableFields() {
 		for (Field<?> field : outerContainer.getFields()) {
-			if (field != codeNotesCombo)
+//			if (field == codeNotesCombo)
+//				siteLocCodeField.disable();
+//			else
 				field.disable();
 		}
-//		for (Field<?> field : formColumn1.getFields()) {
-//			if (field != descriptionNotesCombo)
-//				field.disable();
-//		}
-//		for (Field<?> field : formColumn2.getFields()) {
-//			if (field != descriptionNotesCombo)
-//				field.disable();
-//		}
 	}
 
 	/**
@@ -771,12 +783,35 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 		if (site == null) {
 			site = new SiteInstance();
 			site.setNewRecord(true);
+			site.setUcnSuffix(1);
+			site.setSiteLocCode(siteLocCodeField.getValue());
+			site.setStatus(AppConstants.STATUS_ACTIVE);	//	This is later overridden by statusField, but we set it here just in case that's removed at some point
 		}
 		
 		site.setInstitution( ((InstitutionInstance) institutionField.getSelectedValue().getBean()) );
 		site.setUcn(site.getInstitution().getUcn());
-//		site.setUcnSuffix();
-		site.setCommissionType( (CommissionTypeInstance) commissionTypeField.getSelectedValue().getBean() );
+		if (commissionTypeField.getSelectedValue() != null)
+			site.setCommissionType( (CommissionTypeInstance) commissionTypeField.getSelectedValue().getBean() );
+		else
+			site.setCommissionType( CommissionTypeInstance.getEmptyInstance() );
+		site.setStatus(statusField.getValue() ? AppConstants.STATUS_ACTIVE : AppConstants.STATUS_INACTIVE);
+		
+		//	Set preferences
+		site.setSelectedPreferences(new HashMap<String, String>());
+		for (Component component : preferencesFieldSet.getItems()) {
+			if (component instanceof ComboBox) {
+				//	Get the selected value from a combo box 
+				@SuppressWarnings("unchecked")
+				ComboBox<BeanModel> comboBox = (ComboBox<BeanModel>) component;
+				PreferenceCodeInstance selected = comboBox.getValue().getBean();
+				site.getSelectedPreferences().put(selected.getPrefCatCode(), selected.getPrefSelCode());
+			} else if (component instanceof TextField) {
+				//	Get the value from a text field... the category code has been saved in the field data
+				@SuppressWarnings("unchecked")
+				TextField<String> textField = (TextField<String>) component;
+				site.getSelectedPreferences().put((String) textField.getData("prefCatCode"), textField.getValue());
+			}
+		}
 		
 		if (site.isNewRecord())
 			site.setNote(notesField.getNote());
@@ -953,10 +988,11 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 	 */
 	@Override
 	public String getKeyData() {
+		//	Note that if siteLocCode is null, we don't want to write "null" to the key data, so instead we write an empty string
 		if (identificationTip == null)
-			return siteUcn + ":" + siteUcnSuffix + ":" + siteLocCode;
+			return siteUcn + ":" + siteUcnSuffix + ":" + siteLocCode == null ? "" : siteLocCode;
 		else
-			return siteUcn + ":" + siteUcnSuffix + ":" + siteLocCode + ":" + identificationTip;
+			return siteUcn + ":" + siteUcnSuffix + ":" + (siteLocCode == null ? "" : siteLocCode) + ":" + identificationTip;
 	}
 
 }

@@ -326,6 +326,15 @@ div.noteText {
 .list-normal {
 }
 
+.list-default {
+	font-style:	italic;
+	background-color: #EEFFEE;
+	background-image:url(resources/images/icons/colorful/configuration.png);
+	background-repeat: no-repeat;
+	padding-left: 20px;
+	padding-bottom: 4px;
+}
+
 .list-normal .show-name {
 	font-weight: bold;
 }

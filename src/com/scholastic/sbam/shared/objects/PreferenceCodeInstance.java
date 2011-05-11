@@ -112,6 +112,22 @@ public class PreferenceCodeInstance extends BetterRowEditInstance implements Bea
 			return;
 		setStatus(active?'A':'I');
 	}
+	
+	public String getDescriptionAndCode() {
+		if (prefSelCode == null || prefSelCode.length() == 0)
+			return "Default --- " + description;
+		return description + " [ " + prefSelCode + " ]";
+	}
+	
+	public String getListStyle() {
+		if (prefSelCode == null || prefSelCode.length() == 0)
+			return "list-default";
+		return "list-normal";
+	}
+	
+	public String getUniqueKey() {
+		return prefCatCode + ":" + prefSelCode;
+	}
 
 	public static BeanModel obtainModel(PreferenceCodeInstance instance) {
 		if (beanModelfactory == null)
@@ -120,4 +136,7 @@ public class PreferenceCodeInstance extends BetterRowEditInstance implements Bea
 		return model;
 	}
 
+	public String toString() {
+		return prefCatCode + ":" + prefSelCode + " - " + description;
+	}
 }
