@@ -75,7 +75,7 @@ public class DbPreferenceCategory extends HibernateAccessor {
 	
 	public static List<PreferenceCategoryInstance> findAllCatsAndCodes() {
 
-		String sqlQuery = "SELECT {preference_category.*}, {preference_code.*} FROM preference_category LEFT JOIN preference_code ON preference_category.pref_cat_code = preference_code.pref_cat_code  order by preference_category.seq, preference_category.pref_cat_code, preference_code.seq, preference_code.pref_sel_code";
+		String sqlQuery = "SELECT {preference_category.*}, {preference_code.*} FROM preference_category LEFT JOIN preference_code ON preference_category.pref_cat_code = preference_code.pref_cat_code AND preference_code.status <> 'X' WHERE preference_category.status <> 'X' order by preference_category.seq, preference_category.pref_cat_code, preference_code.seq, preference_code.pref_sel_code";
 
         SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery);            
         query.addEntity("preference_category", PreferenceCategory.class);

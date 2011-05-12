@@ -53,6 +53,8 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 	protected FormInnerPanel				formColumn2;
 	protected FormInnerPanel				formRow2;
 	
+	protected AppPortletProvider	appPortletProvider;
+	
 	protected InstitutionInstance	siteInstitution;
 	
 	protected RowExpander			noteExpander;
@@ -83,6 +85,14 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 	
 	public void setAgreementSite(AgreementSiteInstance instance) {
 		setFocusInstance(instance);
+	}
+
+	public AppPortletProvider getAppPortletProvider() {
+		return appPortletProvider;
+	}
+
+	public void setAppPortletProvider(AppPortletProvider appPortletProvider) {
+		this.appPortletProvider = appPortletProvider;
 	}
 
 	@Override
@@ -257,6 +267,7 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 		commissionTypeField.setWidth(0);
 		cancelReasonField.setWidth(0);
 
+		siteLocationField.setAppPortletProvider(appPortletProvider);
 		
 		idNotesCombo.add(agreementIdField);	
 		idNotesCombo.add(notesField);

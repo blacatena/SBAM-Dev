@@ -74,7 +74,7 @@ public class PreferenceCategoryEditGrid extends BetterFilterEditGrid<PreferenceC
 		LoadConfig myLoadConfig = null;
 		if (loadConfig instanceof LoadConfig)
 			myLoadConfig = (LoadConfig) loadConfig;
-		preferenceCategoryListService.getPreferenceCategories(myLoadConfig, callback);
+		preferenceCategoryListService.getPreferenceCategories(myLoadConfig, false, callback);	// false = Don't bother getting codes
 	}
 
 	@Override

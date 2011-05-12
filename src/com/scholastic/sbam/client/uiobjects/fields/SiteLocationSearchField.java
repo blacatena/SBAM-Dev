@@ -18,8 +18,11 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.SiteLocationSearchService;
 import com.scholastic.sbam.client.services.SiteLocationSearchServiceAsync;
+import com.scholastic.sbam.client.uiobjects.uiapp.AppPortletIds;
+import com.scholastic.sbam.client.uiobjects.uiapp.AppPortletProvider;
 import com.scholastic.sbam.client.uiobjects.uiapp.CreateSiteDialog;
 import com.scholastic.sbam.client.uiobjects.uiapp.CreateSiteDialog.CreateSiteDialogSaver;
+import com.scholastic.sbam.client.uiobjects.uiapp.SiteLocationPortlet;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.AgreementSiteInstance;
 import com.scholastic.sbam.shared.objects.AuthMethodInstance;
@@ -32,6 +35,8 @@ import com.scholastic.sbam.shared.util.AppConstants;
 public class SiteLocationSearchField extends ComboBox<BeanModel> implements CreateSiteDialogSaver {
 	
 	protected final SiteLocationSearchServiceAsync siteLocationSearchService = GWT.create(SiteLocationSearchService.class);
+	
+	protected AppPortletProvider		appPortletProvider;
 	
 	protected long						searchSyncId		=	0;
 	
@@ -79,6 +84,12 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> implements Crea
 	public SiteLocationSearchField(LayoutContainer createDialogContainer) {
 		this();
 		this.createDialogContainer = createDialogContainer;
+	}
+	
+
+	public SiteLocationSearchField(LayoutContainer createDialogContainer, AppPortletProvider appPortletProvider) {
+		this(createDialogContainer);
+		this.appPortletProvider = appPortletProvider;
 	}
 	
 	@Override
@@ -155,7 +166,7 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> implements Crea
 	}
 
 	@Override
-	public void onCreateSiteSave(SiteInstance instance) {
+	public void onCreateSiteSave(SiteInstance instance, boolean openAfterSave) {
 		//	Add the model to the field store and select it
 		BeanModel model = SiteInstance.obtainModel(instance);
 		this.getStore().add(model);
@@ -163,6 +174,16 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> implements Crea
 		this.setValue(model);
 //		this.setRawValue(instance.getDescriptionAndCode());
 		lastQuery = null;		//	So next trigger click reloads/sorts from database
+		
+		if (openAfterSave && appPortletProvider != null) {
+			SiteLocationPortlet portlet = (SiteLocationPortlet) appPortletProvider.getPortlet(AppPortletIds.SITE_LOCATION_DISPLAY);
+			portlet.setSiteUcn(instance.getUcn());
+			portlet.setSiteUcnSuffix(instance.getUcnSuffix());
+			portlet.setSiteLocCode(instance.getSiteLocCode());
+			if (agreementId > 0)
+				portlet.setIdentificationTip("Created for agreement " + agreementId);
+			appPortletProvider.addPortlet(portlet);
+		}
 	}
 	
 	@Override
@@ -263,6 +284,15 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> implements Crea
 			query = getRawValue();
 		return query;
 	}
+
+	public AppPortletProvider getAppPortletProvider() {
+		return appPortletProvider;
+	}
+
+	public void setAppPortletProvider(AppPortletProvider appPortletProvider) {
+		this.appPortletProvider = appPortletProvider;
+	}
+
 
 	public boolean isIncludeAddOption() {
 		return includeAddOption;

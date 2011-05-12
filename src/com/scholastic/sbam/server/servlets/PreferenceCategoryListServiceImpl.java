@@ -18,7 +18,7 @@ import com.scholastic.sbam.shared.security.SecurityManager;
 public class PreferenceCategoryListServiceImpl extends AuthenticatedServiceServlet implements PreferenceCategoryListService {
 
 	@Override
-	public List<PreferenceCategoryInstance> getPreferenceCategories(LoadConfig loadConfig) throws IllegalArgumentException {
+	public List<PreferenceCategoryInstance> getPreferenceCategories(LoadConfig loadConfig, boolean includePreferenceCodes) throws IllegalArgumentException {
 		
 		authenticate("list preference categories", SecurityManager.ROLE_CONFIG);
 		
@@ -29,16 +29,16 @@ public class PreferenceCategoryListServiceImpl extends AuthenticatedServiceServl
 		try {
 			
 			//	Find only undeleted cancel reasons
-			List<PreferenceCategory> preferenceCategorys = DbPreferenceCategory.findFiltered(null, null, (char) 0, 'X');
-
-			for (PreferenceCategory preferenceCategory : preferenceCategorys) {
-				PreferenceCategoryInstance instance = new PreferenceCategoryInstance();
-				instance.setPrefCatCode(preferenceCategory.getPrefCatCode());
-				instance.setDescription(preferenceCategory.getDescription());
-				instance.setSeq(preferenceCategory.getSeq());
-				instance.setStatus(preferenceCategory.getStatus());
-				instance.setCreatedDatetime(preferenceCategory.getCreatedDatetime());
-				list.add(instance);
+			
+			if (includePreferenceCodes) {
+				list = DbPreferenceCategory.findAllCatsAndCodes();
+			} else {
+				List<PreferenceCategory> preferenceCategorys = DbPreferenceCategory.findFiltered(null, null, (char) 0, 'X');
+	
+				for (PreferenceCategory preferenceCategory : preferenceCategorys) {
+					PreferenceCategoryInstance instance = DbPreferenceCategory.getInstance(preferenceCategory);
+					list.add(instance);
+				}
 			}
 
 		} catch (Exception exc) {

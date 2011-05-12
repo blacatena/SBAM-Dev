@@ -73,7 +73,7 @@ import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.util.AppConstants;
 
-public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> implements AppSleeper {
+public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> implements AppSleeper, AppPortletRequester {
 	
 	protected final boolean ALL_TERMS			=	true;
 	protected final boolean RECENT_TERMS		=	false;
@@ -85,6 +85,8 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected final UpdateAgreementServiceAsync		updateAgreementService		= GWT.create(UpdateAgreementService.class);
 	protected final UpdateAgreementNoteServiceAsync	updateAgreementNoteService	= GWT.create(UpdateAgreementNoteService.class);
 	protected final InstitutionGetServiceAsync		institutionGetService		= GWT.create(InstitutionGetService.class);
+	
+	protected AppPortletProvider	portletProvider;
 	
 	protected int					agreementId;
 	protected AgreementInstance		agreement;
@@ -265,6 +267,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		outerContainer.add(termsCard);
 		
 		sitesCard = new AgreementSitesCard();
+		sitesCard.setAppPortletProvider(portletProvider);
 		outerContainer.add(sitesCard);
 		
 		contactsCard = new AgreementContactsCard();
@@ -1161,6 +1164,11 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	public void onCollapse() {
 		super.onCollapse();
 		sleep();
+	}
+
+	@Override
+	public void setAppPortletProvider(AppPortletProvider portletProvider) {
+		this.portletProvider = portletProvider;
 	}
 	
 	@Override

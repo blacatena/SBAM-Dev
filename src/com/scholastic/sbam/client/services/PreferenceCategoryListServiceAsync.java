@@ -8,6 +8,6 @@ import com.scholastic.sbam.shared.objects.PreferenceCategoryInstance;
 
 public interface PreferenceCategoryListServiceAsync {
 
-	void getPreferenceCategories(LoadConfig loadConfig, AsyncCallback<List<PreferenceCategoryInstance>> callback);
+	void getPreferenceCategories(LoadConfig loadConfig, boolean includePreferenceCodes, AsyncCallback<List<PreferenceCategoryInstance>> callback);
 
 }

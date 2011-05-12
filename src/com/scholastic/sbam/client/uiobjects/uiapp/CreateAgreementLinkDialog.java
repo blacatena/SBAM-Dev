@@ -122,7 +122,7 @@ public class CreateAgreementLinkDialog extends PortletMaskDialog {
 	}
 
 	@Override
-	protected void onSave() {
+	protected void onSave(boolean openAfterSave) {
 	
 		// Set field values from form fields
 		AgreementLinkInstance agreementLinkInstance = new AgreementLinkInstance();

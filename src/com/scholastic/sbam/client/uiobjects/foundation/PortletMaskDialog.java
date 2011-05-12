@@ -30,6 +30,8 @@ public abstract class PortletMaskDialog extends Dialog {
 	protected LayoutContainer	constrainContainer;
 	protected int				marginWidth			=	100;
 	protected int				minWidth			=	200;
+	protected boolean			allowSaveAndOpen	=	false;
+	protected boolean			alwaysSaveAndOpen	=	false;
 	
 	protected Listener<BaseEvent>	moveListener;
 	protected Listener<BaseEvent>	resizeListener;
@@ -37,6 +39,7 @@ public abstract class PortletMaskDialog extends Dialog {
 	protected FormPanel				formPanel;
 	protected Button 				cancelButton;
 	protected Button 				saveButton;
+	protected Button 				saveAndOpenButton;
 	
 	protected Timer					dirtyFormListener;
 	protected int					dirtyFormListenTime = DIRTY_FORM_LISTEN_TIME;
@@ -50,6 +53,11 @@ public abstract class PortletMaskDialog extends Dialog {
 	public PortletMaskDialog(LayoutContainer constrainContainer) {
 		this();
 		this.constrainContainer = constrainContainer;
+	}
+	
+	public PortletMaskDialog(LayoutContainer constrainContainer, boolean allowSaveAndOpen) {
+		this(constrainContainer);
+		this.allowSaveAndOpen = allowSaveAndOpen;
 	}
 	
 	public void preRenderInit() {
@@ -194,11 +202,24 @@ public abstract class PortletMaskDialog extends Dialog {
 		saveButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 				@Override
 				public void componentSelected(ButtonEvent ce) {
-					doSave();
+					doSave(alwaysSaveAndOpen);
 				}
 			
 			});
 		saveButton.disable();
+		
+		if (allowSaveAndOpen && !alwaysSaveAndOpen) {
+			saveAndOpenButton = new Button("Save and Open");
+			IconSupplier.forceIcon(saveAndOpenButton, IconSupplier.getSaveIconName());
+			saveAndOpenButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+					@Override
+					public void componentSelected(ButtonEvent ce) {
+						doSave(true);
+					}
+				
+				});
+			saveAndOpenButton.disable();
+		}
 		
 		ToolBar toolBar = new ToolBar();
 		toolBar.setAlignment(HorizontalAlignment.CENTER);
@@ -206,6 +227,8 @@ public abstract class PortletMaskDialog extends Dialog {
 		
 		toolBar.add(cancelButton);
 		toolBar.add(saveButton);
+		if (allowSaveAndOpen && !alwaysSaveAndOpen)
+			toolBar.add(saveAndOpenButton);
 		
 		formPanel.setBottomComponent(toolBar);
 	}
@@ -218,9 +241,9 @@ public abstract class PortletMaskDialog extends Dialog {
 		destroyFields();
 	}
 	
-	protected void doSave() {
+	protected void doSave(boolean openAfterSave) {
 		lockTrigger();
-		onSave();
+		onSave(openAfterSave);
 		closeDialog();
 	}
 
@@ -231,15 +254,21 @@ public abstract class PortletMaskDialog extends Dialog {
 				@Override
 				public void run() {
 					if (formPanel.isDirty() && formPanel.isValid(true)) {
-						saveButton.enable();
+						enableSave(true);
 					} else {
-						saveButton.disable();
+						enableSave(false);
 					}
 				}
 			};
 		}
 		
 		dirtyFormListener.scheduleRepeating(dirtyFormListenTime);
+	}
+	
+	public void enableSave(boolean enabled) {
+		saveButton.setEnabled(enabled);
+		if (saveAndOpenButton != null)
+			saveAndOpenButton.setEnabled(enabled);
 	}
 	
 	@Override
@@ -272,6 +301,22 @@ public abstract class PortletMaskDialog extends Dialog {
 		this.minWidth = minWidth;
 	}
 
+	public boolean isAllowSaveAndOpen() {
+		return allowSaveAndOpen;
+	}
+
+	public void setAllowSaveAndOpen(boolean allowSaveAndOpen) {
+		this.allowSaveAndOpen = allowSaveAndOpen;
+	}
+
+	public boolean isAlwaysSaveAndOpen() {
+		return alwaysSaveAndOpen;
+	}
+
+	public void setAlwaysSaveAndOpen(boolean alwaysSaveAndOpen) {
+		this.alwaysSaveAndOpen = alwaysSaveAndOpen;
+	}
+
 	/**
 	 * Add any fields to the dialog.
 	 */
@@ -281,11 +326,13 @@ public abstract class PortletMaskDialog extends Dialog {
 	 * If this dialog will not be reused, explicitly destroy the fields (remove from parent and set them to null).
 	 */
 	public abstract void destroyFields();
-
+	
 	/**
 	 * The SAVE button was pressed.  Do whatever needs to be done.  Upon completion, call saveFinished();
+	 * @param openAfterSave
+	 * Set to true if the handler is tasked with opening the newly created entity in a window/portlet/tab after the save is complete.
 	 */
-	protected abstract void onSave();
+	protected abstract void onSave(boolean openAfterSave);
 	
 	/**
 	 * The save has finished, so the trigger can be unlocked.

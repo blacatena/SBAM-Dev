@@ -31,7 +31,7 @@ public class CreateSiteDialog extends PortletMaskDialog {
 	 *
 	 */
 	public interface CreateSiteDialogSaver {
-		public void onCreateSiteSave(SiteInstance instance);
+		public void onCreateSiteSave(SiteInstance instance, boolean openAfterSave);
 		
 		public void lockTrigger();
 		
@@ -50,7 +50,7 @@ public class CreateSiteDialog extends PortletMaskDialog {
 	protected EnhancedComboBox<BeanModel>	commissionTypeField;
 	
 	public CreateSiteDialog(LayoutContainer container, CreateSiteDialogSaver saver, int ucn, int ucnSuffix, String institutionName) {
-		super(container);
+		super(container, true);
 		this.ucn = ucn;
 		this.ucnSuffix = ucnSuffix;
 		this.institutionName = institutionName;
@@ -126,7 +126,7 @@ public class CreateSiteDialog extends PortletMaskDialog {
 	}
 
 	@Override
-	protected void onSave() {
+	protected void onSave(final boolean openAfterSave) {
 	
 		// Set field values from form fields
 		SiteInstance siteInstance = new SiteInstance();
@@ -135,7 +135,8 @@ public class CreateSiteDialog extends PortletMaskDialog {
 		siteInstance.setUcnSuffix(ucnSuffix);
 		siteInstance.setSiteLocCode(codeField.getValue());
 		siteInstance.setDescription(descriptionField.getValue());
-		siteInstance.setCommissionType((CommissionTypeInstance) commissionTypeField.getValue().getBean());
+		if (commissionTypeField.getValue() != null)
+			siteInstance.setCommissionType((CommissionTypeInstance) commissionTypeField.getValue().getBean());
 		siteInstance.setStatus(AppConstants.STATUS_ACTIVE);
 	
 		//	Issue the asynchronous update request and plan on handling the response
@@ -154,7 +155,7 @@ public class CreateSiteDialog extends PortletMaskDialog {
 
 					public void onSuccess(UpdateResponse<SiteInstance> updateResponse) {
 						if (saver != null)
-							saver.onCreateSiteSave(updateResponse.getInstance());
+							saver.onCreateSiteSave(updateResponse.getInstance(), openAfterSave);
 				}
 			});
 	}

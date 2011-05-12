@@ -37,6 +37,8 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.InstitutionGetService;
 import com.scholastic.sbam.client.services.InstitutionGetServiceAsync;
+import com.scholastic.sbam.client.services.PreferenceCategoryListService;
+import com.scholastic.sbam.client.services.PreferenceCategoryListServiceAsync;
 import com.scholastic.sbam.client.services.SiteLocationGetService;
 import com.scholastic.sbam.client.services.SiteLocationGetServiceAsync;
 import com.scholastic.sbam.client.services.UpdateSiteLocationNoteService;
@@ -67,10 +69,11 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 	protected final int DIRTY_FORM_LISTEN_TIME	=	250;
 	protected final int PRESUMED_FORM_HEIGHT	=	270;
 	
-	protected final SiteLocationGetServiceAsync			siteGetService				= GWT.create(SiteLocationGetService.class);
-	protected final UpdateSiteLocationServiceAsync		updateSiteLocationService	= GWT.create(UpdateSiteLocationService.class);
-	protected final UpdateSiteLocationNoteServiceAsync	updateSiteNoteService		= GWT.create(UpdateSiteLocationNoteService.class);
-	protected final InstitutionGetServiceAsync			institutionGetService		= GWT.create(InstitutionGetService.class);
+	protected final SiteLocationGetServiceAsync			siteGetService					= GWT.create(SiteLocationGetService.class);
+	protected final UpdateSiteLocationServiceAsync		updateSiteLocationService		= GWT.create(UpdateSiteLocationService.class);
+	protected final UpdateSiteLocationNoteServiceAsync	updateSiteNoteService			= GWT.create(UpdateSiteLocationNoteService.class);
+	protected final InstitutionGetServiceAsync			institutionGetService			= GWT.create(InstitutionGetService.class);
+	protected final PreferenceCategoryListServiceAsync	preferenceCategoryListService	= GWT.create(PreferenceCategoryListService.class);
 	
 	protected int					siteUcn;
 	protected int					siteUcnSuffix;
@@ -81,12 +84,6 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 	protected String				identificationTip	=	"";
 	
 	protected FormPanel				outerContainer;
-//	protected ContentPanel			outerContainer;
-//	protected CardLayout			cards;
-//	protected LayoutContainer		siteCard;
-//	protected FormPanel				formColumn1;
-//	protected FormPanel				formColumn2;
-//	protected FormPanel				formRow2;
 	
 	protected Timer					dirtyFormListener;
 	
@@ -209,6 +206,7 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 			statusField.setValue(true);
 			if (createForInstitution != null)
 				set(createForInstitution);
+			loadPreferenceCategories();
 			beginEdit();
 		}
 	}
@@ -543,8 +541,13 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 	}
 	
 	protected void setPreferenceFields(SiteInstance site) {
-		//	Error trap, in case there's no site or preference categories
-		if (site == null || site.getAllPreferenceCategories() == null || site.getAllPreferenceCategories().size() == 0) {
+		if (site != null)
+			setPreferenceFields(site.getAllPreferenceCategories(), site.getSelectedPreferences());
+	}
+		
+	protected void setPreferenceFields(List<PreferenceCategoryInstance> preferenceCategories, HashMap<String, String> selections) {
+		//	Error trap, in case there are no preference categories
+		if (preferenceCategories == null || preferenceCategories.size() == 0) {
 			preferencesFieldSet.add(getLabelField("There are no preferences available."));
 			preferencesFieldSet.layout(true);
 			return;
@@ -553,14 +556,14 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 		FormData formData24 = new FormData("-24");
 		
 		//	Handle each category code
-		for (PreferenceCategoryInstance prefCat : site.getAllPreferenceCategories()) {
+		for (PreferenceCategoryInstance prefCat : preferenceCategories) {
 			
 			if (prefCat.getPreferenceCodes() == null || prefCat.getPreferenceCodes().size() == 0) {
 				//	There are not selection values, so create a free format text field
 				TextField<String> textField = getTextField(prefCat.getDescription());
 				textField.setData("prefCatCode", prefCat.getPrefCatCode());
-				if (site.getSelectedPreferences().containsKey(prefCat.getPrefCatCode()))
-					textField.setValue(site.getSelectedPreferences().get(prefCat.getPrefCatCode()));
+				if (selections != null && selections.containsKey(prefCat.getPrefCatCode()))
+					textField.setValue(selections.get(prefCat.getPrefCatCode()));
 				preferencesFieldSet.add(textField, formData24);
 				
 			} else {
@@ -587,9 +590,9 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 					prefCodeStore.add(PreferenceCodeInstance.obtainModel(prefCode));
 					//	If this code is selected for this category for this site location, save it
 					if (selected == null 
-					&&  site.getSelectedPreferences() != null
-					&&	site.getSelectedPreferences().containsKey(prefCat.getPrefCatCode())
-					&&  site.getSelectedPreferences().get(prefCat.getPrefCatCode()).equals(prefCode.getPrefSelCode()))
+					&&  selections != null
+					&&	selections.containsKey(prefCat.getPrefCatCode())
+					&&  selections.get(prefCat.getPrefCatCode()).equals(prefCode.getPrefSelCode()))
 						selected = prefCode;
 				}
 				
@@ -768,6 +771,34 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 					}
 			});
 	}
+
+	/**
+	 * Load the institution for the agreement
+	 * @param ucn
+	 */
+	protected void loadPreferenceCategories() {
+		preferenceCategoryListService.getPreferenceCategories(null, true,
+				new AsyncCallback<List<PreferenceCategoryInstance>>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "Preference category access failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+					}
+
+					public void onSuccess(List<PreferenceCategoryInstance> list) {
+						setPreferenceFields(list, null);
+						//	After they load, open the fields if the user is in edit mode (they should be)
+						if (!editButton.isEnabled() && cancelButton.isEnabled()) {
+							preferencesFieldSet.enableFields(true);
+						}
+					}
+			});
+	}
 	
 	protected int getFieldIntValue(NumberField field) {
 		if (field.getValue() == null)
@@ -790,6 +821,7 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 		
 		site.setInstitution( ((InstitutionInstance) institutionField.getSelectedValue().getBean()) );
 		site.setUcn(site.getInstitution().getUcn());
+		site.setDescription(descriptionField.getValue());
 		if (commissionTypeField.getSelectedValue() != null)
 			site.setCommissionType( (CommissionTypeInstance) commissionTypeField.getSelectedValue().getBean() );
 		else

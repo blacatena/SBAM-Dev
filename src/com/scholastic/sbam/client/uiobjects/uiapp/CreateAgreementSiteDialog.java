@@ -194,7 +194,7 @@ public class CreateAgreementSiteDialog extends PortletMaskDialog {
 	}
 
 	@Override
-	protected void onSave() {
+	protected void onSave(final boolean openAfterSave) {
 	
 		// Set field values from form fields
 		AgreementSiteInstance agreementSiteInstance = new AgreementSiteInstance();

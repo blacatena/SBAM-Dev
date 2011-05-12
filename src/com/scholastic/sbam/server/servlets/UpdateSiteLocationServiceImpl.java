@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 
 import com.scholastic.sbam.client.services.UpdateSiteLocationService;
-import com.scholastic.sbam.server.database.codegen.PreferenceCategory;
 import com.scholastic.sbam.server.database.codegen.Site;
 import com.scholastic.sbam.server.database.codegen.SiteId;
 import com.scholastic.sbam.server.database.codegen.SitePreference;
@@ -14,6 +13,7 @@ import com.scholastic.sbam.server.database.objects.DbSite;
 import com.scholastic.sbam.server.database.objects.DbSitePreference;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.server.validation.AppSiteValidator;
+import com.scholastic.sbam.shared.objects.PreferenceCategoryInstance;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.objects.SiteInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
@@ -120,8 +120,8 @@ public class UpdateSiteLocationServiceImpl extends AuthenticatedServiceServlet i
 		if (site.getSelectedPreferences() == null)
 			return;
 		
-		List<PreferenceCategory> categories = DbPreferenceCategory.findAll();
-		for (PreferenceCategory category : categories) {
+		List<PreferenceCategoryInstance> categories = DbPreferenceCategory.findAllCatsAndCodes();	// We use the full list, so we can fill in the site values, otherwise we could use DbPreferenceCategory.findAll();
+		for (PreferenceCategoryInstance category : categories) {
 			SitePreference preference = DbSitePreference.getById(site.getUcn(), site.getUcnSuffix(), site.getSiteLocCode(), category.getPrefCatCode());
 			if (site.getSelectedPreferences().containsKey(category.getPrefCatCode())) {
 				String value = site.getSelectedPreferences().get(category.getPrefCatCode());
@@ -149,6 +149,9 @@ public class UpdateSiteLocationServiceImpl extends AuthenticatedServiceServlet i
 					DbSitePreference.delete(preference);		//	Could instead set status to DELETED
 			}
 		}
+		
+		//	Fill in the categories for the site
+		site.setAllPreferenceCategories(categories);
 	}
 	
 	private void validateInput(SiteInstance instance) throws IllegalArgumentException {

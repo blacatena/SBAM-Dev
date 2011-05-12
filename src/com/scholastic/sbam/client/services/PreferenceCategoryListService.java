@@ -12,5 +12,5 @@ import com.scholastic.sbam.shared.objects.PreferenceCategoryInstance;
  */
 @RemoteServiceRelativePath("getPreferenceCategories")
 public interface PreferenceCategoryListService extends RemoteService {
-	List<PreferenceCategoryInstance> getPreferenceCategories(LoadConfig loadConfig) throws IllegalArgumentException;
+	List<PreferenceCategoryInstance> getPreferenceCategories(LoadConfig loadConfig, boolean includePreferenceCodes) throws IllegalArgumentException;
 }
