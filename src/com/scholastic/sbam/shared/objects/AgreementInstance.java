@@ -8,6 +8,10 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 public class AgreementInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable, UserCacheTarget {
+	
+	public static final int AGREEMENT_KEY_SET	=	0;
+	public static final int INSTITUTION_KEY_SET	=	1;
+	public static final int	CUSTOMER_KEY_SET	=	2;
 
 	private int		id;
 	private int		idCheckDigit;
@@ -288,8 +292,10 @@ public class AgreementInstance extends BetterRowEditInstance implements BeanMode
 	}
 	
 	public static String getUserCacheCategory(int keySet) {
-		if (keySet > 0)
+		if (keySet == INSTITUTION_KEY_SET)
 			return "Institution";
+		if (keySet == CUSTOMER_KEY_SET)
+			return "Customer";
 		return "Agreement";
 	}
 
@@ -312,6 +318,6 @@ public class AgreementInstance extends BetterRowEditInstance implements BeanMode
 	
 	@Override
 	public int userCacheKeyCount() {
-		return 2;
+		return 3;
 	}
 }

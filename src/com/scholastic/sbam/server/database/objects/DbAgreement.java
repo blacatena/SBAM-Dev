@@ -88,6 +88,33 @@ public class DbAgreement extends HibernateAccessor {
         return new ArrayList<Agreement>();
 	}
 	
+	public static List<Agreement> findFiltered(String agreementId, String billUcn, String agreementLinkId, String agreementTypeCode, String note) {
+        try
+        {
+            Criteria crit = sessionFactory.getCurrentSession().createCriteria(Agreement.class);
+            if (agreementId != null && agreementId.length() > 0)
+            	crit.add(Restrictions.like("id", "%" + agreementId + "%"));
+            if (billUcn != null && billUcn.length() > 0)
+            	crit.add(Restrictions.like("billUcn", "%" + billUcn + "%"));
+            if (agreementLinkId != null && agreementLinkId.length() > 0)
+            	crit.add(Restrictions.like("agreementLinkId", "%" + agreementLinkId + "%"));
+            if (agreementTypeCode != null && agreementTypeCode.length() > 0)
+            	crit.add(Restrictions.like("agreementTypeCode", "%" + agreementTypeCode + "%"));
+            if (note != null && note.length() > 0)
+            	crit.add(Restrictions.like("note", "%" + note + "%"));
+            crit.addOrder(Order.asc("agreementId"));
+            @SuppressWarnings("unchecked")
+			List<Agreement> objects = crit.list();
+            return objects;
+        }
+        catch(Exception e)
+        {
+        	e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return new ArrayList<Agreement>();
+	}
+	
 	// Combined Agreement Summaries
 	
 	public static SortedMap<Integer, AgreementSummaryInstance> findAllAgreementSummaries(int ucn,boolean primary, char status, char neStatus) throws Exception {

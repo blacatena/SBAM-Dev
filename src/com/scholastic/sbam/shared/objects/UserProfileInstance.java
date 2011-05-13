@@ -8,11 +8,11 @@ import com.extjs.gxt.ui.client.data.BeanModelLookup;
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-public class LinkTypeInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
+public class UserProfileInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
 
 	private static BeanModelFactory beanModelfactory;
 	
-	private String linkTypeCode;
+	private String userName;
 	private String description;
 	private char   status;
 	private boolean active;
@@ -43,12 +43,12 @@ public class LinkTypeInstance extends BetterRowEditInstance implements BeanModel
 		return "junk";
 	}
 
-	public String getLinkTypeCode() {
-		return linkTypeCode;
+	public String getUserName() {
+		return userName;
 	}
 
-	public void setLinkTypeCode(String linkTypeCode) {
-		this.linkTypeCode = linkTypeCode;
+	public void setUserName(String userName) {
+		this.userName = userName;
 	}
 
 	public String getDescription() {
@@ -86,22 +86,25 @@ public class LinkTypeInstance extends BetterRowEditInstance implements BeanModel
 		setStatus(active?'A':'I');
 	}
 	
-	public String getDescriptionAndCode() {
-		if (linkTypeCode == null || linkTypeCode.length() == 0)
-			return description;
-		return description + " [ " + linkTypeCode + " ]";
+	public static UserProfileInstance getUnknownInstance(String userName) {
+		UserProfileInstance instance = new UserProfileInstance();
+		instance.userName = userName;
+		instance.description = "Unknown user " + userName;
+		return instance;
 	}
 	
-	public static LinkTypeInstance getUnknownInstance(String code) {
-		LinkTypeInstance instance = new LinkTypeInstance();
-		instance.linkTypeCode = code;
-		instance.description = "Unknown link type " + code;
+	public static UserProfileInstance getDefaultInstance() {
+		UserProfileInstance instance = new UserProfileInstance();
+		instance.description = "Default profile";
+		/** TODO
+		 *  Set up default values
+		 */
 		return instance;
 	}
 
-	public static BeanModel obtainModel(LinkTypeInstance instance) {
+	public static BeanModel obtainModel(UserProfileInstance instance) {
 		if (beanModelfactory == null)
-			beanModelfactory  = BeanModelLookup.get().getFactory(LinkTypeInstance.class);
+			beanModelfactory  = BeanModelLookup.get().getFactory(UserProfileInstance.class);
 		BeanModel model = beanModelfactory.createModel(instance);
 		return model;
 	}

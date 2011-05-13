@@ -17,6 +17,8 @@ public class Authentication implements IsSerializable {
 	private long			loggedOff;
 	private List<String>	roleNames = new ArrayList<String>();
 	
+	private UserProfileInstance	profile;
+	
 	public Authentication() {
 		
 	}
@@ -120,4 +122,13 @@ public class Authentication implements IsSerializable {
 	public void setLoggedOff() {
 		setLoggedOff(System.currentTimeMillis());
 	}
+
+	public UserProfileInstance getProfile() {
+		return profile;
+	}
+
+	public void setProfile(UserProfileInstance profile) {
+		this.profile = profile;
+	}
+	
 }

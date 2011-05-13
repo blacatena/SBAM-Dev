@@ -9,9 +9,11 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import com.scholastic.sbam.client.services.AuthenticateService;
 import com.scholastic.sbam.server.database.codegen.User;
 import com.scholastic.sbam.server.database.codegen.UserPortletCache;
+import com.scholastic.sbam.server.database.codegen.UserProfile;
 import com.scholastic.sbam.server.database.codegen.UserRole;
 import com.scholastic.sbam.server.database.objects.DbUser;
 import com.scholastic.sbam.server.database.objects.DbUserPortletCache;
+import com.scholastic.sbam.server.database.objects.DbUserProfile;
 import com.scholastic.sbam.server.database.objects.DbUserRole;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.objects.Authentication;
@@ -40,7 +42,7 @@ public class AuthenticateServiceImpl extends RemoteServiceServlet implements Aut
 	}
 	
 	/**
-	 * This method performs authentication within an existing database transaction.
+	 * This method performs authentication within an existing database transaction (which is why it is a static method).
 	 * 
 	 * It may be used by other classes when authentication must be refreshed as part of a separate transaction.
 	 * 
@@ -77,6 +79,11 @@ public class AuthenticateServiceImpl extends RemoteServiceServlet implements Aut
 			List<UserPortletCache> portlets = DbUserPortletCache.findByUserName(userName);
 			auth.setCachedPortlets(portlets.size());
 			
+			UserProfile profile = DbUserProfile.getByUserName(auth.getUserName());
+			auth.setProfile(DbUserProfile.getInstance(profile));
+			
+			cleanUpUserCache(auth);
+			
 			System.out.println("Logged in " + userName + " at " + new Date());
 		}
 		
@@ -88,5 +95,17 @@ public class AuthenticateServiceImpl extends RemoteServiceServlet implements Aut
 		for (UserRole role: roles) {
 			auth.addRoleName(role.getId().getRoleName());
 		}
+	}
+	
+	private static void cleanUpUserCache(Authentication auth) {
+		if (auth == null)
+			return;
+		
+		
+		/**
+		 * TODO
+		 * Delete cacheList entries that are too old, or if there are too many.
+		 */
+//		List<UserCache> cacheList = DbUserCache.findByUserName(auth.getUserName());
 	}
 }

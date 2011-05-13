@@ -82,6 +82,10 @@ public class AppPortletProvider {
 			portlet = new RecentAgreementsPortlet();
 		else if (id == AppPortletIds.RECENT_INSTITUTIONS_DISPLAY)
 			portlet = new RecentInstitutionsPortlet();
+		else if (id == AppPortletIds.RECENT_CUSTOMERS_DISPLAY)
+			portlet = new RecentCustomersPortlet();
+		else if (id == AppPortletIds.RECENT_SITES_DISPLAY)
+			portlet = new RecentSiteLocationsPortlet();
 		else {
 			portlet = new UnknownPortlet(id.helpTextId);
 			portlet.setHeading("Unknown Portlet Request");

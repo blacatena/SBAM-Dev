@@ -12,6 +12,9 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 public class SiteInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable, UserCacheTarget {
+	
+	public static final int SITE_LOCATION_KEY_SET	= 0;
+	public static final int INSTITUTION_KEY_SET    = 1;
 
 	private static BeanModelFactory beanModelfactory;
 
@@ -266,7 +269,7 @@ public class SiteInstance extends BetterRowEditInstance implements BeanModelTag,
 	}
 
 	public static String getUserCacheCategory(int keySet) {
-		if (keySet > 0)
+		if (keySet == INSTITUTION_KEY_SET)
 			return "Institution";
 		return "SiteLocation";
 	}
@@ -278,16 +281,16 @@ public class SiteInstance extends BetterRowEditInstance implements BeanModelTag,
 
 	@Override
 	public String userCacheStringKey(int keySet) {
-		if (keySet > 0)
+		if (keySet == INSTITUTION_KEY_SET)
 			return null;
 		return ucn + ":" + ucnSuffix + ":" + siteLocCode;
 	}
 
 	@Override
 	public int userCacheIntegerKey(int keySet) {
-		if (keySet > 0)
+		if (keySet == INSTITUTION_KEY_SET)
 			return ucn;
-		return -1;
+		return 0;
 	}
 	
 	@Override

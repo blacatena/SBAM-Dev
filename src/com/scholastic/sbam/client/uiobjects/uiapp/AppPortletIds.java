@@ -12,6 +12,8 @@ public enum AppPortletIds {
 	SITE_LOCATION_DISPLAY		("Site Location Display", 		IconSupplier.getSiteIconName(),				"SiteLocationDisplay", 	SiteLocationPortlet.class.getName()),
 	RECENT_AGREEMENTS_DISPLAY	("Recent Agreements", 			IconSupplier.getAgreementIconName(),		"RecentAgreements"	, 	RecentAgreementsPortlet.class.getName()),
 	RECENT_INSTITUTIONS_DISPLAY	("Recent Institutions", 		IconSupplier.getInstitutionIconName(),		"RecentInstitutions", 	RecentInstitutionsPortlet.class.getName()),
+	RECENT_CUSTOMERS_DISPLAY	("Recent Customers", 			IconSupplier.getCustomerIconName(),			"RecentCustomers", 		RecentCustomersPortlet.class.getName()),
+	RECENT_SITES_DISPLAY		("Recent Sites",	 			IconSupplier.getSiteIconName(),				"RecentSites"	, 		RecentSiteLocationsPortlet.class.getName()),
 	UNKNOWN_PORTLET				("The Unknown Portlet", 		null,										"UnknownPortlet"	, 	UnknownPortlet.class.getName());
 	
 	String name;

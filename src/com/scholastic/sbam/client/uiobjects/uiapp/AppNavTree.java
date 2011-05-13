@@ -137,7 +137,9 @@ public class AppNavTree {
 	  
 	  Folder recentSrch = new Folder("Recent", IconSupplier.getRecentIconName());
 	  recentSrch.add(new SelectionTreeNode("Agreements",		AppPortletIds.RECENT_AGREEMENTS_DISPLAY));
-	  recentSrch.add(new SelectionTreeNode("Customers",			AppPortletIds.RECENT_INSTITUTIONS_DISPLAY));
+	  recentSrch.add(new SelectionTreeNode("Institutions",		AppPortletIds.RECENT_INSTITUTIONS_DISPLAY));
+	  recentSrch.add(new SelectionTreeNode("Customers",			AppPortletIds.RECENT_CUSTOMERS_DISPLAY));
+	  recentSrch.add(new SelectionTreeNode("Sites",				AppPortletIds.RECENT_SITES_DISPLAY));
 	  recentSrch.add(new SelectionTreeNode("Proxies",			IconSupplier.getProxyIconName()));
 	  
 	  searches.add(custSrch);

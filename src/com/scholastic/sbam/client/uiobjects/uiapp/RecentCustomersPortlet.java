@@ -47,7 +47,7 @@ import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
 import com.scholastic.sbam.shared.objects.UserCacheInstance;
 
-public class RecentInstitutionsPortlet extends GridSupportPortlet<InstitutionInstance> implements AppSleeper, AppPortletRequester {
+public class RecentCustomersPortlet extends GridSupportPortlet<InstitutionInstance> implements AppSleeper, AppPortletRequester {
 
 	protected final UserCacheListServiceAsync userCacheListService = GWT.create(UserCacheListService.class);
 	
@@ -63,11 +63,11 @@ public class RecentInstitutionsPortlet extends GridSupportPortlet<InstitutionIns
 	
 	protected String				filter;
 	
-	public RecentInstitutionsPortlet() {
-		super(AppPortletIds.RECENT_INSTITUTIONS_DISPLAY.getHelpTextId());
+	public RecentCustomersPortlet() {
+		super(AppPortletIds.RECENT_CUSTOMERS_DISPLAY.getHelpTextId());
 	}
 	
-	public RecentInstitutionsPortlet(String helpTextId) {
+	public RecentCustomersPortlet(String helpTextId) {
 		super(helpTextId);
 	}
 	
@@ -75,10 +75,10 @@ public class RecentInstitutionsPortlet extends GridSupportPortlet<InstitutionIns
 	protected void onRender(Element parent, int index) {
 		super.onRender(parent, index);
 		
-		setHeading("Recent Institutions");
+		setHeading("Recent Customers");
 		setLayout(new FitLayout());
 		setHeight(250);
-		IconSupplier.setIcon(this, IconSupplier.getInstitutionIconName());
+		IconSupplier.setIcon(this, IconSupplier.getCustomerIconName());
 		
 		addRecentInstitutionsGrid(new FormData("100%"));
 		addFilters();
@@ -100,18 +100,12 @@ public class RecentInstitutionsPortlet extends GridSupportPortlet<InstitutionIns
 				loadFiltered(filter);
 			}
 		});
-		
-		AppEventBus.getSingleton().addListener(AppEvents.SiteAccess, new Listener<AppEvent>() {
-			public void handleEvent(AppEvent e) {
-				loadFiltered(filter);
-			}
-		});
 	}
 
 	
 	@Override
 	public String getPresenterToolTip() {
-		return "A list of the most recently accessed institutions.";
+		return "A list of the most recently accessed paying customers.";
 	}
 
 	
@@ -252,7 +246,7 @@ public class RecentInstitutionsPortlet extends GridSupportPortlet<InstitutionIns
 				};
 
 				searchSyncId = System.currentTimeMillis();
-				userCacheListService.getUserCacheTargets((PagingLoadConfig) loadConfig, null, InstitutionInstance.getUserCacheCategory(InstitutionInstance.INSTITUTION_KEY_SET), null, 0, searchSyncId, myCallback);
+				userCacheListService.getUserCacheTargets((PagingLoadConfig) loadConfig, null, InstitutionInstance.getUserCacheCategory(InstitutionInstance.CUSTOMER_KEY_SET), null, 0, searchSyncId, myCallback);
 				
 		    }  
 		};
@@ -265,7 +259,7 @@ public class RecentInstitutionsPortlet extends GridSupportPortlet<InstitutionIns
 	
 	@Override
 	public String getShortPortletName() {
-		return "Recent Institutions";
+		return "Recent Customers";
 	}
 
 	@Override

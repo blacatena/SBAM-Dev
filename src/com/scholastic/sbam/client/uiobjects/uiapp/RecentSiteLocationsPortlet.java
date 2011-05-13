@@ -44,10 +44,11 @@ import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
+import com.scholastic.sbam.shared.objects.SiteInstance;
 import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
 import com.scholastic.sbam.shared.objects.UserCacheInstance;
 
-public class RecentInstitutionsPortlet extends GridSupportPortlet<InstitutionInstance> implements AppSleeper, AppPortletRequester {
+public class RecentSiteLocationsPortlet extends GridSupportPortlet<InstitutionInstance> implements AppSleeper, AppPortletRequester {
 
 	protected final UserCacheListServiceAsync userCacheListService = GWT.create(UserCacheListService.class);
 	
@@ -63,11 +64,11 @@ public class RecentInstitutionsPortlet extends GridSupportPortlet<InstitutionIns
 	
 	protected String				filter;
 	
-	public RecentInstitutionsPortlet() {
-		super(AppPortletIds.RECENT_INSTITUTIONS_DISPLAY.getHelpTextId());
+	public RecentSiteLocationsPortlet() {
+		super(AppPortletIds.RECENT_CUSTOMERS_DISPLAY.getHelpTextId());
 	}
 	
-	public RecentInstitutionsPortlet(String helpTextId) {
+	public RecentSiteLocationsPortlet(String helpTextId) {
 		super(helpTextId);
 	}
 	
@@ -75,10 +76,10 @@ public class RecentInstitutionsPortlet extends GridSupportPortlet<InstitutionIns
 	protected void onRender(Element parent, int index) {
 		super.onRender(parent, index);
 		
-		setHeading("Recent Institutions");
+		setHeading("Recent Site Locations");
 		setLayout(new FitLayout());
 		setHeight(250);
-		IconSupplier.setIcon(this, IconSupplier.getInstitutionIconName());
+		IconSupplier.setIcon(this, IconSupplier.getSiteIconName());
 		
 		addRecentInstitutionsGrid(new FormData("100%"));
 		addFilters();
@@ -89,17 +90,6 @@ public class RecentInstitutionsPortlet extends GridSupportPortlet<InstitutionIns
 	}
 	
 	public void addAppListeners() {
-		AppEventBus.getSingleton().addListener(AppEvents.AgreementAccess, new Listener<AppEvent>() {
-			public void handleEvent(AppEvent e) {
-				loadFiltered(filter);
-			}
-		});
-		
-		AppEventBus.getSingleton().addListener(AppEvents.NewCustomer, new Listener<AppEvent>() {
-			public void handleEvent(AppEvent e) {
-				loadFiltered(filter);
-			}
-		});
 		
 		AppEventBus.getSingleton().addListener(AppEvents.SiteAccess, new Listener<AppEvent>() {
 			public void handleEvent(AppEvent e) {
@@ -111,7 +101,7 @@ public class RecentInstitutionsPortlet extends GridSupportPortlet<InstitutionIns
 	
 	@Override
 	public String getPresenterToolTip() {
-		return "A list of the most recently accessed institutions.";
+		return "A list of the most recently accessed site locations.";
 	}
 
 	
@@ -124,20 +114,53 @@ public class RecentInstitutionsPortlet extends GridSupportPortlet<InstitutionIns
 		
 		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
 		
-		ColumnConfig idCol = getDisplayColumn("intKey",					"ID #",						80,		true,	UiConstants.INTEGER_FORMAT);
-		idCol.setRenderer(new GridCellRenderer<ModelData>() {
+		ColumnConfig idColUcn = getDisplayColumn("strKey",					"UCN",						80);
+		idColUcn.setRenderer(new GridCellRenderer<ModelData>() {
+
+			  public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,  
+			      ListStore<ModelData> store, Grid<ModelData> grid) {  		  
+				  String strKey = model.get(property);
+				  String parts [] = strKey.split(":");
+				  String ucn 	= (parts.length > 0) ? parts [0] : "?";	  
+				  return "<b>" + ucn + "</b>";  
+			  }
+
+			});
+		idColUcn.setAlignment(HorizontalAlignment.RIGHT);
+		
+		columns.add(idColUcn);
+		
+		ColumnConfig idColUcnSuffix = getDisplayColumn("strKey",					"Suffix",			60);
+		idColUcnSuffix.setRenderer(new GridCellRenderer<ModelData>() {
+
+			  public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,  
+			      ListStore<ModelData> store, Grid<ModelData> grid) {  			  
+				  String strKey = model.get(property);
+				  String parts [] = strKey.split(":");
+				  String suffix = (parts.length > 1) ? parts [1] : "?";			  
+				  return "<b>" + suffix + "</b>";  
+			  }
+
+			});
+		idColUcnSuffix.setAlignment(HorizontalAlignment.RIGHT);
+		
+		columns.add(idColUcnSuffix);
+		
+		ColumnConfig idColLoc = getDisplayColumn("strKey",					"Location",					100);
+		idColLoc.setRenderer(new GridCellRenderer<ModelData>() {
 
 			  public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,  
 			      ListStore<ModelData> store, Grid<ModelData> grid) {  
-			    return "<b>"  
-			        + model.get("intKey") 
-			        + "</b>";  
-			  }  
+				  String strKey = model.get(property);
+				  String parts [] = strKey.split(":");
+				  String loc    = (parts.length > 2) ? parts [2] : "";
+				  if (loc.length() == 0)
+						  loc = "<i>All Locations</i>";
+				  return "<b>" + loc + "</b>";  
+			  }
 
-			});
-		idCol.setAlignment(HorizontalAlignment.RIGHT);
-		
-		columns.add(idCol);
+			});		
+		columns.add(idColLoc);
 		
 		columns.add(getDisplayColumn("accessDatetime",			"Accessed",					150,			true, UiConstants.APP_DATE_PLUS_TIME_FORMAT,
 		"This is the date this institution was last viewed."));
@@ -252,7 +275,7 @@ public class RecentInstitutionsPortlet extends GridSupportPortlet<InstitutionIns
 				};
 
 				searchSyncId = System.currentTimeMillis();
-				userCacheListService.getUserCacheTargets((PagingLoadConfig) loadConfig, null, InstitutionInstance.getUserCacheCategory(InstitutionInstance.INSTITUTION_KEY_SET), null, 0, searchSyncId, myCallback);
+				userCacheListService.getUserCacheTargets((PagingLoadConfig) loadConfig, null, SiteInstance.getUserCacheCategory(SiteInstance.SITE_LOCATION_KEY_SET), null, 0, searchSyncId, myCallback);
 				
 		    }  
 		};
@@ -265,7 +288,7 @@ public class RecentInstitutionsPortlet extends GridSupportPortlet<InstitutionIns
 	
 	@Override
 	public String getShortPortletName() {
-		return "Recent Institutions";
+		return "Recent Site Locations";
 	}
 
 	@Override

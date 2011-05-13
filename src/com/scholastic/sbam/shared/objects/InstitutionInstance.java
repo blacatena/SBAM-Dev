@@ -12,6 +12,9 @@ import com.scholastic.sbam.client.util.AddressFormatter;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 public class InstitutionInstance implements BeanModelTag, IsSerializable, UserCacheTarget {
+	
+	public static final int INSTITUTION_KEY_SET	= 0;
+	public static final int CUSTOMER_KEY_SET    = 1;
 
 	private static BeanModelFactory beanModelfactory;
 	
@@ -283,13 +286,15 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable, UserCa
 		return model;
 	}
 
-	public static String getUserCacheCategory() {
+	public static String getUserCacheCategory(int keySet) {
+		if (keySet == CUSTOMER_KEY_SET)
+			return "Customer";
 		return "Institution";
 	}
 
 	@Override
 	public String userCacheCategory(int keySet) {
-		return getUserCacheCategory();
+		return getUserCacheCategory(keySet);
 	}
 
 	@Override
@@ -304,6 +309,6 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable, UserCa
 	
 	@Override
 	public int userCacheKeyCount() {
-		return 1;
+		return 2;
 	}
 }

@@ -91,6 +91,31 @@ public class DbUserCache extends HibernateAccessor {
         return new ArrayList<UserCache>();
 	}
 	
+	public static List<UserCache> findFiltered(String userName, String category, Date beforeDate) {
+        try
+        {
+            Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
+            if (userName != null && userName.length() > 0)
+            	crit.add(Restrictions.like("id.userName", userName));
+            if (category != null && category.length() > 0)
+            	crit.add(Restrictions.like("id.category", category));
+            if (beforeDate != null)
+            	crit.add(Restrictions.le("accessDatetime", beforeDate));
+            
+            crit.addOrder(Order.desc("accessDatetime"));
+            
+            @SuppressWarnings("unchecked")
+			List<UserCache> objects = crit.list();
+            return objects;
+        }
+        catch(Exception e)
+        {
+        	e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return new ArrayList<UserCache>();
+	}
+	
 	public static List<UserCache> findAll() {
 		List<Object> results = findAll(objectName);
 		List<UserCache> userCaches = new ArrayList<UserCache>();

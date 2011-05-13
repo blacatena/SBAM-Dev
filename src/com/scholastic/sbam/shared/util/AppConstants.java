@@ -48,6 +48,7 @@ public class AppConstants {
 	public static final int[][] CC_SUM_TABLE = {{0,1,2,3,4,5,6,7,8,9},{0,2,4,6,8,1,3,5,7,9}};
 	public static final double	MAX_DOLLAR_VALUE = 99000000.00;		//	Ninety nine million
 	
+	public static final int		STANDARD_LOAD_LIMIT				=	500;
     
     public static boolean isLetter(char chr) {
     	return LETTERS.indexOf(Character.toLowerCase(chr)) >= 0;
