@@ -36,6 +36,9 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.UserCacheListService;
 import com.scholastic.sbam.client.services.UserCacheListServiceAsync;
+import com.scholastic.sbam.client.uiobjects.events.AppEvent;
+import com.scholastic.sbam.client.uiobjects.events.AppEventBus;
+import com.scholastic.sbam.client.uiobjects.events.AppEvents;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
 import com.scholastic.sbam.client.uiobjects.foundation.GridSupportPortlet;
 import com.scholastic.sbam.client.util.IconSupplier;
@@ -82,7 +85,17 @@ public class RecentAgreementsPortlet extends GridSupportPortlet<AgreementInstanc
 		addRecentAgreementsGrid(new FormData("100%"));
 		addFilters();
 		
+		addAppListeners();
+		
 		loadFiltered(null);
+	}
+	
+	public void addAppListeners() {
+		AppEventBus.getSingleton().addListener(AppEvents.AgreementAccess, new Listener<AppEvent>() {
+			public void handleEvent(AppEvent e) {
+				loadFiltered(filter);
+			}
+		});
 	}
 
 	

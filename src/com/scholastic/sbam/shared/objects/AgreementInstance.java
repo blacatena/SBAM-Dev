@@ -284,23 +284,34 @@ public class AgreementInstance extends BetterRowEditInstance implements BeanMode
 	}
 	
 	public static String getUserCacheCategory() {
+		return getUserCacheCategory(0);
+	}
+	
+	public static String getUserCacheCategory(int keySet) {
+		if (keySet > 0)
+			return "Institution";
 		return "Agreement";
 	}
 
 	@Override
-	public String userCacheCategory() {
-		return getUserCacheCategory();
+	public String userCacheCategory(int keySet) {
+		return getUserCacheCategory(keySet);
 	}
 
 	@Override
-	public String userCacheStringKey() {
+	public String userCacheStringKey(int keySet) {
 		return null;
 	}
 
 	@Override
-	public int userCacheIntegerKey() {
+	public int userCacheIntegerKey(int keySet) {
+		if (keySet > 0)
+			return billUcn;
 		return id;
 	}
 	
-	
+	@Override
+	public int userCacheKeyCount() {
+		return 2;
+	}
 }

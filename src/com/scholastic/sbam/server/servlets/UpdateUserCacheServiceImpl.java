@@ -21,47 +21,25 @@ public class UpdateUserCacheServiceImpl extends AuthenticatedServiceServlet impl
 	@Override
 	public String updateUserCache(UserCacheTarget instance, String hint) throws IllegalArgumentException {
 		
-		UserCache dbInstance = null;
-		
 		Authentication auth = authenticate("update user cache", SecurityManager.ROLE_QUERY);
 		
 		if (auth.getUserName() == null || auth.getUserName().length() == 0)
 			throw new IllegalArgumentException("No user name associated with user cache transaction.");
-		if (instance.userCacheCategory() == null || instance.userCacheCategory().length() == 0)
-			throw new IllegalArgumentException("No cache category associated with user cache transaction.");
-		if (instance.userCacheIntegerKey() < 0 && (instance.userCacheStringKey() == null || instance.userCacheStringKey().length() == 0))
-			throw new IllegalArgumentException("No key associated with user cache transaction.");
+		for (int i = 0; i < instance.userCacheKeyCount(); i++) {
+	 		if (instance.userCacheCategory(i) == null || instance.userCacheCategory(i).length() == 0)
+				throw new IllegalArgumentException("No cache category associated with user cache transaction.");
+			if (instance.userCacheIntegerKey(i) < 0 && (instance.userCacheStringKey(i) == null || instance.userCacheStringKey(i).length() == 0))
+				throw new IllegalArgumentException("No key associated with user cache transaction.");
+		}
 		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();
 
 		try {
 			
+			for (int keySet = 0; keySet < instance.userCacheKeyCount(); keySet++)
+				updateUserCache(auth.getUserName(), instance, keySet, hint);
 			
-			dbInstance = DbUserCache.getById(auth.getUserName(), instance.userCacheCategory(), instance.userCacheIntegerKey(), instance.userCacheStringKey());
-			
-			//	If none found, create new
-			if (dbInstance == null) {
-				dbInstance = new UserCache();
-				UserCacheId dbId = new UserCacheId();
-				dbId.setUserName(auth.getUserName());
-				dbId.setCategory(instance.userCacheCategory());
-				dbId.setIntKey(instance.userCacheIntegerKey());
-				if (instance.userCacheStringKey() == null)
-					dbId.setStrKey("");	//	Null not allowed
-				else
-					dbId.setStrKey(instance.userCacheStringKey());
-				dbInstance.setId(dbId);
-			}
-			
-			dbInstance.setAccessDatetime(new Date());
-			
-			if (hint == null)
-				hint = "";
-			dbInstance.setHint(hint);
-			
-			//	Persist in database
-			DbUserCache.persist(dbInstance);
 			
 		} catch (IllegalArgumentException exc) {
 			silentRollback();
@@ -78,6 +56,33 @@ public class UpdateUserCacheServiceImpl extends AuthenticatedServiceServlet impl
 		
 		//	There's no interaction here, so the response is irrelevant
 		return "";
+	}
+	
+	protected void updateUserCache(String userName, UserCacheTarget instance, int keySet, String hint) {
+		UserCache dbInstance = DbUserCache.getById(userName, instance.userCacheCategory(keySet), instance.userCacheIntegerKey(keySet), instance.userCacheStringKey(keySet));
+		
+		//	If none found, create new
+		if (dbInstance == null) {
+			dbInstance = new UserCache();
+			UserCacheId dbId = new UserCacheId();
+			dbId.setUserName(userName);
+			dbId.setCategory(instance.userCacheCategory(keySet));
+			dbId.setIntKey(instance.userCacheIntegerKey(keySet));
+			if (instance.userCacheStringKey(keySet) == null)
+				dbId.setStrKey("");	//	Null not allowed
+			else
+				dbId.setStrKey(instance.userCacheStringKey(keySet));
+			dbInstance.setId(dbId);
+		}
+		
+		dbInstance.setAccessDatetime(new Date());
+		
+		if (hint == null)
+			hint = "";
+		dbInstance.setHint(hint);
+		
+		//	Persist in database
+		DbUserCache.persist(dbInstance);
 	}
 	
 	private void silentRollback() {

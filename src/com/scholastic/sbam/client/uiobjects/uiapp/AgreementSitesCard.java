@@ -24,6 +24,11 @@ import com.scholastic.sbam.client.services.UpdateAgreementSiteNoteService;
 import com.scholastic.sbam.client.services.UpdateAgreementSiteNoteServiceAsync;
 import com.scholastic.sbam.client.services.UpdateAgreementSiteService;
 import com.scholastic.sbam.client.services.UpdateAgreementSiteServiceAsync;
+import com.scholastic.sbam.client.services.UpdateUserCacheService;
+import com.scholastic.sbam.client.services.UpdateUserCacheServiceAsync;
+import com.scholastic.sbam.client.uiobjects.events.AppEvent;
+import com.scholastic.sbam.client.uiobjects.events.AppEventBus;
+import com.scholastic.sbam.client.uiobjects.events.AppEvents;
 import com.scholastic.sbam.client.uiobjects.fields.EnhancedComboBox;
 import com.scholastic.sbam.client.uiobjects.fields.InstitutionSearchField;
 import com.scholastic.sbam.client.uiobjects.fields.NotesIconButtonField;
@@ -39,6 +44,7 @@ import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.SiteInstance;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
+import com.scholastic.sbam.shared.objects.UserCacheTarget;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> {
@@ -48,6 +54,7 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 	protected final AgreementSiteListServiceAsync 		agreementSiteListService 		= GWT.create(AgreementSiteListService.class);
 	protected final UpdateAgreementSiteServiceAsync		updateAgreementSiteService		= GWT.create(UpdateAgreementSiteService.class);
 	protected final UpdateAgreementSiteNoteServiceAsync	updateAgreementSiteNoteService	= GWT.create(UpdateAgreementSiteNoteService.class);
+	protected final UpdateUserCacheServiceAsync 		userCacheUpdateService			= GWT.create(UpdateUserCacheService.class);
 	
 	protected FormInnerPanel				formColumn1;
 	protected FormInnerPanel				formColumn2;
@@ -171,6 +178,8 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 
 		setNotesField(instance.getNote());
 		
+		if (instance != null)
+			registerUserCache(instance, "Site for Agreement " + AppConstants.appendCheckDigit(instance.getAgreementId()));
 //		setOriginalValues();
 	}
 	
@@ -412,6 +421,42 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 		
 	}
 
+	
+	public void registerUserCache(final UserCacheTarget target, String hint) {
+		
+		if (!AppConstants.USER_ACCESS_CACHE_ACTIVE)
+			return;
+		
+		if (target != null) {
+			userCacheUpdateService.updateUserCache(target, hint,
+					new AsyncCallback<String>() {
+						public void onFailure(Throwable caught) {
+							// In production, this might all be removed, and treated as something users don't care about
+							// Show the RPC error message to the user
+							if (caught instanceof IllegalArgumentException)
+								MessageBox.alert("Alert", caught.getMessage(), null);
+							else {
+								MessageBox.alert("Alert", "User cache update failed unexpectedly.", null);
+								System.out.println(caught.getClass().getName());
+								System.out.println(caught.getMessage());
+							}
+						}
+
+						public void onSuccess(String result) {
+							fireUserCacheUpdateEvents(target);
+						}
+				});
+		}
+	}
+	
+	public void fireUserCacheUpdateEvents(UserCacheTarget target) {
+		//	Fire an event so any listening portlets can update themselves
+		AppEvent appEvent = new AppEvent(AppEvents.SiteAccess);
+		if (target instanceof AgreementSiteInstance)
+			appEvent.set( (AgreementSiteInstance) target);
+		AppEventBus.getSingleton().fireEvent(AppEvents.SiteAccess, appEvent);
+	}
+
 	@Override
 	protected void asyncUpdate() {
 	
@@ -473,6 +518,10 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 						if (updatedAgreementSite.isNewRecord()) {
 							updatedAgreementSite.setNewRecord(false);
 							grid.getStore().insert(AgreementSiteInstance.obtainModel(updatedAgreementSite), 0);
+							//	Fire an event so any listening portlets can update themselves
+							AppEvent appEvent = new AppEvent(AppEvents.SiteAccess);
+							appEvent.set(updatedAgreementSite);
+							AppEventBus.getSingleton().fireEvent(AppEvents.SiteAccess, appEvent);
 						}
 						
 						focusInstance.setNewRecord(false);

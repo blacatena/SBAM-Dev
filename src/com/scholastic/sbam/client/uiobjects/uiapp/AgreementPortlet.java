@@ -53,6 +53,9 @@ import com.scholastic.sbam.client.services.UpdateAgreementNoteService;
 import com.scholastic.sbam.client.services.UpdateAgreementNoteServiceAsync;
 import com.scholastic.sbam.client.services.UpdateAgreementService;
 import com.scholastic.sbam.client.services.UpdateAgreementServiceAsync;
+import com.scholastic.sbam.client.uiobjects.events.AppEvent;
+import com.scholastic.sbam.client.uiobjects.events.AppEventBus;
+import com.scholastic.sbam.client.uiobjects.events.AppEvents;
 import com.scholastic.sbam.client.uiobjects.fields.AgreementLinkSearchField;
 import com.scholastic.sbam.client.uiobjects.fields.EnhancedComboBox;
 import com.scholastic.sbam.client.uiobjects.fields.InstitutionSearchField;
@@ -71,6 +74,7 @@ import com.scholastic.sbam.shared.objects.DeleteReasonInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
+import com.scholastic.sbam.shared.objects.UserCacheTarget;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> implements AppSleeper, AppPortletRequester {
@@ -288,6 +292,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		if (agreementId == 0) {
 			if (createForInstitution != null)
 				set(createForInstitution);
+			linkFieldSet.collapse();
 			beginEdit();
 		}
 	}
@@ -1051,6 +1056,15 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		else
 			return field.getValue().intValue();
 	}
+	
+	@Override
+	public void fireUserCacheUpdateEvents(UserCacheTarget target) {
+		//	Fire an event so any listening portlets can update themselves
+		AppEvent appEvent = new AppEvent(AppEvents.AgreementAccess);
+		if (target instanceof AgreementInstance)
+			appEvent.set( (AgreementInstance) target);
+		AppEventBus.getSingleton().fireEvent(AppEvents.AgreementAccess, appEvent);
+	}
 
 	protected void asyncUpdate() {
 	
@@ -1107,9 +1121,9 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 						if (updatedAgreement.isNewRecord()) {
 							updatedAgreement.setNewRecord(false);
 							if (updatedAgreement.getInstitution() == null)
-								identificationTip = "Created " + new Date();
+								identificationTip = "Agreement created " + new Date();
 							else
-								identificationTip = "Created for " + updatedAgreement.getInstitution().getInstitutionName();
+								identificationTip = "Agreement created for " + updatedAgreement.getInstitution().getInstitutionName();
 						}
 						agreement.setNewRecord(false);
 						set(updatedAgreement);

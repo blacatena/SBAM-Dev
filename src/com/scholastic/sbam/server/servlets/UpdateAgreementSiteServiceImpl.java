@@ -110,7 +110,7 @@ public class UpdateAgreementSiteServiceImpl extends AuthenticatedServiceServlet 
 				DbAgreementSite.setDescriptions(instance);
 			}
 			
-			//	Finally, record the customer in the customer cache
+			//	Finally, record the customer in the site cache
 			if (SiteInstitutionCache.getSingleton() != null) {
 				InstitutionInstance institution = instance.getSite().getInstitution();
 				if (institution == null && instance.getSiteUcn() > 0) {

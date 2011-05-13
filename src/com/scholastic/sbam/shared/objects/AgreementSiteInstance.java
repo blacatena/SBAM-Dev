@@ -9,7 +9,7 @@ import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
 import com.scholastic.sbam.shared.util.AppConstants;
 
-public class AgreementSiteInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
+public class AgreementSiteInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable, UserCacheTarget {
 
 	private static BeanModelFactory beanModelfactory;
 
@@ -258,5 +258,31 @@ public class AgreementSiteInstance extends BetterRowEditInstance implements Bean
 
 	public String toString() {
 		return "Site " + agreementId + "-" + siteUcn + "-" + siteUcnSuffix + " - " + siteLocCode;
+	}
+
+	@Override
+	public String userCacheCategory(int keySet) {
+		if (keySet > 0)
+			return "Institution";
+		return "Site";
+	}
+
+	@Override
+	public String userCacheStringKey(int keySet) {
+		if (keySet > 0)
+			return null;
+		return siteUcn + ":" + siteUcnSuffix + ":" + siteLocCode;
+	}
+
+	@Override
+	public int userCacheIntegerKey(int keySet) {
+		if (keySet > 0)
+			return siteUcn;
+		return 0;
+	}
+
+	@Override
+	public int userCacheKeyCount() {
+		return 2;
 	}
 }

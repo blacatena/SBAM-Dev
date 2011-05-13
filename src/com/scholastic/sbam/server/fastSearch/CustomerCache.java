@@ -17,7 +17,7 @@ public class CustomerCache extends InstitutionCache {
 	/**
 	 * SQL statement with a join to agreement
 	 */
-	protected static final String CUSTOMER_SQL = "SELECT DISTINCT ucn, parent_ucn, institution_name, address1, address2, address3, city, state, zip, country, phone, fax, alternate_ids FROM institution, agreement WHERE institution.ucn = agreement.bill_ucn ";
+	protected static final String CUSTOMER_SQL = "SELECT DISTINCT ucn, parent_ucn, institution_name, address1, address2, address3, city, state, zip, country, phone, fax, alternate_ids FROM institution, agreement WHERE institution.ucn = agreement.bill_ucn and agreement.status <> 'X' ";
 	
 //	public CustomerCache() {
 //		config = new InstitutionCacheConfig();

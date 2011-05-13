@@ -200,7 +200,7 @@ public abstract class AppPortlet extends Portlet {
 		updateUserPortlet();
 	}
 	
-	public void registerUserCache(UserCacheTarget target, String hint) {
+	public void registerUserCache(final UserCacheTarget target, String hint) {
 		
 		if (!AppConstants.USER_ACCESS_CACHE_ACTIVE)
 			return;
@@ -221,10 +221,17 @@ public abstract class AppPortlet extends Portlet {
 						}
 
 						public void onSuccess(String result) {
-							//	Do nothing
+							fireUserCacheUpdateEvents(target);
 						}
 				});
 		}
+	}
+	
+	/**
+	 * Override this method to fire any user cache update events for this portlet
+	 */
+	public void fireUserCacheUpdateEvents(UserCacheTarget target) {
+		
 	}
 	
 	public void registerUserPortlet(int portletId, int row, int col) {

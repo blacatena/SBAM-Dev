@@ -265,22 +265,33 @@ public class SiteInstance extends BetterRowEditInstance implements BeanModelTag,
 		return "Site " + ucn + "-" + ucnSuffix + "-" + siteLocCode;
 	}
 
-	public static String getUserCacheCategory() {
+	public static String getUserCacheCategory(int keySet) {
+		if (keySet > 0)
+			return "Institution";
 		return "SiteLocation";
 	}
 
 	@Override
-	public String userCacheCategory() {
-		return getUserCacheCategory();
+	public String userCacheCategory(int keySet) {
+		return getUserCacheCategory(keySet);
 	}
 
 	@Override
-	public String userCacheStringKey() {
+	public String userCacheStringKey(int keySet) {
+		if (keySet > 0)
+			return null;
 		return ucn + ":" + ucnSuffix + ":" + siteLocCode;
 	}
 
 	@Override
-	public int userCacheIntegerKey() {
+	public int userCacheIntegerKey(int keySet) {
+		if (keySet > 0)
+			return ucn;
 		return -1;
+	}
+	
+	@Override
+	public int userCacheKeyCount() {
+		return 2;
 	}
 }

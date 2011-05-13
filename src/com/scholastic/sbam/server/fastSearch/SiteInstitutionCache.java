@@ -17,7 +17,7 @@ public class SiteInstitutionCache extends InstitutionCache {
 	/**
 	 * SQL statement with a join to agreement
 	 */
-	protected static final String SITE_SQL = "SELECT DISTINCT ucn, parent_ucn, institution_name, address1, address2, address3, city, state, zip, country, phone, fax, alternate_ids FROM institution WHERE institution.ucn in (select distinct site_ucn from agreement_site) ";
+	protected static final String SITE_SQL = "SELECT DISTINCT ucn, parent_ucn, institution_name, address1, address2, address3, city, state, zip, country, phone, fax, alternate_ids FROM institution WHERE institution.ucn in (select distinct site_ucn from agreement_site where agreement_site.site_loc_code <> '' and agreement_site.status <> 'X' union select distinct ucn from site where site.status <> 'X') ";
 	
 //	public SiteInstitutionCache() {
 //		config = new InstitutionCacheConfig();

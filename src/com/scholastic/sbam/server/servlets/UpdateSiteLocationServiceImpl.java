@@ -8,11 +8,14 @@ import com.scholastic.sbam.server.database.codegen.Site;
 import com.scholastic.sbam.server.database.codegen.SiteId;
 import com.scholastic.sbam.server.database.codegen.SitePreference;
 import com.scholastic.sbam.server.database.codegen.SitePreferenceId;
+import com.scholastic.sbam.server.database.objects.DbInstitution;
 import com.scholastic.sbam.server.database.objects.DbPreferenceCategory;
 import com.scholastic.sbam.server.database.objects.DbSite;
 import com.scholastic.sbam.server.database.objects.DbSitePreference;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
+import com.scholastic.sbam.server.fastSearch.SiteInstitutionCache;
 import com.scholastic.sbam.server.validation.AppSiteValidator;
+import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.PreferenceCategoryInstance;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.objects.SiteInstance;
@@ -95,6 +98,16 @@ public class UpdateSiteLocationServiceImpl extends AuthenticatedServiceServlet i
 			//	DbSite.refresh(dbInstance);	// This may not be necessary, but just in case
 				instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
 				DbSite.setDescriptions(instance);
+			}
+			
+			//	Finally, record the site in the site cache
+			if (SiteInstitutionCache.getSingleton() != null) {
+				InstitutionInstance institution = instance.getInstitution();
+				if (institution == null && instance.getUcn() > 0) {
+					institution = DbInstitution.getInstance(DbInstitution.getByCode(instance.getUcn()));
+				}
+				if (institution != null)
+					SiteInstitutionCache.getSingleton().addInstitution(institution);
 			}
 			
 			updateSitePreferences(instance);

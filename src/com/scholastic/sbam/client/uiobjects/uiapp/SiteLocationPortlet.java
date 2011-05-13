@@ -45,6 +45,9 @@ import com.scholastic.sbam.client.services.UpdateSiteLocationNoteService;
 import com.scholastic.sbam.client.services.UpdateSiteLocationNoteServiceAsync;
 import com.scholastic.sbam.client.services.UpdateSiteLocationService;
 import com.scholastic.sbam.client.services.UpdateSiteLocationServiceAsync;
+import com.scholastic.sbam.client.uiobjects.events.AppEvent;
+import com.scholastic.sbam.client.uiobjects.events.AppEventBus;
+import com.scholastic.sbam.client.uiobjects.events.AppEvents;
 import com.scholastic.sbam.client.uiobjects.fields.EnhancedComboBox;
 import com.scholastic.sbam.client.uiobjects.fields.EnhancedMultiField;
 import com.scholastic.sbam.client.uiobjects.fields.InstitutionSearchField;
@@ -62,6 +65,7 @@ import com.scholastic.sbam.shared.objects.PreferenceCodeInstance;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.SiteInstance;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
+import com.scholastic.sbam.shared.objects.UserCacheTarget;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implements AppSleeper {
@@ -806,6 +810,15 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 		else
 			return field.getValue().intValue();
 	}
+	
+	@Override
+	public void fireUserCacheUpdateEvents(UserCacheTarget target) {
+		//	Fire an event so any listening portlets can update themselves
+		AppEvent appEvent = new AppEvent(AppEvents.SiteAccess);
+		if (target instanceof SiteInstance)
+			appEvent.set( (SiteInstance) target);
+		AppEventBus.getSingleton().fireEvent(AppEvents.SiteAccess, appEvent);
+	}
 
 	protected void asyncUpdate() {
 	
@@ -870,9 +883,9 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 						if (updatedSite.isNewRecord()) {
 							updatedSite.setNewRecord(false);
 							if (updatedSite.getInstitution() == null)
-								identificationTip = "Created " + new Date();
+								identificationTip = "Site created " + new Date();
 							else
-								identificationTip = "Created for " + updatedSite.getInstitution().getInstitutionName();
+								identificationTip = "Site created for " + updatedSite.getInstitution().getInstitutionName();
 						}
 						site.setNewRecord(false);
 						set(updatedSite);
