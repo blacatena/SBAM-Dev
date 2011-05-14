@@ -457,6 +457,14 @@ public class InstitutionCache implements Runnable {
 			
 			Thread.yield();
 		}
+		System.out.println(getCacheName() + " : " + pass + " :: " + count + " | " +
+				new Date() + "   |   " + 
+				searchMap.size() + " tags  |   "  + 
+				countMap.size() + " counts  |   " + 
+				(Math.round(Runtime.getRuntime().freeMemory() / 1000000d) / 1000d) + "Gb Free  |  " + 
+				(Math.round(Runtime.getRuntime().totalMemory() / 1000000d) / 1000d) + "Gb Total  |   " + 
+				(Math.round(Runtime.getRuntime().maxMemory() / 1000000d) / 1000d) + "Gb Max   ");
+		System.out.println(getCacheName() + " : " + "Pass: "+ pass + " complete.");
 		System.out.println();
 		
 		results.close();
@@ -577,17 +585,48 @@ public class InstitutionCache implements Runnable {
 		//	Add pairs of substrings, if the option is activated
 		if (config.useStringPairs && pass == 2) {
 			HashSet<String> stringPairs = new HashSet<String>();
-			for (String first : strings) {
-				if (searchMap.containsKey(first)) continue;	//	Optimization: if the string is good enough to do a search alone, then don't need the pair
-				for (String second : strings) {
-					if (searchMap.containsKey(second)) continue;	// Same here
-					if (!first.equals(second)) {
-						stringPairs.add(getFilterPair(first, second));
-					}
+			//	Make a list of strings that are okay for pairs
+			List<String> pairCandidates = new ArrayList<String>();
+			for (String string : strings) {
+				//	Optimization : skip short strings  THIS WOULD WORK FINE IF WE HAD THE MEMORY, BUT IT EATS UP TONS!!!
+				if (string.length() < config.minStringLength)
+					continue;
+				//	Optimization : skip strings that are too long and already in the list
+				if (string.length() > config.maxStringPairLength)
+					if (strings.contains(string.substring(0, config.maxStringPairLength)))
+						continue;
+				//	Optimization : skip strings that don't need pairs (i.e. they are already in the "singles" map)
+				if (!searchMap.containsKey(string))
+					pairCandidates.add(string);
+			}
+			//	Make every pair
+			for (int i = 0; i < pairCandidates.size() - 1; i++) {
+				String first = pairCandidates.get(i);
+				for (int j = i + 1; j < pairCandidates.size(); j++) {
+					String second = pairCandidates.get(j);
+					//	Optimization -- don't pair a string with variations of itself
+					if (first.length() <= second.length() && second.startsWith(first))
+						continue;
+					if (second.length() <= first.length() && first.startsWith(second))
+						continue;
+					stringPairs.add(getFilterPair(first, second));
 				}
 			}
-		//	strings.addAll(stringPairs);	// One pass method, add the string pairs to the single strings
+			//	strings.addAll(stringPairs);	// One pass method, add the string pairs to the single strings
 			strings = stringPairs;			// Two pass method, replace the single strings with the string pairs
+			
+			
+//			for (String first : strings) {
+//				if (searchMap.containsKey(first)) continue;	//	Optimization: if the string is good enough to do a search alone, then don't need the pair
+//				for (String second : strings) {
+//					if (searchMap.containsKey(second)) continue;	// Same here
+//					if (!first.equals(second)) {
+//						stringPairs.add(getFilterPair(first, second));
+//					}
+//				}
+//			}
+//		//	strings.addAll(stringPairs);	// One pass method, add the string pairs to the single strings
+//			strings = stringPairs;			// Two pass method, replace the single strings with the string pairs
 		}
 		
 		//  Add them all to the search maps
@@ -878,7 +917,7 @@ public class InstitutionCache implements Runnable {
 		if (prefix == null)
 			return new String [] {};
 		prefix = prefix.toUpperCase();
-		if (wordMap.containsKey(prefix))
+		if (wordMap.containsKey(prefix) && wordMap.get(prefix) != null)
 			return wordMap.get(prefix).toArray(new String [] {});
 		else
 			return new String [] {};

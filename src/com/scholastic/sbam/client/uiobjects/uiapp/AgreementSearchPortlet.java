@@ -18,17 +18,18 @@ import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.util.KeyNav;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
@@ -38,6 +39,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.LiveGridView;
+import com.extjs.gxt.ui.client.widget.grid.RowExpander;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
@@ -66,7 +68,7 @@ import com.scholastic.sbam.shared.util.AppConstants;
 
 public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInstance> implements AppSleeper, AppPortletRequester {
 	
-	protected static final int FILTER_LISTEN_PERIOD = 250;
+	protected static final int FILTER_LISTEN_PERIOD = 500;	//	This is a little higher, because we're doing a database scan on the back end, so it's not very fast
 	
 	protected final AgreementSearchServiceAsync		agreementSearchService  = GWT.create(AgreementSearchService.class);
 	protected final AgreementGetServiceAsync    	agreementGetService    = GWT.create(AgreementGetService.class);
@@ -77,8 +79,10 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 	protected Grid<ModelData>		grid;
 	protected LiveGridView			liveView;
 	
+	protected RowExpander			noteExpander;
+	
 	protected ListStore<ModelData>	store;
-	protected ComboBox<ModelData>	combo;
+	protected TextField<String>		filterField;
 	protected Timer					filterListenTimer;
 	protected String				filter = "";
 	
@@ -132,6 +136,7 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 		setThis();
 		addGrid();
 		setFilter();
+		initializeFilter();
 		
 		outerContainer.add(searchPanel);
 		
@@ -162,6 +167,10 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 		return "Search for agreements.";
 	}
 	
+	public void initializeFilter() {
+		filterField.setValue(filter);
+	}
+	
 	private void createDisplayCard() {
 		FormData formData = new FormData("100%");
 		displayCard = new FormPanel();
@@ -179,6 +188,9 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 				@Override
 				protected void onClick(ComponentEvent ce) {
 					cards.setActiveItem(searchPanel);
+					focusAgreement = null;
+					focusAgreementId = 0;
+					updateUserPortlet();
 					updatePresenterLabel();
 				}
 			};
@@ -384,10 +396,10 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 		
 		toolBar.add(new LabelToolItem("Filter by: "));
 		
-		TextField<String> filter = getFilterBox();
-		filter.getAriaSupport().setLabelledBy(toolBar.getItem(0).getId());
+		filterField = getFilterBox();
+		filterField.getAriaSupport().setLabelledBy(toolBar.getItem(0).getId());
 //		filter.setRawValue(filter);
-		toolBar.add(filter);
+		toolBar.add(filterField);
 		
 		searchPanel.setTopComponent(toolBar);
 	}
@@ -446,7 +458,7 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 		columns.add(getDisplayColumn("billUcn",							"Bill To UCN",		80));  
 		columns.add(getDisplayColumn("institution.institutionName",		"Institution",		150));   
 		columns.add(getDisplayColumn("agreementLinkId",					"Link #",			80,		false, UiConstants.INTEGER_FORMAT));
-		columns.add(getDisplayColumn("agreementTypeDescription",		"Type",				100));		
+		columns.add(getDisplayColumn("agreementTypeCode",				"Type",				100));		
 		
 		//	Hidden institution columns
 		columns.add(getHiddenColumn("institution.country",				"Country",			50));    
@@ -460,6 +472,9 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 		columns.add(getHiddenColumn("institution.closedDate",			"Closed",		 	70,		true, UiConstants.APP_DATE_TIME_FORMAT)); 
 		columns.add(getHiddenColumn("institution.alternateIds",			"Alternate IDs", 	100,	true));
 		
+		noteExpander = getNoteExpander();
+		columns.add(noteExpander);
+		
 		ColumnModel cm = new ColumnModel(columns);  
 
 		grid = new Grid<ModelData>(store, cm);  
@@ -470,15 +485,8 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 		grid.setColumnLines(true);
 		
 		//	Switch to the display card when a row is selected
-		grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);  
-		grid.getSelectionModel().addListener(Events.SelectionChange,  
-				new Listener<SelectionChangedEvent<ModelData>>() {  
-					public void handleEvent(SelectionChangedEvent<ModelData> be) {  
-						if (be.getSelection().size() > 0) {
-							showAgreement((BeanModel) be.getSelectedItem());
-						} 
-					}  
-			});  
+		grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); 
+		addRowListener(grid);
 
 		liveView = new LiveGridView();  
 		liveView.setEmptyText("Enter filter criteria to search for agreements.");
@@ -487,8 +495,46 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 		grid.setView(liveView);
 //		grid.setHeight(550);
 		grid.getAriaSupport().setLabelledBy(this.getHeader().getId() + "-label"); 
-		searchPanel.add(grid);   
+		
+		addGridPlugins(grid);
+		
+		searchPanel.add(grid);
 		  
+	}
+	
+	public void addGridPlugins(Grid<ModelData> grid) {
+		grid.addPlugin(noteExpander);
+	}
+	
+	protected void addRowListener(Grid<?> grid) {
+		grid.addListener(Events.RowClick, new Listener<GridEvent<?>>() {
+		      public void handleEvent(GridEvent<?> be) {
+		    	  onRowSelected(be);
+		      }
+		    });
+		grid.addListener(Events.SelectionChange, new Listener<GridEvent<?>>() {
+		      public void handleEvent(GridEvent<?> be) {
+		    	  onRowSelected(be);
+		      }
+		    });
+		
+		new KeyNav<GridEvent<?>>(grid) {
+		      @Override
+		      public void onUp(GridEvent<?> ce) {
+		        onRowSelected((BeanModel) ce.getGrid().getSelectionModel().getSelectedItem());
+		      }
+		      
+		      @Override
+		      public void onDown(GridEvent<?> ce) {
+	        	onRowSelected((BeanModel) ce.getGrid().getSelectionModel().getSelectedItem());
+		      }
+		    };
+	}
+	
+	@Override
+	public void onRowSelected(BeanModel beanModel) {
+		if (beanModel != null)
+			showAgreement(beanModel);
 	}
 	
 	protected void setThis() {
@@ -585,7 +631,8 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 	}
 	
 	public void setFilterParameters(LoadConfig loadConfig) {
-		loadConfig.set("id", filter);
+		loadConfig.set("filter", filter);
+//		loadConfig.set("id", filter);
 	}
  	
 	public void invokeSearchService(PagingLoadConfig loadConfig, AgreementInstance sample, long searchSyncId, AsyncCallback<SynchronizedPagingLoadResult<AgreementInstance>> myCallback) {
@@ -697,11 +744,11 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 		if (keyData == null)
 			return;
 		
-		String oldFilter = null;
-		String oldUcn    = null;
+		String oldFilter		= null;
+		String oldAgreementId   = null;
 		
 		if (keyData.indexOf(':') >= 0) {
-			oldUcn = keyData.substring(0, keyData.indexOf(':'));
+			oldAgreementId = keyData.substring(0, keyData.indexOf(':'));
 			oldFilter = keyData.substring(keyData.indexOf(':') + 1);
 		}
 		if (oldFilter != null && oldFilter.trim().length() > 0) {
@@ -709,9 +756,9 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 //			loadFiltered(parts [1]);
 		}
 		
-		if (oldUcn != null && oldUcn.length() > 0) {
+		if (oldAgreementId != null && oldAgreementId.length() > 0) {
 			try {
-				focusAgreementId = Integer.parseInt(oldUcn);
+				focusAgreementId = Integer.parseInt(oldAgreementId);
 			} catch (NumberFormatException e) {
 				return;
 			}

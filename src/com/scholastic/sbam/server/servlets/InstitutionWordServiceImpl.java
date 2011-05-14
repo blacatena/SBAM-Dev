@@ -63,6 +63,9 @@ public class InstitutionWordServiceImpl extends AuthenticatedServiceServlet impl
 			exc.printStackTrace();
 		}
 		
+		if (result == null)
+			result = new BasePagingLoadResult<FilterWordInstance>(new ArrayList<FilterWordInstance>(), loadConfig.getOffset(), 0);
+		
 		return result;
 	}
 	

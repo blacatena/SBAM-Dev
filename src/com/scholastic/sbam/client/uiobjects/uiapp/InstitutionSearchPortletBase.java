@@ -77,7 +77,7 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 	protected LiveGridView			liveView;
 	
 	protected ListStore<ModelData>	store;
-	protected ComboBox<ModelData>	combo;
+	protected ComboBox<ModelData>	filterCombo;
 	protected Timer					filterListenTimer;
 	protected String				filter = "";
 	
@@ -163,7 +163,7 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 		if (filter.length() > 0) {
 			ModelData model = new BaseModelData();
 			model.set("word", filter);
-			combo.setValue(model);
+			filterCombo.setValue(model);
 		}
 	}
 	
@@ -407,23 +407,23 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 		
 		ListStore<ModelData> wordStore = new ListStore<ModelData>(loader);  
 		
-		combo = new ComboBox<ModelData>();  
-		combo.setWidth(250); 
-		combo.setDisplayField("word");  
-		combo.setEmptyText("Enter search criteria here...");
-		combo.setStore(wordStore);
-		combo.setMinChars(1);
-		combo.setHideTrigger(true);  
-		combo.setPageSize(10);
-		combo.setAllowBlank(true);
-		combo.setEditable(true);
+		filterCombo = new ComboBox<ModelData>();  
+		filterCombo.setWidth(250); 
+		filterCombo.setDisplayField("word");  
+		filterCombo.setEmptyText("Enter search criteria here...");
+		filterCombo.setStore(wordStore);
+		filterCombo.setMinChars(1);
+		filterCombo.setHideTrigger(true);  
+		filterCombo.setPageSize(10);
+		filterCombo.setAllowBlank(true);
+		filterCombo.setEditable(true);
 //		combo.setTypeAhead(true);
 		
 //		addComboListeners();			// This method sends messages by listening for keypresses
 		
-		setFilterListenTimer(combo);	// This method sends messages using a timer... it is less responsive, but so bothers the server less, and is a little more reliable
+		setFilterListenTimer(filterCombo);	// This method sends messages using a timer... it is less responsive, but so bothers the server less, and is a little more reliable
 		
-		return combo;
+		return filterCombo;
 	}
 
 //	This method was abandoned, because the key press fires before the combo field value is changed, and change fires only after the user hits tab or return

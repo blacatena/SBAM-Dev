@@ -32,7 +32,8 @@ public class AgreementSearchServiceImpl extends AuthenticatedServiceServlet impl
 		authenticate("search agreements", SecurityManager.ROLE_QUERY);
 		
 		List<AgreementInstance> list = new ArrayList<AgreementInstance>();
-		
+
+		String filter				= config.get("filter") != null ? config.get("filter").toString() : null;
 		String agreementId			= getAgreementId(config, sampleInstance);
 		String billUcn				= getBillUcn(config, sampleInstance);
 		String linkId				= getLinkId(config, sampleInstance);
@@ -43,7 +44,8 @@ public class AgreementSearchServiceImpl extends AuthenticatedServiceServlet impl
 		&&	billUcn				== null
 		&&  linkId				== null
 		&& 	agreementTypeCode	== null
-		&&	note 			 	== null)
+		&&	note 			 	== null
+		&&  filter				== null)
 			return new SynchronizedPagingLoadResult<AgreementInstance>(list, 0, 0, syncId); 
 		
 		HibernateUtil.openSession();
@@ -51,7 +53,11 @@ public class AgreementSearchServiceImpl extends AuthenticatedServiceServlet impl
 		
 		try {
 			
-			List<Agreement> agreements = DbAgreement.findFiltered(agreementId, billUcn, linkId, agreementTypeCode, note);
+			List<Agreement> agreements;
+			if (filter != null)
+				agreements = DbAgreement.findFiltered(filter, AppConstants.STATUS_DELETED);
+			else
+				agreements = DbAgreement.findFiltered(agreementId, billUcn, linkId, agreementTypeCode, note);
 			
 			int loadLimit = AppConstants.STANDARD_LOAD_LIMIT;
 			if (config.get("limit") != null && config.get("limit") instanceof Integer)

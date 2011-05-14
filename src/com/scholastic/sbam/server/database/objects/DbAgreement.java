@@ -88,6 +88,106 @@ public class DbAgreement extends HibernateAccessor {
         return new ArrayList<Agreement>();
 	}
 	
+	public static List<Agreement> findFiltered(String filter, char neStatus) {
+        try
+        {
+        	if (filter == null || filter.trim().length() == 0)
+        		return new ArrayList<Agreement>();
+        	
+        	//	Create a list of numeric and alphanumeric components
+        	List<String> numbers = new ArrayList<String>();
+        	List<String> words   = new ArrayList<String>();
+        	filter = filter.trim().toUpperCase();
+        	StringBuffer term = new StringBuffer();
+        	boolean numeric = true;
+        	boolean quotes = false;
+        	for (int i = 0; i < filter.length(); i++) {
+        		char it = filter.charAt(i);
+        		if (it == '"') {
+        			if (quotes) {
+        				quotes = false;
+        				if (term.length() > 0) {
+                			if (numeric)
+                				numbers.add(term.toString());
+                			else
+                				words.add(term.toString());
+                			term = new StringBuffer();
+                		}
+        			} else
+        				quotes = true;
+        		} else if (AppConstants.LETTERS_ALL.indexOf(it) >= 0) {
+        			numeric = false;
+        			term.append(it);
+        		} else if (AppConstants.DIGITS.indexOf(it) >= 0) {
+        			term.append(it);
+        		} else if (quotes) {
+        			term.append(it);
+        			numeric = false;
+        		} else if (term.length() > 0) {
+        			if (numeric)
+        				numbers.add(term.toString());
+        			else
+        				words.add(term.toString());
+        			term = new StringBuffer();
+        			numeric = true;
+        		}
+        	}
+        	if (term.length() > 0) {
+    			if (numeric)
+    				numbers.add(term.toString());
+    			else
+    				words.add(term.toString());
+    		}
+        		
+        	String sqlQuery = "SELECT agreement.* FROM agreement WHERE `status` <> '" + neStatus + "' ";
+        	
+        	if (numbers.size() > 0) {
+	        	sqlQuery += " AND ( ";
+	        	for (int i = 0; i < numbers.size(); i++) {
+	        		if (i > 0) sqlQuery += " OR ";
+	        		String numberLike = " like '%" + numbers.get(i) + "%' ";
+	        		sqlQuery += " id" + numberLike + "OR";
+	        		sqlQuery += " bill_ucn" + numberLike + "OR";
+	        		sqlQuery += " agreement_link_id" + numberLike + "OR";
+	        		sqlQuery += " note" + numberLike + "OR";
+	        		sqlQuery += " agreement_type_code" + numberLike; 
+	        	}
+	        	sqlQuery += " ) ";
+        	}
+        	
+        	if (words.size() > 0) {
+        		sqlQuery += " AND ( ";
+        		for (int i = 0; i < words.size(); i++) {
+        			if (i > 0) sqlQuery += " OR ";
+        			String wordLike = " like '%" + words.get(i) + "%' ";
+        			sqlQuery += " note" + wordLike;
+        			//	Only apply it to agreement type code if it's a word, not a phrase (i.e. no blanks)
+        			if (words.get(i).indexOf(' ') < 0)
+        				sqlQuery += " OR agreement_type_code" + wordLike;
+        		}
+        		sqlQuery += " ) ";
+        	}
+        	
+//        	System.out.println(sqlQuery);
+        	
+            sqlQuery += " order by id";
+            
+            SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery);
+            
+            query.addEntity(getObjectReference(objectName));
+            
+            @SuppressWarnings("unchecked")
+			List<Agreement> objects = query.list();
+            return objects;
+        }
+        catch(Exception e)
+        {
+        	e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return new ArrayList<Agreement>();
+	}
+	
 	public static List<Agreement> findFiltered(String agreementId, String billUcn, String agreementLinkId, String agreementTypeCode, String note) {
 		return findFiltered(agreementId, billUcn, agreementLinkId, agreementTypeCode, note, AppConstants.STATUS_DELETED);
 	}
