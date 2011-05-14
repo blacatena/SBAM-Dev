@@ -778,7 +778,7 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 
 	/**
 	 * Load the institution for the agreement
-	 * @param ucn
+	 * @param ucnField
 	 */
 	protected void loadPreferenceCategories() {
 		preferenceCategoryListService.getPreferenceCategories(null, true,

@@ -578,14 +578,16 @@ public class InstitutionCache implements Runnable {
 		if (config.useStringPairs && pass == 2) {
 			HashSet<String> stringPairs = new HashSet<String>();
 			for (String first : strings) {
+				if (searchMap.containsKey(first)) continue;	//	Optimization: if the string is good enough to do a search alone, then don't need the pair
 				for (String second : strings) {
+					if (searchMap.containsKey(second)) continue;	// Same here
 					if (!first.equals(second)) {
 						stringPairs.add(getFilterPair(first, second));
 					}
 				}
 			}
-		//	strings.addAll(stringPairs);
-			strings = stringPairs;
+		//	strings.addAll(stringPairs);	// One pass method, add the string pairs to the single strings
+			strings = stringPairs;			// Two pass method, replace the single strings with the string pairs
 		}
 		
 		//  Add them all to the search maps

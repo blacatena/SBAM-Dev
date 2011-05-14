@@ -31,17 +31,25 @@ public class AgreementSearchServiceImpl extends AuthenticatedServiceServlet impl
 	
 		authenticate("search agreements", SecurityManager.ROLE_QUERY);
 		
+		List<AgreementInstance> list = new ArrayList<AgreementInstance>();
+		
+		String agreementId			= getAgreementId(config, sampleInstance);
+		String billUcn				= getBillUcn(config, sampleInstance);
+		String linkId				= getLinkId(config, sampleInstance);
+		String agreementTypeCode	= getAgreementTypeCode(config, sampleInstance);
+		String note					= getNote(config, sampleInstance);
+		
+		if (agreementId			== null
+		&&	billUcn				== null
+		&&  linkId				== null
+		&& 	agreementTypeCode	== null
+		&&	note 			 	== null)
+			return new SynchronizedPagingLoadResult<AgreementInstance>(list, 0, 0, syncId); 
+		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();
 		
-		List<AgreementInstance> list = new ArrayList<AgreementInstance>();
-		
 		try {
-			String agreementId			= getAgreementId(config, sampleInstance);
-			String billUcn				= getBillUcn(config, sampleInstance);
-			String linkId				= getLinkId(config, sampleInstance);
-			String agreementTypeCode	= getAgreementTypeCode(config, sampleInstance);
-			String note					= getNote(config, sampleInstance);
 			
 			List<Agreement> agreements = DbAgreement.findFiltered(agreementId, billUcn, linkId, agreementTypeCode, note);
 			
@@ -69,6 +77,7 @@ public class AgreementSearchServiceImpl extends AuthenticatedServiceServlet impl
 					}
 					
 					loadTerms(agreement);
+					list.add(agreement);
 				}
 			}
 

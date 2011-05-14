@@ -126,7 +126,7 @@ public class AppNavTree {
 	  custSrch.add(new SelectionTreeNode("Contacts", 			IconSupplier.getContactsIconName()));
 	  
 	  Folder agreeSrch = new Folder("Agreements", IconSupplier.getAgreementIconName());
-	  agreeSrch.add(new SelectionTreeNode("Agreement", 			IconSupplier.getAgreementIconName()));
+	  agreeSrch.add(new SelectionTreeNode("Agreement", 			AppPortletIds.AGREEMENT_SEARCH));
 	  agreeSrch.add(new SelectionTreeNode("Product Terms", 		IconSupplier.getAgreementTermIconName()));
 	  agreeSrch.add(new SelectionTreeNode("Sites", 				IconSupplier.getSiteIconName()));
 	  agreeSrch.add(new SelectionTreeNode("Methods", 			IconSupplier.getAccessMethodIconName()));

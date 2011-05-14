@@ -8,6 +8,7 @@ public enum AppPortletIds {
 	FULL_INSTITUTION_SEARCH		("Full Institution Search", 	IconSupplier.getInstitutionIconName(),		"InstitutionSearch"	, 	InstitutionSearchPortlet.class.getName()),
 	CUSTOMER_SEARCH				("Customer Search", 			IconSupplier.getCustomerIconName(),			"CustomerSearch"	, 	CustomerSearchPortlet.class.getName()),
 	SITE_INSTITUTION_SEARCH		("Site Institution Search", 	IconSupplier.getSiteIconName(),				"SiteIntitutionSearch", SiteInstitutionSearchPortlet.class.getName()),
+	AGREEMENT_SEARCH			("Agreement Search", 			IconSupplier.getAgreementIconName(),		"AgreementSearch", 		AgreementSearchPortlet.class.getName()),
 	AGREEMENT_DISPLAY			("Agreement Display", 			IconSupplier.getAgreementIconName(),		"AgreementDisplay"	, 	AgreementPortlet.class.getName()),
 	SITE_LOCATION_DISPLAY		("Site Location Display", 		IconSupplier.getSiteIconName(),				"SiteLocationDisplay", 	SiteLocationPortlet.class.getName()),
 	RECENT_AGREEMENTS_DISPLAY	("Recent Agreements", 			IconSupplier.getAgreementIconName(),		"RecentAgreements"	, 	RecentAgreementsPortlet.class.getName()),

@@ -89,20 +89,57 @@ public class DbAgreement extends HibernateAccessor {
 	}
 	
 	public static List<Agreement> findFiltered(String agreementId, String billUcn, String agreementLinkId, String agreementTypeCode, String note) {
+		return findFiltered(agreementId, billUcn, agreementLinkId, agreementTypeCode, note, AppConstants.STATUS_DELETED);
+	}
+	
+	public static List<Agreement> findFiltered(String agreementId, String billUcn, String agreementLinkId, String agreementTypeCode, String note, char neStatus) {
+        try
+        {
+        	String sqlQuery = "SELECT agreement.* FROM agreement WHERE `status` <> '" + neStatus + "' ";
+            if (agreementId != null && agreementId.length() > 0)
+            	sqlQuery += " AND id like '%" + agreementId + "%' ";
+            if (billUcn != null && billUcn.length() > 0)
+            	sqlQuery += " AND billUcn like '%" + billUcn + "%'";
+            if (agreementLinkId != null && agreementLinkId.length() > 0)
+            	sqlQuery += " AND agreementLinkId like '%" + agreementLinkId + "%'";
+            if (agreementTypeCode != null && agreementTypeCode.length() > 0)
+            	sqlQuery += " AND agreementTypeCode like '%" + agreementTypeCode + "%'";
+            if (note != null && note.length() > 0)
+            	sqlQuery += " AND note like '%" + note + "%'";
+            
+            sqlQuery += " order by id";
+            
+            SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery);
+            
+            query.addEntity(getObjectReference(objectName));
+            
+            @SuppressWarnings("unchecked")
+			List<Agreement> objects = query.list();
+            return objects;
+        }
+        catch(Exception e)
+        {
+        	e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return new ArrayList<Agreement>();
+	}
+	
+	public static List<Agreement> findFiltered(int agreementId, int billUcn, int agreementLinkId, String agreementTypeCode, String note) {
         try
         {
             Criteria crit = sessionFactory.getCurrentSession().createCriteria(Agreement.class);
-            if (agreementId != null && agreementId.length() > 0)
-            	crit.add(Restrictions.like("id", "%" + agreementId + "%"));
-            if (billUcn != null && billUcn.length() > 0)
-            	crit.add(Restrictions.like("billUcn", "%" + billUcn + "%"));
-            if (agreementLinkId != null && agreementLinkId.length() > 0)
-            	crit.add(Restrictions.like("agreementLinkId", "%" + agreementLinkId + "%"));
+            if (agreementId > 0)
+            	crit.add(Restrictions.like("id", agreementId));
+            if (billUcn > 0)
+            	crit.add(Restrictions.like("billUcn", billUcn));
+            if (agreementLinkId > 0)
+            	crit.add(Restrictions.like("agreementLinkId", agreementLinkId));
             if (agreementTypeCode != null && agreementTypeCode.length() > 0)
             	crit.add(Restrictions.like("agreementTypeCode", "%" + agreementTypeCode + "%"));
             if (note != null && note.length() > 0)
             	crit.add(Restrictions.like("note", "%" + note + "%"));
-            crit.addOrder(Order.asc("agreementId"));
+            crit.addOrder(Order.asc("id"));
             @SuppressWarnings("unchecked")
 			List<Agreement> objects = crit.list();
             return objects;
