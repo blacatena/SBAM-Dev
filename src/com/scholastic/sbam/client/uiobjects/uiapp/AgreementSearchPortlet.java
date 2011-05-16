@@ -444,7 +444,7 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 		agreementLoader.setSortDir(SortDir.ASC);  
 		agreementLoader.setSortField("id");  
 
-		agreementLoader.setRemoteSort(true);  
+		agreementLoader.setRemoteSort(false);
 
 		store = new ListStore<ModelData>(agreementLoader); 
  
@@ -465,7 +465,7 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 		columns.add(getDisplayColumn("idCheckDigit",					"Agreement #",		80));  
 		columns.add(getDisplayColumn("billUcn",							"Bill To UCN",		80));  
 		columns.add(getDisplayColumn("institution.institutionName",		"Institution",		150));   
-		columns.add(getDisplayColumn("agreementLinkId",					"Link #",			80,		true, UiConstants.INTEGER_FORMAT));
+		columns.add(getDisplayColumn("agreementLinkId",					"Link #",			80,		true, UiConstants.BLANK_WHILE_ZERO));
 		columns.add(getDisplayColumn("agreementTypeCode",				"Type",				60));
 		columns.add(getDisplayColumn("currentValue",					"Value",			50,		true,  UiConstants.DOLLARS_FORMAT));
 		columns.add(getDisplayColumn("exipire",							"Expires",		 	70,		true, UiConstants.APP_DATE_TIME_FORMAT)); 
@@ -665,6 +665,7 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 	}
  	
 	public void invokeSearchService(PagingLoadConfig loadConfig, AgreementInstance sample, long searchSyncId, AsyncCallback<SynchronizedPagingLoadResult<AgreementInstance>> myCallback) {
+		grid.mask("Searching for agreements...");
 		agreementSearchService.searchAgreements((PagingLoadConfig) loadConfig, sample, true, searchSyncId, myCallback);
 	}
 

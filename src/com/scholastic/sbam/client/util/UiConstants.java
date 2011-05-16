@@ -52,6 +52,7 @@ public class UiConstants {
 	public static final DateTimeFormat	APP_DATE_PLUS_TIME_FORMAT		= DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_MEDIUM);
 	public static final CurrencyData	US_DOLLARS						= new DefaultCurrencyData("840", "$");
 	public static final NumberFormat	INTEGER_FORMAT					= NumberFormat.getFormat("#");
+	public static final NumberFormat	BLANK_WHILE_ZERO				= NumberFormat.getFormat("BWZ");
 	public static final NumberFormat	DOLLARS_FORMAT					= NumberFormat.getCurrencyFormat(US_DOLLARS);
 	
 	/**

@@ -42,6 +42,11 @@ public class DbAgreement extends HibernateAccessor {
 		instance.setBillUcn(dbInstance.getBillUcn());
 		instance.setBillUcnSuffix(dbInstance.getBillUcnSuffix());
 		instance.setAgreementTypeCode(dbInstance.getAgreementTypeCode());
+		instance.setAgreementLinkId(dbInstance.getAgreementLinkId());
+		instance.setBuildings(dbInstance.getBuildings());
+		instance.setEnrollment(dbInstance.getEnrollment());
+		instance.setPopulation(dbInstance.getPopulation());
+		instance.setWorkstations(dbInstance.getWorkstations());
 		instance.setCommissionCode(dbInstance.getCommissionCode());
 		instance.setDeleteReasonCode(instance.getDeleteReasonCode());
 		instance.setOrgPath(dbInstance.getOrgPath());
