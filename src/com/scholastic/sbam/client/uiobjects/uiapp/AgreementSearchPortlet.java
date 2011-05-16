@@ -40,6 +40,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridView;
 import com.extjs.gxt.ui.client.widget.grid.RowExpander;
+import com.extjs.gxt.ui.client.widget.grid.filters.DateFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
 import com.extjs.gxt.ui.client.widget.grid.filters.NumericFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
@@ -468,7 +469,7 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 		columns.add(getDisplayColumn("agreementLinkId",					"Link #",			80,		true, UiConstants.BLANK_WHILE_ZERO));
 		columns.add(getDisplayColumn("agreementTypeCode",				"Type",				60));
 		columns.add(getDisplayColumn("currentValue",					"Value",			50,		true,  UiConstants.DOLLARS_FORMAT));
-		columns.add(getDisplayColumn("exipire",							"Expires",		 	70,		true, UiConstants.APP_DATE_TIME_FORMAT)); 
+		columns.add(getDisplayColumn("expireDate",						"Expires",		 	70,		true, UiConstants.APP_DATE_TIME_FORMAT)); 
 		
 		//	Hidden institution columns
 		columns.add(getHiddenColumn("institution.country",				"Country",			50));    
@@ -523,10 +524,12 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 		columnFilters.setAutoReload(false);
 		
 		columnFilters.addFilter(new NumericFilter("idCheckDigit"));
+		columnFilters.addFilter(new NumericFilter("agrementLinkId"));
 		columnFilters.addFilter(new NumericFilter("billUcn"));
 		columnFilters.addFilter(new NumericFilter("currentValue"));
-//		filters.addFilter(new DateFilter("start"));
+		columnFilters.addFilter(new DateFilter("expireDate"));
 		columnFilters.addFilter(new StringFilter("institution.institutionName"));
+		columnFilters.addFilter(new StringFilter("agreementTypeCode"));
 		
 		grid.addPlugin(columnFilters);
 	}
