@@ -38,14 +38,16 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.grid.LiveGridView;
+import com.extjs.gxt.ui.client.widget.grid.GridView;
 import com.extjs.gxt.ui.client.widget.grid.RowExpander;
+import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
+import com.extjs.gxt.ui.client.widget.grid.filters.NumericFilter;
+import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.LiveToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.core.client.GWT;
@@ -68,6 +70,7 @@ import com.scholastic.sbam.shared.util.AppConstants;
 
 public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInstance> implements AppSleeper, AppPortletRequester {
 	
+	protected static final int LOAD_LIMIT			= AppConstants.STANDARD_LOAD_LIMIT;
 	protected static final int FILTER_LISTEN_PERIOD = 500;	//	This is a little higher, because we're doing a database scan on the back end, so it's not very fast
 	
 	protected final AgreementSearchServiceAsync		agreementSearchService  = GWT.create(AgreementSearchService.class);
@@ -77,7 +80,8 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 	protected ContentPanel			searchPanel;
 	protected FormPanel				displayCard;
 	protected Grid<ModelData>		grid;
-	protected LiveGridView			liveView;
+//	protected LiveGridView			liveView;		LiveView removed because local filters don't work with it
+	protected GridView				gridView;
 	
 	protected RowExpander			noteExpander;
 	
@@ -85,6 +89,7 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 	protected TextField<String>		filterField;
 	protected Timer					filterListenTimer;
 	protected String				filter = "";
+	protected GridFilters			columnFilters;
 	
 	protected PagingLoader<PagingLoadResult<AgreementInstance>> agreementLoader;
 
@@ -145,6 +150,8 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 		
 		if (focusAgreementId > 0)
 			loadAgreement(focusAgreementId);
+		if (filter != null && filter.length() > 0)
+			loadFiltered(filter);
 	}
 	
 	public void setPortletRenderValues() {
@@ -388,9 +395,10 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 		toolBar.setAlignment(HorizontalAlignment.LEFT);
 		toolBar.getAriaSupport().setLabel("Filters");
 
-		LiveToolItem item = new LiveToolItem();  
-		item.bindGrid(grid); 
-		toolBar.add(item);  
+//		LiveToolItem removed because it requires a LiveGridView, which doesn't allow for local filtering
+//		LiveToolItem item = new LiveToolItem();  
+//		item.bindGrid(grid); 
+//		toolBar.add(item);  
 		
 		toolBar.add(new FillToolItem());  
 		
@@ -407,7 +415,7 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 	protected TextField<String> getFilterBox() {
 
 		TextField<String> filterField = new TextField<String>();  
-		filterField.setWidth(250); 
+		filterField.setWidth(350); 
 		filterField.setEmptyText("Enter search criteria here...");
 		
 		setFilterListenTimer(filterField);	// This method sends messages using a timer... it is less responsive, but so bothers the server less, and is a little more reliable
@@ -438,7 +446,7 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 
 		agreementLoader.setRemoteSort(true);  
 
-		store = new ListStore<ModelData>(agreementLoader);  
+		store = new ListStore<ModelData>(agreementLoader); 
  
 		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();  
 		     
@@ -457,8 +465,10 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 		columns.add(getDisplayColumn("idCheckDigit",					"Agreement #",		80));  
 		columns.add(getDisplayColumn("billUcn",							"Bill To UCN",		80));  
 		columns.add(getDisplayColumn("institution.institutionName",		"Institution",		150));   
-		columns.add(getDisplayColumn("agreementLinkId",					"Link #",			80,		false, UiConstants.INTEGER_FORMAT));
-		columns.add(getDisplayColumn("agreementTypeCode",				"Type",				100));		
+		columns.add(getDisplayColumn("agreementLinkId",					"Link #",			80,		true, UiConstants.INTEGER_FORMAT));
+		columns.add(getDisplayColumn("agreementTypeCode",				"Type",				60));
+		columns.add(getDisplayColumn("currentValue",					"Value",			50,		true,  UiConstants.DOLLARS_FORMAT));
+		columns.add(getDisplayColumn("exipire",							"Expires",		 	70,		true, UiConstants.APP_DATE_TIME_FORMAT)); 
 		
 		//	Hidden institution columns
 		columns.add(getHiddenColumn("institution.country",				"Country",			50));    
@@ -487,19 +497,38 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 		//	Switch to the display card when a row is selected
 		grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); 
 		addRowListener(grid);
+		
+		addLocalGridFilters();
 
-		liveView = new LiveGridView();  
-		liveView.setEmptyText("Enter filter criteria to search for agreements.");
-		liveView.setCacheSize(100);
-//		liveView.setRowHeight(32);
-		grid.setView(liveView);
-//		grid.setHeight(550);
+//		LiveGridView replaced with GridView because local filters don't work with a LiveGridView
+//		liveView = new LiveGridView();  
+//		liveView.setEmptyText("Enter filter criteria to search for agreements.");
+//		liveView.setCacheSize(100);
+//		grid.setView(liveView);
+		
+		gridView = new GridView();
+		gridView.setEmptyText("Enter filter criteria to search for agreements.");
+		grid.setView(gridView);
 		grid.getAriaSupport().setLabelledBy(this.getHeader().getId() + "-label"); 
 		
 		addGridPlugins(grid);
 		
 		searchPanel.add(grid);
 		  
+	}
+	
+	protected void addLocalGridFilters() {
+		columnFilters = new GridFilters();  
+		columnFilters.setLocal(true);
+		columnFilters.setAutoReload(false);
+		
+		columnFilters.addFilter(new NumericFilter("idCheckDigit"));
+		columnFilters.addFilter(new NumericFilter("billUcn"));
+		columnFilters.addFilter(new NumericFilter("currentValue"));
+//		filters.addFilter(new DateFilter("start"));
+		columnFilters.addFilter(new StringFilter("institution.institutionName"));
+		
+		grid.addPlugin(columnFilters);
 	}
 	
 	public void addGridPlugins(Grid<ModelData> grid) {
@@ -538,28 +567,10 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 	}
 	
 	protected void setThis() {
-//		this.setFrame(true);  
-//		this.setCollapsible(true);  
-//		this.setAnimCollapse(false);  
-//		this.setIcon(Resources.ICONS.table()); 
 		this.setLayout(new FitLayout());
 		this.setHeight(forceHeight);
 		IconSupplier.setIcon(this, IconSupplier.getAgreementIconName());
-//		this.setSize(grid.getWidth() + 50, 400);  
 	}
-	
-//	/**
-//	 * Clear the contents of the grid, and display the live text message.  NOT WORKING
-//	 * @param message
-//	 */
-//	protected void clearAgreements(String message) {
-//		liveView.setEmptyText(message);
-//		filter=(combo.getRawValue() == null)?"":combo.getRawValue();
-//	//	liveView.refresh();
-//		store.removeAll();
-//		store.commitChanges();
-//		liveView.refresh(false);	// THIS WON'T CLEAR THE GRID!!!  WHY NOT?
-//	}
 	
 	/**
 	 * Instigate an asynchronous load with a filter value.
@@ -607,31 +618,49 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 						PagingLoadResult<AgreementInstance> result = syncResult.getResult();
 						if ( result.getData() == null || result.getData().size() == 0 ) {
 							if (result.getTotalLength() > 0)
-								liveView.setEmptyText(result.getTotalLength() + " agreements qualify (too many to display).<br/>Please enter filter criteria to narrow your search.");
+								gridView.setEmptyText(result.getTotalLength() + " agreements qualify (too many to display).<br/>Please enter filter criteria to narrow your search.");
 							else if (filter.length() == 0)
-								liveView.setEmptyText("Enter filter criteria to search for agreements.");
+								gridView.setEmptyText("Enter filter criteria to search for agreements.");
 							else
-								liveView.setEmptyText("Please enter filter criteria to narrow your search.");
+								gridView.setEmptyText("Please enter filter criteria to narrow your search.");
 						}
 						callback.onSuccess(result);
 					}
 				};
 
+//				final List<Filter> saveFilters = columnFilters.getFilterData();
+//				columnFilters.clearFilters();
+				
 				searchSyncId = System.currentTimeMillis();
+				System.out.println( ( (LoadConfig) loadConfig).getProperties());
 				setFilterParameters( (LoadConfig) loadConfig );
 				invokeSearchService((PagingLoadConfig) loadConfig, null, searchSyncId, myCallback);
-				
 		    }  
 		};
 		BeanModelReader reader = new BeanModelReader();
 		
 		// loader and store  
-		PagingLoader<PagingLoadResult<AgreementInstance>> loader = new BasePagingLoader<PagingLoadResult<AgreementInstance>>(proxy, reader);
+		PagingLoader<PagingLoadResult<AgreementInstance>> loader = new BasePagingLoader<PagingLoadResult<AgreementInstance>>(proxy, reader)
+//			Use the below code if filtering will be done on the server site
+//			{  
+//		      @Override  
+//		      protected Object newLoadConfig() {  
+//		        BasePagingLoadConfig config = new BaseFilterPagingLoadConfig();  
+//		        return config;  
+//		      }  
+//		    }
+		;
 		return loader;
 	}
 	
+	/**
+	 * Set any parameters to be passed to the backend service (through loadConfig properties) from any fields.
+	 * 
+	 * @param loadConfig
+	 */
 	public void setFilterParameters(LoadConfig loadConfig) {
 		loadConfig.set("filter", filter);
+		loadConfig.set("limit", LOAD_LIMIT);
 //		loadConfig.set("id", filter);
 	}
  	

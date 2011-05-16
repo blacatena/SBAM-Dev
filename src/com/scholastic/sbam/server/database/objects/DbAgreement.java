@@ -147,6 +147,7 @@ public class DbAgreement extends HibernateAccessor {
 	        		if (i > 0) sqlQuery += " OR ";
 	        		String numberLike = " like '%" + numbers.get(i) + "%' ";
 	        		sqlQuery += " id" + numberLike + "OR";
+	        		sqlQuery += " id_check_digit" + numberLike + "OR";
 	        		sqlQuery += " bill_ucn" + numberLike + "OR";
 	        		sqlQuery += " agreement_link_id" + numberLike + "OR";
 	        		sqlQuery += " note" + numberLike + "OR";

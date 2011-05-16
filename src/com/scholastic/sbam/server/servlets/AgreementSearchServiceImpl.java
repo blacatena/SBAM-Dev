@@ -116,6 +116,11 @@ public class AgreementSearchServiceImpl extends AuthenticatedServiceServlet impl
 					chosenDate.setTime(dbAgreementTerm.getEndDate());
 					chosenPath = dbAgreementTerm.getPrimaryOrgPath();
 				}
+				if (dbAgreementTerm.getEndDate() != null)
+					if (agreement.getExpireDate() == null)
+						agreement.setExpireDate(dbAgreementTerm.getEndDate());
+					else if (dbAgreementTerm.getEndDate().after(agreement.getExpireDate()))
+						agreement.setExpireDate(dbAgreementTerm.getEndDate());
 				
 
 		}

@@ -31,6 +31,7 @@ public class AgreementInstance extends BetterRowEditInstance implements BeanMode
 	private boolean	active;
 	private Date	createdDatetime;
 	
+	private Date	expireDate;
 	private double	currentValue;
 
 	private AgreementTypeInstance	agreementType;
@@ -213,6 +214,14 @@ public class AgreementInstance extends BetterRowEditInstance implements BeanMode
 
 	public void setCurrentValue(double currentValue) {
 		this.currentValue = currentValue;
+	}
+
+	public Date getExpireDate() {
+		return expireDate;
+	}
+
+	public void setExpireDate(Date expireDate) {
+		this.expireDate = expireDate;
 	}
 
 	public AgreementTypeInstance getAgreementType() {
