@@ -137,12 +137,16 @@ public abstract class GridSupportPortlet<I> extends FieldSupportPortlet {
 	}
 	
 	protected RowExpander getNoteExpander() {
-		XTemplate tpl = XTemplate.create("<div class=\"noteMargin\"><div class=\"noteText\"><b>Note:</b> {note}</div></div>");  
+		return getNoteExpander("note");
+	}
+	
+	protected RowExpander getNoteExpander(final String noteField) {
+		XTemplate tpl = XTemplate.create("<div class=\"noteMargin\"><div class=\"noteText\"><b>Note:</b> {" + noteField + "}</div></div>");  
 
 		RowExpander noteExpander = new RowExpander() {
 			@Override
 			protected void onMouseDown(GridEvent<?> e) {
-				if (e.getModel() != null && e.getModel().get("note") != null && e.getModel().get("note").toString().length() > 0) {
+				if (e.getModel() != null && e.getModel().get(noteField) != null && e.getModel().get(noteField).toString().length() > 0) {
 					super.onMouseDown(e);
 				}
 			}
@@ -157,7 +161,7 @@ public abstract class GridSupportPortlet<I> extends FieldSupportPortlet {
 			@Override
 			public Object render(final BeanModel model, final String property, final ColumnData config, final int rowIndex,
 					final int colIndex, final ListStore<BeanModel> store, final Grid<BeanModel> grid) {
-				boolean hasNote = (model.get("note") != null && model.get("note").toString().length() > 0);
+				boolean hasNote = (model.get(noteField) != null && model.get(noteField).toString().length() > 0);
 				config.style = "";
 //				config.id = "note" + ( (int) (Math.random() * 100000) );
 				if (hasNote) {

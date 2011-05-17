@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated May 10, 2011 5:37:29 PM by Hibernate Tools 3.2.4.GA
+// Generated May 16, 2011 3:06:06 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -14,6 +14,7 @@ public class Agreement implements java.io.Serializable {
 	private int billUcn;
 	private int billUcnSuffix;
 	private int agreementLinkId;
+	private int linkIdCheckDigit;
 	private String agreementTypeCode;
 	private String commissionCode;
 	private int workstations;
@@ -30,14 +31,16 @@ public class Agreement implements java.io.Serializable {
 	}
 
 	public Agreement(int idCheckDigit, int billUcn, int billUcnSuffix,
-			int agreementLinkId, String agreementTypeCode,
-			String commissionCode, int workstations, int buildings,
-			int population, int enrollment, String deleteReasonCode,
-			String orgPath, String note, Date createdDatetime, char status) {
+			int agreementLinkId, int linkIdCheckDigit,
+			String agreementTypeCode, String commissionCode, int workstations,
+			int buildings, int population, int enrollment,
+			String deleteReasonCode, String orgPath, String note,
+			Date createdDatetime, char status) {
 		this.idCheckDigit = idCheckDigit;
 		this.billUcn = billUcn;
 		this.billUcnSuffix = billUcnSuffix;
 		this.agreementLinkId = agreementLinkId;
+		this.linkIdCheckDigit = linkIdCheckDigit;
 		this.agreementTypeCode = agreementTypeCode;
 		this.commissionCode = commissionCode;
 		this.workstations = workstations;
@@ -89,6 +92,14 @@ public class Agreement implements java.io.Serializable {
 
 	public void setAgreementLinkId(int agreementLinkId) {
 		this.agreementLinkId = agreementLinkId;
+	}
+
+	public int getLinkIdCheckDigit() {
+		return this.linkIdCheckDigit;
+	}
+
+	public void setLinkIdCheckDigit(int linkIdCheckDigit) {
+		this.linkIdCheckDigit = linkIdCheckDigit;
 	}
 
 	public String getAgreementTypeCode() {

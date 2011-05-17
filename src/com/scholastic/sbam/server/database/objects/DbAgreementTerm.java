@@ -1,9 +1,12 @@
 package com.scholastic.sbam.server.database.objects;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Criteria;
+import org.hibernate.SQLQuery;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
@@ -19,6 +22,7 @@ import com.scholastic.sbam.shared.objects.CancelReasonInstance;
 import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
 import com.scholastic.sbam.shared.objects.ProductInstance;
 import com.scholastic.sbam.shared.objects.TermTypeInstance;
+import com.scholastic.sbam.shared.util.AppConstants;
 
 /**
  * Sample database table accessor class, extending HibernateAccessor, and implementing custom get/find methods.
@@ -130,6 +134,92 @@ public class DbAgreementTerm extends HibernateAccessor {
         return objects.get(0).getId().getTermId() + 1;
 	}
 	
+	public static List<Object []> findFiltered(String filter, char neStatus) {
+		return findFiltered(filter, null, null, null, neStatus);
+	}
+	
+	public static List<Object []> findFiltered(String filter, String dateType, Date fromDate, Date toDate, char neStatus) {
+        try
+        {
+        	if (filter == null || filter.trim().length() == 0 || dateType == null || fromDate == null || toDate == null)
+        		return new ArrayList<Object []>();
+        	
+        	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        	String fromDateStr = "'" + format.format(fromDate) + "'";	//fromDate.getDate() + "-" + fromDate.getMonth() + "-" + fromDate.getYear();
+        	String toDateStr = "'" + format.format(toDate) + "'";		//toDate.getDate() + "-" + toDate.getMonth() + "-" + toDate.getYear();
+        		
+        	AppConstants.TypedTerms typedTerms = AppConstants.parseTypedFilterTerms(filter);
+        		
+        	String sqlQuery = "SELECT {agreement.*}, {agreement_term.*}, {product.*} FROM agreement, agreement_term, product WHERE agreement.`status` <> '" + neStatus + "' " +
+        						" AND agreement_term.status <> '" + neStatus + "' " +
+        						" AND agreement.id = agreement_term.agreement_id " + 
+        						" AND agreement_term.product_code = product.product_code ";
+        	
+        	if (dateType != null) {
+        		if ("start".equalsIgnoreCase(dateType)) {
+        			sqlQuery += " AND start_date >= " + fromDateStr;
+        			sqlQuery += " AND start_date <= " + toDateStr + " ";
+        		} else if ("end".equalsIgnoreCase(dateType)) {
+        			sqlQuery += " AND end_date >= " + fromDateStr;
+        			sqlQuery += " AND end_date <= " + toDateStr + " ";
+        		} else if ("terminate".equalsIgnoreCase(dateType)) {
+        			sqlQuery += " AND terminate_date >= " + fromDateStr;
+        			sqlQuery += " AND terminate_date <= " + toDateStr + " ";
+        		} else if ("within".equalsIgnoreCase(dateType)) {
+        			sqlQuery += " AND start_date >= " + fromDateStr;
+        			sqlQuery += " AND (end_date is null || end_date <= " + toDateStr + ") ";
+        		}
+        	}
+        	
+        	if (typedTerms.getNumbers().size() > 0) {
+	        	sqlQuery += " AND ( ";
+	        	for (int i = 0; i < typedTerms.getNumbers().size(); i++) {
+	        		if (i > 0) sqlQuery += " OR ";
+	        		String numberLike = " like '%" + typedTerms.getNumbers().get(i) + "%' ";
+	        		sqlQuery += " agreement.id" + numberLike;
+	        		sqlQuery += " OR agreement.id_check_digit" + numberLike;
+	        		sqlQuery += " OR agreement_term.dollar_value" + numberLike;
+	        		sqlQuery += " OR agreement_term.note" + numberLike;
+	        	}
+	        	sqlQuery += " ) ";
+        	}
+        	
+        	if (typedTerms.getWords().size() > 0) {
+        		sqlQuery += " AND ( ";
+        		for (int i = 0; i < typedTerms.getWords().size(); i++) {
+        			if (i > 0) sqlQuery += " OR ";
+        			String wordLike = " like '%" + typedTerms.getWords().get(i) + "%' ";
+        			sqlQuery += " agreement_term.note" + wordLike;
+        			sqlQuery += " OR product.description" + wordLike;
+        			//	Only apply it to product code if it's a word, not a phrase (i.e. no blanks)
+        			if (typedTerms.getWords().get(i).indexOf(' ') < 0)
+        				sqlQuery += " OR product.product_code" + wordLike;
+        		}
+        		sqlQuery += " ) ";
+        	}
+        	
+ //       	System.out.println(sqlQuery);
+        	
+            sqlQuery += " order by agreement_term.agreement_id, agreement_term.start_date, agreement_term.end_date, product.description";
+            
+            SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery);
+            
+            query.addEntity("agreement",		getObjectReference("Agreement"));
+            query.addEntity("agreement_term",	getObjectReference("AgreementTerm"));
+            query.addEntity("product",			getObjectReference("Product"));
+            
+            @SuppressWarnings("unchecked")
+			List<Object []> objects = query.list();
+            return objects;
+        }
+        catch(Exception e)
+        {
+        	e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return new ArrayList<Object []>();
+	}
+	
 	public static void setDescriptions(AgreementTermInstance agreementTerm) {
 		if (agreementTerm == null)
 			return;
@@ -168,11 +258,14 @@ public class DbAgreementTerm extends HibernateAccessor {
 			
 		
 		if (agreementTerm.getProductCode() != null && agreementTerm.getProductCode().length() > 0) {
-			Product product = DbProduct.getByCode(agreementTerm.getProductCode());
-			if (product != null) {
-				agreementTerm.setProduct(DbProduct.getInstance(product));
-			} else {
-				agreementTerm.setProduct(ProductInstance.getUnknownInstance(agreementTerm.getProductCode()));
+			//	Optimization, in case product has already been properly set through another query
+			if (agreementTerm.getProduct() == null || !agreementTerm.getProductCode().equals(agreementTerm.getProduct().getProductCode())) {
+				Product product = DbProduct.getByCode(agreementTerm.getProductCode());
+				if (product != null) {
+					agreementTerm.setProduct(DbProduct.getInstance(product));
+				} else {
+					agreementTerm.setProduct(ProductInstance.getUnknownInstance(agreementTerm.getProductCode()));
+				}
 			}
 		} else
 			agreementTerm.setProduct(ProductInstance.getEmptyInstance());

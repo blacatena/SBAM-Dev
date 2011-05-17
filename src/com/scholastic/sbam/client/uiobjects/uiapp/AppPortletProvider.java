@@ -76,6 +76,8 @@ public class AppPortletProvider {
 			portlet = new SiteInstitutionSearchPortlet();
 		else if (id == AppPortletIds.AGREEMENT_SEARCH)
 			portlet = new AgreementSearchPortlet();
+		else if (id == AppPortletIds.AGREEMENT_TERM_SEARCH)
+			portlet = new AgreementTermSearchPortlet();
 		else if (id == AppPortletIds.SITE_LOCATION_DISPLAY)
 			portlet = new SiteLocationPortlet();
 		else if (id == AppPortletIds.AGREEMENT_DISPLAY)

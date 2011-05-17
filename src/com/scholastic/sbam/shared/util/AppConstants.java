@@ -1,8 +1,11 @@
 package com.scholastic.sbam.shared.util;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 public class AppConstants {
+	
 	public static final String VERSION = "0.0.7dev";
 	public static final String VERSION_DESCRIPTION = "In Development.";
 	
@@ -50,6 +53,30 @@ public class AppConstants {
 	
 	public static final int		STANDARD_LOAD_LIMIT				=	500;
     
+	public static class TypedTerms {
+		private List<String>	words;
+		private List<String>	numbers;
+		
+		public TypedTerms(List<String> words, List<String> numbers) {
+			this.words = words;
+			this.numbers = numbers;
+		}
+		
+		public List<String> getWords() {
+			return words;
+		}
+		public void setWords(List<String> words) {
+			this.words = words;
+		}
+		public List<String> getNumbers() {
+			return numbers;
+		}
+		public void setNumbers(List<String> numbers) {
+			this.numbers = numbers;
+		}
+	}
+	
+	
     public static boolean isLetter(char chr) {
     	return LETTERS.indexOf(Character.toLowerCase(chr)) >= 0;
     }
@@ -181,5 +208,57 @@ public class AppConstants {
 		if (status == STATUS_EXPIRED)		return "Expired";
 		if (status == STATUS_ANY_NONE)		return "Unknown";
 		return "Bad Status " + status;
+	}
+	
+	public static TypedTerms parseTypedFilterTerms(String filter) {
+		if (filter == null || filter.length() == 0)
+			return null;
+		
+//		Create a list of numeric and alphanumeric components
+    	List<String> numbers = new ArrayList<String>();
+    	List<String> words   = new ArrayList<String>();
+    	filter = filter.trim().toUpperCase();
+    	StringBuffer term = new StringBuffer();
+    	boolean numeric = true;
+    	boolean quotes = false;
+    	for (int i = 0; i < filter.length(); i++) {
+    		char it = filter.charAt(i);
+    		if (it == '"') {
+    			if (quotes) {
+    				quotes = false;
+    				if (term.length() > 0) {
+            			if (numeric)
+            				numbers.add(term.toString());
+            			else
+            				words.add(term.toString());
+            			term = new StringBuffer();
+            		}
+    			} else
+    				quotes = true;
+    		} else if (AppConstants.LETTERS_ALL.indexOf(it) >= 0) {
+    			numeric = false;
+    			term.append(it);
+    		} else if (AppConstants.DIGITS.indexOf(it) >= 0) {
+    			term.append(it);
+    		} else if (quotes) {
+    			term.append(it);
+    			numeric = false;
+    		} else if (term.length() > 0) {
+    			if (numeric)
+    				numbers.add(term.toString());
+    			else
+    				words.add(term.toString());
+    			term = new StringBuffer();
+    			numeric = true;
+    		}
+    	}
+    	if (term.length() > 0) {
+			if (numeric)
+				numbers.add(term.toString());
+			else
+				words.add(term.toString());
+		}
+    	
+    	return new TypedTerms(words, numbers);
 	}
 }

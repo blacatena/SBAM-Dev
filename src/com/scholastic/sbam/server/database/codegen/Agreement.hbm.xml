@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated May 10, 2011 5:37:29 PM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated May 16, 2011 3:06:07 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.Agreement" table="agreement" catalog="sbam">
         <id name="id" type="java.lang.Integer">
@@ -20,6 +20,11 @@
         <property name="agreementLinkId" type="int">
             <column name="agreement_link_id" not-null="true">
                 <comment>A field to link together related Agreements for organization purposes</comment>
+            </column>
+        </property>
+        <property name="linkIdCheckDigit" type="int">
+            <column name="link_id_check_digit" not-null="true">
+                <comment>This version of the field is included purely for search purposes</comment>
             </column>
         </property>
         <property name="agreementTypeCode" type="string">

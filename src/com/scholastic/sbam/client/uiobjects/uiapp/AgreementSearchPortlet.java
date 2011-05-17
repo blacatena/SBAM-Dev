@@ -466,9 +466,9 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 		columns.add(getDisplayColumn("idCheckDigit",					"Agreement #",		80));  
 		columns.add(getDisplayColumn("billUcn",							"Bill To UCN",		80));  
 		columns.add(getDisplayColumn("institution.institutionName",		"Institution",		150));   
-		columns.add(getDisplayColumn("agreementLinkId",					"Link #",			80,		true, UiConstants.BLANK_WHILE_ZERO));
+		columns.add(getDisplayColumn("linkIdCheckDigit",				"Link #",			80,		true, UiConstants.BLANK_WHILE_ZERO));
 		columns.add(getDisplayColumn("agreementTypeCode",				"Type",				60));
-		columns.add(getDisplayColumn("currentValue",					"Value",			50,		true,  UiConstants.DOLLARS_FORMAT));
+		columns.add(getDisplayColumn("currentValue",					"Value",			50,		true, UiConstants.DOLLARS_FORMAT));
 		columns.add(getDisplayColumn("expireDate",						"Expires",		 	70,		true, UiConstants.APP_DATE_TIME_FORMAT)); 
 		
 		//	Hidden institution columns
@@ -635,7 +635,6 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 //				columnFilters.clearFilters();
 				
 				searchSyncId = System.currentTimeMillis();
-				System.out.println( ( (LoadConfig) loadConfig).getProperties());
 				setFilterParameters( (LoadConfig) loadConfig );
 				invokeSearchService((PagingLoadConfig) loadConfig, null, searchSyncId, myCallback);
 		    }  

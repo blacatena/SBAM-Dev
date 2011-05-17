@@ -135,6 +135,12 @@ public class AgreementInstance extends BetterRowEditInstance implements BeanMode
 	public void setAgreementLinkId(int agreementLinkId) {
 		this.agreementLinkId = agreementLinkId;
 	}
+	
+	public int getLinkIdCheckDigit() {
+		if (agreementLinkId <= 0)
+			return 0;
+		return AppConstants.appendCheckDigit(agreementLinkId);
+	}
 
 	public String getAgreementTypeCode() {
 		return agreementTypeCode;

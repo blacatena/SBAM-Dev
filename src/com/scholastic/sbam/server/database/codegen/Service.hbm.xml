@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated May 10, 2011 5:37:29 PM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated May 16, 2011 3:06:07 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.Service" table="service" catalog="sbam">
         <id name="serviceCode" type="string">

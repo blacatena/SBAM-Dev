@@ -432,6 +432,19 @@ public class UiConstants {
 		
 		return list;
 	}
+	
+	public static ListStore<BeanModel> getGenericCodeStore(String [] [] values) {
+		ListStore<BeanModel> list = new ListStore<BeanModel>();
+		list.setKeyProvider(new SimpleKeyProvider("code"));
+		
+		GenericCodeInstance instance;
+		
+		for (int i = 0; i < values.length; i++) {
+			instance = new GenericCodeInstance(values [i] [0], values [i] [1]);
+			list.add(GenericCodeInstance.obtainModel(instance));
+		}
+		return list;
+	}
 
 	public static ToolTipConfig getQuickTip(String toolTip) {
 		ToolTipConfig config = new ToolTipConfig();
