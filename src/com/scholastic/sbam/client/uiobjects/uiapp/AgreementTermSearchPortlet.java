@@ -24,6 +24,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.util.DateWrapper;
 import com.extjs.gxt.ui.client.util.KeyNav;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
@@ -452,15 +453,18 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 		toolBar.add(new LabelToolItem("Type: "));
 		toolBar.add(dateTypeField);
 		
+		//	We have to do this to synchronize the times because for setMinDate/setMaxDate does it.
+		Date todayDate = getTodayDate();
+		todayDate = new DateWrapper(todayDate).resetTime().asDate();
 		
 		fromDateField = FieldFactory.getBoundDateField("From");
-		fromDateField.setValue(new Date());
+		fromDateField.setValue(todayDate);
 		fromDateField.enable();
 		toolBar.add(new LabelToolItem("From: "));
 		toolBar.add(fromDateField);
 		
 		toDateField = FieldFactory.getBoundDateField("To");
-		toDateField.setValue(new Date());
+		toDateField.setValue(todayDate);
 		toDateField.enable();toolBar.add(new LabelToolItem("To: "));
 		toolBar.add(toDateField);
 		
@@ -478,6 +482,19 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 		toolBar.add(filterField);
 		
 		searchPanel.setTopComponent(toolBar);
+	}
+	
+	public Date getTodayDate() {
+		Date today = new Date();
+		
+		DateTimeFormat format = DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_MEDIUM);	//field.getPropertyEditor().getFormat();
+
+	    try {
+		    String value = format.format(today);
+	    	return format.parse(value);	//	field.getPropertyEditor().convertStringValue(value);
+	    } catch (Exception e) {
+	    	return new Date();
+	    }
 	}
 	
 	protected TextField<String> getFilterBox() {
@@ -545,6 +562,9 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 		columns.add(getDisplayColumn("agreementTerm.dollarValue",				"Value",			50,		true, UiConstants.DOLLARS_FORMAT));
 		columns.add(getDisplayColumn("agreementTerm.startDate",					"Start",		 	70,		true, UiConstants.APP_DATE_TIME_FORMAT)); 
 		columns.add(getDisplayColumn("agreementTerm.endDate",					"End",			 	70,		true, UiConstants.APP_DATE_TIME_FORMAT)); 
+
+		//	Hidden agreement term columns
+		columns.add(getHiddenColumn("agreementTerm.terminateDate",				"Start",		 	70,		true, UiConstants.APP_DATE_TIME_FORMAT)); 
 		
 		//	Hidden institution columns
 		columns.add(getHiddenColumn("agreement.institution.state",						"State",			50));

@@ -3,10 +3,16 @@ package com.scholastic.sbam.shared.objects;
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+/**
+ * A tuple of an agreement term with its parent agreement.
+ * 
+ * @author Bob Lacatena
+ *
+ */
 public class AgreementTermTuple implements BeanModelTag, IsSerializable, UserCacheTarget {
 	
 	public static final int AGREEMENT_KEY_SET		=	0;
-	public static final int AGREEMENT_TERM_KEY_SET	=	1;
+//	public static final int AGREEMENT_TERM_KEY_SET	=	1;
 	
 	AgreementInstance		agreement;
 	AgreementTermInstance	agreementTerm;
@@ -35,8 +41,8 @@ public class AgreementTermTuple implements BeanModelTag, IsSerializable, UserCac
 	}
 	
 	public static String getUserCacheCategory(int keySet) {
-		if (keySet == AGREEMENT_KEY_SET)
-			return "Agreement";
+//		if (keySet == AGREEMENT_TERM_KEY_SET)
+//			return "AgreementTerm";
 		return "AgreementTerm";
 	}
 
@@ -52,14 +58,14 @@ public class AgreementTermTuple implements BeanModelTag, IsSerializable, UserCac
 
 	@Override
 	public int userCacheIntegerKey(int keySet) {
-		if (keySet > 0)
-			return agreementTerm.getTermId();
+//		if (keySet == AGREMENT_TERM_KEY_SET)
+//			return agreementTerm.getTermId();
 		return agreement.getId();
 	}
 	
 	@Override
 	public int userCacheKeyCount() {
-		return 2;
+		return 1;	// AGREEMENT_TERM_SET_KEY is turned off!!!!
 	}
 	
 }

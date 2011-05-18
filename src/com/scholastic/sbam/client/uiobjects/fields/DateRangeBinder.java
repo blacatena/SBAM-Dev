@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.google.gwt.i18n.client.DateTimeFormat;
 
 public class DateRangeBinder implements DateFieldsBinder {
 	
@@ -66,11 +67,13 @@ public class DateRangeBinder implements DateFieldsBinder {
 		for (DateField loDate : loDates) {
 			if (loDate.getValue() != null) {
 				if (minDate == null) {
-					minDate = new Date();
-					minDate.setTime(loDate.getValue().getTime());
+					minDate = getValue(loDate);
+//					minDate = new Date();
+//					minDate.setTime(loDate.getValue().getTime());
 				} else {
 					if (loDate.getValue().after(minDate))
-						minDate.setTime(loDate.getValue().getTime());
+						minDate = getValue(loDate);
+//						minDate.setTime(loDate.getValue().getTime());
 				}
 			}
 		}
@@ -104,6 +107,19 @@ public class DateRangeBinder implements DateFieldsBinder {
 				loDate.setMaxValue(maxDate);
 			}
 		}
+	}
+	
+	public Date getValue(DateField field) {
+
+	    DateTimeFormat format = field.getPropertyEditor().getFormat();
+
+	    try {
+	    	return field.getPropertyEditor().convertStringValue(format.format(field.getValue()));
+	    } catch (Exception e) {
+	    	Date date = new Date();
+			date.setTime(field.getValue().getTime());
+	      return field.getValue();
+	    }
 	}
 
 	public List<BoundDateField> getLoDates() {

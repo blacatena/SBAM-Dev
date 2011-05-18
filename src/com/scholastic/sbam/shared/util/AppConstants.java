@@ -1,8 +1,11 @@
 package com.scholastic.sbam.shared.util;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+
+import com.google.gwt.user.datepicker.client.CalendarUtil;
 
 public class AppConstants {
 	
@@ -260,5 +263,19 @@ public class AppConstants {
 		}
     	
     	return new TypedTerms(words, numbers);
+	}
+	
+	/**
+	 * Return a date given a start date and a number of days.
+	 * @param date
+	 * @param days
+	 * @return
+	 */
+	public Date getDatePlusDays(Date date, int days) {
+//		long newTime = date.getTime() + (days * (24 * 60 * 60 * 1000));
+		Date newDate = new Date();
+		newDate.setTime(date.getTime());
+		CalendarUtil.addDaysToDate(newDate, days);
+		return newDate;
 	}
 }

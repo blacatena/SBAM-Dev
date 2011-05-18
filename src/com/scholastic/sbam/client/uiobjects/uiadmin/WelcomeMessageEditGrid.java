@@ -219,7 +219,7 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 	    expires = new DateField();
 	    expires.setName("expireDate");
 	    expires.setFieldLabel("Expires");
-	    expires.setMinValue(new Date());
+//	    expires.setMinValue(new Date());			No.  Have to allow for older dates.
 	    expires.setMinLength(0);
 	    expires.setMessageTarget("tooltip");
 	    expires.setToolTip("Select a date after which this message will no longer display on the Welcome tab.");
