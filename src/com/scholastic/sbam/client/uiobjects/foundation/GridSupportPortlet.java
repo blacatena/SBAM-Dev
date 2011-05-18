@@ -216,7 +216,7 @@ public abstract class GridSupportPortlet<I> extends FieldSupportPortlet {
 	}
 	
 	protected void onRowSelected(GridEvent<?> be) {
-		if (selectWithNoteExpand || !be.getTarget().getClassName().equals("x-grid3-row-expander") || !hasNote(be.getModel()))
+		if (selectWithNoteExpand || !be.getTarget().getClassName().equals("x-grid3-row-expander"))	// || !hasNote(be.getModel())) <-- doesn't work unless the field is named "note", so skip this test
 			onRowSelected((BeanModel) be.getModel());
 		// else do nothing... handled later by RowExpander
 	}

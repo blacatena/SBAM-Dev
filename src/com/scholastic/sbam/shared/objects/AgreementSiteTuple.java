@@ -9,19 +9,19 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  * @author Bob Lacatena
  *
  */
-public class AgreementTermTuple implements BeanModelTag, IsSerializable, UserCacheTarget {
+public class AgreementSiteTuple implements BeanModelTag, IsSerializable, UserCacheTarget {
 	
 	public static final int AGREEMENT_KEY_SET		=	0;
-//	public static final int AGREEMENT_TERM_KEY_SET	=	1;
+//	public static final int AGREEMENT_SITE_KEY_SET	=	1;
 	
 	AgreementInstance		agreement;
-	AgreementTermInstance	agreementTerm;
+	AgreementSiteInstance	agreementSite;
 
-	public AgreementTermTuple() {
+	public AgreementSiteTuple() {
 	}
-	public AgreementTermTuple(AgreementInstance agreement, AgreementTermInstance agreementTerm) {
+	public AgreementSiteTuple(AgreementInstance agreement, AgreementSiteInstance agreementSite) {
 		this.agreement		= agreement;
-		this.agreementTerm	= agreementTerm;
+		this.agreementSite	= agreementSite;
 	}
 	public AgreementInstance getAgreement() {
 		return agreement;
@@ -29,17 +29,20 @@ public class AgreementTermTuple implements BeanModelTag, IsSerializable, UserCac
 	public void setAgreement(AgreementInstance agreement) {
 		this.agreement = agreement;
 	}
-	public AgreementTermInstance getAgreementTerm() {
-		return agreementTerm;
+	public AgreementSiteInstance getAgreementSite() {
+		return agreementSite;
 	}
-	public void setAgreementTerm(AgreementTermInstance agreementTerm) {
-		this.agreementTerm = agreementTerm;
+	public void setAgreementSite(AgreementSiteInstance agreementSite) {
+		this.agreementSite = agreementSite;
 	}
-	public String getAgreementTermNote() {
-		return agreementTerm.getNote();
+	public String getAgreementSiteNote() {
+		return agreementSite.getNote();
 	}
 	public String getAgreementNote() {
 		return agreement.getNote();
+	}
+	public String getSiteNote() {
+		return agreementSite.getSite().getNote();
 	}
 	
 	public static String getUserCacheCategory() {
@@ -47,8 +50,8 @@ public class AgreementTermTuple implements BeanModelTag, IsSerializable, UserCac
 	}
 	
 	public static String getUserCacheCategory(int keySet) {
-//		if (keySet == AGREEMENT_TERM_KEY_SET)
-//			return "AgreementTerm";
+//		if (keySet == AGREEMENT_SITE_KEY_SET)
+//			return "AgreementSite";
 		return "Agreement";
 	}
 
@@ -64,8 +67,8 @@ public class AgreementTermTuple implements BeanModelTag, IsSerializable, UserCac
 
 	@Override
 	public int userCacheIntegerKey(int keySet) {
-//		if (keySet == AGREMENT_TERM_KEY_SET)
-//			return agreementTerm.getTermId();
+//		if (keySet == AGREMENT_SITE_KEY_SET)
+//			return agreementSite.getSiteId();
 		return agreement.getId();
 	}
 	

@@ -100,15 +100,23 @@ public class DbSite extends HibernateAccessor {
 	}
 	
 	public static void setDescriptions(SiteInstance site) {
+		setDescriptions(site, null);
+	}
+	
+	public static void setDescriptions(SiteInstance site, InstitutionInstance institution) {
 		if (site == null)
 			return;
 		
 		if (site.getUcn() > 0) {
-			Institution dbInstitution = DbInstitution.getByCode(site.getUcn());
-			if (dbInstitution != null) {
-				site.setInstitution( DbInstitution.getInstance(dbInstitution) );
-			} else
-				site.setInstitution( InstitutionInstance.getUnknownInstance( site.getUcn()) );
+			if (institution != null && site.getUcn() == institution.getUcn()) {
+				site.setInstitution(institution);
+			} else {
+				Institution dbInstitution = DbInstitution.getByCode(site.getUcn());
+				if (dbInstitution != null) {
+					site.setInstitution( DbInstitution.getInstance(dbInstitution) );
+				} else
+					site.setInstitution( InstitutionInstance.getUnknownInstance( site.getUcn()) );
+			}
 		} else {
 			site.setInstitution( InstitutionInstance.getEmptyInstance());
 		}

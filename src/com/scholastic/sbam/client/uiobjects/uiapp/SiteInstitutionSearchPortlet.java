@@ -40,15 +40,15 @@ import com.scholastic.sbam.shared.objects.SiteInstance;
 import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
 
 public class SiteInstitutionSearchPortlet extends InstitutionSearchPortletBase {
-	protected final SiteInstitutionSearchServiceAsync customerSearchService = GWT.create(SiteInstitutionSearchService.class);
-	protected final SiteInstitutionWordServiceAsync   customerWordService   = GWT.create(SiteInstitutionWordService.class);
-	protected final SiteLocationSearchServiceAsync siteLocationSearchService = GWT.create(SiteLocationSearchService.class);
+	protected final SiteInstitutionSearchServiceAsync	siteInstitutionSearchService = GWT.create(SiteInstitutionSearchService.class);
+	protected final SiteInstitutionWordServiceAsync  	siteInstitutionWordService   = GWT.create(SiteInstitutionWordService.class);
+	protected final SiteLocationSearchServiceAsync 		siteLocationSearchService	 = GWT.create(SiteLocationSearchService.class);
 
-	protected long					siteSearchSyncId;
-	PagingLoader<PagingLoadResult<SiteInstance>> siteLocationsLoader;
-	protected ListStore<ModelData>	siteLocationsStore;
-	protected Grid<ModelData>		siteLocationsGrid;
-	protected FieldSet 				siteLocationsFieldSet;
+	protected long									siteSearchSyncId;
+	PagingLoader<PagingLoadResult<SiteInstance>>	siteLocationsLoader;
+	protected ListStore<ModelData>					siteLocationsStore;
+	protected Grid<ModelData>						siteLocationsGrid;
+	protected FieldSet 								siteLocationsFieldSet;
 	
 	public SiteInstitutionSearchPortlet() {
 		super(AppPortletIds.SITE_INSTITUTION_SEARCH.getHelpTextId());
@@ -60,11 +60,11 @@ public class SiteInstitutionSearchPortlet extends InstitutionSearchPortletBase {
 	}
 	
 	public void invokeSearchService(PagingLoadConfig loadConfig, String filter, boolean includeAgreementSummaries, long searchSyncId, AsyncCallback<SynchronizedPagingLoadResult<InstitutionInstance>> myCallback) {
-		customerSearchService.getSiteInstitutions((PagingLoadConfig) loadConfig, filter, true, searchSyncId, myCallback);
+		siteInstitutionSearchService.getSiteInstitutions((PagingLoadConfig) loadConfig, filter, true, searchSyncId, myCallback);
 	}
 	
 	protected void invokeWordService(PagingLoadConfig loadConfig, AsyncCallback<PagingLoadResult<FilterWordInstance>>myCallback) {
-		customerWordService.getSiteInstitutionWords((PagingLoadConfig) loadConfig, myCallback);
+		siteInstitutionWordService.getSiteInstitutionWords((PagingLoadConfig) loadConfig, myCallback);
 	}
 	
 	/**

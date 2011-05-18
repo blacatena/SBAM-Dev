@@ -18,6 +18,7 @@ import com.scholastic.sbam.server.database.util.HibernateAccessor;
 import com.scholastic.sbam.shared.objects.AgreementSiteInstance;
 import com.scholastic.sbam.shared.objects.CancelReasonInstance;
 import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
+import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.SiteInstance;
 import com.scholastic.sbam.shared.util.AppConstants;
 
@@ -179,7 +180,57 @@ public class DbAgreementSite extends HibernateAccessor {
         return new ArrayList<Institution>();
 	}
 	
+
+	
+	public static List<Object []> findByUcn(List<Integer> ucns, char neStatus) {
+        try
+        {
+        	if (ucns == null || ucns.size() == 0)
+        		return new ArrayList<Object []>();
+        		
+        	StringBuffer sqlQuery = new StringBuffer();
+        	sqlQuery.append("SELECT {agreement.*}, {agreement_site.*}, {institution.*} FROM agreement, agreement_site, institution WHERE agreement.`status` <> '");
+        	sqlQuery.append(neStatus);
+        	sqlQuery.append("'  AND agreement_site.status <> '");
+        	sqlQuery.append(neStatus);
+        	sqlQuery.append("' AND agreement.id = agreement_site.agreement_id "); 
+        	sqlQuery.append(" AND agreement_site.site_ucn = institution.ucn ");
+        	
+        	sqlQuery.append(" AND ucn in (");
+        	for (int i = 0; i < ucns.size(); i++) {
+        		if (i > 0)
+        			sqlQuery.append(",");
+        		sqlQuery.append(ucns.get(i));
+        	}
+        	sqlQuery.append(")");
+        	
+            sqlQuery.append(" order by agreement_site.agreement_id, institution.institution_name, institution.ucn");
+        	
+//        	System.out.println(sqlQuery);
+            
+            SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery.toString());
+            
+            query.addEntity("agreement",		getObjectReference("Agreement"));
+            query.addEntity("agreement_site",	getObjectReference("AgreementSite"));
+            query.addEntity("institution",		getObjectReference("Institution"));
+            
+            @SuppressWarnings("unchecked")
+			List<Object []> objects = query.list();
+            return objects;
+        }
+        catch(Exception e)
+        {
+        	e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return new ArrayList<Object []>();
+	}
+	
 	public static void setDescriptions(AgreementSiteInstance agreementSite) {
+		setDescriptions(agreementSite, null);
+	}
+	
+	public static void setDescriptions(AgreementSiteInstance agreementSite, InstitutionInstance siteInstitution) {
 		if (agreementSite == null)
 			return;
 		
@@ -198,7 +249,7 @@ public class DbAgreementSite extends HibernateAccessor {
 			} else {
 				agreementSite.setSite(SiteInstance.getAllInstance(agreementSite.getSiteUcn(), agreementSite.getSiteUcnSuffix()));
 			}
-			DbSite.setDescriptions(agreementSite.getSite());
+			DbSite.setDescriptions(agreementSite.getSite(), siteInstitution);
 		} else {
 //			agreementSite.setInstitution( InstitutionInstance.getEmptyInstance());
 			agreementSite.setSite(SiteInstance.getEmptyInstance());
