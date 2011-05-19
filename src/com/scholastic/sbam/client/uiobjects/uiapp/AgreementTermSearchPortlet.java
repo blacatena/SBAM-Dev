@@ -273,15 +273,17 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 	protected void addAgreementTermsGrid(FormData formData) {
 		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
 		
-		columns.add(getDisplayColumn("productCode",			"Product",					100,
+		columns.add(getDisplayColumn("productCode",			"Product Code",				100,
+					"This is the product code for this term."));
+		columns.add(getDisplayColumn("product.description",	"Product",					250,
 					"This is the product for this term."));
 		columns.add(getDisplayColumn("startDate",			"Start",					80,		true, UiConstants.APP_DATE_TIME_FORMAT,
 					"This is the start date for this term."));
 		columns.add(getDisplayColumn("endDate",				"End",						80,		true, UiConstants.APP_DATE_TIME_FORMAT,
 					"This is the end date for this term."));
-		columns.add(getDisplayColumn("terminateDate",		"Terminate",				80,		true, UiConstants.APP_DATE_TIME_FORMAT,
+		columns.add(getDisplayColumn("terminateDate",		"Siteinate",				80,		true, UiConstants.APP_DATE_TIME_FORMAT,
 					"This is the terminate date for this term."));
-		columns.add(getDisplayColumn("dollarValue",			"Value",					100,	true, UiConstants.DOLLARS_FORMAT,
+		columns.add(getDisplayColumn("dollarValue",			"Value",					80,		true, UiConstants.DOLLARS_FORMAT,
 					"This is the dollar value for this term."));
 		
 		ColumnModel cm = new ColumnModel(columns);  
@@ -326,7 +328,7 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 		agreementsFieldSet.setHeading("Current and Pending Terms");// 		displayCard.add(new LabelField("<br/><i>Existing Agreements</i>"));
 		agreementsFieldSet.setCollapsible(true);
 		agreementsFieldSet.setToolTip(UiConstants.getQuickTip("These are the current or pending agreement terms for this agreement."));
-		agreementsFieldSet.add(agreementTermsGrid, new FormData(cm.getTotalWidth() + 10, 200));
+		agreementsFieldSet.add(agreementTermsGrid);	//, new FormData(cm.getTotalWidth() + 10, 200));
 		
 	//	displayCard.add(new LabelField(""));	// Used as a spacer
 		displayCard.add(agreementsFieldSet, formData);	//	new FormData("95%")); // new FormData(cm.getTotalWidth() + 20, 200));
