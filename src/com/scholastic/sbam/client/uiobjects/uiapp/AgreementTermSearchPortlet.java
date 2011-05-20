@@ -562,9 +562,8 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 		columns.add(getDisplayColumn("agreementTerm.endDate",					"End",			 	70,		true, UiConstants.APP_DATE_TIME_FORMAT)); 
 
 		//	Hidden agreement term columns
-		columns.add(getHiddenColumn("agreementTerm.terminateDate",				"Start",		 	70,		true, UiConstants.APP_DATE_TIME_FORMAT)); 
-		
-		//	Hidden institution columns
+		columns.add(getHiddenColumn("agreementTerm.terminateDate",				"Terminate",		 70,		true, UiConstants.APP_DATE_TIME_FORMAT)); 
+				//	Hidden institution columns
 		columns.add(getHiddenColumn("agreement.institution.state",						"State",			50));
 		columns.add(getHiddenColumn("agreement.institution.country",					"Country",			50));    
 		columns.add(getHiddenColumn("agreement.institution.typeCode",					"Cust Type Code", 	50));
