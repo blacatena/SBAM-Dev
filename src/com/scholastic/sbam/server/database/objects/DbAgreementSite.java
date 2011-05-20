@@ -80,7 +80,18 @@ public class DbAgreementSite extends HibernateAccessor {
 		return reasons;
 	}
 	
+	public static List<Order> getAscending(String... names) {
+		List<Order> list = new ArrayList<Order>();
+		for (String name : names)
+			list.add(Order.asc(name));
+		return list;
+	}
+	
 	public static List<AgreementSite> findByAgreementId(int agreementId, char status, char neStatus) {
+		return findByAgreementId(agreementId, status, neStatus, getAscending("id.siteUcn", "id.siteUcnSuffix", "id.siteLocCode"));
+	}
+	
+	public static List<AgreementSite> findByAgreementId(int agreementId, char status, char neStatus, List<Order> orders) {
         try
         {
             Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
@@ -90,9 +101,13 @@ public class DbAgreementSite extends HibernateAccessor {
             	crit.add(Restrictions.like("status", status));
             if (neStatus != 0)
             	crit.add(Restrictions.ne("status", neStatus));
-            crit.addOrder(Order.asc("id.siteUcn"));
-            crit.addOrder(Order.asc("id.siteUcnSuffix"));
-            crit.addOrder(Order.asc("id.siteLocCode"));
+            for (Order order : orders)
+            	crit.addOrder(order);
+            
+//            crit.addOrder(Order.asc("id.siteUcn"));
+//            crit.addOrder(Order.asc("id.siteUcnSuffix"));
+//            crit.addOrder(Order.asc("id.siteLocCode"));
+            
             @SuppressWarnings("unchecked")
 			List<AgreementSite> objects = crit.list();
             return objects;

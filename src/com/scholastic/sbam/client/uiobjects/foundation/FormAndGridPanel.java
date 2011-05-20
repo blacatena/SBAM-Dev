@@ -560,7 +560,7 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		
 		ColumnModel cm = new ColumnModel(columns);  
 
-		gridStore = new ListStore<BeanModel>();
+		gridStore = getNewGridStore();
 		
 		grid = new Grid<BeanModel>(gridStore, cm); 
 //		grid.addPlugin(expander);
@@ -571,7 +571,7 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		grid.setColumnLines(false);
 		grid.setHideHeaders(false);
 		
-		gridFilters.setLocal(true); 
+		gridFilters.setLocal(areGridFiltersLocal()); 
 		grid.addPlugin(gridFilters);
 
 		setGridAttributes(grid);
@@ -582,6 +582,14 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
 		return grid;
+	}
+	
+	public boolean areGridFiltersLocal() {
+		return true;
+	}
+	
+	public ListStore<BeanModel> getNewGridStore() {
+		return new ListStore<BeanModel>();
 	}
 	
 	@SuppressWarnings("unchecked")

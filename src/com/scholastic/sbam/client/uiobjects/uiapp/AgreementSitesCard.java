@@ -2,9 +2,18 @@ package com.scholastic.sbam.client.uiobjects.uiapp;
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.data.BaseFilterPagingLoadConfig;
+import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.BeanModel;
+import com.extjs.gxt.ui.client.data.BeanModelReader;
+import com.extjs.gxt.ui.client.data.PagingLoadConfig;
+import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.extjs.gxt.ui.client.data.PagingLoader;
+import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
@@ -12,10 +21,13 @@ import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.LiveGridView;
 import com.extjs.gxt.ui.client.widget.grid.RowExpander;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
+import com.extjs.gxt.ui.client.widget.toolbar.LiveToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.AgreementSiteListService;
@@ -37,12 +49,14 @@ import com.scholastic.sbam.client.uiobjects.foundation.FieldFactory;
 import com.scholastic.sbam.client.uiobjects.foundation.FormAndGridPanel;
 import com.scholastic.sbam.client.uiobjects.foundation.FormInnerPanel;
 import com.scholastic.sbam.client.util.UiConstants;
+import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.AgreementSiteInstance;
 import com.scholastic.sbam.shared.objects.CancelReasonInstance;
 import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.SiteInstance;
+import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.objects.UserCacheTarget;
 import com.scholastic.sbam.shared.util.AppConstants;
@@ -50,11 +64,16 @@ import com.scholastic.sbam.shared.util.AppConstants;
 public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> {
 	
 	private static final int DEFAULT_FIELD_WIDTH	=	0;	//250;
+	private static final int SITE_LOAD_LIMIT		=	50;
 	
 	protected final AgreementSiteListServiceAsync 		agreementSiteListService 		= GWT.create(AgreementSiteListService.class);
 	protected final UpdateAgreementSiteServiceAsync		updateAgreementSiteService		= GWT.create(UpdateAgreementSiteService.class);
 	protected final UpdateAgreementSiteNoteServiceAsync	updateAgreementSiteNoteService	= GWT.create(UpdateAgreementSiteNoteService.class);
 	protected final UpdateUserCacheServiceAsync 		userCacheUpdateService			= GWT.create(UpdateUserCacheService.class);
+	
+	protected long							searchSyncId;
+	protected LiveGridView					liveView;
+	protected PagingLoader<PagingLoadResult<AgreementSiteInstance>> siteLoader;
 	
 	protected FormInnerPanel				formColumn1;
 	protected FormInnerPanel				formColumn2;
@@ -115,6 +134,28 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 	}
 	
 	@Override
+	public boolean areGridFiltersLocal() {
+		return false;
+	}
+	
+	/**
+	 * This method is overridden to set a loader for the store, to use live grid view
+	 */
+	@Override
+	public ListStore<BeanModel> getNewGridStore() {
+		
+		siteLoader = getSiteLoader(); 
+
+		siteLoader.setLimit(SITE_LOAD_LIMIT);
+//		siteLoader.setSortDir(SortDir.ASC);  
+//		siteLoader.setSortField("site.institution.institutionName");  
+
+		siteLoader.setRemoteSort(true);
+		
+		return new ListStore<BeanModel>(siteLoader);
+	}
+	
+	@Override
 	public void addGridPlugins(Grid<BeanModel> grid) {
 		grid.addPlugin(noteExpander);
 	}
@@ -125,8 +166,37 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 	 */
 	@Override
 	public void setGridAttributes(Grid<BeanModel> grid) {
+		
+		//	Basic stuff
+		
 		grid.setAutoExpandColumn("site.institution.institutionName"); 
-		gridStore.setKeyProvider(new SimpleKeyProvider("uniqueKey")); 	
+		gridStore.setKeyProvider(new SimpleKeyProvider("uniqueKey"));
+		gridStore.setStoreSorter(null);
+		
+		//	Live View
+		
+		liveView = new LiveGridView();  
+		liveView.setEmptyText("No sites were found.  Expand the panel to add sites.");
+		liveView.setCacheSize(200);
+		grid.setView(liveView);
+		
+	    ToolBar toolBar = new ToolBar();
+	    toolBar.setAlignment(HorizontalAlignment.RIGHT);
+	    LiveToolItem tool = new LiveToolItem();
+	    tool.bindGrid(grid);
+	    toolBar.add(tool);
+	    gridPanel.setBottomComponent(toolBar);
+	    
+	    //	Buffer view (i.e. paging controls) instead of live view
+	   
+//	    BufferView bufferView = new BufferView();
+//	    bufferView.setEmptyText("No sites were found.  Expand the panel to add sites.");
+//	    bufferView.setCacheSize(SITE_LOAD_LIMIT * 2);
+//	    GridViewConfig viewConfig = new GridViewConfig();
+//	    bufferView.setViewConfig(viewConfig);
+//		final PagingToolBar toolBar = new PagingToolBar(SITE_LOAD_LIMIT);  
+//	    toolBar.bind(siteLoader);
+	    
 	}
 
 	@Override
@@ -134,18 +204,18 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 
 		columns.add(getDisplayColumn("displayUcn",							"UCN+",						100,		false,
 					"This is the UCN+ for the site."));
-		columns.add(getDisplayColumn("site.institution.institutionName",	"Institution",				180,
+		columns.add(getDisplayColumn("site.institution.institutionName",	"Institution",				140,
 					"This is the institution name."));
 		columns.add(getDisplayColumn("site.description",					"Location",					100,
 					"This is the description of the location at the site."));
-		columns.add(getDisplayColumn("site.institution.htmlAddress",		"Address",					180));
+		columns.add(getDisplayColumn("site.institution.htmlAddress",		"Address",					140));
 		columns.add(getDisplayColumn("statusDescription",					"Status",					80));
 		
 //		These hidden columns were dropped because they mess up the columns widths and the notes row expander cell... a bug in GXT, it seems.
-//		columns.add(getHiddenColumn("siteUcn",								"UCN",						 40,		true, UiConstants.INTEGER_FORMAT,
-//				"This is the UCN for the site."));
-//		columns.add(getHiddenColumn("siteUcnSuffix",						"Suffix",					 40,		true, UiConstants.INTEGER_FORMAT,
-//				"This is the suffix for this pseudo site."));
+		columns.add(getHiddenColumn("siteUcn",								"UCN",						 80,		true, UiConstants.INTEGER_FORMAT,
+				"This is the UCN for the site."));
+		columns.add(getHiddenColumn("siteUcnSuffix",						"Suffix",					 40,		true, UiConstants.INTEGER_FORMAT,
+				"This is the suffix for this pseudo site."));
 		columns.add(getHiddenColumn("siteLocCode",							"Code",						 40,
 				"This is the code for the location at the site."));
 	
@@ -226,9 +296,9 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 	}
 
 	@Override
-	protected void executeLoader(int id,
-			AsyncCallback<List<AgreementSiteInstance>> callback) {
-		agreementSiteListService.getAgreementSites(id, AppConstants.STATUS_DELETED,callback);
+	protected void executeLoader(int id, AsyncCallback<List<AgreementSiteInstance>> callback) {
+		// BufferView requires this, LiveView does not (it starts loading automatically)
+//		grid.getStore().getLoader().load();
 	}
 	
 	@Override
@@ -584,5 +654,68 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 						notesField.unlockNote();
 				}
 			});
+	}
+	
+	/**
+	 * Construct and return a loader to handle returning a list of institutions.
+	 * @return
+	 */
+	protected PagingLoader<PagingLoadResult<AgreementSiteInstance>> getSiteLoader() {
+		// proxy and reader  
+		RpcProxy<PagingLoadResult<AgreementSiteInstance>> proxy = new RpcProxy<PagingLoadResult<AgreementSiteInstance>>() {  
+			@Override  
+			public void load(Object loadConfig, final AsyncCallback<PagingLoadResult<AgreementSiteInstance>> callback) {
+		    	
+				// This could be as simple as calling userListService.getUsers and passing the callback
+				// Instead, here the callback is overridden so that it can catch errors and alert the users.  Then the original callback is told of the failure.
+				// On success, the original callback is just passed the onSuccess message, and the response (the list).
+				
+				AsyncCallback<SynchronizedPagingLoadResult<AgreementSiteInstance>> myCallback = new AsyncCallback<SynchronizedPagingLoadResult<AgreementSiteInstance>>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else if (caught instanceof ServiceNotReadyException)
+								MessageBox.alert("Alert", "The " + caught.getMessage() + " is not available at this time.  Please try again in a few minutes.", null);
+						else {
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+							MessageBox.alert("Alert", "Agreement site load failed unexpectedly.", null);
+						}
+						callback.onFailure(caught);
+					}
+
+					public void onSuccess(SynchronizedPagingLoadResult<AgreementSiteInstance> syncResult) {
+						if(syncResult.getSyncId() != searchSyncId)
+							return;
+						
+						PagingLoadResult<AgreementSiteInstance> result = syncResult.getResult();
+
+						callback.onSuccess(result);
+
+						grid.unmask();
+					}
+				};
+				
+				if (!grid.isMasked()) grid.mask("Loading...");		// Required because GXT forgets to do this when a remote sort is initiated through the columns
+				searchSyncId = System.currentTimeMillis();
+				invokeSearchService((PagingLoadConfig) loadConfig, focusId, AppConstants.STATUS_DELETED, searchSyncId, myCallback);
+		    }  
+		};
+		BeanModelReader reader = new BeanModelReader();
+		
+		// loader and store  
+		BasePagingLoader<PagingLoadResult<AgreementSiteInstance>> loader = new BasePagingLoader<PagingLoadResult<AgreementSiteInstance>>(proxy, reader) {
+			@Override
+			  protected Object newLoadConfig() {
+				return new BaseFilterPagingLoadConfig();
+			}
+		};
+		loader.setReuseLoadConfig(false);
+		return loader;
+	}
+	
+	public void invokeSearchService(PagingLoadConfig loadConfig, int id, char neStatus, long searchSyncId, AsyncCallback<SynchronizedPagingLoadResult<AgreementSiteInstance>> myCallback) {
+		agreementSiteListService.getAgreementSites((PagingLoadConfig) loadConfig, focusId, neStatus, searchSyncId, myCallback);
 	}
 }

@@ -239,6 +239,48 @@ public class DbContact extends HibernateAccessor {
         return new ArrayList<Contact>();
 	}
 	
+	public static List<Contact> findFilteredFull(String filter, boolean doBoolean, char status, char neStatus, String sortCol, SortDir sortDirection) {
+        try
+        {
+            Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
+            
+			filter = filter.replaceAll("'", "''");
+			String sql;
+			if (doBoolean) {
+				sql = "MATCH (full_name,address1,city,zip) AGAINST ('" + filter + "' IN BOOLEAN MODE)";
+				sql += " OR MATCH (e_mail,e_mail_2,phone,phone_2,fax) AGAINST ('" + filter + "' IN BOOLEAN MODE)";
+				sql += " OR MATCH (note) AGAINST ('" + filter + "' IN BOOLEAN MODE)";
+			} else {
+				sql = "MATCH (full_name,address1,city,zip) AGAINST ('" + filter + "')";
+				sql += " OR MATCH (e_mail,e_mail_2,phone,phone_2,fax) AGAINST ('" + filter + "')";
+				sql += " OR MATCH (note) AGAINST ('" + filter + "')";
+			}
+			crit.add(Restrictions.sqlRestriction(sql));
+            
+            if (status != 0)
+            	crit.add(Restrictions.like("status", status));
+            if (neStatus != 0)
+            	crit.add(Restrictions.ne("status", neStatus));
+            if (sortCol != null && sortCol.length() > 0) {
+            	if (sortDirection == SortDir.ASC)
+            		crit.addOrder(Order.asc(sortCol));
+            	else
+            		crit.addOrder(Order.desc(sortCol));
+            } else {
+            	crit.addOrder(Order.asc("fullName"));
+            }
+            @SuppressWarnings("unchecked")
+			List<Contact> objects = crit.list();
+            return objects;
+        }
+        catch(Exception e)
+        {
+        	e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return new ArrayList<Contact>();
+	}
+	
 	public static void setDescriptions(ContactInstance instance) {
 		if (instance == null)
 			return;
