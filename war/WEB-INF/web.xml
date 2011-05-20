@@ -82,8 +82,18 @@
   </servlet>
   
   <servlet>
+    <servlet-name>agreementContactGetServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.AgreementContactGetServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>agreementContactListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.AgreementContactListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>agreementContactSearchServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.AgreementContactSearchServiceImpl</servlet-class>
   </servlet>
   
   <servlet>
@@ -562,8 +572,18 @@
   </servlet-mapping>
   
   <servlet-mapping>
+    <servlet-name>agreementContactGetServlet</servlet-name>
+    <url-pattern>/sbam/getAgreementContact</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
     <servlet-name>agreementContactListServlet</servlet-name>
     <url-pattern>/sbam/getAgreementContacts</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>agreementContactSearchServlet</servlet-name>
+    <url-pattern>/sbam/searchAgreementContacts</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

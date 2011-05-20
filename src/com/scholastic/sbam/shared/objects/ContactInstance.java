@@ -277,6 +277,22 @@ public class ContactInstance extends BetterRowEditInstance implements BeanModelT
 	public String getHtmlAddress() {
 		return AddressFormatter.getMultiLineAddress(address1, address2, address3, city, state, zip, country);
 	}
+
+	public static ContactInstance getEmptyInstance() {
+		ContactInstance instance = new ContactInstance();
+		instance.setContactId(0);
+		instance.setFullName("");
+		instance.setNewRecord(true);
+		return instance;
+	}
+
+	public static ContactInstance getUnknownInstance(int contactId) {
+		ContactInstance instance = new ContactInstance();
+		instance.setContactId(contactId);
+		instance.setFullName("Unknown contact ID " + contactId);
+		instance.setNewRecord(true);
+		return instance;
+	}
 	
 	public void setValuesFrom(ContactInstance fromInstance) {
 		this.contactId				=	fromInstance.contactId;

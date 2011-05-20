@@ -34,7 +34,7 @@ public class AgreementTermSearchServiceImpl extends AuthenticatedServiceServlet 
 	@Override
 	public SynchronizedPagingLoadResult<AgreementTermTuple> searchAgreementTerms(LoadConfig config, long syncId) throws IllegalArgumentException {
 	
-		authenticate("search agreementTerms", SecurityManager.ROLE_QUERY);
+		authenticate("search agreement terms", SecurityManager.ROLE_QUERY);
 		
 		List<AgreementTermTuple> list = new ArrayList<AgreementTermTuple>();
 

@@ -35,7 +35,7 @@ public class AgreementContactTuple implements BeanModelTag, IsSerializable, User
 	public void setAgreementContact(AgreementContactInstance agreementContact) {
 		this.agreementContact = agreementContact;
 	}
-	public String getAgreementContactNote() {
+	public String getContactNote() {
 		return agreementContact.getContact().getNote();
 	}
 	public String getAgreementNote() {
