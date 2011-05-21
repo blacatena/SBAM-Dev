@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated May 16, 2011 3:06:07 PM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated May 20, 2011 5:59:16 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.SitePreference" table="site_preference" catalog="sbam">
         <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.SitePreferenceId">

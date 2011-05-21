@@ -9,8 +9,8 @@ import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
 import com.scholastic.sbam.shared.util.AppConstants;
 
-public class AuthMethodInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
-
+public class AuthMethodInstance extends IpAddressInstance implements BeanModelTag, IsSerializable {
+	
 	private static BeanModelFactory beanModelfactory;
 	
 	public static enum UserTypes {
@@ -30,9 +30,9 @@ public class AuthMethodInstance extends BetterRowEditInstance implements BeanMod
 		}
 	}
 	
-	public static final String AM_IP 	= "ip";
-	public static final String AM_URL	= "url";
-	public static final String AM_UID	= "uid";
+	public static final String AM_IP 	= MethodIdInstance.AM_IP;
+	public static final String AM_URL	= MethodIdInstance.AM_URL;
+	public static final String AM_UID	= MethodIdInstance.AM_UID;
 
 	private int		agreementId;
 	private int		ucn;
@@ -52,6 +52,8 @@ public class AuthMethodInstance extends BetterRowEditInstance implements BeanMod
 	private char	userType;
 	private long	ipLo;
 	private long	ipHi;
+	
+	private String	ipRangeCode;
 	
 	private int		proxyId;
 	
@@ -243,6 +245,9 @@ public class AuthMethodInstance extends BetterRowEditInstance implements BeanMod
 
 	public void setIpLo(long ipLo) {
 		this.ipLo = ipLo;
+		//	This is optimized to not bother computing the range if it has already been set, or both IPs are not yet set
+		if (this.ipLo != 0 && this.ipHi != 0 && (this.ipRangeCode == null || this.ipRangeCode.length() == 0) )
+			assignIpRangeCode();
 //		syncMethodKey();
 	}
 
@@ -252,7 +257,22 @@ public class AuthMethodInstance extends BetterRowEditInstance implements BeanMod
 
 	public void setIpHi(long ipHi) {
 		this.ipHi = ipHi;
+		//	This is optimized to not bother computing the range if it has already been set, or both IPs are not yet set
+		if (this.ipLo != 0 && this.ipHi != 0 && (this.ipRangeCode == null || this.ipRangeCode.length() == 0) )
+			assignIpRangeCode();
 //		syncMethodKey();
+	}
+
+	public String getIpRangeCode() {
+		return ipRangeCode;
+	}
+	
+	public void assignIpRangeCode() {
+		ipRangeCode = getCommonIpRangeCode(ipLo, ipHi);
+	}
+
+	public void setIpRangeCode(String ipRangeCode) {
+		this.ipRangeCode = ipRangeCode;
 	}
 
 	public int getProxyId() {
@@ -425,6 +445,19 @@ public class AuthMethodInstance extends BetterRowEditInstance implements BeanMod
 		return "";
 	}
 	
+	public MethodIdInstance obtainMethodId() {
+		MethodIdInstance mid = new MethodIdInstance();
+		mid.setAgreementId(agreementId);
+		mid.setUcn(ucn);
+		mid.setUcnSuffix(ucnSuffix);
+		mid.setSiteLocCode(siteLocCode);
+		mid.setMethodType(methodType);
+		mid.setMethodKey(methodKey);
+		mid.setProxyId(0);
+		mid.setIpId(0);
+		return mid;
+	}
+	
 	public void setValuesFrom(AuthMethodInstance fromInstance) {
 		this.agreementId				=	fromInstance.agreementId;
 		this.ucn						=	fromInstance.ucn;
@@ -444,6 +477,7 @@ public class AuthMethodInstance extends BetterRowEditInstance implements BeanMod
 		this.userType					=	fromInstance.	userType;
 		this.ipLo						=	fromInstance.	ipLo;
 		this.ipHi						=	fromInstance.	ipHi;
+		this.ipRangeCode				=	fromInstance.	ipRangeCode;
 			
 		this.proxyId					=	fromInstance.	proxyId;
 			
@@ -469,63 +503,6 @@ public class AuthMethodInstance extends BetterRowEditInstance implements BeanMod
 	
 	public String getUniqueKey() {
 		return agreementId + ":" + ucn + ":" + ucnSuffix + ":" + siteLocCode + ":" + methodType + ":" + methodKey;
-	}
-	
-	public static String [] [] getIpOctetStrings(long ipLo, long ipHi) {
-		int [] lo = getIpOctets(ipLo);
-		int [] hi = getIpOctets(ipHi);
-		String [] strLo = new String [4];
-		String [] strHi = new String [4];
-		for (int i = 0; i < 4; i++) {
-			strLo [i] = lo [i] + "";
-			strHi [i] = hi [i] + "";
-		}
-		if (lo [0] == hi [0]) {
-			if (lo [1] == hi [1]) {
-				if (lo [2] == hi [2]) {
-					if (lo [3] == hi [3]) {
-						blankOctets(strHi);
-					} else if (lo [3] == 0 && hi [3] == 255) {
-						blankOctets(strHi);
-						strLo [3] = "*";
-					}
-				} else if (lo [2] == 0 && lo [3] == 0 && hi [2] == 255 && hi [3] == 255) {
-					blankOctets(strHi);
-					strLo [2] = "*";
-					strLo [3] = "";
-				}
-			} else if (lo [1] == 0 && lo [2] == 0 && lo [3] == 0 && hi [1] == 255 && hi [2] == 255 && hi [3] == 255) {
-				blankOctets(strHi);
-				strLo [1] = "*";
-				strLo [2] = "";
-				strLo [3] = "";
-			}
-		}
-		
-		return new String [] [] {strLo, strHi};
-	}
-	
-	public static void blankOctets(String [] octets) {
-		for (int i = 0; i < octets.length; i++)
-			octets [i] = "";
-	}
-	
-	public static int [] getIpOctets(long ip) {
-		int o1 = (int) (ip % 256);
-		ip = ip / 256;
-		int o2 = (int) (ip % 256);
-		ip = ip / 256;
-		int o3 = (int) (ip % 256);
-		int o4 = (int) (ip % 256);
-		return new int [] {o4, o3, o2, o1};
-	}
-	
-	public static String getOctetForm(int [] octets) {
-		return octets [0] + "." + octets [1] + "." + octets [2] + "." + octets [3];
-	}
-	
-	public static String getOctetForm(long ip) {
-		return getOctetForm(getIpOctets(ip));
 	}
 
 	public static BeanModel obtainModel(AuthMethodInstance instance) {

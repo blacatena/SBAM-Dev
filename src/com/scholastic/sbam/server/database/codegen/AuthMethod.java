@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated May 16, 2011 3:06:06 PM by Hibernate Tools 3.2.4.GA
+// Generated May 20, 2011 5:59:16 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -17,6 +17,7 @@ public class AuthMethod implements java.io.Serializable {
 	private String userId;
 	private long ipLo;
 	private long ipHi;
+	private String ipRangeCode;
 	private String password;
 	private int proxyId;
 	private char userType;
@@ -38,9 +39,9 @@ public class AuthMethod implements java.io.Serializable {
 
 	public AuthMethod(AuthMethodId id, int forUcn, int forUcnSuffix,
 			String forSiteLocCode, String url, String userId, long ipLo,
-			long ipHi, String password, int proxyId, char userType,
-			char remote, char approved, char validated, char activated,
-			String orgPath, String note, Date updatedDatetime,
+			long ipHi, String ipRangeCode, String password, int proxyId,
+			char userType, char remote, char approved, char validated,
+			char activated, String orgPath, String note, Date updatedDatetime,
 			Date createdDatetime, char status) {
 		this.id = id;
 		this.forUcn = forUcn;
@@ -50,6 +51,7 @@ public class AuthMethod implements java.io.Serializable {
 		this.userId = userId;
 		this.ipLo = ipLo;
 		this.ipHi = ipHi;
+		this.ipRangeCode = ipRangeCode;
 		this.password = password;
 		this.proxyId = proxyId;
 		this.userType = userType;
@@ -66,11 +68,12 @@ public class AuthMethod implements java.io.Serializable {
 
 	public AuthMethod(AuthMethodId id, int forUcn, int forUcnSuffix,
 			String forSiteLocCode, String url, String userId, long ipLo,
-			long ipHi, String password, int proxyId, char userType,
-			char remote, char approved, char validated, char activated,
-			String orgPath, String note, Date activatedDatetime,
-			Date deactivatedDatetime, Date reactivatedDatetime,
-			Date updatedDatetime, Date createdDatetime, char status) {
+			long ipHi, String ipRangeCode, String password, int proxyId,
+			char userType, char remote, char approved, char validated,
+			char activated, String orgPath, String note,
+			Date activatedDatetime, Date deactivatedDatetime,
+			Date reactivatedDatetime, Date updatedDatetime,
+			Date createdDatetime, char status) {
 		this.id = id;
 		this.forUcn = forUcn;
 		this.forUcnSuffix = forUcnSuffix;
@@ -79,6 +82,7 @@ public class AuthMethod implements java.io.Serializable {
 		this.userId = userId;
 		this.ipLo = ipLo;
 		this.ipHi = ipHi;
+		this.ipRangeCode = ipRangeCode;
 		this.password = password;
 		this.proxyId = proxyId;
 		this.userType = userType;
@@ -158,6 +162,14 @@ public class AuthMethod implements java.io.Serializable {
 
 	public void setIpHi(long ipHi) {
 		this.ipHi = ipHi;
+	}
+
+	public String getIpRangeCode() {
+		return this.ipRangeCode;
+	}
+
+	public void setIpRangeCode(String ipRangeCode) {
+		this.ipRangeCode = ipRangeCode;
 	}
 
 	public String getPassword() {

@@ -43,6 +43,7 @@ public class DbAuthMethod extends HibernateAccessor {
 		instance.setForUcnSuffix(dbInstance.getForUcnSuffix());
 		instance.setForSiteLocCode(dbInstance.getForSiteLocCode());
 		
+		instance.setIpRangeCode(dbInstance.getIpRangeCode());	//	This is set before the IPs, so it will not be calculated unless it is missing
 		instance.setIpLo(dbInstance.getIpLo());
 		instance.setIpHi(dbInstance.getIpHi());
 		instance.setUrl(dbInstance.getUrl());
@@ -154,6 +155,32 @@ public class DbAuthMethod extends HibernateAccessor {
         if (objects == null || objects.size() == 0)
         	return 1;
         return objects.get(0).getId().getMethodKey() + 1;
+	}
+	
+	public static List<AuthMethod> findOverlapIps(long ipLo, long ipHi) {
+		String ipRangeCode = AuthMethodInstance.getCommonIpRangeCode(ipLo, ipHi);
+		if (ipRangeCode == null || ipRangeCode.length() == 0)
+			return new ArrayList<AuthMethod>();
+		
+		//	By restricting the search by range codes, the database is able to effectively find potential overlaps
+		List<String> rangeCodes = new ArrayList<String>();
+		for (int i = 1; i <= ipRangeCode.length(); i++) {
+			rangeCodes.add(ipRangeCode.substring(0,i));
+		}
+		System.out.println(ipRangeCode);
+		System.out.println(rangeCodes);
+		
+        Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
+
+        //	This criterion is for database performance (i.e. prevents a full database scan)
+        crit.add(Restrictions.in("ipRangeCode", rangeCodes));
+        //	These criteria actually perform the real check
+        crit.add(Restrictions.le("ipLo", ipHi));
+        crit.add(Restrictions.ge("ipHi", ipLo));
+        
+        @SuppressWarnings("unchecked")
+		List<AuthMethod> objects = crit.list();
+        return objects;
 	}
 	
 	public static void setDescriptions(AuthMethodInstance authMethod) {

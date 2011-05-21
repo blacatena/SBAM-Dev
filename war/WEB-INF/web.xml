@@ -332,6 +332,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>ipRangeValidationServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.IpRangeValidationServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>linkTypeListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.LinkTypeListServiceImpl</servlet-class>
   </servlet>
@@ -814,6 +819,11 @@
   <servlet-mapping>
     <servlet-name>institutionWordServlet</servlet-name>
     <url-pattern>/sbam/getInstitutionWords</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>ipRangeValidationServlet</servlet-name>
+    <url-pattern>/sbam/validateIpRange</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

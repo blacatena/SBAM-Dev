@@ -1,7 +1,17 @@
 package com.scholastic.sbam.client.uiobjects.fields;
 
+import java.util.List;
+
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.scholastic.sbam.client.services.IpRangeValidationService;
+import com.scholastic.sbam.client.services.IpRangeValidationServiceAsync;
+import com.scholastic.sbam.shared.objects.IpAddressInstance;
+import com.scholastic.sbam.shared.objects.MethodIdInstance;
+import com.scholastic.sbam.shared.validation.AsyncValidationResponse;
 
 public class IpAddressRangeField extends MultiField<Long []> {
 	public final String	LOW_IP_LABEL	= "";	//"From:&nbsp;";
@@ -11,6 +21,14 @@ public class IpAddressRangeField extends MultiField<Long []> {
 	protected IpAddressField	loIpField;
 	protected LabelField		hiIpLabelField;
 	protected IpAddressField	hiIpField;
+	
+	protected int				validationCounter	= 0;
+	protected long				lastLoIpValidated	= 0L;
+	protected long				lastHiIpValidated	= 0L;
+	protected List<String>		asyncMessages		= null;
+	protected MethodIdInstance	methodId			= null;
+	
+	protected IpRangeValidationServiceAsync validationService = GWT.create(IpRangeValidationService.class);
 	
 	public IpAddressRangeField() {
 		this("");
@@ -181,7 +199,62 @@ public class IpAddressRangeField extends MultiField<Long []> {
 		}
 		
 		clearInvalid();
+		
+		asynchValidation();
+		
 		return true;
+	}
+	
+	public void asynchValidation() {
+		long loIp = loIpField.getValue();
+		long hiIp = hiIpField.getValue();
+		if (hiIp == 0)
+			hiIp = loIp;
+		if (loIp == 0)
+			return;
+		
+//		markInvalid("<em>Validating...</em>");
+		asynchValidation(loIp, hiIp);
+	}
+	
+	public void asynchValidation(long loIp, long hiIp) {
+		if (loIp == lastLoIpValidated && hiIp == lastHiIpValidated)
+			return;
+		
+		lastLoIpValidated = loIp;
+		lastHiIpValidated = hiIp;
+
+		validationService.validateIpRange(loIp, hiIp, methodId, ++validationCounter,
+				new AsyncCallback<AsyncValidationResponse>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "IP range validation failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+					}
+
+					public void onSuccess(AsyncValidationResponse response) {
+						//	Mark invalid if an error occurred, and if the response matches the current field validation count setting
+						if (response.getValidationCounter() == validationCounter) {
+							if (response.getMessages() != null && response.getMessages().size() > 0) {						
+								asyncMessages = response.getMessages();
+								markInvalid(asyncMessages);
+							} else {
+								asyncMessages = null;
+								clearInvalid();
+							}
+						}
+					}
+			});
+	}
+	
+	public void markInvalid(List<String> messages) {
+		for (String message: messages)
+			markInvalid(message);
 	}
 	
 //	@Override
@@ -193,53 +266,6 @@ public class IpAddressRangeField extends MultiField<Long []> {
 //	}
 	
 	public static String [] [] getIpOctetStrings(long ipLo, long ipHi) {
-		if (ipHi == 0)
-			ipHi = ipLo;
-		int [] lo = getIpOctets(ipLo);
-		int [] hi = getIpOctets(ipHi);
-		String [] strLo = new String [4];
-		String [] strHi = new String [4];
-		for (int i = 0; i < 4; i++) {
-			strLo [i] = lo [i] + "";
-			strHi [i] = hi [i] + "";
-		}
-		if (lo [0] == hi [0]) {
-			if (lo [1] == hi [1]) {
-				if (lo [2] == hi [2]) {
-					if (lo [3] == hi [3]) {
-						blankOctets(strHi);
-					} else if (lo [3] == 0 && hi [3] == 255) {
-						blankOctets(strHi);
-						strLo [3] = "*";
-					}
-				} else if (lo [2] == 0 && lo [3] == 0 && hi [2] == 255 && hi [3] == 255) {
-					blankOctets(strHi);
-					strLo [2] = "*";
-					strLo [3] = "";
-				}
-			} else if (lo [1] == 0 && lo [2] == 0 && lo [3] == 0 && hi [1] == 255 && hi [2] == 255 && hi [3] == 255) {
-				blankOctets(strHi);
-				strLo [1] = "*";
-				strLo [2] = "";
-				strLo [3] = "";
-			}
-		}
-		
-		return new String [] [] {strLo, strHi};
-	}
-	
-	public static void blankOctets(String [] octets) {
-		for (int i = 0; i < octets.length; i++)
-			octets [i] = "";
-	}
-	
-	public static int [] getIpOctets(long ip) {
-		int o1 = (int) (ip % 256);
-		ip = ip / 256;
-		int o2 = (int) (ip % 256);
-		ip = ip / 256;
-		int o3 = (int) (ip % 256);
-		int o4 = (int) (ip % 256);
-		return new int [] {o4, o3, o2, o1};
+		return IpAddressInstance.getIpOctetStrings(ipLo, ipHi);
 	}
 }

@@ -153,7 +153,7 @@ public class DbAgreementContact extends HibernateAccessor {
             }
             sqlQuery += " agreement_contact.agreement_id, contact.full_name";
             
-            System.out.println(sqlQuery);
+ //         System.out.println(sqlQuery);
             
             SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery);
             

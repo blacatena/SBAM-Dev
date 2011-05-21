@@ -34,6 +34,7 @@ public class AppAuthMethodValidator {
 		validateSite(instance.getForUcn(), instance.getForUcnSuffix(), instance.getForSiteLocCode());
 		validateAgreementSite(instance.getAgreementId(), instance.getForUcn(), instance.getForUcnSuffix(), instance.getForSiteLocCode());
 		validateStatus(instance.getStatus());
+		validateIpRange(instance);
 		return messages;
 	}
 	
@@ -151,6 +152,21 @@ public class AppAuthMethodValidator {
 		if (status != AppConstants.STATUS_ACTIVE && status != AppConstants.STATUS_INACTIVE && status != AppConstants.STATUS_DELETED)
 			addMessage("Invalid status " + status);
 		return messages;
+	}
+	
+	public void validateIpRange(AuthMethodInstance instance) {
+		if (instance.getIpLo() == 0 && instance.getIpHi() > 0)
+			instance.setIpLo(instance.getIpHi());
+		if (instance.getIpLo() != 0) {
+			if (instance.getIpHi() == 0)
+				instance.setIpHi(instance.getIpHi());
+			if (instance.getIpLo() > instance.getIpHi())
+				addMessage("Low IP cannot be greater than high IP.");
+			instance.assignIpRangeCode();
+			if (instance.getIpRangeCode() == null || instance.getIpRangeCode().length() == 0) {
+				addMessage("IP range too broad.");
+			}
+		}
 	}
 	
 	private boolean loadAuthMethod() {

@@ -87,6 +87,8 @@ public class UpdateAuthMethodServiceImpl extends AuthenticatedServiceServlet imp
 				dbInstance.setIpLo(instance.getIpLo());
 			if (instance.getIpHi() > 0)
 				dbInstance.setIpHi(instance.getIpHi());
+			if (instance.getIpRangeCode() != null)
+				dbInstance.setIpRangeCode(instance.getIpRangeCode());
 			if (instance.getUrl() != null)
 				dbInstance.setUrl(instance.getUrl());
 			if (instance.getUserId() != null)
@@ -113,6 +115,8 @@ public class UpdateAuthMethodServiceImpl extends AuthenticatedServiceServlet imp
 			}
 			
 			//	Fix any nulls
+			if (dbInstance.getIpRangeCode() == null)
+				dbInstance.setIpRangeCode("");
 			if (dbInstance.getOrgPath() == null)
 				dbInstance.setOrgPath("");
 			if (dbInstance.getNote() == null)

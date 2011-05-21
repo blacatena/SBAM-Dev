@@ -9,7 +9,7 @@ import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
 import com.scholastic.sbam.shared.util.AppConstants;
 
-public class ProxyIpInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
+public class ProxyIpInstance extends IpAddressInstance implements BeanModelTag, IsSerializable {
 
 	private static BeanModelFactory beanModelfactory;
 
@@ -17,6 +17,7 @@ public class ProxyIpInstance extends BetterRowEditInstance implements BeanModelT
 	private int			ipId;
 	private long		ipLo;
 	private long		ipHi;
+	private String		ipRangeCode;
 	private String		note;
 	private char		approved;
 	private char		status;
@@ -82,6 +83,10 @@ public class ProxyIpInstance extends BetterRowEditInstance implements BeanModelT
 
 	public void setIpLo(long ipLo) {
 		this.ipLo = ipLo;
+		//	This is optimized to not bother computing the range if it has already been set, or both IPs are not yet set
+		if (this.ipLo != 0 && this.ipHi != 0 && (this.ipRangeCode == null || this.ipRangeCode.length() == 0) )
+			setIpRangeCode();
+//		syncMethodKey();
 	}
 
 	public long getIpHi() {
@@ -92,6 +97,22 @@ public class ProxyIpInstance extends BetterRowEditInstance implements BeanModelT
 		if (ipHi == 0)
 			ipHi = ipLo;
 		this.ipHi = ipHi;
+		//	This is optimized to not bother computing the range if it has already been set, or both IPs are not yet set
+		if (this.ipLo != 0 && this.ipHi != 0 && (this.ipRangeCode == null || this.ipRangeCode.length() == 0) )
+			setIpRangeCode();
+//		syncMethodKey();
+	}
+
+	public String getIpRangeCode() {
+		return ipRangeCode;
+	}
+	
+	private void setIpRangeCode() {
+		ipRangeCode = getCommonIpRangeCode(ipLo, ipHi);
+	}
+
+	public void setIpRangeCode(String ipRangeCode) {
+		this.ipRangeCode = ipRangeCode;
 	}
 
 	public char getApproved() {
@@ -142,5 +163,18 @@ public class ProxyIpInstance extends BetterRowEditInstance implements BeanModelT
 			beanModelfactory  = BeanModelLookup.get().getFactory(ProxyInstance.class);
 		BeanModel model = beanModelfactory.createModel(instance);
 		return model;
+	}
+	
+	public MethodIdInstance obtainMethodId() {
+		MethodIdInstance mid = new MethodIdInstance();
+		mid.setAgreementId(0);
+		mid.setUcn(0);
+		mid.setUcnSuffix(0);
+		mid.setSiteLocCode(null);
+		mid.setMethodType(null);
+		mid.setMethodKey(0);
+		mid.setProxyId(proxyId);
+		mid.setIpId(ipId);
+		return mid;
 	}
 }

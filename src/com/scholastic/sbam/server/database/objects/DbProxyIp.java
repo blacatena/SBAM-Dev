@@ -27,6 +27,10 @@ public class DbProxyIp extends HibernateAccessor {
 		ProxyIpInstance instance = new ProxyIpInstance();
 		instance.setProxyId(dbInstance.getId().getProxyId());
 		instance.setIpId(dbInstance.getId().getIpId());
+		instance.setIpRangeCode(dbInstance.getIpRangeCode());
+		instance.setIpLo(dbInstance.getIpLo());
+		instance.setIpHi(dbInstance.getIpHi());
+		instance.setApproved(dbInstance.getApproved());
 		instance.setNote(dbInstance.getNote());
 		instance.setStatus(dbInstance.getStatus());
 		instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
