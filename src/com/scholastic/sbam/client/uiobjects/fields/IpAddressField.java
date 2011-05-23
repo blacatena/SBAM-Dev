@@ -96,6 +96,16 @@ public class IpAddressField extends MultiField<Long> {
 		}
 	}
 	
+	public void addInputStyleName(String style) {
+		for (OctetField field : octetFields)
+			field.addInputStyleName(style);
+	}
+	
+	public void removeInputStyleName(String style) {
+		for (OctetField field : octetFields)
+			field.removeInputStyleName(style);
+	}
+	
 	@Override
 	public Long getValue() {
 		long value = 0;

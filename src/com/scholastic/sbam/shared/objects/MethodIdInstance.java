@@ -30,6 +30,10 @@ public class MethodIdInstance implements BeanModelTag, IsSerializable {
 
 	private int		proxyId;
 	private int		ipId;
+	
+	private int		forUcn;
+	private int		forUcnSuffix;
+	private String	forSiteLocCode;
 
 	public int getAgreementId() {
 		return agreementId;
@@ -77,6 +81,30 @@ public class MethodIdInstance implements BeanModelTag, IsSerializable {
 
 	public void setMethodKey(int methodKey) {
 		this.methodKey = methodKey;
+	}
+
+	public int getForUcn() {
+		return forUcn;
+	}
+
+	public void setForUcn(int forUcn) {
+		this.forUcn = forUcn;
+	}
+
+	public int getForUcnSuffix() {
+		return forUcnSuffix;
+	}
+
+	public void setForUcnSuffix(int forUcnSuffix) {
+		this.forUcnSuffix = forUcnSuffix;
+	}
+
+	public String getForSiteLocCode() {
+		return forSiteLocCode;
+	}
+
+	public void setForSiteLocCode(String forSiteLocCode) {
+		this.forSiteLocCode = forSiteLocCode;
 	}
 
 	public int getProxyId() {
@@ -149,8 +177,11 @@ public class MethodIdInstance implements BeanModelTag, IsSerializable {
 			&&		ucn			== other.ucn
 			&&		ucnSuffix	== other.ucnSuffix
 			&&		methodKey	== other.methodKey
+			&&		forUcn		== other.forUcn
+			&&		forUcnSuffix== other.forUcnSuffix
 			&& 		stringEquals(siteLocCode, other.siteLocCode)
 			&&		stringEquals(methodType,  other.methodType)
+			&& 		stringEquals(forSiteLocCode, other.forSiteLocCode)
 			);
 	}
 	

@@ -3,6 +3,15 @@ package com.scholastic.sbam.client.uiobjects.fields;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
 
+/**
+ * Extends MultiField to add the capabilities to automatically set original values, and to disable the component fields rather than the multifield as a whole.
+ * 
+ * Both characteristics can be turned on or off individually.
+ * 
+ * @author Bob Lacatena
+ *
+ * @param <D>
+ */
 public class EnhancedMultiField<D> extends MultiField<D> {
 	/**	
 	 * True if component fields should be disabled individually, rather than together

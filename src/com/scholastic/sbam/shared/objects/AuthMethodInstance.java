@@ -453,6 +453,9 @@ public class AuthMethodInstance extends IpAddressInstance implements BeanModelTa
 		mid.setSiteLocCode(siteLocCode);
 		mid.setMethodType(methodType);
 		mid.setMethodKey(methodKey);
+		mid.setForUcn(forUcn);
+		mid.setForUcnSuffix(forUcnSuffix);
+		mid.setForSiteLocCode(forSiteLocCode);
 		mid.setProxyId(0);
 		mid.setIpId(0);
 		return mid;

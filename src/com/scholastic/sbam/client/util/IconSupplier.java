@@ -198,6 +198,18 @@ public class IconSupplier {
 		return "help.png";
 	}
 	
+	public static String getInfoIconName() {
+		return "info.png";
+	}
+	
+	public static String getAlertIconName() {
+		return "alert.png";
+	}
+	
+	public static String getWarningIconName() {
+		return getAlertIconName();
+	}
+	
 	public static String getPortletsIconName() {
 		return "portlets.png";
 	}

@@ -2,20 +2,30 @@ package com.scholastic.sbam.client.uiobjects.fields;
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.GXT;
+import com.extjs.gxt.ui.client.Style.HideMode;
+import com.extjs.gxt.ui.client.core.XDOM;
+import com.extjs.gxt.ui.client.widget.ComponentHelper;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DeferredCommand;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.IpRangeValidationService;
 import com.scholastic.sbam.client.services.IpRangeValidationServiceAsync;
+import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.objects.IpAddressInstance;
 import com.scholastic.sbam.shared.objects.MethodIdInstance;
 import com.scholastic.sbam.shared.validation.AsyncValidationResponse;
 
+@SuppressWarnings("deprecation")
 public class IpAddressRangeField extends MultiField<Long []> {
 	public final String	LOW_IP_LABEL	= "";	//"From:&nbsp;";
-	public final String HIGH_IP_LABEL	= "&nbsp;&nbsp;&nbsp;&hArr;&nbsp;";	//"&nbsp;&nbsp;To:&nbsp;";
+	public final String HIGH_IP_LABEL	= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&hArr;&nbsp;&nbsp;&nbsp;&nbsp;";	//"&nbsp;&nbsp;To:&nbsp;";
 	
 	protected LabelField		loIpLabelField;
 	protected IpAddressField	loIpField;
@@ -26,7 +36,15 @@ public class IpAddressRangeField extends MultiField<Long []> {
 	protected long				lastLoIpValidated	= 0L;
 	protected long				lastHiIpValidated	= 0L;
 	protected List<String>		asyncMessages		= null;
+	protected List<String>		asyncAlertMessages	= null;
+	protected List<String>		asyncInfoMessages	= null;
 	protected MethodIdInstance	methodId			= null;
+	
+
+	protected WidgetComponent	infoIcon;
+	protected String			infoStyle	= "x-form-info";
+	protected String			alertStyle	= "x-form-info-alert";
+	protected String			activeInfoMessage;
 	
 	protected IpRangeValidationServiceAsync validationService = GWT.create(IpRangeValidationService.class);
 	
@@ -246,6 +264,11 @@ public class IpAddressRangeField extends MultiField<Long []> {
 							} else {
 								asyncMessages = null;
 								clearInvalid();
+								asyncInfoMessages = response.getInfoMessages();
+								asyncAlertMessages = response.getAlertMessages();
+								asyncAlertMessages.add("A long, long, long test alert message.");
+								asyncInfoMessages.add("A long, long, long test info message.");
+								markInfo(asyncInfoMessages, asyncAlertMessages);
 							}
 						}
 					}
@@ -255,6 +278,11 @@ public class IpAddressRangeField extends MultiField<Long []> {
 	public void markInvalid(List<String> messages) {
 		for (String message: messages)
 			markInvalid(message);
+	}
+	
+	public void resetAsynchValidation() {
+		lastLoIpValidated = 0;
+		lastHiIpValidated = 0;
 	}
 	
 //	@Override
@@ -267,5 +295,243 @@ public class IpAddressRangeField extends MultiField<Long []> {
 	
 	public static String [] [] getIpOctetStrings(long ipLo, long ipHi) {
 		return IpAddressInstance.getIpOctetStrings(ipLo, ipHi);
+	}
+	
+	
+	/**
+	 * 
+	 * The below methods have all been added to incorporate the capability to have "info" and "alert" messages display if no error messages are found.
+	 * 
+	 * The code is basically a duplication of GXT's error icon code, but using different style attributes.
+	 * 
+	 * This code should in theory be incorporated in a higher level Field class, but of course there's no way to "insert" that into the inheritance hierarchy,
+	 * which in turn would require building all new higher level classes (TextFieldWithInfo, MultiFieldWithInfo, etc.).
+	 * 
+	 */
+	
+	
+	public void markInfo() {
+		if (asyncInfoMessages == null || asyncInfoMessages.size() == 0)
+			if (asyncAlertMessages == null || asyncAlertMessages.size() == 0) {
+				clearInfo();
+				return;
+			}
+		markInfo(asyncInfoMessages, asyncAlertMessages);
+	}
+	
+	public void markInfo(List<String> infoMsgs, List<String> alertMsgs) {
+		boolean alert = alertMsgs != null && alertMsgs.size() > 0;
+		StringBuffer msgs = new StringBuffer();
+		if (alertMsgs != null) {
+			for (String msg : alertMsgs) {
+				if (msgs.length() > 0) msgs.append("<br/>");
+				msgs.append("<em>");
+				msgs.append(msg);
+				msgs.append("</em>");
+			}
+		}
+		if (infoMsgs != null) {
+			for (String msg : infoMsgs) {
+				if (msgs.length() > 0) msgs.append("<br/>");
+				msgs.append(msg);
+			}
+		}
+		markInfo(msgs.toString(), alert);
+	}
+	
+	@Override
+	public void markInvalid(String msg) {
+		super.markInvalid(msg);
+		clearInfo();
+//		FOR DEBUGGING TOOLTIP CSS -- makes the tooltip hang around long enough to look at
+//		if (errorIcon != null) errorIcon.getToolTip().getToolTipConfig().setDismissDelay(0);
+//		if (errorIcon != null) errorIcon.getToolTip().getToolTipConfig().setHideDelay(500000);
+	}
+	
+	/**
+	 * Marks this field as having info (warnings or messages). Validation will still run if called again, and
+	 * the error message will be changed or cleared based on validation. To set a
+	 * error message that will not be cleared until manually cleared see
+	 * {@link #forceInvalid(String)}
+	 * 
+	 * @param msg the validation message
+	 */
+	public void markInfo(String msg, boolean alert) {
+		if (msg == null) {
+			clearInfo();
+			return;
+		}
+//		msg = Format.htmlEncode(msg == null ? getMessages().getInvalidText() : msg);
+		activeInfoMessage = msg;
+		if (!rendered || preventMark) {
+			return;
+		}
+		if (alert) {
+			loIpField.removeInputStyleName(infoStyle);
+			loIpField.addInputStyleName(alertStyle);
+			hiIpField.removeInputStyleName(infoStyle);
+			loIpField.addInputStyleName(alertStyle);
+		} else {
+			loIpField.removeInputStyleName(alertStyle);
+			loIpField.addInputStyleName(infoStyle);
+			hiIpField.removeInputStyleName(alertStyle);
+			hiIpField.addInputStyleName(infoStyle);
+		}
+
+		if ("side".equals(getMessageTarget())) {
+			if (infoIcon == null) {
+				if (alert)
+					infoIcon = new WidgetComponent(IconSupplier.getColorfulIcon(IconSupplier.getAlertIconName()).createImage());	//	getImages().getInvalid().createImage());
+				else
+					infoIcon = new WidgetComponent(IconSupplier.getColorfulIcon(IconSupplier.getInfoIconName()).createImage());	//	getImages().getInvalid().createImage());
+				Element p = el().getParent().dom;
+				infoIcon.render(p);
+				infoIcon.setHideMode(HideMode.VISIBILITY);
+				infoIcon.hide();
+				infoIcon.setStyleAttribute("display", "block");
+				infoIcon.el().makePositionable(true);
+				infoIcon.getAriaSupport().setRole("alert");
+				if (GXT.isAriaEnabled()) {
+					setAriaState("aria-describedby", infoIcon.getId());
+					infoIcon.setTitle(getErrorMessage());
+				}
+
+			} else if (!infoIcon.el().isConnected()) {
+				Element p = el().getParent().dom;
+				p.appendChild(infoIcon.getElement());
+			}
+			if (!infoIcon.isAttached()) {
+				ComponentHelper.doAttach(infoIcon);
+			}
+
+			alignInfoIcon();
+			if (GXT.isIE || GXT.isOpera) {
+				alignInfoIcon();
+			}
+			// needed to prevent flickering
+			DeferredCommand.addCommand(new Command() {
+				public void execute() {
+					if (infoIcon.isAttached()) {
+						infoIcon.show();
+					}
+				}
+			});
+			infoIcon.setToolTip(msg);
+			//	FOR DEBUGGING TOOLTIP CSS -- makes the tooltip hang around long enough to look at
+//			infoIcon.getToolTip().getToolTipConfig().setDismissDelay(0); System.out.println("set delay 0");
+//			infoIcon.getToolTip().getToolTipConfig().setHideDelay(500000);
+			if (alert)
+				infoIcon.getToolTip().addStyleName("x-form-info-alert-tip");
+			else
+				infoIcon.getToolTip().addStyleName("x-form-info-tip");
+			el().repaint();
+		} else if ("title".equals(getMessageTarget())) {
+			setTitle(msg);
+		} else if ("tooltip".equals(getMessageTarget())) {
+			setToolTip(msg);
+			if (alert)
+				getToolTip().addStyleName("x-form-info-alert-tip");
+			else
+				getToolTip().addStyleName("x-form-info-tip");
+			getToolTip().enable();
+		} else if ("none".equals(getMessageTarget())) {
+			// do nothing
+		} else {
+			Element elem = XDOM.getElementById(getMessageTarget());
+			if (elem != null) {
+				elem.setInnerHTML(msg);
+			}
+		}
+
+//		if (GXT.isAriaEnabled()) {
+//			setAriaState("aria-invalid", "true");
+//		}
+//
+//		FieldEvent fe = new FieldEvent(this);
+//		fe.setMessage(msg);
+//		fireEvent(Events.Invalid, fe);
+	}
+
+	/**
+	 * Clear any info styles / messages for this field.
+	 */
+	public void clearInfo() {
+		if (!rendered) {
+			return;
+		}
+		
+		loIpField.removeStyleName(infoStyle);
+		loIpField.removeStyleName(alertStyle);
+		hiIpField.removeStyleName(infoStyle);
+		hiIpField.removeStyleName(alertStyle);
+
+		//	    if (forceInfoText != null) {
+		//	      forceInfoText = null;
+		//	    }
+
+		if ("side".equals(getMessageTarget())) {
+			if (infoIcon != null && infoIcon.isAttached()) {
+				ComponentHelper.doDetach(infoIcon);
+				infoIcon.setVisible(false);
+				setAriaState("aria-describedby", "");
+			}
+		} else if ("title".equals(getMessageTarget())) {
+			setTitle("");
+		} else if ("tooltip".equals(getMessageTarget())) {
+			hideToolTip();
+			if (toolTip != null) {
+				toolTip.disable();
+			}
+		} else {
+			Element elem = XDOM.getElementById(getMessageTarget());
+			if (elem != null) {
+				elem.setInnerHTML("");
+			}
+		}
+//		if (GXT.isAriaEnabled()) {
+//			getAriaSupport().setState("aria-invalid", "false");
+//		}
+//		fireEvent(Events.Valid, new FieldEvent(this));
+	}
+
+	protected void alignInfoIcon() {
+		DeferredCommand.addCommand(new Command() {
+			public void execute() {
+				infoIcon.el().alignTo(getElement(), "tl-tr", new int[] {2, 3});
+			}
+		});
+	}
+
+	@Override
+	protected void doDetachChildren() {
+		super.doDetachChildren();
+		if (infoIcon != null && infoIcon.isAttached()) {
+			infoIcon.setVisible(false);
+			ComponentHelper.doDetach(infoIcon);
+		}
+	}
+
+	@Override
+	protected void onHide() {
+		super.onHide();
+		if (infoIcon != null && infoIcon.isAttached()) {
+			infoIcon.hide();
+		}
+	}
+
+	@Override
+	protected void onResize(int width, int height) {
+		super.onResize(width, height);
+		if (infoIcon != null && infoIcon.isAttached()) {
+			alignInfoIcon();
+		}
+	}
+
+	@Override
+	protected void onShow() {
+		super.onShow();
+		if (infoIcon != null && infoIcon.isAttached()) {
+			infoIcon.show();
+		}
 	}
 }

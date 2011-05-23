@@ -164,7 +164,7 @@ public class DbAuthMethod extends HibernateAccessor {
 		
 		//	By restricting the search by range codes, the database is able to effectively find potential overlaps
 		List<String> rangeCodes = new ArrayList<String>();
-		for (int i = 1; i <= ipRangeCode.length(); i++) {
+		for (int i = 1; i < ipRangeCode.length(); i++) {
 			rangeCodes.add(ipRangeCode.substring(0,i));
 		}
 		System.out.println(ipRangeCode);
@@ -173,7 +173,7 @@ public class DbAuthMethod extends HibernateAccessor {
         Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
 
         //	This criterion is for database performance (i.e. prevents a full database scan)
-        crit.add(Restrictions.in("ipRangeCode", rangeCodes));
+        crit.add(Restrictions.or(Restrictions.in("ipRangeCode", rangeCodes), Restrictions.like("ipRangeCode", ipRangeCode + "%")));
         //	These criteria actually perform the real check
         crit.add(Restrictions.le("ipLo", ipHi));
         crit.add(Restrictions.ge("ipHi", ipLo));

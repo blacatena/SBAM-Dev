@@ -432,6 +432,269 @@ div.x-slider div.ext-el-mask {
 	background-image:url(resources/images/calendar/left-btn.gif);
 }
 
+/*  For warning or info instead of error messages on fields */
+
+/* From gxt-all */
+
+
+.x-form-info-alert,textarea.x-form-info-alert {
+  background: repeat-x bottom;
+  border: 1px solid;
+}
+
+.ext-safari .x-form-info-alert {
+  border: 1px solid;
+}
+
+.x-form-inner-info-alert,textarea.x-form-inner-info-alert {
+  background: repeat-x bottom;
+}
+
+.x-form-info-alert-msg {
+  padding: 2px;
+  padding-left: 18px;
+  background: transparent no-repeat 0 2px;
+  line-height: 16px;
+  width: 200px;
+}
+
+.x-form-info-alert-icon {
+  width: 16px;
+  height: 18px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  background: transparent no-repeat 0 2px;
+}
+
+.x-form-info-alert-icon {
+  background-position: 0 0 !important;
+}
+
+.x-form-info-alert-tip .x-tip-tc {
+	background: repeat-x 0 -12px;
+    padding-top:6px;
+}
+.x-form-info-alert-tip .x-tip-bc {
+	background: repeat-x 0 -18px;
+    height:6px;
+}
+.x-form-info-alert-tip .x-tip-bl {
+	background: no-repeat 0 -6px;
+}
+.x-form-info-alert-tip .x-tip-br {
+	background: no-repeat right -6px;
+}
+.x-form-info-alert-tip .x-tip-body {
+    padding:2px;
+}
+.x-form-info-alert-tip .x-tip-body {
+    padding-left:24px;
+    background:transparent no-repeat 2px 2px;
+}
+
+/*.x-form-info-alert,textarea.x-form-info-alert {*/
+/*  background-color: #fff;*/
+/*  background-image: url(../ExtGWT/images/default/grid/info-alert_line.gif);*/
+/*  border-color: #c30;*/
+/*}*/
+
+.ext-safari .x-form-info-alert {
+  background-color: #fee;
+  border-color: orange; /* #ff7870; */
+}
+
+/*.x-form-inner-info-alert,textarea.x-form-inner-info-alert {*/
+/*  background-color: #fff;*/
+/*  background-image: url(../ExtGWT/images/default/grid/info-alert_line.gif);*/
+/*}*/
+
+/*.x-form-info-alert-msg {*/
+/*  color: #c0272b;*/
+/*  font: normal 11px tahoma, arial, helvetica, sans-serif;*/
+/*  background-image: url(../ExtGWT/images/default/shared/warning.gif);*/
+/*}*/
+
+/*.x-form-info-alert-icon {*/
+/*  background-image: url(../ExtGWT/images/default/form/exclamation.gif);*/
+/*}*/
+
+/*.x-form-info-alert-tip .x-tip-tc, .x-form-info-alert-tip .x-tip-tl, .x-form-info-alert-tip .x-tip-tr, .x-form-info-alert-tip .x-tip-bc,*/
+/*.x-form-info-alert-tip .x-tip-bl, .x-form-info-alert-tip .x-tip-br, .x-form-info-alert-tip .x-tip-ml, .x-form-info-alert-tip .x-tip-mr*/
+/*{*/
+/*	background-image: url(../ExtGWT/images/default/form/error-tip-corners.gif);*/
+/*}*/
+/*.x-form-info-alert-tip .x-tip-body {*/
+/*    background-image:url(../ExtGWT/images/default/form/exclamation.gif);*/
+/*}*/
+
+/* From theme */
+
+*.x-form-info-alert, textarea.x-form-info-alert{
+	background-color:#ffffff;
+	background-image:url(resources/images/grid/alert_line.gif);
+	border-color: orange; /* #9f0000; */
+}
+*.x-form-info-alert *.x-form-composite{
+	border:none ;
+	background-image:none ;
+}
+*.x-form-info-alert.x-form-composite *.x-form-info-alert{
+	background-color:#ffe1b6;
+	background-image:url(resources/images/alert_line.gif);
+	border-color: orange; /* #9f0000; */
+}
+*.x-form-inner-info-alert, textarea.x-form-inner-info-alert{
+	background-color:#ffe1b6;
+	background-image:url(resources/images/alert_line.gif);
+}
+*.x-form-info-alert-msg{
+	color:#c0272b;
+	font:normal 11.0 tahoma , arial , helvetica , sans-serif ;
+	background-image:url(resources/images/icons/colorful/alert.png);
+}
+*.x-form-info-alert-icon{
+	background-image:url(resources/images/icons/colorful/alert.png);
+}
+*.x-form-info-alert-tip *.x-tip-tc, *.x-form-info-alert-tip *.x-tip-tl, *.x-form-info-alert-tip *.x-tip-tr, *.x-form-info-alert-tip *.x-tip-bc, *.x-form-info-alert-tip *.x-tip-bl, *.x-form-info-alert-tip *.x-tip-br, *.x-form-info-alert-tip *.x-tip-ml, *.x-form-info-alert-tip *.x-tip-mr{
+background-image:url(resources/images/form/info-error-tip-corners.gif);
+}
+*.x-form-info-alert-tip *.x-tip-body{
+background-image:url(resources/images/icons/colorful/alert.png);
+}
+
+
+/* From gxt-all */
+
+
+.x-form-info,textarea.x-form-info {
+  background: repeat-x bottom;
+  border: 1px solid;
+}
+
+.ext-safari .x-form-info {
+  border: 1px solid;
+}
+
+.x-form-inner-info,textarea.x-form-inner-info {
+  background: repeat-x bottom;
+}
+
+.x-form-info-msg {
+  padding: 2px;
+  padding-left: 18px;
+  background: transparent no-repeat 0 2px;
+  line-height: 16px;
+  width: 200px;
+}
+
+.x-form-info-icon {
+  width: 16px;
+  height: 18px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  background: transparent no-repeat 0 2px;
+}
+
+.x-form-info-icon {
+  background-position: 0 0 !important;
+}
+
+.x-form-info-tip .x-tip-tc {
+	background: repeat-x 0 -12px;
+    padding-top:6px;
+}
+.x-form-info-tip .x-tip-bc {
+	background: repeat-x 0 -18px;
+    height:6px;
+}
+.x-form-info-tip .x-tip-bl {
+	background: no-repeat 0 -6px;
+}
+.x-form-info-tip .x-tip-br {
+	background: no-repeat right -6px;
+}
+.x-form-info-tip .x-tip-body {
+    padding:2px;
+}
+.x-form-info-tip .x-tip-body {
+    padding-left:24px;
+    background:transparent no-repeat 2px 2px;
+}
+
+/*.x-form-info,textarea.x-form-info {*/
+/*  background-color: #fff;*/
+/*  background-image: url(../ExtGWT/images/default/grid/info_line.gif);*/
+/*  border-color: #c30;*/
+/*}*/
+
+.ext-safari .x-form-info {
+  background-color: #fee;
+  border-color: blue;	/* #ff7870; */
+}
+
+/*.x-form-inner-info,textarea.x-form-inner-info {*/
+/*  background-color: #fff;*/
+/*  background-image: url(../ExtGWT/images/default/grid/info_line.gif);*/
+/*}*/
+
+/*.x-form-info-msg {*/
+/*  color: #c0272b;*/
+/*  font: normal 11px tahoma, arial, helvetica, sans-serif;*/
+/*  background-image: url(../ExtGWT/images/default/shared/warning.gif);*/
+/*}*/
+
+/*.x-form-info-icon {*/
+/*  background-image: url(../ExtGWT/images/default/form/exclamation.gif);*/
+/*}*/
+
+/*.x-form-info-tip .x-tip-tc, .x-form-info-tip .x-tip-tl, .x-form-info-tip .x-tip-tr, .x-form-info-tip .x-tip-bc,*/
+/*.x-form-info-tip .x-tip-bl, .x-form-info-tip .x-tip-br, .x-form-info-tip .x-tip-ml, .x-form-info-tip .x-tip-mr*/
+/*{*/
+/*	background-image: url(../ExtGWT/images/default/form/error-tip-corners.gif);*/
+/*}*/
+/*.x-form-info-tip .x-tip-body {*/
+/*    background-image:url(../ExtGWT/images/default/form/exclamation.gif);*/
+/*}*/
+
+/* From theme */
+
+*.x-form-info, textarea.x-form-info{
+	background-color:#ffffff;
+	background-image:url(resources/images/grid/info_line.gif);
+	border-color: blue; /* #9f0000; */
+}
+*.x-form-info *.x-form-composite{
+	border:none ;
+	background-image:none ;
+}
+*.x-form-info.x-form-composite *.x-form-info{
+	background-color:#ffe1b6;
+	background-image:url(resources/images/info_line.gif);
+	border-color: blue; /* #9f0000; */
+}
+*.x-form-inner-info, textarea.x-form-inner-info{
+	background-color:#ffe1b6;
+	background-image:url(resources/images/info_line.gif);
+}
+*.x-form-info-msg{
+	color:#c0272b;
+	font:normal 11.0 tahoma , arial , helvetica , sans-serif ;
+	background-image:url(resources/images/icons/colorful/info.png);
+}
+*.x-form-info-icon{
+	background-image:url(resources/images/icons/colorful/info.png);
+}
+*.x-form-info-tip *.x-tip-tc, *.x-form-info-tip *.x-tip-tl, *.x-form-info-tip *.x-tip-tr, *.x-form-info-tip *.x-tip-bc, *.x-form-info-tip *.x-tip-bl, *.x-form-info-tip *.x-tip-br, *.x-form-info-tip *.x-tip-ml, *.x-form-info-tip *.x-tip-mr{
+background-image:url(resources/images/form/info-error-tip-corners.gif);
+}
+*.x-form-info-tip *.x-tip-body{
+background-image:url(resources/images/icons/colorful/info.png);
+}
+
 /* These are necessary, because the theme doesn't "take" -- change these if the theme changes */
 /* Managed now by adding the style "x-panel" wherever needed
 .x-border {

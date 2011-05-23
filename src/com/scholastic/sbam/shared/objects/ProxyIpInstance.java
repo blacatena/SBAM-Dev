@@ -173,6 +173,9 @@ public class ProxyIpInstance extends IpAddressInstance implements BeanModelTag, 
 		mid.setSiteLocCode(null);
 		mid.setMethodType(null);
 		mid.setMethodKey(0);
+		mid.setForUcn(0);
+		mid.setForUcnSuffix(0);
+		mid.setForSiteLocCode(null);
 		mid.setProxyId(proxyId);
 		mid.setIpId(ipId);
 		return mid;
