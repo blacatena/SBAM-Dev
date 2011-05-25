@@ -52,6 +52,7 @@ import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.AgreementInstance;
 import com.scholastic.sbam.shared.objects.AuthMethodInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
+import com.scholastic.sbam.shared.objects.MethodIdInstance;
 import com.scholastic.sbam.shared.objects.ProxyInstance;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.SiteInstance;
@@ -237,7 +238,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		else
 			ucnDisplay.setValue(instance.getForUcn() + " - " + instance.getForUcnSuffix());
 		
-		institutionField.setAgreementId(instance.getAgreementId());
+		institutionField.setAgreementId(getAgreementId());
 		
 		set(instance.getSite().getInstitution());
 //		institutionField.setReadOnly(!instance.isNewRecord());
@@ -251,6 +252,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		remoteCheck.setValue(instance.isRemote());
 		
 		if (AuthMethodInstance.AM_IP.equals(instance.getMethodType())) {
+			ipRangeField.setMethodId(instance.obtainMethodId());
 			ipRangeField.setValue(instance.getIpLo(), instance.getIpHi());
 			proxyField.setValue(ProxyInstance.obtainModel(ProxyInstance.getEmptyInstance()));
 			openUrlFields(false);
@@ -334,6 +336,9 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		openUidFields(true);
 		openUrlFields(true);
 		super.handleNew();
+		ipRangeField.setMethodId(MethodIdInstance.getEmptyInstance());
+		ipRangeField.getMethodId().setAgreementId(getAgreementId());
+		institutionField.setAgreementId(getAgreementId());
 		agreementIdField.setValue(AppConstants.appendCheckDigit(agreement.getId()) + " &nbsp;&nbsp;&nbsp;<i>New Method</i>");
 		//	Originally, these couldn't be changed on a method because they were part of the key, but now they can
 //		institutionField.setReadOnly(false);
@@ -544,6 +549,21 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 			siteLocCombo.setWidth(width);
 		siteLocCombo.setDisplayField("descriptionAndCode");
 		
+		//	Add a listener to tell the asynchronous validate fields which site location to use.
+		siteLocCombo.addSelectionChangedListener(new SelectionChangedListener<BeanModel>() {
+
+			@Override
+			public void selectionChanged(SelectionChangedEvent<BeanModel> se) {
+				if (ipRangeField == null || ipRangeField.getMethodId() == null)
+					return;
+				if (se.getSelectedItem() == null) {
+					ipRangeField.getMethodId().setForSiteLocCode(null);
+				} else
+					ipRangeField.getMethodId().setForSiteLocCode(se.getSelectedItem().get("siteLocCode").toString());
+			}
+			
+		});
+		
 		return siteLocCombo;
 	}
 	
@@ -588,6 +608,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		AgreementSiteInstitutionSearchField instCombo = new AgreementSiteInstitutionSearchField();
 		FieldFactory.setStandard(instCombo, label);
 		instCombo.setAllowBlank(true);
+		instCombo.setAgreementId(getAgreementId());
 		
 		if (toolTip != null)
 			instCombo.setToolTip(toolTip);
@@ -644,11 +665,16 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		matchToInstitution(siteInstitution);
 	}
 	
+	/**
+	 * Match the form field values to reflect a selected institution.
+	 * @param instance
+	 */
 	protected void matchToInstitution(InstitutionInstance instance) {
 		
 		if (instance == null || instance.getUcn() == 0) {
 			ucnDisplay.setValue("");
 			siteLocationField.setFor(0, 0, "");
+			setIpRangeField(0, 0, "");
 			return;
 		}
 		
@@ -656,16 +682,31 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 			// Same institution as instance, so use the instance UCN
 			siteLocationField.setFor(focusInstance, instance.getInstitutionName());
 			siteLocationField.setValue(SiteInstance.obtainModel(focusInstance.getSite()));
+			setIpRangeField(focusInstance.getSite().getUcn(), focusInstance.getSite().getUcnSuffix(), focusInstance.getSite().getSiteLocCode());
 		} else {
 			// Different UCN, default to suffix 1
 			siteLocationField.setFor(instance.getUcn(), 1, instance.getInstitutionName());
-			siteLocationField.setValue(SiteInstance.obtainModel(SiteInstance.getMainInstance(instance.getUcn(), 1)));
+			SiteInstance newMain = SiteInstance.getMainInstance(instance.getUcn(), 1);
+			siteLocationField.setValue(SiteInstance.obtainModel(newMain));
+			setIpRangeField(newMain.getUcn(), newMain.getUcnSuffix(), newMain.getSiteLocCode());
 		}
 		
 		ucnDisplay.setValue(instance.getUcn() + "");
 		
 	}
+	
+	protected void setIpRangeField(int forUcn, int forUcnSuffix, String forSiteLocCode) {
+		if (ipRangeField == null || ipRangeField.getMethodId() == null)
+			return;
 
+		ipRangeField.getMethodId().setForUcn(forUcn);
+		ipRangeField.getMethodId().setForUcnSuffix(forUcnSuffix);
+		ipRangeField.getMethodId().setForSiteLocCode(forSiteLocCode);
+	}
+
+	/**
+	 * Perform an update to the database using the current form field values.
+	 */
 	@Override
 	protected void asyncUpdate() {
 	

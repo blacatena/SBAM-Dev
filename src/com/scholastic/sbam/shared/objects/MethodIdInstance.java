@@ -169,6 +169,26 @@ public class MethodIdInstance implements BeanModelTag, IsSerializable {
 		return first.equals(second);
 	}
 
+	public boolean sourceEquals(MethodIdInstance other) {
+		return (
+					proxyId		== other.proxyId
+			&&		ipId		== other.ipId
+			&&		agreementId == other.agreementId
+			&&		ucn			== other.ucn
+			&&		ucnSuffix	== other.ucnSuffix
+			&& 		stringEquals(siteLocCode, other.siteLocCode)
+			);
+	}
+
+	public boolean siteEquals(MethodIdInstance other) {
+		return (
+					forUcn		== other.forUcn
+			&&		forUcnSuffix== other.forUcnSuffix
+			&& 		stringEquals(forSiteLocCode, other.forSiteLocCode)
+			
+			);
+	}
+
 	public boolean equals(MethodIdInstance other) {
 		return (
 					proxyId		== other.proxyId
@@ -183,6 +203,36 @@ public class MethodIdInstance implements BeanModelTag, IsSerializable {
 			&&		stringEquals(methodType,  other.methodType)
 			&& 		stringEquals(forSiteLocCode, other.forSiteLocCode)
 			);
+	}
+
+	public static MethodIdInstance getEmptyInstance() {
+		MethodIdInstance instance = new MethodIdInstance();
+		instance.proxyId		=	0;
+		instance.ipId			=	0;
+		instance.agreementId	=	0;
+		instance.ucn			=	0;
+		instance.ucnSuffix		=	0;
+		instance.methodKey		=	0;
+		instance.forUcn			=	0;
+		instance.forUcnSuffix	=	0;
+		instance.siteLocCode	=	"";
+		instance.methodType		=	"";
+		instance.forSiteLocCode	=	"";
+		return instance;
+	}
+
+	public void setFrom(MethodIdInstance other) {
+		this.proxyId		= other.proxyId;
+		this.ipId			= other.ipId;
+		this.agreementId 	= other.agreementId;
+		this.ucn			= other.ucn;
+		this.ucnSuffix		= other.ucnSuffix;
+		this.siteLocCode	= other.siteLocCode;
+		this.methodType		= other.methodType;
+		this.methodKey		= other.methodKey;
+		this.forUcn			= other.forUcn;
+		this.forUcnSuffix	= other.forUcnSuffix;
+		this.forSiteLocCode	= other.forSiteLocCode;
 	}
 	
 	public static BeanModel obtainModel(MethodIdInstance instance) {

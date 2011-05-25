@@ -69,6 +69,85 @@ public abstract class IpAddressInstance extends BetterRowEditInstance implements
 		return getOctetForm(getIpOctets(ip));
 	}
 	
+	public static Long [] getIpRange(String [] loOctets, String [] hiOctets) {
+		long loValue = 0;
+		long hiValue = 0;
+		if (hiOctets [0] == null || hiOctets [0].length() == 0) {
+			//	Low IP is wildcarded or only IP
+			for (int i = 0; i < 4; i++) {
+				loValue = loValue * 256;
+				hiValue = hiValue * 256;
+				if (loOctets [i] == null || "*".equals(loOctets [i]) || loOctets [i].length() == 0) {
+					// loValue doesn't change
+					hiValue = hiValue + 255;
+				} else {
+					try {
+						loValue += Integer.parseInt(loOctets [i]);
+						hiValue = loValue;
+					} catch (NumberFormatException e) {
+						
+					}
+				}
+			}
+		} else {
+			//	Both IPs have values
+			for (int i = 0; i < 4; i++) {
+				loValue = loValue * 256;
+				hiValue = hiValue * 256;
+				try {
+					loValue += Integer.parseInt(loOctets [i]);
+					hiValue += Integer.parseInt(hiOctets [i]);
+				} catch (NumberFormatException e) {
+					
+				}
+			}
+		}
+		return new Long [] { loValue, hiValue };
+	}
+	
+	public static String getBriefIpDisplay(long ipLo, long ipHi) {
+		if (ipLo == ipHi)
+			return getOctetForm(ipLo);
+		
+		String [] [] octets = getIpOctetStrings(ipLo, ipHi);
+
+		StringBuffer result = new StringBuffer();
+		
+		if (octets [1] [0].length() == 0) {	// High IP is blank, so it's been wildcarded
+			for (int i = 0; i < 4; i++) {
+				if (octets [0] [i].length() == 0)
+					return result.toString();
+				if (i > 0)
+					result.append(".");
+				result.append(octets [0] [i]);
+			}
+			return result.toString();
+		}
+		
+		//	Okay, it's a complex range
+		for (int i = 0; i < 4; i++) {
+			if (i > 0)
+				result.append(".");
+			result.append(octets [0] [i]);
+		}
+		result.append(" - ");
+		for (int i = 0; i < 4; i++) {
+			if (i > 0)
+				result.append(".");
+			result.append(octets [1] [i]);
+		}
+		
+		return result.toString();
+	}
+	
+	public static String getIpDisplay(long ipLo, long ipHi) {
+		if (ipHi == 0 || ipHi == ipLo)
+			return getOctetForm(ipLo);
+		if (ipLo == 0)
+			return getOctetForm(ipHi);
+		return getOctetForm(ipLo) + " - " + getOctetForm(ipHi);
+	}
+	
 	public static String getCommonIpRangeCode(long ipLo, long ipHi) {
 		String rangeLo = getIpRangeCode(ipLo);
 		String rangeHi = getIpRangeCode(ipHi);

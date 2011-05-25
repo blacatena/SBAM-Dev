@@ -15,6 +15,7 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Image;
 import com.scholastic.sbam.client.services.IpRangeValidationService;
 import com.scholastic.sbam.client.services.IpRangeValidationServiceAsync;
 import com.scholastic.sbam.client.util.IconSupplier;
@@ -35,10 +36,11 @@ public class IpAddressRangeField extends MultiField<Long []> {
 	protected int				validationCounter	= 0;
 	protected long				lastLoIpValidated	= 0L;
 	protected long				lastHiIpValidated	= 0L;
+	protected MethodIdInstance	lastMethodId		= MethodIdInstance.getEmptyInstance();
 	protected List<String>		asyncMessages		= null;
 	protected List<String>		asyncAlertMessages	= null;
 	protected List<String>		asyncInfoMessages	= null;
-	protected MethodIdInstance	methodId			= null;
+	protected MethodIdInstance	methodId			= MethodIdInstance.getEmptyInstance();
 	
 
 	protected WidgetComponent	infoIcon;
@@ -113,6 +115,7 @@ public class IpAddressRangeField extends MultiField<Long []> {
 	
 	@Override
 	public void setValue(Long [] values) {
+		resetAsynchValidation();
 		super.setValue(values);
 		if (values [0] == 0 && values [1] == 0) {
 			loIpField.setValue(values [0], new String [] {"", "", "", ""});
@@ -146,11 +149,13 @@ public class IpAddressRangeField extends MultiField<Long []> {
 	}
 
 	public long getLowValue() {
-		return loIpField.getValue();
+		// return loIpField.getValue();
+		return IpAddressInstance.getIpRange(getLowValues(), getHighValues()) [0];	// We have to do this to translate the octets and account for wildcards, blanks, etc.
 	}
 
 	public long getHighValue() {
-		return hiIpField.getValue();
+		//	return hiIpField.getValue();
+		return IpAddressInstance.getIpRange(getLowValues(), getHighValues()) [1];	// We have to do this to translate the octets and account for wildcards, blanks, etc.
 	}
 
 	public String [] getLowValues() {
@@ -216,6 +221,13 @@ public class IpAddressRangeField extends MultiField<Long []> {
 			}
 		}
 		
+		if (getLowValue() == lastLoIpValidated && getHighValue() == lastHiIpValidated && methodId.equals(lastMethodId)) {
+			if (asyncMessages != null && asyncMessages.size() > 0) {
+				markInvalid(asyncMessages);
+				return false;
+			}
+		}
+		
 		clearInvalid();
 		
 		asynchValidation();
@@ -223,9 +235,15 @@ public class IpAddressRangeField extends MultiField<Long []> {
 		return true;
 	}
 	
+	@Override
+	public void clearInvalid() {
+		super.clearInvalid();
+		asyncMessages = null;
+	}
+	
 	public void asynchValidation() {
-		long loIp = loIpField.getValue();
-		long hiIp = hiIpField.getValue();
+		long loIp = getLowValue();
+		long hiIp = getHighValue();
 		if (hiIp == 0)
 			hiIp = loIp;
 		if (loIp == 0)
@@ -236,11 +254,12 @@ public class IpAddressRangeField extends MultiField<Long []> {
 	}
 	
 	public void asynchValidation(long loIp, long hiIp) {
-		if (loIp == lastLoIpValidated && hiIp == lastHiIpValidated)
+		if (loIp == lastLoIpValidated && hiIp == lastHiIpValidated && methodId.equals(lastMethodId))
 			return;
 		
 		lastLoIpValidated = loIp;
 		lastHiIpValidated = hiIp;
+		lastMethodId.setFrom(methodId);
 
 		validationService.validateIpRange(loIp, hiIp, methodId, ++validationCounter,
 				new AsyncCallback<AsyncValidationResponse>() {
@@ -262,19 +281,24 @@ public class IpAddressRangeField extends MultiField<Long []> {
 								asyncMessages = response.getMessages();
 								markInvalid(asyncMessages);
 							} else {
-								asyncMessages = null;
 								clearInvalid();
 								asyncInfoMessages = response.getInfoMessages();
 								asyncAlertMessages = response.getAlertMessages();
-								asyncAlertMessages.add("A long, long, long test alert message.");
-								asyncInfoMessages.add("A long, long, long test info message.");
-								markInfo(asyncInfoMessages, asyncAlertMessages);
+								markInfo();
 							}
 						}
 					}
 			});
 	}
 	
+	public MethodIdInstance getMethodId() {
+		return methodId;
+	}
+
+	public void setMethodId(MethodIdInstance methodId) {
+		this.methodId = methodId;
+	}
+
 	public void markInvalid(List<String> messages) {
 		for (String message: messages)
 			markInvalid(message);
@@ -283,6 +307,7 @@ public class IpAddressRangeField extends MultiField<Long []> {
 	public void resetAsynchValidation() {
 		lastLoIpValidated = 0;
 		lastHiIpValidated = 0;
+		clearInfo();
 	}
 	
 //	@Override
@@ -320,6 +345,12 @@ public class IpAddressRangeField extends MultiField<Long []> {
 	}
 	
 	public void markInfo(List<String> infoMsgs, List<String> alertMsgs) {
+		if (infoMsgs == null || infoMsgs.size() == 0)
+			if (alertMsgs == null || alertMsgs.size() == 0) {
+				clearInfo();
+				return;
+			}
+		
 		boolean alert = alertMsgs != null && alertMsgs.size() > 0;
 		StringBuffer msgs = new StringBuffer();
 		if (alertMsgs != null) {
@@ -420,10 +451,19 @@ public class IpAddressRangeField extends MultiField<Long []> {
 			//	FOR DEBUGGING TOOLTIP CSS -- makes the tooltip hang around long enough to look at
 //			infoIcon.getToolTip().getToolTipConfig().setDismissDelay(0); System.out.println("set delay 0");
 //			infoIcon.getToolTip().getToolTipConfig().setHideDelay(500000);
-			if (alert)
+			if (alert) {
+				infoIcon.getToolTip().removeStyleName("x-form-info-tip");
 				infoIcon.getToolTip().addStyleName("x-form-info-alert-tip");
-			else
+				Image image = (Image) infoIcon.getWidget();
+				IconSupplier.getColorfulIcon(IconSupplier.getAlertIconName()).applyTo(image);
+			} else {
+				infoIcon.getToolTip().removeStyleName("x-form-alert-tip");
 				infoIcon.getToolTip().addStyleName("x-form-info-tip");
+				Image image = (Image) infoIcon.getWidget();
+				IconSupplier.getColorfulIcon(IconSupplier.getInfoIconName()).applyTo(image);
+			}
+//			infoIcon.getToolTip().getToolTipConfig().setAutoHide(false);
+//			infoIcon.getToolTip().getToolTipConfig().setCloseable(true);
 			el().repaint();
 		} else if ("title".equals(getMessageTarget())) {
 			setTitle(msg);
@@ -460,10 +500,10 @@ public class IpAddressRangeField extends MultiField<Long []> {
 			return;
 		}
 		
-		loIpField.removeStyleName(infoStyle);
-		loIpField.removeStyleName(alertStyle);
-		hiIpField.removeStyleName(infoStyle);
-		hiIpField.removeStyleName(alertStyle);
+		loIpField.removeInputStyleName(infoStyle);
+		loIpField.removeInputStyleName(alertStyle);
+		hiIpField.removeInputStyleName(infoStyle);
+		hiIpField.removeInputStyleName(alertStyle);
 
 		//	    if (forceInfoText != null) {
 		//	      forceInfoText = null;

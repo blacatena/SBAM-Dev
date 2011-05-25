@@ -44,7 +44,7 @@ public class AgreementSiteInstitutionSearchField extends ComboBox<BeanModel> {
 //		this.setWidth(300);
 		this.setValueField("ucn");
 		this.setDisplayField("nameAndUcn");  
-		this.setEmptyText("Enter institution search criteria here...");
+		this.setEmptyText("Enter site institution search criteria here...");
 		this.setStore(institutionStore);
 		this.setMinChars(0);
 		this.setHideTrigger(false);

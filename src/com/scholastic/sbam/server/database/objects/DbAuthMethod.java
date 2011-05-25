@@ -167,8 +167,6 @@ public class DbAuthMethod extends HibernateAccessor {
 		for (int i = 1; i < ipRangeCode.length(); i++) {
 			rangeCodes.add(ipRangeCode.substring(0,i));
 		}
-		System.out.println(ipRangeCode);
-		System.out.println(rangeCodes);
 		
         Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
 
