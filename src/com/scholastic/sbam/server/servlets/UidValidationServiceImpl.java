@@ -209,8 +209,8 @@ public class UidValidationServiceImpl extends AuthenticatedServiceServlet implem
 		if (!sameUserType) {
 			if (!samePassword || !sameProxyId)
 				msg.append(" and");
-			msg.append(" is a ");
-			msg.append(AuthMethodInstance.getUserTypeDescription(compareUserType).toLowerCase());
+			msg.append(" is ");
+			msg.append(AuthMethodInstance.getUserTypeNoun(compareUserType));
 		}
 		
 		if (siteComparison == SAME_LOCATION) {

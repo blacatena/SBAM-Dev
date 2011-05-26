@@ -14,19 +14,24 @@ public class AuthMethodInstance extends IpAddressInstance implements BeanModelTa
 	private static BeanModelFactory beanModelfactory;
 	
 	public static enum UserTypes {
-		COOKIE ("C","Cookie"),
-		PUP("P", "Permanent");
+		COOKIE ("C","Cookie", "a cookie"),
+		PUP("P", "Permanent", "a pup");
 		private String code;
 		private String name;
-		UserTypes(String code, String name) {
+		private String indefiniteNoun;
+		UserTypes(String code, String name, String indefiniteNoun) {
 			this.code = code;
 			this.name = name;
+			this.indefiniteNoun = indefiniteNoun;
 		}
 		public String getCode() {
 			return code;
 		}
 		public String getName() {
 			return name;
+		}
+		public String getIndefiniteNoun() {
+			return indefiniteNoun;
 		}
 	}
 	
@@ -464,9 +469,16 @@ public class AuthMethodInstance extends IpAddressInstance implements BeanModelTa
 	
 	public static String getUserTypeDescription(char userTypeCode) {
 		for (UserTypes userType : UserTypes.values() )
-			if (userType.getCode().equals(userTypeCode))
+			if (userType.getCode().charAt(0) == userTypeCode)
 				return userType.getName();
 		return "Unknown";
+	}
+	
+	public static String getUserTypeNoun(char userTypeCode) {
+		for (UserTypes userType : UserTypes.values() )
+			if (userType.getCode().charAt(0) == userTypeCode)
+				return userType.getIndefiniteNoun();
+		return "an unknown type";
 	}
 	
 	public void setValuesFrom(AuthMethodInstance fromInstance) {
