@@ -105,4 +105,28 @@ public class DbProxyIp extends HibernateAccessor {
         }
         return new ArrayList<ProxyIp>();
 	}
+	
+	public static List<ProxyIp> findOverlapIps(long ipLo, long ipHi) {
+		String ipRangeCode = ProxyIpInstance.getCommonIpRangeCode(ipLo, ipHi);
+		if (ipRangeCode == null || ipRangeCode.length() == 0)
+			return new ArrayList<ProxyIp>();
+		
+		//	By restricting the search by range codes, the database is able to effectively find potential overlaps
+		List<String> rangeCodes = new ArrayList<String>();
+		for (int i = 1; i < ipRangeCode.length(); i++) {
+			rangeCodes.add(ipRangeCode.substring(0,i));
+		}
+		
+        Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
+
+        //	This criterion is for database performance (i.e. prevents a full database scan)
+        crit.add(Restrictions.or(Restrictions.in("ipRangeCode", rangeCodes), Restrictions.like("ipRangeCode", ipRangeCode + "%")));
+        //	These criteria actually perform the real check
+        crit.add(Restrictions.le("ipLo", ipHi));
+        crit.add(Restrictions.ge("ipHi", ipLo));
+        
+        @SuppressWarnings("unchecked")
+		List<ProxyIp> objects = crit.list();
+        return objects;
+	}
 }

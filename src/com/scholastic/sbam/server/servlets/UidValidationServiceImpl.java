@@ -2,41 +2,34 @@ package com.scholastic.sbam.server.servlets;
 
 import java.util.List;
 
-import com.scholastic.sbam.client.services.IpRangeValidationService;
+import com.scholastic.sbam.client.services.UidValidationService;
 import com.scholastic.sbam.server.database.codegen.AuthMethod;
-import com.scholastic.sbam.server.database.codegen.ProxyIp;
 import com.scholastic.sbam.server.database.objects.DbAuthMethod;
-import com.scholastic.sbam.server.database.objects.DbProxyIp;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.objects.AuthMethodInstance;
-import com.scholastic.sbam.shared.objects.IpAddressInstance;
 import com.scholastic.sbam.shared.objects.MethodIdInstance;
-import com.scholastic.sbam.shared.objects.ProxyIpInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
 import com.scholastic.sbam.shared.util.AppConstants;
 import com.scholastic.sbam.shared.validation.AsyncValidationResponse;
 
 /**
- * This class performs a validation of an ip address range for a method instance (and agreement method, site method, or proxy) to determine if there
+ * This class performs a validation of a user id/password/proxy combination for a method instance (and agreement method or site method) to determine if there
  * are any conflicts, i.e. situations where this address conflicts with another address for a different use, site, or range.
  * 
  * In particular,
  * 
- * First, IP addresses may overlap.  2-3 is within 1-4, 1-3 overlaps with 2-4, etc.
+ * Passwords should match.
  * 
- * Second, if an IP address is used for one site (UCN, location), it should not be used for a different site.
+ * Proxy IDs should match.
  * 
- * Third, if an IP address is used on an agreement or site, it should not be used for a proxy as well.
- * 
- * Note that there are circumstances that are undesirable but allowed.  In particular, the same IP may exist on several agreements because they have not been migrated
- * to the site (UCN/location).  They may also have been set up with conflicts that can be resolved in authentication (such as a case where
- * the IP addresses are delivering different products).  THIS IS NOT DESIREABLE, but it is allowed, primarily to provide backward compatibility to 
+ * Note that there are circumstances that are undesirable but allowed.  In particular, the same user ID may have existed in the past for another, 
+ * expired agreement.  THIS IS NOT DESIREABLE, but it is allowed, primarily to provide backward compatibility to 
  * legacy data.
  * 
- * But these situations should be resolved, and so alert messages are generated for the user through this service.
+ * But these situations should be resolved manually by the users, and so alert messages are generated for the user through this service.
  */
 @SuppressWarnings("serial")
-public class IpRangeValidationServiceImpl extends AuthenticatedServiceServlet implements IpRangeValidationService {
+public class UidValidationServiceImpl extends AuthenticatedServiceServlet implements UidValidationService {
 	
 	public static final int	SAME_SOURCE			=	0;		//	Both ranges belong to the same source (agreement, location, proxy)
 	public static final int	SAME_SOURCE_TYPE	=	1;		//	Both ranges belong to different sources of the same type (agreement, location, proxy)
@@ -46,11 +39,6 @@ public class IpRangeValidationServiceImpl extends AuthenticatedServiceServlet im
 	public static final int DIFF_LOCATION_CODE	=	20;		//	Both ranges belong to the same location (i.e. site and location code)
 	public static final int DIFF_UCN_SUFFIX		=	30;		//	Both ranges belong to the same UCN, but a different location AND source
 	public static final int DIFF_UCN			=	40;		//	Both ranges belong to entirely different UCNs.
-	
-	public static final int SAME_RANGE			=	100;	//	Exact same low and high IPs
-	public static final int	ENCOMPASSED			=	200;	//	The other range is entirely within the first
-	public static final int ENCOMPASSING		=	300;	//	This range is entirely within the other range
-	public static final	int PARTIAL_OVERLAP		=	400;	// Some IPs overlap, but each has values outside of the other
 
 	/**
 	 * Perform backend validation on a field value, given a previous data instance.
@@ -66,9 +54,9 @@ public class IpRangeValidationServiceImpl extends AuthenticatedServiceServlet im
 	 * An AsyncValidationResponse method identifying the response through the validation counter, and including any error messages.
 	 * @throws Exception
 	 */
-	public AsyncValidationResponse validateIpRange(long ipLo, long ipHi, MethodIdInstance methodId, final int validationCounter) throws Exception {
+	public AsyncValidationResponse validateUid(String uid, String password, char userType, int proxyId, MethodIdInstance methodId, final int validationCounter) throws Exception {
 
-		authenticate("validate ip range", SecurityManager.ROLE_QUERY);
+		authenticate("validate user ID", SecurityManager.ROLE_QUERY);
 		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();
@@ -78,7 +66,7 @@ public class IpRangeValidationServiceImpl extends AuthenticatedServiceServlet im
 			
 			authenticate();
 
-			doValidation(ipLo, ipHi, methodId, response);
+			doValidation(uid, password, userType, proxyId, methodId, response);
 
 		} catch (Exception exc) {
 			exc.printStackTrace();
@@ -91,9 +79,9 @@ public class IpRangeValidationServiceImpl extends AuthenticatedServiceServlet im
 		return response;
 	}
 
-	protected void doValidation(long ipLo, long ipHi, MethodIdInstance methodId, AsyncValidationResponse response) {
+	protected void doValidation(String uid, String password, char userType, int proxyId, MethodIdInstance methodId, AsyncValidationResponse response) {
 		
-		List<AuthMethod> authMethods  = DbAuthMethod.findOverlapIps(ipLo, ipHi);
+		List<AuthMethod> authMethods  = DbAuthMethod.findByUid(uid);
 		
 		int otherAgreements = 0;
 		if (authMethods != null) {
@@ -104,28 +92,14 @@ public class IpRangeValidationServiceImpl extends AuthenticatedServiceServlet im
 					continue;
 				}
 				
-				otherAgreements += compare(ipLo, ipHi, methodId, amInstance.getIpLo(), amInstance.getIpHi(), amInstance.obtainMethodId(), response);
+				otherAgreements += compare(uid, password, userType, proxyId, methodId, amInstance.getUserId(), amInstance.getPassword(), amInstance.getUserType(), amInstance.getProxyId(), amInstance.obtainMethodId(), response);
 			}
 		}
 		
 		//	One message counting valid assignments within other agreements
 		if (otherAgreements > 0)
-			response.getInfoMessages().add("This IP " + (ipLo == ipHi?"address":"range") + " exists on " + otherAgreements + " other agreement" +
+			response.getInfoMessages().add("This user ID exists on " + otherAgreements + " other agreement" +
 						(otherAgreements > 1?"s":"") + " consistent with this assignment.");
-			
-		List<ProxyIp> proxyIps  = DbProxyIp.findOverlapIps(ipLo, ipHi);
-		
-		if (proxyIps != null) {
-			for (ProxyIp proxyIp : proxyIps) {
-				ProxyIpInstance pipInstance = DbProxyIp.getInstance(proxyIp);
-				//	Don't check a proxy IP against itself
-				if (methodId != null && methodId.sourceEquals(pipInstance.obtainMethodId())) {
-					continue;
-				}
-				
-				compare(ipLo, ipHi, methodId, pipInstance.getIpLo(), pipInstance.getIpHi(), pipInstance.obtainMethodId(), response);
-			}
-		}
 	}
 	
 	public boolean stringEquals(String first, String second) {
@@ -138,20 +112,19 @@ public class IpRangeValidationServiceImpl extends AuthenticatedServiceServlet im
 		return first.equals(second);
 	}
 	
-	protected int compare(long ipLo, long ipHi, MethodIdInstance validatedMethodId, long compareIpLo, long compareIpHi, MethodIdInstance compareMethodId, AsyncValidationResponse response) {
+	protected int compare(String uid, String password, char userType, int proxyId, MethodIdInstance validatedMethodId, String compareUid, String comparePassword, char compareUserType, int compareProxyId, MethodIdInstance compareMethodId, AsyncValidationResponse response) {
 		
-		int rangeComparison;
-		int siteComparison;
-		int sourceComparison;
-		String sourceType;
-//		String compareType;
+		int siteComparison		= -1;
+		int sourceComparison	= -1;
+		String sourceType		= "";
+//		String compareType		= "";
 		
 		if (validatedMethodId.getAgreementId() > 0)
 			sourceType = "agreement";
 		else if (validatedMethodId.getUcn() > 0)
 			sourceType = "site location";
 		else
-			sourceType = "proxy";
+			sourceType = "proxy";	//	Can never happen... can't have UIDs on proxies
 
 //		if (compareMethodId.getAgreementId() > 0)
 //			compareType = "agreement";
@@ -182,17 +155,17 @@ public class IpRangeValidationServiceImpl extends AuthenticatedServiceServlet im
 		else
 			siteComparison = DIFF_LOCATION_CODE;
 		
-		if (ipLo == compareIpLo && ipHi == compareIpHi)
-			rangeComparison = SAME_RANGE;
-		else if (ipLo < compareIpLo && ipHi > compareIpHi)
-			rangeComparison = ENCOMPASSED;
-		else if (ipLo > compareIpLo && ipHi < compareIpHi)
-			rangeComparison = ENCOMPASSING;
-		else
-			rangeComparison = PARTIAL_OVERLAP;
+		if (proxyId < 0)
+			proxyId = 0;	// This was a deleted value if negative, saved for reference, so just zero it for comparison
+		if (compareProxyId < 0)
+			compareProxyId = 0;	// This was a deleted value if negative, saved for reference, so just zero it for comparison
 		
-		// Exact same IP for the same site location on multiple agreements generates just one message with a count...
-		if (rangeComparison == SAME_RANGE
+		boolean samePassword = (password == null)? false : password.equals(comparePassword);
+		boolean sameUserType = userType == compareUserType;
+		boolean sameProxyId  = proxyId == compareProxyId;
+		boolean sameEverything = samePassword && sameUserType && sameProxyId;
+		
+		if (sameEverything
 		&&	siteComparison  == SAME_LOCATION
 		&&  sourceComparison== SAME_SOURCE_TYPE
 		&&  validatedMethodId.getAgreementId() > 0)
@@ -201,39 +174,43 @@ public class IpRangeValidationServiceImpl extends AuthenticatedServiceServlet im
 		boolean isError = false;
 		StringBuffer msg = new StringBuffer();
 		
-		if (rangeComparison == SAME_RANGE)
-			if (ipLo == ipHi)
-				msg.append("This IP address ");
-			else
-				msg.append("This IP range ");
-		else
-			msg.append("The IP " + IpAddressInstance.getBriefIpDisplay(compareIpLo, compareIpHi));
+		msg.append("This user ID ");
 		
 		if (sourceComparison == SAME_SOURCE) {
-			if (rangeComparison == SAME_RANGE) {
 				isError = true;
 				msg.append(" already exists on this ");
 				msg.append(sourceType);
-			} else if (rangeComparison == ENCOMPASSED) {
-				msg.append(" encompasses this IP ");
-			} else {
-				msg.append(" overlaps with this IP ");
-			}
+		} else if (compareMethodId.getAgreementId() > 0) {
+			msg.append(" exists on agreement ");
+			msg.append(AppConstants.appendCheckDigit(compareMethodId.getAgreementId()));
+		} else if (compareMethodId.getUcn() > 0) {
+			msg.append(" exists on site location ");
+			msg.append(compareMethodId.getUcn());
+			msg.append("-");
+			msg.append(compareMethodId.getUcnSuffix());
+			msg.append(" ");
+			msg.append(compareMethodId.getSiteLocCode());
 		} else {
-			if (compareMethodId.getAgreementId() > 0) {
-				msg.append(" exists on agreement ");
-				msg.append(AppConstants.appendCheckDigit(compareMethodId.getAgreementId()));
-			} else if (compareMethodId.getUcn() > 0) {
-				msg.append(" exists on site location ");
-				msg.append(compareMethodId.getUcn());
-				msg.append("-");
-				msg.append(compareMethodId.getUcnSuffix());
-				msg.append(" ");
-				msg.append(compareMethodId.getSiteLocCode());
-			} else if (compareMethodId.getProxyId() > 0) {
-				msg.append(" exists on proxy ");
-				msg.append(AppConstants.appendCheckDigit(compareMethodId.getProxyId()));
-			}
+			msg.append(" exists elsewhere");
+		}
+		
+		if (!samePassword) {
+			msg.append(" with the password ");
+			msg.append(comparePassword);
+		}
+		if (!sameProxyId) {
+			if (samePassword)
+				msg.append(" with");
+			else
+				msg.append(" and");
+			msg.append(" proxy ");
+			msg.append(AppConstants.appendCheckDigit(compareProxyId));
+		}
+		if (!sameUserType) {
+			if (!samePassword || !sameProxyId)
+				msg.append(" and");
+			msg.append(" is a ");
+			msg.append(AuthMethodInstance.getUserTypeDescription(compareUserType).toLowerCase());
 		}
 		
 		if (siteComparison == SAME_LOCATION) {

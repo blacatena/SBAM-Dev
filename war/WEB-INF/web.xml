@@ -497,6 +497,16 @@
   </servlet>
   
   <servlet>
+    <servlet-name>uidValidationServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UidValidationServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>urlValidationServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UrlValidationServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>welcomeMessageListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.WelcomeMessageListServiceImpl</servlet-class>
   </servlet>
@@ -984,6 +994,16 @@
   <servlet-mapping>
     <servlet-name>termTypeCodeValidationServlet</servlet-name>
     <url-pattern>/sbam/validateTermTypeCode</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>uidValidationServlet</servlet-name>
+    <url-pattern>/sbam/validateUid</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>urlValidationServlet</servlet-name>
+    <url-pattern>/sbam/validateUrl</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

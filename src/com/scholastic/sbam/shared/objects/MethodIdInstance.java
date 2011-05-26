@@ -169,6 +169,17 @@ public class MethodIdInstance implements BeanModelTag, IsSerializable {
 		return first.equals(second);
 	}
 
+	public boolean sourceOwnerEquals(MethodIdInstance other) {
+		return (
+					proxyId		== other.proxyId
+			&&		ipId		== other.ipId
+			&&		agreementId == other.agreementId
+			&&		ucn			== other.ucn
+			&&		ucnSuffix	== other.ucnSuffix
+			&& 		stringEquals(siteLocCode, other.siteLocCode)
+			);
+	}
+
 	public boolean sourceEquals(MethodIdInstance other) {
 		return (
 					proxyId		== other.proxyId
@@ -176,6 +187,8 @@ public class MethodIdInstance implements BeanModelTag, IsSerializable {
 			&&		agreementId == other.agreementId
 			&&		ucn			== other.ucn
 			&&		ucnSuffix	== other.ucnSuffix
+			&&		methodKey	== other.methodKey
+			&&		stringEquals(methodType,  other.methodType)
 			&& 		stringEquals(siteLocCode, other.siteLocCode)
 			);
 	}
@@ -240,5 +253,13 @@ public class MethodIdInstance implements BeanModelTag, IsSerializable {
 			beanModelfactory  = BeanModelLookup.get().getFactory(MethodIdInstance.class);
 		BeanModel model = beanModelfactory.createModel(instance);
 		return model;
+	}
+	
+	public String toString() {
+		if (proxyId > 0)
+			return "Proxy " + proxyId + "-" + ipId;
+		if (agreementId > 0)
+			return "Agreement " + agreementId + "-" + methodType + "-" + methodKey + " for " + forUcn + "-" + forUcnSuffix + " " + forSiteLocCode;
+		return "Site " + ucn + "-" + ucnSuffix + " " + siteLocCode + "-" + methodType + "-" + methodKey + " for " + forUcn + "-" + forUcnSuffix + " " + forSiteLocCode;
 	}
 }

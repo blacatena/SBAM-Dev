@@ -117,12 +117,26 @@ public class IpAddressField extends MultiField<Long> {
 		return value;
 	}
 	
+	public Long getHighValue() {
+		long value = 0;
+		long factor = 1;
+		for (int i = octetFields.size() - 1; i >= 0; i--) {
+			value += getOctetValue(i, true) * factor;
+			factor *= 256l;
+		}
+		return value;
+	}
+	
 	public long getOctetValue(int octet) {
+		return getOctetValue(octet, highIp);
+	}
+	
+	public long getOctetValue(int octet, boolean isHighIp) {
 		OctetField field = octetFields.get(octet);
 		if (field.getValue() == null)
 			return 0l;
 		if (field.isWildcard())
-			if (highIp)
+			if (isHighIp)
 				return 255l;
 			else
 				return 0l;

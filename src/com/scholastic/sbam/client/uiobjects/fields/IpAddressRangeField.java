@@ -5,11 +5,13 @@ import java.util.List;
 import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Style.HideMode;
 import com.extjs.gxt.ui.client.core.XDOM;
+import com.extjs.gxt.ui.client.widget.BoxComponent;
 import com.extjs.gxt.ui.client.widget.ComponentHelper;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
@@ -25,10 +27,16 @@ import com.scholastic.sbam.shared.validation.AsyncValidationResponse;
 
 @SuppressWarnings("deprecation")
 public class IpAddressRangeField extends MultiField<Long []> {
-	public final String	LOW_IP_LABEL	= "";	//"From:&nbsp;";
-	public final String HIGH_IP_LABEL	= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&hArr;&nbsp;&nbsp;&nbsp;&nbsp;";	//"&nbsp;&nbsp;To:&nbsp;";
-	
-	protected LabelField		loIpLabelField;
+	public final String HIGH_IP_LABEL	= "&nbsp;&nbsp;&nbsp;&nbsp;&hArr;&nbsp;&nbsp;&nbsp;&nbsp;";	//"&nbsp;&nbsp;To:&nbsp;";
+
+	protected String			label = "IP";
+	protected int				labelWidth = 20;
+	protected LabelAlign		labelAlign	=	LabelAlign.RIGHT;
+	protected String			labelSeparator = ":";
+
+	protected LabelField		iconPositionField;
+	protected LabelField		labelField;
+//	protected LabelField		loIpLabelField;
 	protected IpAddressField	loIpField;
 	protected LabelField		hiIpLabelField;
 	protected IpAddressField	hiIpField;
@@ -60,25 +68,88 @@ public class IpAddressRangeField extends MultiField<Long []> {
 	}
 	
 	protected void createFields() {
+		iconPositionField = new ConstantLabelField();
+		iconPositionField.setValue("");
+		iconPositionField.setWidth(20);
+		
+		labelField = new ConstantLabelField();
+		labelField.setStyleName("x-form-item-label");
+		labelField.setWidth(labelWidth);
+		labelField.setValue(label + labelSeparator);
+		applyLabelAlign(labelAlign);
+		
 		loIpField = new IpAddressField();
 		hiIpField = new IpAddressField();
-		loIpLabelField = new ConstantLabelField();
+		
 		hiIpLabelField = new ConstantLabelField();
-		loIpLabelField.setValue(LOW_IP_LABEL);
+		hiIpLabelField.setStyleName("x-form-item-label");
+		hiIpLabelField.setWidth(35);
 		hiIpLabelField.setValue(HIGH_IP_LABEL);
 		
 		hiIpField.setHighIp(true);
 		hiIpField.setAllowWildcards(false);
 		hiIpField.setTiedIpField(loIpField);
 		
-		add(loIpLabelField);
+		add(iconPositionField);
+		add(labelField);
 		add(loIpField);
 		add(hiIpLabelField);
 		add(hiIpField);
 	}
 	
-	protected void setLowIpLabel(String label) {
-		loIpLabelField.setValue(label);
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+		if (labelField != null)
+			labelField.setValue(label + labelSeparator);
+	}
+
+	public int getLabelWidth() {
+		return labelWidth;
+	}
+
+	public void setLabelWidth(int labelWidth) {
+		this.labelWidth = labelWidth;
+		if (labelField != null)
+			labelField.setWidth(labelWidth);
+	}
+
+	public String getLabelSeparator() {
+		return labelSeparator;
+	}
+
+	public void setLabelSeparator(String labelSeparator) {
+		this.labelSeparator = labelSeparator;
+		if (labelField != null)
+			labelField.setRawValue(label + labelSeparator);
+	}
+
+	public LabelAlign getLabelAlign() {
+		return labelAlign;
+	}
+
+	/**
+	 * Sets the label alignment.
+	 * 
+	 * @param labelAlign the label align
+	 */
+	public void setLabelAlign(LabelAlign labelAlign) {
+		if (this.labelAlign != labelAlign) {
+			applyLabelAlign(labelAlign);
+		}
+	}
+	
+	public void applyLabelAlign(LabelAlign labelAlign) {
+		if (this.labelAlign != null && labelField != null) {
+			labelField.removeStyleName("x-form-label-" + this.labelAlign.name().toLowerCase());
+		}
+		this.labelAlign = labelAlign;
+		if (labelAlign != null && labelField != null) {
+			labelField.addStyleName("x-form-label-" + labelAlign.name().toLowerCase());
+		}
 	}
 	
 	protected void setHighIpLabel(String label) {
@@ -109,7 +180,7 @@ public class IpAddressRangeField extends MultiField<Long []> {
 	public Long [] getValue() {
 		long hiIpValue = hiIpField.getValue();
 		if (hiIpValue == 0)
-			hiIpValue = loIpField.getValue();
+			hiIpValue = loIpField.getHighValue();
 		return new Long [] {loIpField.getValue(), hiIpValue};
 	}
 	
@@ -334,6 +405,12 @@ public class IpAddressRangeField extends MultiField<Long []> {
 	 * 
 	 */
 	
+	@Override
+	public void reset() {
+		super.reset();
+		resetAsynchValidation();
+		clearInfo();
+	}
 	
 	public void markInfo() {
 		if (asyncInfoMessages == null || asyncInfoMessages.size() == 0)
@@ -448,8 +525,7 @@ public class IpAddressRangeField extends MultiField<Long []> {
 				}
 			});
 			infoIcon.setToolTip(msg);
-			//	FOR DEBUGGING TOOLTIP CSS -- makes the tooltip hang around long enough to look at
-//			infoIcon.getToolTip().getToolTipConfig().setDismissDelay(0); System.out.println("set delay 0");
+			infoIcon.getToolTip().getToolTipConfig().setDismissDelay(0);	// So the user can hang out over the icon and keep the messages up
 //			infoIcon.getToolTip().getToolTipConfig().setHideDelay(500000);
 			if (alert) {
 				infoIcon.getToolTip().removeStyleName("x-form-info-tip");
@@ -534,10 +610,31 @@ public class IpAddressRangeField extends MultiField<Long []> {
 //		fireEvent(Events.Valid, new FieldEvent(this));
 	}
 
+	protected void iconAlign(BoxComponent b) {
+		b.el().alignTo(iconPositionField.getElement(), "c-c", new int[] {0, 0});	//	(iconPositionField.getOffsetHeight() - getHeight()) / 2});
+	}
+
+	/**
+	 * Like the info icon, the error icon for the entire group is aligned to the center of the label field between the ip addresses
+	 */
+	@Override
+	protected void alignErrorIcon() {
+		DeferredCommand.addCommand(new Command() {
+			public void execute() {
+				iconAlign(errorIcon);
+//				errorIcon().alignTo(getElement(), "tl-tr", new int[] {2, 3});	// Original
+			}
+		});
+	}
+
+	/**
+	 * The info icon is aligned to the center of the label field between the IP addresses!
+	 */
 	protected void alignInfoIcon() {
 		DeferredCommand.addCommand(new Command() {
 			public void execute() {
-				infoIcon.el().alignTo(getElement(), "tl-tr", new int[] {2, 3});
+				iconAlign(infoIcon);
+//				infoIcon.el().alignTo(getElement(), "tl-tr", new int[] {2, 3});	// Original
 			}
 		});
 	}

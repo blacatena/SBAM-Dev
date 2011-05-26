@@ -414,11 +414,12 @@ public class AuthMethodInstance extends IpAddressInstance implements BeanModelTa
 	
 	public String getMethodDisplay() {
 		if (AM_IP.equals(methodType)) {
-			if (ipHi == 0 || ipHi == ipLo)
-				return getOctetForm(ipLo);
-			if (ipLo == 0)
-				return getOctetForm(ipHi);
-			return getOctetForm(ipLo) + " - " + getOctetForm(ipHi);
+			return getBriefIpDisplay(ipLo, ipHi);
+//			if (ipHi == 0 || ipHi == ipLo)
+//				return getOctetForm(ipLo);
+//			if (ipLo == 0)
+//				return getOctetForm(ipHi);
+//			return getOctetForm(ipLo) + " - " + getOctetForm(ipHi);
 		} else if (AM_UID.equals(methodType)) {
 			return userId + " / " + password;
 		} else if (AM_URL.equals(methodType)) {
@@ -459,6 +460,13 @@ public class AuthMethodInstance extends IpAddressInstance implements BeanModelTa
 		mid.setProxyId(0);
 		mid.setIpId(0);
 		return mid;
+	}
+	
+	public static String getUserTypeDescription(char userTypeCode) {
+		for (UserTypes userType : UserTypes.values() )
+			if (userType.getCode().equals(userTypeCode))
+				return userType.getName();
+		return "Unknown";
 	}
 	
 	public void setValuesFrom(AuthMethodInstance fromInstance) {

@@ -12,6 +12,7 @@ import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.ui.Image;
 import com.scholastic.sbam.client.util.IconSupplier;
 
 /**
@@ -120,7 +121,26 @@ public class EnhancedMultiField<D> extends MultiField<D> {
 		}
 	}
 	
+	
+	/**
+	 * 
+	 * The below methods have all been added to incorporate the capability to have "info" and "alert" messages display if no error messages are found.
+	 * 
+	 * The code is basically a duplication of GXT's error icon code, but using different style attributes.
+	 * 
+	 * This code should in theory be incorporated in a higher level Field class, but of course there's no way to "insert" that into the inheritance hierarchy,
+	 * which in turn would require building all new higher level classes (TextFieldWithInfo, MultiFieldWithInfo, etc.).
+	 * 
+	 */
+
+	
 	public void markInfo(List<String> infoMsgs, List<String> alertMsgs) {
+		if (infoMsgs == null || infoMsgs.size() == 0)
+			if (alertMsgs == null || alertMsgs.size() == 0) {
+				clearInfo();
+				return;
+			}
+		
 		boolean alert = alertMsgs != null && alertMsgs.size() > 0;
 		StringBuffer msgs = new StringBuffer();
 		if (alertMsgs != null) {
@@ -217,10 +237,19 @@ public class EnhancedMultiField<D> extends MultiField<D> {
 			//	FOR DEBUGGING TOOLTIP CSS -- makes the tooltip hang around long enough to look at
 //			infoIcon.getToolTip().getToolTipConfig().setDismissDelay(0); System.out.println("set delay 0");
 //			infoIcon.getToolTip().getToolTipConfig().setHideDelay(500000);
-			if (alert)
+			if (alert) {
+				infoIcon.getToolTip().removeStyleName("x-form-info-tip");
 				infoIcon.getToolTip().addStyleName("x-form-info-alert-tip");
-			else
+				Image image = (Image) infoIcon.getWidget();
+				IconSupplier.getColorfulIcon(IconSupplier.getAlertIconName()).applyTo(image);
+			} else {
+				infoIcon.getToolTip().removeStyleName("x-form-alert-tip");
 				infoIcon.getToolTip().addStyleName("x-form-info-tip");
+				Image image = (Image) infoIcon.getWidget();
+				IconSupplier.getColorfulIcon(IconSupplier.getInfoIconName()).applyTo(image);
+			}
+//			infoIcon.getToolTip().getToolTipConfig().setAutoHide(false);
+//			infoIcon.getToolTip().getToolTipConfig().setCloseable(true);
 			el().repaint();
 		} else if ("title".equals(getMessageTarget())) {
 			setTitle(msg);

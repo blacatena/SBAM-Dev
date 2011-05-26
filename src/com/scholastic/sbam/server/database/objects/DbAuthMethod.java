@@ -181,6 +181,34 @@ public class DbAuthMethod extends HibernateAccessor {
         return objects;
 	}
 	
+	public static List<AuthMethod> findByUid(String uid) {
+		if (uid == null || uid.length() == 0)
+			return new ArrayList<AuthMethod>();
+		
+        Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
+
+        //	This criterion is for database performance (i.e. prevents a full database scan)
+        crit.add(Restrictions.eq("userId", uid));
+        
+        @SuppressWarnings("unchecked")
+		List<AuthMethod> objects = crit.list();
+        return objects;
+	}
+	
+	public static List<AuthMethod> findByUrl(String url) {
+		if (url == null || url.length() == 0)
+			return new ArrayList<AuthMethod>();
+		
+        Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
+
+        //	This criterion is for database performance (i.e. prevents a full database scan)
+        crit.add(Restrictions.eq("url", url));
+        
+        @SuppressWarnings("unchecked")
+		List<AuthMethod> objects = crit.list();
+        return objects;
+	}
+	
 	public static void setDescriptions(AuthMethodInstance authMethod) {
 		if (authMethod == null)
 			return;

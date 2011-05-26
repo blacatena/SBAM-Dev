@@ -82,6 +82,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	protected AgreementInstance		agreement;
 	protected InstitutionInstance	siteInstitution;
 	protected SiteInstance			saveSiteLocation;
+	protected MethodIdInstance		methodId			=	MethodIdInstance.getEmptyInstance();
 	
 	protected RowExpander			noteExpander;
 
@@ -251,8 +252,9 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		approvedCheck.setValue(instance.isApproved());
 		remoteCheck.setValue(instance.isRemote());
 		
+		methodId.setFrom(instance.obtainMethodId());
+		
 		if (AuthMethodInstance.AM_IP.equals(instance.getMethodType())) {
-			ipRangeField.setMethodId(instance.obtainMethodId());
 			ipRangeField.setValue(instance.getIpLo(), instance.getIpHi());
 			proxyField.setValue(ProxyInstance.obtainModel(ProxyInstance.getEmptyInstance()));
 			openUrlFields(false);
@@ -336,8 +338,12 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		openUidFields(true);
 		openUrlFields(true);
 		super.handleNew();
-		ipRangeField.setMethodId(MethodIdInstance.getEmptyInstance());
-		ipRangeField.getMethodId().setAgreementId(getAgreementId());
+		
+		//	This is for/shared by the ip, uid and url fields that do async validation based on the method ID
+		methodId.setFrom(MethodIdInstance.getEmptyInstance());
+		methodId.setAgreementId(getAgreementId());
+		methodId.setMethodKey(-1);
+		
 		institutionField.setAgreementId(getAgreementId());
 		agreementIdField.setValue(AppConstants.appendCheckDigit(agreement.getId()) + " &nbsp;&nbsp;&nbsp;<i>New Method</i>");
 		//	Originally, these couldn't be changed on a method because they were part of the key, but now they can
@@ -415,7 +421,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		if (agreement != null)
 			siteLocationField.setAgreementId(agreement.getId());
 		
-		FieldFactory.setStandard(ipRangeField, "IP");
+		FieldFactory.setStandard(ipRangeField, "");
 		FieldFactory.setStandard(uidPasswordField, "");
 		FieldFactory.setStandard(urlField, "URL");
 		
@@ -434,12 +440,20 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		ipFieldSet.setId("IPfs");
 		urlFieldSet.setId("URLfs");
 		uidFieldSet.setId("UIDfs");
+		
+		if (methodId == null) methodId = MethodIdInstance.getEmptyInstance();
+		methodId.setAgreementId(getAgreementId());
+		
+		ipRangeField.setMethodId(methodId);
+		urlField.setMethodId(methodId);
+		uidPasswordField.setMethodId(methodId);
+		uidPasswordField.setProxyField(proxyField);
 
 		ipFieldSet.setBorders(true);
 		ipFieldSet.setHeading("IP Address");
 		ipFieldSet.setCollapsible(true);
 		FormLayout fLayout = new FormLayout();
-		fLayout.setLabelWidth(60);
+		fLayout.setLabelWidth(0);
 		ipFieldSet.setLayout(fLayout);
 		ipFieldSet.setToolTip(UiConstants.getQuickTip("Define authentication by IP address."));
 		
@@ -554,12 +568,11 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 
 			@Override
 			public void selectionChanged(SelectionChangedEvent<BeanModel> se) {
-				if (ipRangeField == null || ipRangeField.getMethodId() == null)
-					return;
+				//	Since all IP/uid/url fields share the same method ID instance, this only has to be done once
 				if (se.getSelectedItem() == null) {
-					ipRangeField.getMethodId().setForSiteLocCode(null);
+					methodId.setForSiteLocCode(null);
 				} else
-					ipRangeField.getMethodId().setForSiteLocCode(se.getSelectedItem().get("siteLocCode").toString());
+					methodId.setForSiteLocCode(se.getSelectedItem().get("siteLocCode").toString());
 			}
 			
 		});
@@ -674,7 +687,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		if (instance == null || instance.getUcn() == 0) {
 			ucnDisplay.setValue("");
 			siteLocationField.setFor(0, 0, "");
-			setIpRangeField(0, 0, "");
+			setMethodIdFor(0, 0, "");
 			return;
 		}
 		
@@ -682,26 +695,24 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 			// Same institution as instance, so use the instance UCN
 			siteLocationField.setFor(focusInstance, instance.getInstitutionName());
 			siteLocationField.setValue(SiteInstance.obtainModel(focusInstance.getSite()));
-			setIpRangeField(focusInstance.getSite().getUcn(), focusInstance.getSite().getUcnSuffix(), focusInstance.getSite().getSiteLocCode());
+			setMethodIdFor(focusInstance.getSite().getUcn(), focusInstance.getSite().getUcnSuffix(), focusInstance.getSite().getSiteLocCode());
 		} else {
 			// Different UCN, default to suffix 1
 			siteLocationField.setFor(instance.getUcn(), 1, instance.getInstitutionName());
 			SiteInstance newMain = SiteInstance.getMainInstance(instance.getUcn(), 1);
 			siteLocationField.setValue(SiteInstance.obtainModel(newMain));
-			setIpRangeField(newMain.getUcn(), newMain.getUcnSuffix(), newMain.getSiteLocCode());
+			setMethodIdFor(newMain.getUcn(), newMain.getUcnSuffix(), newMain.getSiteLocCode());
 		}
 		
 		ucnDisplay.setValue(instance.getUcn() + "");
 		
 	}
 	
-	protected void setIpRangeField(int forUcn, int forUcnSuffix, String forSiteLocCode) {
-		if (ipRangeField == null || ipRangeField.getMethodId() == null)
-			return;
-
-		ipRangeField.getMethodId().setForUcn(forUcn);
-		ipRangeField.getMethodId().setForUcnSuffix(forUcnSuffix);
-		ipRangeField.getMethodId().setForSiteLocCode(forSiteLocCode);
+	protected void setMethodIdFor(int forUcn, int forUcnSuffix, String forSiteLocCode) {
+		// Since the IP/uid/url fields all share the same method ID instance, this only has to be done for one of them
+		methodId.setForUcn(forUcn);
+		methodId.setForUcnSuffix(forUcnSuffix);
+		methodId.setForSiteLocCode(forSiteLocCode);
 	}
 
 	/**
