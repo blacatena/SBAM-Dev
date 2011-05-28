@@ -153,9 +153,12 @@ public abstract class IpAddressInstance extends BetterRowEditInstance implements
 		String rangeHi = getIpRangeCode(ipHi);
 		int len;
 		for (len = 0; len < rangeLo.length() && len < rangeHi.length(); len++) {
-			if (rangeLo.charAt(len) != rangeLo.charAt(len))
+			if (rangeLo.charAt(len) != rangeHi.charAt(len)) {
 				break;
+			}
 		}
+		if (len <= 0)
+			return "";
 		return rangeLo.substring(0,len);
 	}
 	

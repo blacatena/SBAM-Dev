@@ -195,8 +195,9 @@ public class UidValidationServiceImpl extends AuthenticatedServiceServlet implem
 		}
 		
 		if (!samePassword) {
-			msg.append(" with the password ");
+			msg.append(" with the password '");
 			msg.append(comparePassword);
+			msg.append("'");
 		}
 		if (!sameProxyId) {
 			if (samePassword)

@@ -192,8 +192,18 @@
   </servlet>
   
   <servlet>
+    <servlet-name>authMethodGetServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.AuthMethodGetServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>authMethodListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.AuthMethodListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>authMethodSearchServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.AuthMethodSearchServiceImpl</servlet-class>
   </servlet>
   
   <servlet>
@@ -697,8 +707,18 @@
   </servlet-mapping>
   
   <servlet-mapping>
+    <servlet-name>authMethodGetServlet</servlet-name>
+    <url-pattern>/sbam/getAuthMethod</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
     <servlet-name>authMethodListServlet</servlet-name>
     <url-pattern>/sbam/getAuthMethods</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>authMethodSearchServlet</servlet-name>
+    <url-pattern>/sbam/searchAuthMethods</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

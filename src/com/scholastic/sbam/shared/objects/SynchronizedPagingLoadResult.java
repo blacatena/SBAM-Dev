@@ -70,8 +70,12 @@ public class SynchronizedPagingLoadResult<Data> implements IsSerializable {
 	/**
 	 * A synchronization ID used to match requests with results.
 	 */
-	private long syncId;
-	private BasePagingLoadResult<Data> result;
+	protected long syncId;
+	protected BasePagingLoadResult<Data> result;
+	/**
+	 * Messages that go along with the result (or lack of a result).
+	 */
+	protected List<String> messages;
 	
 	public SynchronizedPagingLoadResult(List<Data> data, long syncId) {
 		this.result = new BasePagingLoadResult<Data>(data);
@@ -81,6 +85,11 @@ public class SynchronizedPagingLoadResult<Data> implements IsSerializable {
 	public SynchronizedPagingLoadResult(List<Data> data, int offset, int totalLength, long syncId) {
 		this.result = new BasePagingLoadResult<Data>(data, offset, totalLength);
 		this.syncId = syncId;
+	}
+	
+	public SynchronizedPagingLoadResult(List<Data> data, int offset, int totalLength, long syncId, List<String> messages) {
+		this(data, offset, totalLength, syncId);
+		this.messages = messages;
 	}
 	
 	public SynchronizedPagingLoadResult() {
@@ -101,6 +110,14 @@ public class SynchronizedPagingLoadResult<Data> implements IsSerializable {
 
 	public void setResult(BasePagingLoadResult<Data> result) {
 		this.result = result;
+	}
+
+	public List<String> getMessages() {
+		return messages;
+	}
+
+	public void setMessages(List<String> messages) {
+		this.messages = messages;
 	}
 	
 }

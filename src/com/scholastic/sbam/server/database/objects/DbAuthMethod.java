@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Criteria;
+import org.hibernate.SQLQuery;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
@@ -15,8 +16,10 @@ import com.scholastic.sbam.server.database.codegen.Site;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
 import com.scholastic.sbam.shared.objects.AuthMethodInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
+import com.scholastic.sbam.shared.objects.IpAddressInstance;
 import com.scholastic.sbam.shared.objects.ProxyInstance;
 import com.scholastic.sbam.shared.objects.SiteInstance;
+import com.scholastic.sbam.shared.util.AppConstants;
 
 /**
  * Sample database table accessor class, extending HibernateAccessor, and implementing custom get/find methods.
@@ -207,6 +210,137 @@ public class DbAuthMethod extends HibernateAccessor {
         @SuppressWarnings("unchecked")
 		List<AuthMethod> objects = crit.list();
         return objects;
+	}
+	
+	public static List<Object []> findFiltered(String filter, char neStatus) {
+		if (filter == null || filter.length() == 0)
+			return new ArrayList<Object []>();
+		
+    	AppConstants.TypedTerms typedTerms = AppConstants.parseTypedFilterTerms(filter, true);
+    	
+    	return findFiltered(typedTerms, neStatus);
+	}
+	
+    public static List<Object []> findFiltered(AppConstants.TypedTerms typedTerms, char neStatus) {
+    	
+    	String sqlQuery = "SELECT {agreement.*}, {auth_method.*} FROM agreement, auth_method WHERE agreement.`status` <> '" + neStatus + "' " +
+		" AND auth_method.status <> '" + neStatus + "' " +
+		" AND auth_method.agreement_id > 0 " +
+		" AND agreement.id = auth_method.agreement_id ";
+
+    	sqlQuery += " AND ( /* 1 */ ";	//	-->1
+    	if (typedTerms.getIps().size() > 0) {
+    		sqlQuery += " ( /* 2a */ ";	// -->2
+    		
+    		int ipCount = 0;
+    		for (Long [] ipRange : typedTerms.getIps()) {
+    			String ipRangeCode = IpAddressInstance.getCommonIpRangeCode(ipRange [0], ipRange [1]);
+    			if (ipCount > 0)
+    				sqlQuery += " OR ";
+    			
+    			sqlQuery += " ( /* 3a */ "; // -->3
+    			sqlQuery += "(auth_method.ip_range_code in ("; // -->4
+    			
+    			if (ipRangeCode.length() > 1) {
+	    			for (int i = 1; i < ipRangeCode.length(); i++) {
+	    				if (i > 1)
+	    					sqlQuery += ",";
+	    				sqlQuery += "'" + ipRangeCode.substring(0,i) + "'";
+	    			}
+	    			
+	    			sqlQuery += ") OR ";
+    			}
+    			sqlQuery += " auth_method.ip_range_code like '";
+    			sqlQuery += ipRangeCode;
+    			sqlQuery += "%' ) AND ip_lo <= "; // <--4
+    			sqlQuery += ipRange [1];
+    			sqlQuery += " AND ip_hi >= ";
+    			sqlQuery += ipRange [0];
+    			sqlQuery += ") /* 3a */ ";	// <--3
+    			
+    			ipCount++;
+    		}
+//    		sqlQuery += " ) /* 2a */ "; // <--2
+    		
+    		if (typedTerms.getNumbers().size() > 0) {
+    			sqlQuery += " AND ( /* 3b */ ";	// -->3
+    			
+    			int termCount = 0;
+    			for (String number : typedTerms.getNumbers()) {
+        			if (termCount > 0)
+        				sqlQuery += " OR ";
+        			sqlQuery += "agreement.id like '";
+        			sqlQuery += number;
+        			sqlQuery += "%'";
+        			termCount++;
+    			}
+    			
+    			sqlQuery += ") /* 3b */ ";	//	<--3
+    		}
+    		
+    		sqlQuery += " ) /* 2a */ ";	// <--2
+    	}
+    	
+    	if (typedTerms.getWords().size() > 0 || typedTerms.getNumbers().size() > 0) {
+    		
+    		StringBuffer fullTextMatch = new StringBuffer();
+    		int termCount = 0;
+    		if (typedTerms.getIps().size() > 0)
+    			sqlQuery += " OR ";
+    		sqlQuery += " ( /* 2b */ ";	// -->2
+    		for (String word : typedTerms.getWords()) {
+    			if (termCount > 0)
+    				sqlQuery += " OR ";
+    			word = word.replace("'", "''");
+    			fullTextMatch.append("+");
+    			fullTextMatch.append(word);
+    			fullTextMatch.append(" ");
+    			sqlQuery += " ( url > ' ' AND ";
+    			sqlQuery += " url like '%";
+    			sqlQuery += word;
+    			sqlQuery += "%') OR (user_id like '";
+    			sqlQuery += word;
+    			sqlQuery += "%') ";
+    			termCount++;
+    		}
+    		for (String number : typedTerms.getNumbers()) {
+    			if (termCount > 0)
+    				sqlQuery += " OR ";
+    			fullTextMatch.append("+");
+    			fullTextMatch.append(number);
+    			fullTextMatch.append("* ");
+    			sqlQuery += " ( url > ' ' AND ";
+    			sqlQuery += " url like '%";
+    			sqlQuery += number;
+    			sqlQuery += "%') OR (user_id like '";
+    			sqlQuery += number;
+    			sqlQuery += "%') OR (agreement.id like '";
+    			sqlQuery += number;
+    			sqlQuery += "%') ";
+    			termCount++;
+    		}
+    		
+    		if (termCount > 0)
+    			sqlQuery += " OR ";
+    		sqlQuery += "MATCH (auth_method.note) AGAINST ('" + fullTextMatch + "') ";
+    		
+    		sqlQuery += ") /* 2b */";	// <--2
+    	}
+    	
+    	sqlQuery += ") /* 1 */ ";	// <--1
+    	
+//    	System.out.println(sqlQuery);
+    	        	
+		sqlQuery += " order by auth_method.agreement_id, auth_method.ip_lo, auth_method.ip_hi, auth_method.user_id, auth_method.password, auth_method.url";
+		
+		SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery);
+		
+		query.addEntity("agreement",	getObjectReference("Agreement"));
+		query.addEntity("auth_method",	getObjectReference("AuthMethod"));
+		
+		@SuppressWarnings("unchecked")
+		List<Object []> objects = query.list();
+		return objects;
 	}
 	
 	public static void setDescriptions(AuthMethodInstance authMethod) {

@@ -433,6 +433,12 @@ public class AuthMethodInstance extends IpAddressInstance implements BeanModelTa
 		return "Unrecognized method type " + methodType;
 	}
 	
+	public String getIpRangeDisplay() {
+		if (AM_IP.equals(methodType))
+			return AuthMethodInstance.getBriefIpDisplay(ipLo, ipHi);
+		return "";
+	}
+	
 	public String getIpLoDisplay() {
 		if (AM_IP.equals(methodType)) {
 			if (ipLo == 0)

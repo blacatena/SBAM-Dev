@@ -167,7 +167,7 @@ public class AgreementSiteSearchPortlet extends GridSupportPortlet<AgreementSite
 	
 	public void setPortletRenderValues() {
 		setHeading("Agreement Site Search");
-		setToolTip(UiConstants.getQuickTip("Use this portlet to search for agreement terms by date and product."));
+		setToolTip(UiConstants.getQuickTip("Use this portlet to search for agreements by site."));
 	}
 	
 	@Override
@@ -181,8 +181,8 @@ public class AgreementSiteSearchPortlet extends GridSupportPortlet<AgreementSite
 			else
 				return "ID " + focusAgreementId + "-" +  focusAgreementSiteUcn + "-" + focusAgreementSiteUcnSuffix + "-" + focusAgreementSiteLocCode ;
 		if (filter != null && filter.length() > 0)
-			return "Agreement Search for '" + filter + "'";
-		return "Search for agreement terms.";
+			return "Agreement Site Search for '" + filter + "'";
+		return "Search for agreement sites.";
 	}
 	
 	public void initializeFilter() {
@@ -679,7 +679,7 @@ public class AgreementSiteSearchPortlet extends GridSupportPortlet<AgreementSite
 						else if (caught instanceof ServiceNotReadyException)
 								MessageBox.alert("Alert", "The " + caught.getMessage() + " is not available at this time.  Please try again in a few minutes.", null);
 						else {
-							MessageBox.alert("Alert", "Agreement load failed unexpectedly.", null);
+							MessageBox.alert("Alert", "Agreement Site search failed unexpectedly.", null);
 							System.out.println(caught.getClass().getName());
 							System.out.println(caught.getMessage());
 						}
@@ -693,7 +693,7 @@ public class AgreementSiteSearchPortlet extends GridSupportPortlet<AgreementSite
 						PagingLoadResult<AgreementSiteTuple> result = syncResult.getResult();
 						if ( result.getData() == null || result.getData().size() == 0 ) {
 							if (result.getTotalLength() > 0)	// Note that this may be sites, not agreements -- we may not know how many agreements yet
-								gridView.setEmptyText(result.getTotalLength() + " site qualify (too many to display).<br/>Please enter filter criteria to narrow your search.");
+								gridView.setEmptyText(result.getTotalLength() + " sites qualify (too many to display).<br/>Please enter filter criteria to narrow your search.");
 							else if (filter.length() == 0)
 								gridView.setEmptyText("Enter filter criteria to search for agreements.");
 							else
@@ -793,7 +793,7 @@ public class AgreementSiteSearchPortlet extends GridSupportPortlet<AgreementSite
 	}
  	
 	public void invokeSearchService(PagingLoadConfig loadConfig, long searchSyncId, AsyncCallback<SynchronizedPagingLoadResult<AgreementSiteTuple>> myCallback) {
-		grid.mask("Searching for agreements terms...");
+		grid.mask("Searching for agreements sites...");
 		agreementBySiteSearchService.searchAgreementsBySite((PagingLoadConfig) loadConfig, searchSyncId, myCallback);
 	}
 

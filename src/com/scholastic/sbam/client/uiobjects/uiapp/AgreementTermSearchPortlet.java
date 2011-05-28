@@ -711,7 +711,7 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 						else if (caught instanceof ServiceNotReadyException)
 								MessageBox.alert("Alert", "The " + caught.getMessage() + " is not available at this time.  Please try again in a few minutes.", null);
 						else {
-							MessageBox.alert("Alert", "Agreement load failed unexpectedly.", null);
+							MessageBox.alert("Alert", "Agreement Terms search failed unexpectedly.", null);
 							System.out.println(caught.getClass().getName());
 							System.out.println(caught.getMessage());
 						}
@@ -725,7 +725,7 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 						PagingLoadResult<AgreementTermTuple> result = syncResult.getResult();
 						if ( result.getData() == null || result.getData().size() == 0 ) {
 							if (result.getTotalLength() > 0)
-								gridView.setEmptyText(result.getTotalLength() + " agreements qualify (too many to display).<br/>Please enter filter criteria to narrow your search.");
+								gridView.setEmptyText(result.getTotalLength() + " agreement terms qualify (too many to display).<br/>Please enter filter criteria to narrow your search.");
 							else if (filter.length() == 0)
 								gridView.setEmptyText("Enter filter criteria to search for agreements.");
 							else

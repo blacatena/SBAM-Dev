@@ -57,12 +57,16 @@ public class AppConstants {
 	public static final int		STANDARD_LOAD_LIMIT				=	500;
     
 	public static class TypedTerms {
-		private List<String>	words;
-		private List<String>	numbers;
+		private List<String>		words;
+		private List<String>		numbers;
+		private List<Long []>	ips;
+		private List<String>		messages;
 		
-		public TypedTerms(List<String> words, List<String> numbers) {
+		public TypedTerms(List<String> words, List<String> numbers, List<Long []> ips, List<String> messages) {
 			this.words = words;
 			this.numbers = numbers;
+			this.ips = ips;
+			this.messages = messages;
 		}
 		
 		public List<String> getWords() {
@@ -76,6 +80,20 @@ public class AppConstants {
 		}
 		public void setNumbers(List<String> numbers) {
 			this.numbers = numbers;
+		}
+		public List<Long []> getIps() {
+			return ips;
+		}
+		public void setIps(List<Long []> ips) {
+			this.ips = ips;
+		}
+
+		public List<String> getMessages() {
+			return messages;
+		}
+
+		public void setMessages(List<String> messages) {
+			this.messages = messages;
 		}
 	}
 	
@@ -213,15 +231,176 @@ public class AppConstants {
 		return "Bad Status " + status;
 	}
 	
+	public static String addAsIp(StringBuffer ip, List<Long []> ipRanges) {
+		if (ip.indexOf(".") < 0)
+			return null;
+		
+		int ipCount = 0;
+		int octetCount = 0;
+		StringBuffer octet = new StringBuffer();
+		String [] [] octets = new String [2] [4];
+		
+		for (int i = 0; i < ip.length(); i++) {
+			char it = ip.charAt(i);
+			
+			if (it == '*') {
+				if (octet.length() > 0)	// We've already accumulated digits, so this can't be right
+					return "Invalid octet '" + octet + it + "' in '" + ip + "'.";
+				if (octetCount == 0) // Can't wildcard right away
+					return "First octet can't be a wildcard in '" + ip + "'.";
+				if (octetCount >= 4) // Can't have more than 4 octets 
+					return "Too many octets in '" + ip + "'.";
+				octet.append(it);
+			} else if (AppConstants.DIGITS.indexOf(it) >= 0) {
+				if (octetCount >= 4) // Already have 4 octets, so no place to add the left over octet, so that can't be right
+					return "Too many octets in '" + ip + "'.";
+				if (octet.length() > 0 && octet.charAt(0) == '*')	// Can't wildcard and have digits, too
+					return "Invalid octet '" + octet + it + "' in '" + ip + "'.";
+				octet.append(it);
+			} else if (it == '.') {
+				octets [ipCount] [octetCount] = octet.toString();
+				octetCount++;
+				octet.setLength(0);
+			} else if (it == '-' || it == ':') {
+				if (octetCount == 0) // Nothing before this, so that can't be right
+					return "Invalid range (nothing before '" + it + "' in '" + ip + "'.";
+				if (ipCount >= 2) // Already got two IPs, so that can't be right
+					return "Too many IP addresses in a range in '" + ip + "'.";
+				if (octet.length() == 0) // Don't have an octet before this, so that can't be right
+					return "First IP didn't end with an octet in '" + ip + "'.";
+				
+				octets [ipCount] [octetCount] = octet.toString();
+				octet.setLength(0);
+				
+				ipCount++;
+				octetCount = 0;
+			}
+		}
+		
+		if (octet.length() > 0) {
+			// One last octet
+			if (octetCount > 3)	// 	Already 4 octets, so this is one too many
+				return "Too many octets in '" + ip + "'.";
+
+			octets [ipCount] [octetCount] = octet.toString();
+			octetCount++;
+		}
+		
+		if (octetCount > 0)
+			ipCount++;
+		
+		Long [] ips = new Long [2];
+		
+		ips [0] = new Long(0);
+		ips [1] = new Long(0);
+		
+		for (int i = 0; i < ipCount; i++) {
+			for (int j = 0; j < 4; j++) {
+				ips [i] *= 256;
+				if (ipCount == 1) ips [1] *= 256; 	// If we don't have a range, count in the high, too , in case of wildcards
+				
+				if (octets [i] [j] == null && j < 2)
+					return "Too few octets to use in '" + ip + "'.";
+				if (octets [i] [j] == null || octets [i] [j].charAt(0) == '*') {
+					// Treat this as a wildcard
+					if (ipCount > 1)	// 	Can't use wildcards in a range
+						return "Can't use wildcards in a range in '" + ip + "'.";
+					ips [1] += 255; 
+				} else {
+					try {
+						long octetValue = Long.parseLong(octets [i] [j]);
+						if (octetValue > 255)
+							return "Invalid octet value " + octetValue + " in '" + ip + "'.";
+						ips [i] += octetValue;
+						if (ipCount == 1)
+							ips [1] += octetValue;	// If only one IP, count it in the high value, too 
+					} catch (NumberFormatException e) {
+						return "Invalid octet value '" + octets [i] [j] + "' in '" + ip + "'.";
+					}
+				}
+			}
+		}
+		
+		if (ips [1] < ips [0])
+			return "First IP is greater than the second in '" + ip + "'.";	
+		
+		ipRanges.add(ips);
+		
+		return null;
+	}
+	
 	public static TypedTerms parseTypedFilterTerms(String filter) {
+		return parseTypedFilterTerms(filter, false);
+	}
+	
+	/**
+	 * Parse a filter string into individual terms, separated into words, numbers and optionally ip address ranges, for 
+	 * using in search logic.
+	 * @param filter
+	 * The string to be parsed.
+	 * @param includeIps
+	 * True to recognize and include IP address ranges.  False to treat IP address ranges as just more numbers.
+	 * @return
+	 * A TypedTerms object with lists of words, numbers, IP address ranges and any error messages generated when recognizing IP address ranges.
+	 * The messages are really only relevant if you are expecting IP address ranges... otherise, they'll simply be pointing out things like the fact
+	 * that 23B in "Apt. 23B" is not a valid IP address.
+	 */
+	public static TypedTerms parseTypedFilterTerms(String filter, boolean includeIps) {
 		if (filter == null || filter.length() == 0)
 			return null;
 		
 //		Create a list of numeric and alphanumeric components
-    	List<String> numbers = new ArrayList<String>();
-    	List<String> words   = new ArrayList<String>();
+		List<Long []>		ipRanges	=	new ArrayList<Long []>();
+    	List<String>		numbers		=	new ArrayList<String>();
+    	List<String>		words   	=	new ArrayList<String>();
+    	List<String>		messages   	=	new ArrayList<String>();
+    	
     	filter = filter.trim().toUpperCase();
+    	
     	StringBuffer term = new StringBuffer();
+    	
+    	// First, look for valid IP addresses and extract them
+    	if (includeIps) {
+    		boolean letters = false;
+    		StringBuffer ip	  		=	new StringBuffer();
+    		StringBuffer remnant	=	new StringBuffer();
+    		
+    		for (int i = 0; i <= filter.length(); i++) {
+    			char it = (i < filter.length()) ? filter.charAt(i) : 0;
+    			if (it == '.' || it == '*' || it == '-' || it == ':' || AppConstants.DIGITS.indexOf(it) >= 0) {
+    				ip.append(it);
+    			} else if (AppConstants.LETTERS_ALL.indexOf(it) >= 0) {
+    				ip.append(it);
+    				letters = true;
+    			} else if (it == 0 || it == ' ' || AppConstants.LETTERS_ALL.indexOf(it) < 0) {	// Anything but a letter triggers the ip test... look for 0 or blank explicitly just as an optimization (to avoid scanning the LETTERS_ALL string)
+    				if (ip.length() > 0) {
+    					if (letters) {
+	    					remnant.append(ip);
+	    					ip.setLength(0);
+	    				} else {
+		    				String message = addAsIp(ip, ipRanges);
+		    				if (message != null) {	// If addAsIp returns a non-zero length message, then this wasn't a valid IP range
+		    					remnant.append(ip);
+		    					messages.add(message);
+		    				}
+		    				ip.setLength(0);
+	    				}
+    				}
+    				
+    				if (it > 0)
+    					remnant.append(it);
+    				letters = false;
+    			} else {
+    				remnant.append(ip);
+    				remnant.append(it);
+    				ip.setLength(0);
+    			}
+    		}
+    		
+    		filter = remnant.toString();
+    	}
+    	
+    	// Now look for numbers and words with what's left
     	boolean numeric = true;
     	boolean quotes = false;
     	for (int i = 0; i < filter.length(); i++) {
@@ -236,8 +415,9 @@ public class AppConstants {
             				words.add(term.toString());
             			term = new StringBuffer();
             		}
-    			} else
+    			} else {
     				quotes = true;
+    			}
     		} else if (AppConstants.LETTERS_ALL.indexOf(it) >= 0) {
     			numeric = false;
     			term.append(it);
@@ -262,7 +442,7 @@ public class AppConstants {
 				words.add(term.toString());
 		}
     	
-    	return new TypedTerms(words, numbers);
+    	return new TypedTerms(words, numbers, ipRanges, messages);
 	}
 	
 	/**

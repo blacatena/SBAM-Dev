@@ -76,6 +76,8 @@ public class AppPortletProvider {
 			portlet = new SiteInstitutionSearchPortlet();
 		else if (id == AppPortletIds.AGREEMENT_SEARCH)
 			portlet = new AgreementSearchPortlet();
+		else if (id == AppPortletIds.AGREEMENT_AUTH_METHOD_SEARCH)
+			portlet = new AgreementAuthMethodSearchPortlet();
 		else if (id == AppPortletIds.AGREEMENT_CONTACT_SEARCH)
 			portlet = new AgreementContactSearchPortlet();
 		else if (id == AppPortletIds.AGREEMENT_SITE_SEARCH)
