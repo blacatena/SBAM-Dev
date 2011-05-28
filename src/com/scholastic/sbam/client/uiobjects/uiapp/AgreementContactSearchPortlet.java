@@ -93,6 +93,7 @@ public class AgreementContactSearchPortlet extends GridSupportPortlet<AgreementC
 	protected ListStore<ModelData>				store;
 	protected TextField<String>					filterField;
 	protected Timer								filterListenTimer;
+	protected String							lastTestFilter;
 	protected String							filter = "";
 	protected GridFilters						columnFilters;
 	
@@ -468,8 +469,12 @@ public class AgreementContactSearchPortlet extends GridSupportPortlet<AgreementC
 			 			  grid.getStore().removeAll();
 			 			  gridView.setEmptyText("Enter at least " + MIN_FILTER_LENGTH + " characters of a name with which to search.");
 			 		  } else {
-			 			  loadFiltered(filterField.getRawValue());
-			 		  }
+						  // This optimization makes sure the user has stopped (or at least paused) in typing... if the value is changing, wait until it doesn't
+						  if (value.equals(lastTestFilter))
+							  loadFiltered(filterField.getRawValue());
+						  else
+							  lastTestFilter = value;
+					  }
 			 	  }
 			  }
 			};
@@ -621,7 +626,7 @@ public class AgreementContactSearchPortlet extends GridSupportPortlet<AgreementC
 	 * @param filter
 	 */
 	protected void loadFiltered(String filter) {
-		if (filter == null || filter.length() == 0)
+		if (filter == null || filter.length() == 0 || filter.length() < MIN_FILTER_LENGTH)
 			return;
 		
 		this.filter = filter;

@@ -67,7 +67,9 @@ public class AuthMethodSearchServiceImpl extends AuthenticatedServiceServlet imp
 				setInstitution(agreement);
 					
 				AuthMethodTuple tuple = new AuthMethodTuple(agreement, authMethod);
-				list.add(tuple);
+				
+				if (filterQualified(tuple, typedTerms))
+					list.add(tuple);
 			}
 
 		} catch (Exception exc) {
@@ -98,5 +100,60 @@ public class AuthMethodSearchServiceImpl extends AuthenticatedServiceServlet imp
 
 	private void setDescriptions(AuthMethodInstance AuthMethod) {
 		DbAuthMethod.setDescriptions(AuthMethod);
+	}
+	
+	protected boolean filterQualified(AuthMethodTuple tuple, AppConstants.TypedTerms typedTerms) {
+		//	Test for search terms
+		
+		//	Have to find each word somewhere
+		for (String word : typedTerms.getWords())
+			if (!filterQualified(tuple, word))
+				return false;
+		
+		//	Have to find each number somewhere -- this can include the agreement ID
+		for (String number : typedTerms.getNumbers())
+			if (!filterQualifiedNumber(tuple, number))
+				return false;
+		
+		//	For a UID or URL, have to find each IP address somewhere (probably in the note)
+		if (!AuthMethodInstance.AM_IP.equals(tuple.getAuthMethod().getMethodType())) {
+			for (String ipString : typedTerms.getIpStrings())
+				if (!filterQualified(tuple, ipString))
+					return false;
+		}
+		
+		//	We found everything, so qualify this tuple
+		return true;
+	}
+	
+	protected boolean filterQualified(AuthMethodTuple tuple, String term) {
+		term = term.toLowerCase();
+		if (tuple.getAuthMethod() != null) {
+			if (tuple.getAuthMethod().getNote().toLowerCase().contains(term))
+				return true;
+			if (tuple.getAuthMethod().getOrgPath().toLowerCase().contains(term))
+				return true;
+			if (tuple.getAuthMethod().getUrl().toLowerCase().contains(term))
+				return true;
+			if (tuple.getAuthMethod().getUserId().toLowerCase().startsWith(term))
+				return true;
+			if (tuple.getAuthMethod().getPassword().toLowerCase().contains(term))
+				return true;
+		}
+		if (tuple.getAgreement().getInstitution() != null) {
+			if (tuple.getAgreement().getInstitution().getInstitutionName().toLowerCase().contains(term))
+				return true;
+			if (tuple.getAgreement().getInstitution().getCity().toLowerCase().contains(term))
+				return true;
+			if (tuple.getAgreement().getInstitution().getZip().toLowerCase().contains(term))
+				return true;
+		}
+		return false;
+	}
+	
+	protected boolean filterQualifiedNumber(AuthMethodTuple tuple, String term) {
+		if (tuple.getAgreement() != null && (tuple.getAgreement().getId() + "").contains(term))
+			return true;
+		return filterQualified(tuple, term);
 	}
 }

@@ -433,17 +433,23 @@ public class IpAddressRangeField extends MultiField<Long []> {
 		boolean alert = alertMsgs != null && alertMsgs.size() > 0;
 		StringBuffer msgs = new StringBuffer();
 		if (alertMsgs != null) {
+			boolean first = true;
 			for (String msg : alertMsgs) {
 				if (msgs.length() > 0) msgs.append("<br/>");
-				msgs.append("<em>");
+				msgs.append("<span class=\"field-alert-msg" + (first?" first-msg":"") + "\">");
 				msgs.append(msg);
-				msgs.append("</em>");
+				msgs.append("</span>");
+				first=false;
 			}
 		}
 		if (infoMsgs != null) {
+			boolean first = true;
 			for (String msg : infoMsgs) {
 				if (msgs.length() > 0) msgs.append("<br/>");
+				msgs.append("<span class=\"field-info-msg" + (first?" first-msg":"") + "\">");
 				msgs.append(msg);
+				msgs.append("</span>");
+				first=false;
 			}
 		}
 		markInfo(msgs.toString(), alert);

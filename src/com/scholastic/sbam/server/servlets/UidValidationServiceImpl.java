@@ -208,12 +208,15 @@ public class UidValidationServiceImpl extends AuthenticatedServiceServlet implem
 			msg.append("'");
 		}
 		if (!sameProxyId) {
-			if (samePassword)
-				msg.append(" with");
-			else
-				msg.append(" and");
-			msg.append(" proxy ");
-			msg.append(AppConstants.appendCheckDigit(compareProxyId));
+			if (compareProxyId > 0) {
+				if (samePassword)
+					msg.append(" with");
+				else
+					msg.append(" and");
+				msg.append(" proxy ");
+				msg.append(AppConstants.appendCheckDigit(compareProxyId));
+			} else
+				msg.append(" without a proxy");
 		}
 		if (!sameUserType) {
 			if (!samePassword || !sameProxyId)

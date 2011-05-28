@@ -434,6 +434,27 @@ div.x-slider div.ext-el-mask {
 
 /*  For warning or info instead of error messages on fields */
 
+.field-alert-msg.first-msg {
+}
+
+.field-alert-msg {
+	background-image:url(resources/images/icons/mini/alert.png);
+	background-repeat: no-repeat;
+	padding-left: 14px;
+/*	padding-bottom: 2px;*/
+}
+
+.field-info-msg.first-msg {
+}
+
+.field-info-msg {
+	color: #000055;
+	background-image:url(resources/images/icons/mini/info.png);
+	background-repeat: no-repeat;
+	padding-left: 14px;
+/*	padding-bottom: 2px;*/
+}
+
 /* From gxt-all */
 
 

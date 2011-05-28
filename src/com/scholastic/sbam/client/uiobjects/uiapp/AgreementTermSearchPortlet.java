@@ -78,6 +78,7 @@ import com.scholastic.sbam.shared.util.AppConstants;
 public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTermTuple> implements AppSleeper, AppPortletRequester {
 	
 	protected static final int LOAD_LIMIT			= AppConstants.STANDARD_LOAD_LIMIT;
+	protected static final int MIN_FILTER_LENGTH	= 0;
 	protected static final int FILTER_LISTEN_PERIOD = 500;	//	This is a little higher, because we're doing a database scan on the back end, so it's not very fast
 	
 	protected final AgreementTermSearchServiceAsync	agreementTermSearchService  = GWT.create(AgreementTermSearchService.class);
@@ -100,6 +101,7 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 	protected BoundDateField					toDateField;
 	protected DateRangeBinder					startEndRangeBinder;
 	protected Timer								filterListenTimer;
+	protected String							lastTestFilter;
 	protected String							filter = "";
 	protected Date								fromDate = new Date();
 	protected Date								toDate = new Date();
@@ -520,8 +522,19 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 					  if (!value.equals(filter.trim())
 					  ||  !newFromDate.equals(fromDate)
 					  ||  !newToDate.equals(toDate)
-					  ||  !newDateType.getCode().equals(dateType.getCode()))
-						  loadFiltered(filterField.getRawValue(), newDateType, newFromDate, newToDate);
+					  ||  !newDateType.getCode().equals(dateType.getCode())) {
+				 		  if (value.trim().length() < MIN_FILTER_LENGTH) {
+				 			  //	Feedback here...
+				 			  grid.getStore().removeAll();
+				 			  gridView.setEmptyText("Enter at least " + MIN_FILTER_LENGTH + " characters with which to search.");
+				 		  } else {
+							  // This optimization makes sure the user has stopped (or at least paused) in typing... if the value is changing, wait until it doesn't
+							  if (value.equals(lastTestFilter))
+								  loadFiltered(filterField.getRawValue(), newDateType, newFromDate, newToDate);
+							  else
+								  lastTestFilter = value;
+						  }	  
+					  }
 				  }
 			  }
 			};
@@ -670,7 +683,7 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 	 * @param filter
 	 */
 	protected void loadFiltered(String filter, GenericCodeInstance dateType, Date fromDate, Date toDate) {
-		if (filter == null || filter.length() == 0)
+		if (filter == null || filter.length() == 0 || filter.length() < MIN_FILTER_LENGTH)
 			return;
 		if (dateType == null)
 			return;

@@ -59,14 +59,16 @@ public class AppConstants {
 	public static class TypedTerms {
 		private List<String>		words;
 		private List<String>		numbers;
-		private List<Long []>	ips;
+		private List<String>		ipStrings;
+		private List<Long []>		ips;
 		private List<String>		messages;
 		
-		public TypedTerms(List<String> words, List<String> numbers, List<Long []> ips, List<String> messages) {
-			this.words = words;
-			this.numbers = numbers;
-			this.ips = ips;
-			this.messages = messages;
+		public TypedTerms(List<String> words, List<String> numbers, List<String> ipStrings, List<Long []> ips, List<String> messages) {
+			this.words		= words;
+			this.numbers	= numbers;
+			this.ips		= ips;
+			this.ipStrings	= ipStrings;
+			this.messages	= messages;
 		}
 		
 		public List<String> getWords() {
@@ -87,11 +89,15 @@ public class AppConstants {
 		public void setIps(List<Long []> ips) {
 			this.ips = ips;
 		}
-
+		public List<String> getIpStrings() {
+			return ipStrings;
+		}
+		public void setIpStrings(List<String> ipStrings) {
+			this.ipStrings = ipStrings;
+		}
 		public List<String> getMessages() {
 			return messages;
 		}
-
 		public void setMessages(List<String> messages) {
 			this.messages = messages;
 		}
@@ -353,6 +359,7 @@ public class AppConstants {
 		List<Long []>		ipRanges	=	new ArrayList<Long []>();
     	List<String>		numbers		=	new ArrayList<String>();
     	List<String>		words   	=	new ArrayList<String>();
+    	List<String>		ipStrings   =	new ArrayList<String>();
     	List<String>		messages   	=	new ArrayList<String>();
     	
     	filter = filter.trim().toUpperCase();
@@ -382,7 +389,8 @@ public class AppConstants {
 		    				if (message != null) {	// If addAsIp returns a non-zero length message, then this wasn't a valid IP range
 		    					remnant.append(ip);
 		    					messages.add(message);
-		    				}
+		    				} else
+		    					ipStrings.add(ip.toString());
 		    				ip.setLength(0);
 	    				}
     				}
@@ -442,7 +450,7 @@ public class AppConstants {
 				words.add(term.toString());
 		}
     	
-    	return new TypedTerms(words, numbers, ipRanges, messages);
+    	return new TypedTerms(words, numbers, ipStrings, ipRanges, messages);
 	}
 	
 	/**

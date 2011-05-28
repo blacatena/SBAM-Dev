@@ -232,6 +232,7 @@ public class DbAuthMethod extends HibernateAccessor {
     	if (typedTerms.getIps().size() > 0) {
     		sqlQuery += " ( /* 2a */ ";	// -->2
     		
+    		/* Anything that qualifies by IP any range */
     		int ipCount = 0;
     		for (Long [] ipRange : typedTerms.getIps()) {
     			String ipRangeCode = IpAddressInstance.getCommonIpRangeCode(ipRange [0], ipRange [1]);
@@ -262,21 +263,21 @@ public class DbAuthMethod extends HibernateAccessor {
     		}
 //    		sqlQuery += " ) /* 2a */ "; // <--2
     		
-    		if (typedTerms.getNumbers().size() > 0) {
-    			sqlQuery += " AND ( /* 3b */ ";	// -->3
-    			
-    			int termCount = 0;
-    			for (String number : typedTerms.getNumbers()) {
-        			if (termCount > 0)
-        				sqlQuery += " OR ";
-        			sqlQuery += "agreement.id like '";
-        			sqlQuery += number;
-        			sqlQuery += "%'";
-        			termCount++;
-    			}
-    			
-    			sqlQuery += ") /* 3b */ ";	//	<--3
-    		}
+//    		if (typedTerms.getNumbers().size() > 0) {
+//    			sqlQuery += " AND ( /* 3b */ ";	// -->3
+//    			
+//    			int termCount = 0;
+//    			for (String number : typedTerms.getNumbers()) {
+//        			if (termCount > 0)
+//        				sqlQuery += " OR ";
+//        			sqlQuery += "agreement.id like '";
+//        			sqlQuery += number;
+//        			sqlQuery += "%'";
+//        			termCount++;
+//    			}
+//    			
+//    			sqlQuery += ") /* 3b */ ";	//	<--3
+//    		}
     		
     		sqlQuery += " ) /* 2a */ ";	// <--2
     	}
@@ -287,6 +288,8 @@ public class DbAuthMethod extends HibernateAccessor {
     		int termCount = 0;
     		if (typedTerms.getIps().size() > 0)
     			sqlQuery += " OR ";
+    		
+    		/* Anything with either the word in the url, or the user ID starting with the word */
     		sqlQuery += " ( /* 2b */ ";	// -->2
     		for (String word : typedTerms.getWords()) {
     			if (termCount > 0)
@@ -303,6 +306,8 @@ public class DbAuthMethod extends HibernateAccessor {
     			sqlQuery += "%') ";
     			termCount++;
     		}
+    		
+    		/* Anything with a number in the URL or the user ID starting with the number */
     		for (String number : typedTerms.getNumbers()) {
     			if (termCount > 0)
     				sqlQuery += " OR ";
@@ -314,14 +319,13 @@ public class DbAuthMethod extends HibernateAccessor {
     			sqlQuery += number;
     			sqlQuery += "%') OR (user_id like '";
     			sqlQuery += number;
-    			sqlQuery += "%') OR (agreement.id like '";
-    			sqlQuery += number;
     			sqlQuery += "%') ";
     			termCount++;
     		}
     		
     		if (termCount > 0)
     			sqlQuery += " OR ";
+    		/* Anything with all of the words and numbers in the note */
     		sqlQuery += "MATCH (auth_method.note) AGAINST ('" + fullTextMatch + "') ";
     		
     		sqlQuery += ") /* 2b */";	// <--2
