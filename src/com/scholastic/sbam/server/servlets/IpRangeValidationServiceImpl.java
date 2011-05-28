@@ -5,6 +5,7 @@ import java.util.List;
 import com.scholastic.sbam.client.services.IpRangeValidationService;
 import com.scholastic.sbam.server.database.codegen.AuthMethod;
 import com.scholastic.sbam.server.database.codegen.ProxyIp;
+import com.scholastic.sbam.server.database.objects.DbAgreementTerm;
 import com.scholastic.sbam.server.database.objects.DbAuthMethod;
 import com.scholastic.sbam.server.database.objects.DbProxyIp;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
@@ -146,6 +147,10 @@ public class IpRangeValidationServiceImpl extends AuthenticatedServiceServlet im
 		String sourceType;
 //		String compareType;
 		
+		boolean isInfo  = false;
+		boolean isError = false;
+		StringBuffer msg = new StringBuffer();
+		
 		if (validatedMethodId.getAgreementId() > 0)
 			sourceType = "agreement";
 		else if (validatedMethodId.getUcn() > 0)
@@ -198,8 +203,6 @@ public class IpRangeValidationServiceImpl extends AuthenticatedServiceServlet im
 		&&  validatedMethodId.getAgreementId() > 0)
 			return 1;
 			
-		boolean isError = false;
-		StringBuffer msg = new StringBuffer();
 		
 		if (rangeComparison == SAME_RANGE)
 			if (ipLo == ipHi)
@@ -215,13 +218,20 @@ public class IpRangeValidationServiceImpl extends AuthenticatedServiceServlet im
 				msg.append(" already exists on this ");
 				msg.append(sourceType);
 			} else if (rangeComparison == ENCOMPASSED) {
-				msg.append(" encompasses this IP ");
+				msg.append(" encompasses this IP  on this ");
+				msg.append(sourceType);
 			} else {
-				msg.append(" overlaps with this IP ");
+				msg.append(" overlaps with this IP on this ");
+				msg.append(sourceType);
 			}
 		} else {
 			if (compareMethodId.getAgreementId() > 0) {
-				msg.append(" exists on agreement ");
+				List<Object []> activeTerms = DbAgreementTerm.findActive(compareMethodId.getAgreementId());
+				if (activeTerms.size() == 0 ) {
+					isInfo = true;
+					msg.append(" exists on inactive agreement ");
+				} else
+					msg.append(" exists on ACTIVE agreement ");
 				msg.append(AppConstants.appendCheckDigit(compareMethodId.getAgreementId()));
 			} else if (compareMethodId.getUcn() > 0) {
 				msg.append(" exists on site location ");
@@ -261,6 +271,8 @@ public class IpRangeValidationServiceImpl extends AuthenticatedServiceServlet im
 		
 		if (isError)
 			response.getMessages().add(msg.toString());
+		else if (isInfo)
+			response.getInfoMessages().add(msg.toString());
 		else
 			response.getAlertMessages().add(msg.toString());
 		

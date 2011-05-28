@@ -327,6 +327,8 @@ public class IpAddressRangeField extends MultiField<Long []> {
 	public void asynchValidation(long loIp, long hiIp) {
 		if (loIp == lastLoIpValidated && hiIp == lastHiIpValidated && methodId.equals(lastMethodId))
 			return;
+		if (!isEnabled() || !loIpField.isEnabled())	// Don't bother with async validation when disabled.
+			return;
 		
 		lastLoIpValidated = loIp;
 		lastHiIpValidated = hiIp;

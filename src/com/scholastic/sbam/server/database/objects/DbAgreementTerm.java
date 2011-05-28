@@ -220,6 +220,71 @@ public class DbAgreementTerm extends HibernateAccessor {
         return new ArrayList<Object []>();
 	}
 	
+	public static List<Object []> findActive(int agreementId) {
+        try
+        {
+        	if (agreementId <= 0)
+        		return new ArrayList<Object []>();
+        	
+        	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        	String todayDateStr = "'" + format.format(new Date()) + "'";
+        		
+        	StringBuffer sqlQuery = new StringBuffer();
+        	
+        	sqlQuery.append("SELECT {agreement.*}, {agreement_term.*}, {product.*} FROM agreement, agreement_term, product ");
+        	sqlQuery.append(" WHERE agreement.id = ");
+        	sqlQuery.append(agreementId);
+        	sqlQuery.append(" AND agreement.status <> '");
+        	sqlQuery.append(AppConstants.STATUS_DELETED);
+        	sqlQuery.append("'");
+        	sqlQuery.append(" AND agreement.status <> '");
+        	sqlQuery.append(AppConstants.STATUS_INACTIVE);
+        	sqlQuery.append("'");
+        	sqlQuery.append(" AND agreement_term.status <> '");
+        	sqlQuery.append(AppConstants.STATUS_DELETED);
+        	sqlQuery.append("'");
+        	sqlQuery.append(" AND agreement_term.status <> '");
+        	sqlQuery.append(AppConstants.STATUS_INACTIVE);
+        	sqlQuery.append("'");
+        	sqlQuery.append(" AND product.status <> '");
+        	sqlQuery.append(AppConstants.STATUS_DELETED);
+        	sqlQuery.append("'");
+        	sqlQuery.append(" AND product.status <> '");
+        	sqlQuery.append(AppConstants.STATUS_INACTIVE);
+        	sqlQuery.append("'");
+        	sqlQuery.append(" AND agreement.id = agreement_term.agreement_id ");
+        	sqlQuery.append(" AND agreement_term.product_code = product.product_code ");
+        	
+        	sqlQuery.append(" AND start_date <= ");
+        	sqlQuery.append(todayDateStr);
+        	sqlQuery.append(" AND (terminate_date >= ");
+        	sqlQuery.append(todayDateStr);
+        	sqlQuery.append(" OR end_date >= ");
+        	sqlQuery.append(todayDateStr);
+        	sqlQuery.append(")");
+        	
+        	sqlQuery.append(" order by agreement_term.agreement_id, agreement_term.start_date, agreement_term.end_date, product.description");
+        	
+//        	System.out.println(sqlQuery);
+        	
+            SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery.toString());
+            
+            query.addEntity("agreement",		getObjectReference("Agreement"));
+            query.addEntity("agreement_term",	getObjectReference("AgreementTerm"));
+            query.addEntity("product",			getObjectReference("Product"));
+            
+            @SuppressWarnings("unchecked")
+			List<Object []> objects = query.list();
+            return objects;
+        }
+        catch(Exception e)
+        {
+        	e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return new ArrayList<Object []>();
+	}
+	
 	public static void setDescriptions(AgreementTermInstance agreementTerm) {
 		if (agreementTerm == null)
 			return;

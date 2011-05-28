@@ -105,6 +105,8 @@ public class UrlField extends TextField<String> {
 			return;
 		if (url.equals(lastUrlValidated) && methodId.equals(lastMethodId))
 			return;
+		if (!isEnabled())	// Don't bother with async validation when disabled.
+			return;
 		
 		lastUrlValidated = url;
 		lastMethodId.setFrom(methodId);

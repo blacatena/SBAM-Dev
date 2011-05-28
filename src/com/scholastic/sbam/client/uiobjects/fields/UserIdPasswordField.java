@@ -334,7 +334,8 @@ public class UserIdPasswordField extends MultiField<String []> {
 
 		clearInvalid();
 		
-		asynchValidation();
+		if (isEnabled())
+			asynchValidation();
 		
 		return true;
 	}
@@ -352,6 +353,8 @@ public class UserIdPasswordField extends MultiField<String []> {
 	public void asynchValidation(String uid, String password, char userType, int proxyId) {
 		if (uid == null || password == null || userType == 0)
 			return;
+		if (!isEnabled() || !userIdField.isEnabled())	// Don't bother with async validation when disabled.
+			return;
 		if (uid.equals(lastUidValidated) 
 		&& 	password.equals(lastPasswordValidated) 
 		&& 	userType == lastUserTypeValidated
@@ -362,6 +365,7 @@ public class UserIdPasswordField extends MultiField<String []> {
 		lastUidValidated = uid;
 		lastPasswordValidated = password;
 		lastUserTypeValidated = userType;
+		lastProxyIdValidated = proxyId;
 		lastMethodId.setFrom(methodId);
 
 		validationService.validateUid(uid, password, userType, proxyId, methodId, ++validationCounter,

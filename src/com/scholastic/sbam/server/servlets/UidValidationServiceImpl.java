@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.scholastic.sbam.client.services.UidValidationService;
 import com.scholastic.sbam.server.database.codegen.AuthMethod;
+import com.scholastic.sbam.server.database.objects.DbAgreementTerm;
 import com.scholastic.sbam.server.database.objects.DbAuthMethod;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.objects.AuthMethodInstance;
@@ -119,6 +120,11 @@ public class UidValidationServiceImpl extends AuthenticatedServiceServlet implem
 		String sourceType		= "";
 //		String compareType		= "";
 		
+		boolean isError = false;
+		boolean isInfo = false;
+		StringBuffer msg = new StringBuffer();
+		
+		
 		if (validatedMethodId.getAgreementId() > 0)
 			sourceType = "agreement";
 		else if (validatedMethodId.getUcn() > 0)
@@ -171,9 +177,6 @@ public class UidValidationServiceImpl extends AuthenticatedServiceServlet implem
 		&&  validatedMethodId.getAgreementId() > 0)
 			return 1;
 			
-		boolean isError = false;
-		StringBuffer msg = new StringBuffer();
-		
 		msg.append("This user ID ");
 		
 		if (sourceComparison == SAME_SOURCE) {
@@ -181,7 +184,12 @@ public class UidValidationServiceImpl extends AuthenticatedServiceServlet implem
 				msg.append(" already exists on this ");
 				msg.append(sourceType);
 		} else if (compareMethodId.getAgreementId() > 0) {
-			msg.append(" exists on agreement ");
+			List<Object []> activeTerms = DbAgreementTerm.findActive(compareMethodId.getAgreementId());
+			if (activeTerms.size() == 0 ) {
+				isInfo = true;
+				msg.append(" exists on inactive agreement ");
+			} else
+				msg.append(" exists on ACTIVE agreement ");
 			msg.append(AppConstants.appendCheckDigit(compareMethodId.getAgreementId()));
 		} else if (compareMethodId.getUcn() > 0) {
 			msg.append(" exists on site location ");
@@ -239,6 +247,8 @@ public class UidValidationServiceImpl extends AuthenticatedServiceServlet implem
 		
 		if (isError)
 			response.getMessages().add(msg.toString());
+		else if (isInfo)
+			response.getInfoMessages().add(msg.toString());
 		else
 			response.getAlertMessages().add(msg.toString());
 		
