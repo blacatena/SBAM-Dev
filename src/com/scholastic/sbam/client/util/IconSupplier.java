@@ -46,6 +46,10 @@ public class IconSupplier {
 		return "configuration.png";
 	}
 	
+	public static String getExportIconName() {
+		return "export.png";
+	}
+	
 	public static String getReportIconName() {
 		return "report.png";
 	}

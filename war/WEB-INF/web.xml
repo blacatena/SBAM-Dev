@@ -27,6 +27,16 @@
   </servlet>
   
   <servlet>
+    <servlet-name>getExportReportServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.GetExportReportServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>initiateExportServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.InitiateExportServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>welcomeMessageServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.WelcomeMessageServiceImpl</servlet-class>
   </servlet>
@@ -544,6 +554,16 @@
   <servlet-mapping>
     <servlet-name>deauthenticateServlet</servlet-name>
     <url-pattern>/sbam/deauthenticate</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>getExportReportServlet</servlet-name>
+    <url-pattern>/sbam/getExportReport</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>initiateExportServlet</servlet-name>
+    <url-pattern>/sbam/initiateExport</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

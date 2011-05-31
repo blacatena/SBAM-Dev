@@ -14,6 +14,7 @@ import com.scholastic.sbam.client.uiobjects.foundation.AppSecurityManager;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
 import com.scholastic.sbam.client.uiobjects.uiadmin.CacheControlPanel;
 import com.scholastic.sbam.client.uiobjects.uiadmin.DocumentationLinksDisplay;
+import com.scholastic.sbam.client.uiobjects.uiadmin.ExportControlPanel;
 import com.scholastic.sbam.client.uiobjects.uiadmin.UserEditGrid;
 import com.scholastic.sbam.client.uiobjects.uiadmin.VersionDisplay;
 import com.scholastic.sbam.client.uiobjects.uiadmin.WelcomeMessageEditGrid;
@@ -26,10 +27,13 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 	private ContentPanel cntntpnlVersion;
 	private ContentPanel cntntpnlProgramming;
 	private ContentPanel cntntpnlCacheControl;
-	private UserEditGrid userEditGrid;
-	private DocumentationLinksDisplay docLinksDisplay;
-	private WelcomeMessageEditGrid welcomeMessageEditGrid;
-	private CacheControlPanel cacheControlPanel;
+	private ContentPanel cntntpnlExportControl;
+	
+	private UserEditGrid				userEditGrid;
+	private DocumentationLinksDisplay	docLinksDisplay;
+	private WelcomeMessageEditGrid		welcomeMessageEditGrid;
+	private CacheControlPanel			cacheControlPanel;
+	private ExportControlPanel			exportControlPanel;
 
 	public AdminUi() {
 		
@@ -155,6 +159,18 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 		cacheControlPanel = new CacheControlPanel();
 		cntntpnlCacheControl.add(cacheControlPanel);
 		layoutContainer.add(cntntpnlCacheControl);
+		
+		/*
+		 * Export Control
+		 */
+
+		cntntpnlExportControl = new ContentPanel();
+		cntntpnlExportControl.setHeading("Export Control");
+		cntntpnlExportControl.setCollapsible(true);
+		IconSupplier.setIcon(cntntpnlExportControl, IconSupplier.getExportIconName());
+		exportControlPanel = new ExportControlPanel();
+		cntntpnlExportControl.add(exportControlPanel);
+		layoutContainer.add(cntntpnlExportControl);
 
 		/*
 		 * Finish up
