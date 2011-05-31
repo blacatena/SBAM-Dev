@@ -64,7 +64,6 @@ import com.scholastic.sbam.client.uiobjects.foundation.GridSupportPortlet;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
-import com.scholastic.sbam.shared.objects.AgreementContactInstance;
 import com.scholastic.sbam.shared.objects.AgreementContactTuple;
 import com.scholastic.sbam.shared.objects.AgreementTermInstance;
 import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
@@ -77,7 +76,7 @@ public class AgreementContactSearchPortlet extends GridSupportPortlet<AgreementC
 	protected static final int FILTER_LISTEN_PERIOD = 500;	//	This is a little higher, because we want to give the user time to type in a meaningful amount of a name
 	
 	protected final AgreementContactSearchServiceAsync	agreementContactSearchService	= GWT.create(AgreementContactSearchService.class);
-	protected final AgreementContactGetServiceAsync    	AgreementContactGetService			= GWT.create(AgreementContactGetService.class);
+	protected final AgreementContactGetServiceAsync    	agreementContactGetService			= GWT.create(AgreementContactGetService.class);
 //	protected final AgreementGetServiceAsync    		agreementGetService				= GWT.create(AgreementGetService.class);
 //	protected final SiteInstitutionWordServiceAsync  	siteInstitutionWordService   = GWT.create(SiteInstitutionWordService.class);
 	
@@ -107,7 +106,7 @@ public class AgreementContactSearchPortlet extends GridSupportPortlet<AgreementC
 	protected LabelField						customerTypeField;
 	protected LabelField						altIds;
 	protected ListStore<ModelData>				agreementTermsStore;
-	protected Grid<ModelData>					AgreementContactsGrid;
+	protected Grid<ModelData>					agreementTermsGrid;
 	protected FieldSet							agreementsFieldSet;
 	
 	protected AppPortletProvider				portletProvider;
@@ -275,25 +274,25 @@ public class AgreementContactSearchPortlet extends GridSupportPortlet<AgreementC
 
 		agreementTermsStore = new ListStore<ModelData>();
 		
-		AgreementContactsGrid = new Grid<ModelData>(agreementTermsStore, cm);  
-		AgreementContactsGrid.setBorders(true);
-		AgreementContactsGrid.setHeight(180);
-		AgreementContactsGrid.setStripeRows(true);
-		AgreementContactsGrid.setColumnLines(true);
-		AgreementContactsGrid.setHideHeaders(false);
-		AgreementContactsGrid.setWidth(cm.getTotalWidth() + 5);
+		agreementTermsGrid = new Grid<ModelData>(agreementTermsStore, cm);  
+		agreementTermsGrid.setBorders(true);
+		agreementTermsGrid.setHeight(180);
+		agreementTermsGrid.setStripeRows(true);
+		agreementTermsGrid.setColumnLines(true);
+		agreementTermsGrid.setHideHeaders(false);
+		agreementTermsGrid.setWidth(cm.getTotalWidth() + 5);
 		
 		//	Open a new portlet to display an agreement when a row is selected
-		AgreementContactsGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); 
+		agreementTermsGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); 
 		final AppPortlet thisPortlet = this; 
-		AgreementContactsGrid.getSelectionModel().addListener(Events.SelectionChange,  
+		agreementTermsGrid.getSelectionModel().addListener(Events.SelectionChange,  
 				new Listener<SelectionChangedEvent<ModelData>>() {  
 					public void handleEvent(SelectionChangedEvent<ModelData> be) {  
 						if (be.getSelection().size() > 0) {
 						//	System.out.println("Agreement " + ((BeanModel) be.getSelectedItem()).get("idCheckDigit"));
-							AgreementContactInstance AgreementContact = (AgreementContactInstance) ((BeanModel) be.getSelectedItem()).getBean();
+							AgreementTermInstance AgreementTerm = (AgreementTermInstance) ((BeanModel) be.getSelectedItem()).getBean();
 							AgreementPortlet portlet = (AgreementPortlet) portletProvider.getPortlet(AppPortletIds.AGREEMENT_DISPLAY);
-							portlet.setAgreementId(AgreementContact.getAgreementId());
+							portlet.setAgreementId(AgreementTerm.getAgreementId());
 							if (focusAgreementContact != null) {
 								String foundFor = constructFilterDescription();
 								portlet.setIdentificationTip("Found for " + foundFor + "");
@@ -303,7 +302,7 @@ public class AgreementContactSearchPortlet extends GridSupportPortlet<AgreementC
 //							portletProvider.insertPortlet(portlet, portalRow, insertCol);
 //							New, more thorough way
 							portletProvider.insertPortlet(portlet, portalRow, thisPortlet.getInsertColumn());
-							AgreementContactsGrid.getSelectionModel().deselectAll();
+							agreementTermsGrid.getSelectionModel().deselectAll();
 						} 
 					}
 			});
@@ -313,7 +312,7 @@ public class AgreementContactSearchPortlet extends GridSupportPortlet<AgreementC
 		agreementsFieldSet.setHeading("Current and Pending Sites");// 		displayCard.add(new LabelField("<br/><i>Existing Agreements</i>"));
 		agreementsFieldSet.setCollapsible(true);
 		agreementsFieldSet.setToolTip(UiConstants.getQuickTip("These are the current or pending agreement terms for this agreement."));
-		agreementsFieldSet.add(AgreementContactsGrid);//, new FormData("-24"));	//new FormData(cm.getTotalWidth() + 10, 200));
+		agreementsFieldSet.add(agreementTermsGrid);//, new FormData("-24"));	//new FormData(cm.getTotalWidth() + 10, 200));
 		
 	//	displayCard.add(new LabelField(""));	// Used as a spacer
 		displayCard.add(agreementsFieldSet, formData);	//	new FormData("95%")); // new FormData(cm.getTotalWidth() + 20, 200));
@@ -777,7 +776,7 @@ public class AgreementContactSearchPortlet extends GridSupportPortlet<AgreementC
 	}
 
 	protected void loadAgreementContact(final int agreementId, final int contactId) {
-		AgreementContactGetService.getAgreementContact(agreementId, contactId, true, false,
+		agreementContactGetService.getAgreementContact(agreementId, contactId, true, false,
 				new AsyncCallback<AgreementContactTuple>() {
 					public void onFailure(Throwable caught) {
 						// Show the RPC error message to the user
@@ -913,7 +912,7 @@ public class AgreementContactSearchPortlet extends GridSupportPortlet<AgreementC
 		String oldAgreementId   = null;
 		String oldContactId		= null;
 		
-		keyData = keyData.replace("\\:", "'''");	//	Remove any escaped :
+		keyData = keyData.replace("\\:", "''''");	//	Remove any escaped :
 		String [] parts = keyData.split(":");
 		
 		if (parts.length > 0)

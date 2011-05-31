@@ -10,6 +10,7 @@ import org.hibernate.SQLQuery;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
+import com.extjs.gxt.ui.client.Style.SortDir;
 import com.scholastic.sbam.server.database.codegen.Agreement;
 import com.scholastic.sbam.server.database.codegen.AgreementLink;
 import com.scholastic.sbam.server.database.codegen.AgreementTerm;
@@ -183,6 +184,42 @@ public class DbAgreement extends HibernateAccessor {
         }
         catch(Exception e)
         {
+        	e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return new ArrayList<Agreement>();
+	}
+	
+	public static List<Agreement> findByNote(String filter, boolean doBoolean, char status, char neStatus, String sortField, SortDir sortDirection) {
+        try
+        {
+        	if (filter == null || filter.trim().length() == 0)
+        		return new ArrayList<Agreement>();
+        	
+        	String sqlQuery = "SELECT {agreement.*} FROM agreement WHERE agreement.`status` <> '" + neStatus + "' ";
+
+        	if (status != AppConstants.STATUS_ANY_NONE)
+        		sqlQuery += " AND agreement.status = '" + status + "'";
+        	
+			filter = filter.replaceAll("'", "''");
+			if (doBoolean) {
+				sqlQuery += " AND MATCH (agreement.note) AGAINST ('" + filter + "' IN BOOLEAN MODE) ";
+			} else {
+				sqlQuery += " AND MATCH (agreement.note) AGAINST ('" + filter + "') ";
+			}
+			
+//			System.out.println(sqlQuery);
+            
+            SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery);
+            
+            query.addEntity("agreement",		getObjectReference("Agreement"));
+            
+            @SuppressWarnings("unchecked")
+			List<Agreement> objects = query.list();
+            return objects;
+			
+        } catch (Exception e) {
+
         	e.printStackTrace();
             System.out.println(e.getMessage());
         }

@@ -64,7 +64,6 @@ import com.scholastic.sbam.client.uiobjects.foundation.GridSupportPortlet;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
-import com.scholastic.sbam.shared.objects.AuthMethodInstance;
 import com.scholastic.sbam.shared.objects.AuthMethodTuple;
 import com.scholastic.sbam.shared.objects.AgreementTermInstance;
 import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
@@ -107,7 +106,7 @@ public class AgreementAuthMethodSearchPortlet extends GridSupportPortlet<AuthMet
 	protected LabelField						customerTypeField;
 	protected LabelField						altIds;
 	protected ListStore<ModelData>				agreementTermsStore;
-	protected Grid<ModelData>					AuthMethodsGrid;
+	protected Grid<ModelData>					agreementTermsGrid;
 	protected FieldSet							agreementsFieldSet;
 	
 	protected AppPortletProvider				portletProvider;
@@ -277,25 +276,25 @@ public class AgreementAuthMethodSearchPortlet extends GridSupportPortlet<AuthMet
 
 		agreementTermsStore = new ListStore<ModelData>();
 		
-		AuthMethodsGrid = new Grid<ModelData>(agreementTermsStore, cm);  
-		AuthMethodsGrid.setBorders(true);
-		AuthMethodsGrid.setHeight(180);
-		AuthMethodsGrid.setStripeRows(true);
-		AuthMethodsGrid.setColumnLines(true);
-		AuthMethodsGrid.setHideHeaders(false);
-		AuthMethodsGrid.setWidth(cm.getTotalWidth() + 5);
+		agreementTermsGrid = new Grid<ModelData>(agreementTermsStore, cm);  
+		agreementTermsGrid.setBorders(true);
+		agreementTermsGrid.setHeight(180);
+		agreementTermsGrid.setStripeRows(true);
+		agreementTermsGrid.setColumnLines(true);
+		agreementTermsGrid.setHideHeaders(false);
+		agreementTermsGrid.setWidth(cm.getTotalWidth() + 5);
 		
 		//	Open a new portlet to display an agreement when a row is selected
-		AuthMethodsGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); 
+		agreementTermsGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); 
 		final AppPortlet thisPortlet = this; 
-		AuthMethodsGrid.getSelectionModel().addListener(Events.SelectionChange,  
+		agreementTermsGrid.getSelectionModel().addListener(Events.SelectionChange,  
 				new Listener<SelectionChangedEvent<ModelData>>() {  
 					public void handleEvent(SelectionChangedEvent<ModelData> be) {  
 						if (be.getSelection().size() > 0) {
 						//	System.out.println("Agreement " + ((BeanModel) be.getSelectedItem()).get("idCheckDigit"));
-							AuthMethodInstance AuthMethod = (AuthMethodInstance) ((BeanModel) be.getSelectedItem()).getBean();
+							AgreementTermInstance AgreementTerm = (AgreementTermInstance) ((BeanModel) be.getSelectedItem()).getBean();
 							AgreementPortlet portlet = (AgreementPortlet) portletProvider.getPortlet(AppPortletIds.AGREEMENT_DISPLAY);
-							portlet.setAgreementId(AuthMethod.getAgreementId());
+							portlet.setAgreementId(AgreementTerm.getAgreementId());
 							if (focusAuthMethod != null) {
 								String foundFor = constructFilterDescription();
 								portlet.setIdentificationTip("Found for " + foundFor + "");
@@ -305,7 +304,7 @@ public class AgreementAuthMethodSearchPortlet extends GridSupportPortlet<AuthMet
 //							portletProvider.insertPortlet(portlet, portalRow, insertCol);
 //							New, more thorough way
 							portletProvider.insertPortlet(portlet, portalRow, thisPortlet.getInsertColumn());
-							AuthMethodsGrid.getSelectionModel().deselectAll();
+							agreementTermsGrid.getSelectionModel().deselectAll();
 						} 
 					}
 			});
@@ -315,7 +314,7 @@ public class AgreementAuthMethodSearchPortlet extends GridSupportPortlet<AuthMet
 		agreementsFieldSet.setHeading("Current and Pending Sites");// 		displayCard.add(new LabelField("<br/><i>Existing Agreements</i>"));
 		agreementsFieldSet.setCollapsible(true);
 		agreementsFieldSet.setToolTip(UiConstants.getQuickTip("These are the current or pending agreement terms for this agreement."));
-		agreementsFieldSet.add(AuthMethodsGrid);//, new FormData("-24"));	//new FormData(cm.getTotalWidth() + 10, 200));
+		agreementsFieldSet.add(agreementTermsGrid);//, new FormData("-24"));	//new FormData(cm.getTotalWidth() + 10, 200));
 		
 	//	displayCard.add(new LabelField(""));	// Used as a spacer
 		displayCard.add(agreementsFieldSet, formData);	//	new FormData("95%")); // new FormData(cm.getTotalWidth() + 20, 200));
@@ -878,7 +877,7 @@ public class AgreementAuthMethodSearchPortlet extends GridSupportPortlet<AuthMet
 		String oldMethodKey		= null;
 		String oldMethodDisplay	= null;
 		
-		keyData = keyData.replace("\\:", "'''");	//	Remove any escaped :
+		keyData = keyData.replace("\\:", "''''");	//	Remove any escaped :
 		String [] parts = keyData.split(":");
 		
 		if (parts.length > 0)

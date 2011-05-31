@@ -72,6 +72,7 @@ import com.scholastic.sbam.shared.util.AppConstants;
 public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInstance> implements AppSleeper, AppPortletRequester {
 	
 	protected static final int LOAD_LIMIT			= AppConstants.STANDARD_LOAD_LIMIT;
+	protected static final int MIN_FILTER_LENGTH	= 3;
 	protected static final int FILTER_LISTEN_PERIOD = 500;	//	This is a little higher, because we're doing a database scan on the back end, so it's not very fast
 	
 	protected final AgreementSearchServiceAsync		agreementSearchService  = GWT.create(AgreementSearchService.class);
@@ -89,6 +90,7 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 	protected ListStore<ModelData>	store;
 	protected TextField<String>		filterField;
 	protected Timer					filterListenTimer;
+	protected String				lastTestFilter;
 	protected String				filter = "";
 	protected GridFilters			columnFilters;
 	
@@ -433,8 +435,19 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 			//	  System.out.println("Filter: " + filter);
 			//	  System.out.println(combo.getRawValue() +  " / " + combo.getValue() + " / " + combo.getOriginalValue());
 				  String value = (filterField.getRawValue() == null)?"":filterField.getRawValue().trim();
-				  if (!value.equals(filter.trim()))
-					  loadFiltered(filterField.getRawValue());
+				  if (!value.equals(filter.trim())) {
+			 		  if (value.trim().length() < MIN_FILTER_LENGTH) {
+			 			  //	Feedback here...
+			 			  grid.getStore().removeAll();
+			 			  gridView.setEmptyText("Enter at least " + MIN_FILTER_LENGTH + " characters of a name with which to search.");
+			 		  } else {
+						  // This optimization makes sure the user has stopped (or at least paused) in typing... if the value is changing, wait until it doesn't
+						  if (value.equals(lastTestFilter))
+							  loadFiltered(filterField.getRawValue());
+						  else
+							  lastTestFilter = value;
+					  }
+			 	  }
 			  }
 			};
 

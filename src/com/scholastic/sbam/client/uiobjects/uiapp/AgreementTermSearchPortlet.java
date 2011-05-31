@@ -937,7 +937,7 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 		String oldTermId		= null;
 		
 		System.out.println("keyData " + keyData);
-		keyData = keyData.replace("\\:", "'''");	//	Remove any escaped :
+		keyData = keyData.replace("\\:", "''''");	//	Remove any escaped :
 		String [] parts = keyData.split(":");
 		
 		if (parts.length > 0)

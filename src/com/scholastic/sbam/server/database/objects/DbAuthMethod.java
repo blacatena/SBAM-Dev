@@ -8,6 +8,7 @@ import org.hibernate.SQLQuery;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
+import com.extjs.gxt.ui.client.Style.SortDir;
 import com.scholastic.sbam.server.database.codegen.Institution;
 import com.scholastic.sbam.server.database.codegen.AuthMethod;
 import com.scholastic.sbam.server.database.codegen.AuthMethodId;
@@ -345,6 +346,58 @@ public class DbAuthMethod extends HibernateAccessor {
 		@SuppressWarnings("unchecked")
 		List<Object []> objects = query.list();
 		return objects;
+	}
+	
+	public static List<Object []> findByNote(String filter, boolean doBoolean, char status, char neStatus, String sortField, SortDir sortDirection) {
+        try
+        {
+        	if (filter == null || filter.trim().length() == 0)
+        		return new ArrayList<Object []>();
+        		
+//        	AppConstants.TypedTerms typedTerms = AppConstants.parseTypedFilterTerms(filter);
+        		
+        	String sqlQuery = "SELECT {agreement.*}, {auth_method.*} FROM agreement, auth_method WHERE agreement.`status` <> '" + neStatus + "' " +
+        						" AND auth_method.status <> '" + neStatus + "' " +
+        						" AND auth_method.agreement_id > 0 " +
+        						" AND agreement.id = auth_method.agreement_id ";
+
+        	if (status != AppConstants.STATUS_ANY_NONE)
+        		sqlQuery += " AND agreement.status = '" + status + "'";
+        	
+        	filter = filter.replaceAll("'", "''");
+			if (doBoolean) {
+				sqlQuery += " AND MATCH (auth_method.note) AGAINST ('" + filter + "' IN BOOLEAN MODE)";
+			} else {
+				sqlQuery += " AND MATCH (auth_method.note) AGAINST ('" + filter + "')";
+			}
+        	
+            sqlQuery += " order by ";
+            if (sortField != null && sortField.length() > 0) {
+            	sqlQuery += sortField;
+            	if (sortDirection == SortDir.DESC)
+            		sqlQuery += " DESC,";
+            	else
+            		sqlQuery += ",";
+            }
+            sqlQuery += " auth_method.agreement_id, auth_method.method_type, auth_method.method_key";
+            
+//			System.out.println(sqlQuery);
+            
+            SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery);
+            
+            query.addEntity("agreement",		getObjectReference("Agreement"));
+            query.addEntity("auth_method",		getObjectReference("AuthMethod"));
+            
+            @SuppressWarnings("unchecked")
+			List<Object []> objects = query.list();
+            return objects;
+        }
+        catch(Exception e)
+        {
+        	e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return new ArrayList<Object []>();
 	}
 	
 	public static void setDescriptions(AuthMethodInstance authMethod) {

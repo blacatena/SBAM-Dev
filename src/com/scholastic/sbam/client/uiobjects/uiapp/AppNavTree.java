@@ -130,7 +130,7 @@ public class AppNavTree {
 	  agreeSrch.add(new SelectionTreeNode("Product Terms", 		AppPortletIds.AGREEMENT_TERM_SEARCH));
 	  agreeSrch.add(new SelectionTreeNode("Sites", 				AppPortletIds.AGREEMENT_SITE_SEARCH));
 	  agreeSrch.add(new SelectionTreeNode("Methods", 			AppPortletIds.AGREEMENT_AUTH_METHOD_SEARCH));
-	  agreeSrch.add(new SelectionTreeNode("Notes", 				IconSupplier.getNoteIconName()));
+	  agreeSrch.add(new SelectionTreeNode("Notes", 				AppPortletIds.AGREEMENT_NOTES_SEARCH));
 	  agreeSrch.add(new SelectionTreeNode("Contacts", 			AppPortletIds.AGREEMENT_CONTACT_SEARCH));
 	  agreeSrch.add(new SelectionTreeNode("Proxies", 			IconSupplier.getProxyIconName()));
 	  agreeSrch.add(new SelectionTreeNode("Links", 				IconSupplier.getAgreementLinkIconName()));

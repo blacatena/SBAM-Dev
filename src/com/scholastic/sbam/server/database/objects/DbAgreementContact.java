@@ -15,6 +15,7 @@ import com.scholastic.sbam.server.database.codegen.Contact;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
 import com.scholastic.sbam.shared.objects.AgreementContactInstance;
 import com.scholastic.sbam.shared.objects.ContactInstance;
+import com.scholastic.sbam.shared.util.AppConstants;
 
 /**
  * Sample database table accessor class, extending HibernateAccessor, and implementing custom get/find methods.
@@ -102,6 +103,9 @@ public class DbAgreementContact extends HibernateAccessor {
         						" AND agreement_contact.status <> '" + neStatus + "' " +
         						" AND agreement.id = agreement_contact.agreement_id " + 
         						" AND agreement_contact.contact_id = contact.contact_id ";
+
+        	if (status != AppConstants.STATUS_ANY_NONE)
+        		sqlQuery += " AND agreement.status = '" + status + "'";
         	
         	filter = filter.replaceAll("'", "''");
 			if (doBoolean) {
@@ -109,7 +113,7 @@ public class DbAgreementContact extends HibernateAccessor {
 				sqlQuery += " OR MATCH (e_mail,e_mail_2,phone,phone_2,fax) AGAINST ('" + filter + "' IN BOOLEAN MODE)";
 				sqlQuery += " OR MATCH (contact.note) AGAINST ('" + filter + "' IN BOOLEAN MODE) ) ";
 			} else {
-				sqlQuery += " AND MATCH (full_name,address1,city,zip) AGAINST ('" + filter + "')";
+				sqlQuery += " AND ( MATCH (full_name,address1,city,zip) AGAINST ('" + filter + "')";
 				sqlQuery += " OR MATCH (e_mail,e_mail_2,phone,phone_2,fax) AGAINST ('" + filter + "')";
 				sqlQuery += " OR MATCH (contact.note) AGAINST ('" + filter + "') ) ";
 			}
@@ -141,7 +145,58 @@ public class DbAgreementContact extends HibernateAccessor {
 //        		sqlQuery += " ) ";
 //        	}
         	
- //       	System.out.println(sqlQuery);
+            sqlQuery += " order by ";
+            if (sortField != null && sortField.length() > 0) {
+            	sqlQuery += sortField;
+            	if (sortDirection == SortDir.DESC)
+            		sqlQuery += " DESC,";
+            	else
+            		sqlQuery += ",";
+            }
+            sqlQuery += " agreement_contact.agreement_id, contact.full_name";
+            
+ //			System.out.println(sqlQuery);
+            
+            SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery);
+            
+            query.addEntity("agreement",		getObjectReference("Agreement"));
+            query.addEntity("agreement_contact",getObjectReference("AgreementContact"));
+            query.addEntity("contact",			getObjectReference("Contact"));
+            
+            @SuppressWarnings("unchecked")
+			List<Object []> objects = query.list();
+            return objects;
+        }
+        catch(Exception e)
+        {
+        	e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return new ArrayList<Object []>();
+	}
+	
+	public static List<Object []> findByNote(String filter, boolean doBoolean, char status, char neStatus, String sortField, SortDir sortDirection) {
+        try
+        {
+        	if (filter == null || filter.trim().length() == 0)
+        		return new ArrayList<Object []>();
+        		
+//        	AppConstants.TypedTerms typedTerms = AppConstants.parseTypedFilterTerms(filter);
+        		
+        	String sqlQuery = "SELECT {agreement.*}, {agreement_contact.*}, {contact.*} FROM agreement, agreement_contact, contact WHERE agreement.`status` <> '" + neStatus + "' " +
+        						" AND agreement_contact.status <> '" + neStatus + "' " +
+        						" AND agreement.id = agreement_contact.agreement_id " + 
+        						" AND agreement_contact.contact_id = contact.contact_id ";
+
+        	if (status != AppConstants.STATUS_ANY_NONE)
+        		sqlQuery += " AND agreement.status = '" + status + "'";
+        	
+        	filter = filter.replaceAll("'", "''");
+			if (doBoolean) {
+				sqlQuery += " AND MATCH (contact.note) AGAINST ('" + filter + "' IN BOOLEAN MODE)";
+			} else {
+				sqlQuery += " AND MATCH (contact.note) AGAINST ('" + filter + "')";
+			}
         	
             sqlQuery += " order by ";
             if (sortField != null && sortField.length() > 0) {
@@ -153,7 +208,7 @@ public class DbAgreementContact extends HibernateAccessor {
             }
             sqlQuery += " agreement_contact.agreement_id, contact.full_name";
             
- //         System.out.println(sqlQuery);
+//          System.out.println(sqlQuery);
             
             SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery);
             

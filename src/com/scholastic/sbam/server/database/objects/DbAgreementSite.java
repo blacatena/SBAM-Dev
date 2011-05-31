@@ -8,6 +8,7 @@ import org.hibernate.SQLQuery;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
+import com.extjs.gxt.ui.client.Style.SortDir;
 import com.scholastic.sbam.server.database.codegen.AgreementSite;
 import com.scholastic.sbam.server.database.codegen.AgreementSiteId;
 import com.scholastic.sbam.server.database.codegen.CancelReason;
@@ -241,32 +242,92 @@ public class DbAgreementSite extends HibernateAccessor {
         return new ArrayList<Object []>();
 	}
 	
+	public static List<Object []> findByNote(String filter, boolean doBoolean, char status, char neStatus, String sortField, SortDir sortDirection) {
+        try
+        {
+        	if (filter == null || filter.trim().length() == 0)
+        		return new ArrayList<Object []>();
+        		
+//        	AppConstants.TypedTerms typedTerms = AppConstants.parseTypedFilterTerms(filter);
+        		
+        	String sqlQuery = "SELECT {agreement.*}, {agreement_site.*}, {site.*}, {institution.*} FROM agreement, agreement_site, site, institution WHERE agreement.`status` <> '" + neStatus + "' " +
+        						" AND agreement_site.status <> '" + neStatus + "' " +
+        						" AND agreement.id = agreement_site.agreement_id " + 
+        						" AND agreement_site.site_ucn = site.ucn " + 
+        						" AND agreement_site.site_ucn_suffix = site.ucn_suffix " + 
+        						" AND agreement_site.site_loc_code = site.site_loc_code " + 
+        						" AND agreement_site.site_ucn = institution.ucn ";
+
+        	if (status != AppConstants.STATUS_ANY_NONE)
+        		sqlQuery += " AND agreement.status = '" + status + "'";
+        	
+        	filter = filter.replaceAll("'", "''");
+			if (doBoolean) {
+				sqlQuery += " AND MATCH (agreement_site.note) AGAINST ('" + filter + "' IN BOOLEAN MODE)";
+			} else {
+				sqlQuery += " AND MATCH (agreement_site.note) AGAINST ('" + filter + "')";
+			}
+        	
+            sqlQuery += " order by ";
+            if (sortField != null && sortField.length() > 0) {
+            	sqlQuery += sortField;
+            	if (sortDirection == SortDir.DESC)
+            		sqlQuery += " DESC,";
+            	else
+            		sqlQuery += ",";
+            }
+            sqlQuery += " agreement_site.agreement_id, institution.institution_name, institution.ucn";
+            
+//			System.out.println(sqlQuery);
+            
+            SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery);
+            
+            query.addEntity("agreement",		getObjectReference("Agreement"));
+            query.addEntity("agreement_site",	getObjectReference("AgreementSite"));
+            query.addEntity("site",				getObjectReference("Site"));
+            query.addEntity("institution",		getObjectReference("Institution"));
+            
+            @SuppressWarnings("unchecked")
+			List<Object []> objects = query.list();
+            return objects;
+        }
+        catch(Exception e)
+        {
+        	e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return new ArrayList<Object []>();
+	}
+	
 	public static void setDescriptions(AgreementSiteInstance agreementSite) {
 		setDescriptions(agreementSite, null);
 	}
 	
 	public static void setDescriptions(AgreementSiteInstance agreementSite, InstitutionInstance siteInstitution) {
+		setDescriptions(agreementSite, null, siteInstitution);
+	}	
+
+	public static void setDescriptions(AgreementSiteInstance agreementSite, SiteInstance site, InstitutionInstance siteInstitution) {
 		if (agreementSite == null)
 			return;
 		
 		if (agreementSite.getSiteUcn() > 0) {
-			if (agreementSite.getSiteLocCode() != null && agreementSite.getSiteLocCode().length() > 0) {
-	//			Institution dbInstitution = DbInstitution.getByCode(agreementSite.getSiteUcn());
-	//			if (dbInstitution != null)
-	//				agreementSite.setInstitution( DbInstitution.getInstance(dbInstitution) );
-	//			else
-	//				agreementSite.setInstitution( InstitutionInstance.getUnknownInstance( agreementSite.getSiteUcn()) );
-				Site dbSite = DbSite.getById(agreementSite.getSiteUcn(), agreementSite.getSiteUcnSuffix(), agreementSite.getSiteLocCode());
-				if (dbSite != null)
-					agreementSite.setSite( DbSite.getInstance(dbSite) );
-				else
-					agreementSite.setSite( SiteInstance.getUnknownInstance(agreementSite.getSiteUcn(), agreementSite.getSiteUcnSuffix(), agreementSite.getSiteLocCode()));
+			if (site == null) {
+				if (agreementSite.getSiteLocCode() != null && agreementSite.getSiteLocCode().length() > 0) {
+					Site dbSite = DbSite.getById(agreementSite.getSiteUcn(), agreementSite.getSiteUcnSuffix(), agreementSite.getSiteLocCode());
+					if (dbSite != null)
+						agreementSite.setSite( DbSite.getInstance(dbSite) );
+					else
+						agreementSite.setSite( SiteInstance.getUnknownInstance(agreementSite.getSiteUcn(), agreementSite.getSiteUcnSuffix(), agreementSite.getSiteLocCode()));
+				} else {
+					agreementSite.setSite(SiteInstance.getAllInstance(agreementSite.getSiteUcn(), agreementSite.getSiteUcnSuffix()));
+				}
+				DbSite.setDescriptions(agreementSite.getSite(), siteInstitution);
 			} else {
-				agreementSite.setSite(SiteInstance.getAllInstance(agreementSite.getSiteUcn(), agreementSite.getSiteUcnSuffix()));
+				if (agreementSite.getSite().getInstitution() == null)
+					agreementSite.getSite().setInstitution(siteInstitution);
 			}
-			DbSite.setDescriptions(agreementSite.getSite(), siteInstitution);
 		} else {
-//			agreementSite.setInstitution( InstitutionInstance.getEmptyInstance());
 			agreementSite.setSite(SiteInstance.getEmptyInstance());
 		}
 		

@@ -10,6 +10,7 @@ import org.hibernate.SQLQuery;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
+import com.extjs.gxt.ui.client.Style.SortDir;
 import com.scholastic.sbam.server.database.codegen.AgreementTerm;
 import com.scholastic.sbam.server.database.codegen.AgreementTermId;
 import com.scholastic.sbam.server.database.codegen.CancelReason;
@@ -268,6 +269,59 @@ public class DbAgreementTerm extends HibernateAccessor {
 //        	System.out.println(sqlQuery);
         	
             SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery.toString());
+            
+            query.addEntity("agreement",		getObjectReference("Agreement"));
+            query.addEntity("agreement_term",	getObjectReference("AgreementTerm"));
+            query.addEntity("product",			getObjectReference("Product"));
+            
+            @SuppressWarnings("unchecked")
+			List<Object []> objects = query.list();
+            return objects;
+        }
+        catch(Exception e)
+        {
+        	e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return new ArrayList<Object []>();
+	}
+	
+	public static List<Object []> findByNote(String filter, boolean doBoolean, char status, char neStatus, String sortField, SortDir sortDirection) {
+        try
+        {
+        	if (filter == null || filter.trim().length() == 0)
+        		return new ArrayList<Object []>();
+        		
+//        	AppConstants.TypedTerms typedTerms = AppConstants.parseTypedFilterTerms(filter);
+        		
+        	String sqlQuery = "SELECT {agreement.*}, {agreement_term.*}, {product.*} FROM agreement, agreement_term, product WHERE agreement.`status` <> '" + neStatus + "' " +
+        						" AND agreement_term.status <> '" + neStatus + "' " +
+        						" AND agreement.id = agreement_term.agreement_id " + 
+        						" AND agreement_term.product_code = product.product_code ";
+
+        	if (status != AppConstants.STATUS_ANY_NONE)
+        		sqlQuery += " AND agreement.status = '" + status + "'";
+        	
+        	filter = filter.replaceAll("'", "''");
+			if (doBoolean) {
+				sqlQuery += " AND MATCH (agreement_term.note) AGAINST ('" + filter + "' IN BOOLEAN MODE)";
+			} else {
+				sqlQuery += " AND MATCH (agreement_term.note) AGAINST ('" + filter + "')";
+			}
+        	
+            sqlQuery += " order by ";
+            if (sortField != null && sortField.length() > 0) {
+            	sqlQuery += sortField;
+            	if (sortDirection == SortDir.DESC)
+            		sqlQuery += " DESC,";
+            	else
+            		sqlQuery += ",";
+            }
+            sqlQuery += " agreement_term.agreement_id, product.description, agreement_term.product_code";
+            
+//          System.out.println(sqlQuery);
+            
+            SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery);
             
             query.addEntity("agreement",		getObjectReference("Agreement"));
             query.addEntity("agreement_term",	getObjectReference("AgreementTerm"));

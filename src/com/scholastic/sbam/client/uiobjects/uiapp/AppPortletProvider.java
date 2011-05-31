@@ -80,6 +80,8 @@ public class AppPortletProvider {
 			portlet = new AgreementAuthMethodSearchPortlet();
 		else if (id == AppPortletIds.AGREEMENT_CONTACT_SEARCH)
 			portlet = new AgreementContactSearchPortlet();
+		else if (id == AppPortletIds.AGREEMENT_NOTES_SEARCH)
+			portlet = new AgreementNotesSearchPortlet();
 		else if (id == AppPortletIds.AGREEMENT_SITE_SEARCH)
 			portlet = new AgreementSiteSearchPortlet();
 		else if (id == AppPortletIds.AGREEMENT_TERM_SEARCH)

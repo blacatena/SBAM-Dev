@@ -12,6 +12,7 @@ public enum AppPortletIds {
 	AGREEMENT_DISPLAY				("Agreement Display", 			IconSupplier.getAgreementIconName(),		"AgreementDisplay"	, 		AgreementPortlet.class.getName()),
 	AGREEMENT_AUTH_METHOD_SEARCH	("Agreement Auth Method Search",IconSupplier.getAccessMethodIconName(),		"AgreementMethodSearch", 	AgreementAuthMethodSearchPortlet.class.getName()),
 	AGREEMENT_CONTACT_SEARCH		("Agreement Contact Search", 	IconSupplier.getContactsIconName(),			"AgreementContactSearch", 	AgreementContactSearchPortlet.class.getName()),
+	AGREEMENT_NOTES_SEARCH			("Agreement Notes Search", 		IconSupplier.getNoteIconName(),				"AgreementNotesSearch", 	AgreementNotesSearchPortlet.class.getName()),
 	AGREEMENT_SITE_SEARCH			("Agreement Site Search", 		IconSupplier.getSiteIconName(),				"AgreementSiteSearch", 		AgreementSiteSearchPortlet.class.getName()),
 	AGREEMENT_TERM_SEARCH			("Agreement Terms Search", 		IconSupplier.getAgreementTermIconName(),	"AgreementTermSearch", 		AgreementTermSearchPortlet.class.getName()),
 	SITE_LOCATION_DISPLAY			("Site Location Display", 		IconSupplier.getSiteIconName(),				"SiteLocationDisplay", 		SiteLocationPortlet.class.getName()),

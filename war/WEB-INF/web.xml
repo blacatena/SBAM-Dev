@@ -117,6 +117,16 @@
   </servlet>
   
   <servlet>
+    <servlet-name>agreementNotesGetServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.AgreementNotesGetServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>agreementNotesSearchServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.AgreementNotesSearchServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>agreementSiteGetServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.AgreementSiteGetServiceImpl</servlet-class>
   </servlet>
@@ -614,6 +624,16 @@
   <servlet-mapping>
     <servlet-name>agreementLinkSearchServlet</servlet-name>
     <url-pattern>/sbam/searchAgreementLinks</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>agreementNotesGetServlet</servlet-name>
+    <url-pattern>/sbam/getAgreementNotes</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>agreementNotesSearchServlet</servlet-name>
+    <url-pattern>/sbam/searchAgreementNotes</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

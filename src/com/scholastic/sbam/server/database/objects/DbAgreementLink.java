@@ -8,6 +8,7 @@ import org.hibernate.SQLQuery;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
+import com.extjs.gxt.ui.client.Style.SortDir;
 import com.scholastic.sbam.server.database.codegen.AgreementLink;
 import com.scholastic.sbam.server.database.codegen.Institution;
 import com.scholastic.sbam.server.database.codegen.LinkType;
@@ -194,6 +195,59 @@ public class DbAgreementLink extends HibernateAccessor {
             System.out.println(e.getMessage());
         }
         return new ArrayList<AgreementLink>();
+	}
+	
+	public static List<Object []> findByNote(String filter, boolean doBoolean, char status, char neStatus, String sortField, SortDir sortDirection) {
+        try
+        {
+        	if (filter == null || filter.trim().length() == 0)
+        		return new ArrayList<Object []>();
+        		
+//        	AppConstants.TypedLinks typedLinks = AppConstants.parseTypedFilterLinks(filter);
+        		
+        	String sqlQuery = "SELECT {agreement.*}, {agreement_link.*}, {institution.*} FROM agreement, agreement_link, institution WHERE agreement.`status` <> '" + neStatus + "' " +
+        						" AND agreement_link.status <> '" + neStatus + "' " +
+        						" AND agreement.agreement_link_id = agreement_link.link_id " +
+        						" AND agreement_link.ucn = institution.ucn ";
+
+        	if (status != AppConstants.STATUS_ANY_NONE)
+        		sqlQuery += " AND agreement.status = '" + status + "'";
+        	
+        	filter = filter.replaceAll("'", "''");
+			if (doBoolean) {
+				sqlQuery += " AND MATCH (agreement_link.note) AGAINST ('" + filter + "' IN BOOLEAN MODE)";
+			} else {
+				sqlQuery += " AND MATCH (agreement_link.note) AGAINST ('" + filter + "')";
+			}
+        	
+            sqlQuery += " order by ";
+            if (sortField != null && sortField.length() > 0) {
+            	sqlQuery += sortField;
+            	if (sortDirection == SortDir.DESC)
+            		sqlQuery += " DESC,";
+            	else
+            		sqlQuery += ",";
+            }
+            sqlQuery += " agreement.id, institution.institution_name, institution.ucn";
+            
+//			System.out.println(sqlQuery);
+            
+            SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery);
+            
+            query.addEntity("agreement",		getObjectReference("Agreement"));
+            query.addEntity("agreement_link",	getObjectReference("AgreementLink"));
+            query.addEntity("institution",		getObjectReference("Institution"));
+            
+            @SuppressWarnings("unchecked")
+			List<Object []> objects = query.list();
+            return objects;
+        }
+        catch(Exception e)
+        {
+        	e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return new ArrayList<Object []>();
 	}
 	
 	/**
