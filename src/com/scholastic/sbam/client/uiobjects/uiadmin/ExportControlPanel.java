@@ -163,8 +163,13 @@ public class ExportControlPanel extends LayoutContainer implements AppSleeper {
 		add(displayFields);
 		add(terminateButton);
 		add(terminateFields);
-		add(messagesHtml, tableData);
 		add(countsHtml, tableData);
+		add(messagesHtml, tableData);
+	}
+	
+	@Override
+	protected void afterRender() {
+		refreshExportProcessReport();
 	}
 	
 	protected void initiateExport() {
@@ -359,7 +364,7 @@ public class ExportControlPanel extends LayoutContainer implements AppSleeper {
 
 	@Override
 	public void awaken() {
-		
+		refreshExportProcessReport();
 	}
 
 	@Override
