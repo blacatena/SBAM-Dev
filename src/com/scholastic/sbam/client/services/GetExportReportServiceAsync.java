@@ -5,6 +5,6 @@ import com.scholastic.sbam.shared.objects.ExportProcessReport;
 
 public interface GetExportReportServiceAsync {
 
-	void getExportReport(AsyncCallback<ExportProcessReport> callback);
+	void getExportReport(boolean consoleOutputOn, AsyncCallback<ExportProcessReport> callback);
 
 }

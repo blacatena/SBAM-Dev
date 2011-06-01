@@ -37,6 +37,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>terminateExportServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.TerminateExportServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>welcomeMessageServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.WelcomeMessageServiceImpl</servlet-class>
   </servlet>
@@ -564,6 +569,11 @@
   <servlet-mapping>
     <servlet-name>initiateExportServlet</servlet-name>
     <url-pattern>/sbam/initiateExport</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>terminateExportServlet</servlet-name>
+    <url-pattern>/sbam/terminateExport</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

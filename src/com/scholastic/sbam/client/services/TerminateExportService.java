@@ -7,7 +7,7 @@ import com.scholastic.sbam.shared.objects.ExportProcessReport;
 /**
  * The client side stub for the RPC service.
  */
-@RemoteServiceRelativePath("initiateExport")
-public interface InitiateExportService extends RemoteService {
-	ExportProcessReport initiateExport(boolean consoleOutputOn) throws IllegalArgumentException;
+@RemoteServiceRelativePath("terminateExport")
+public interface TerminateExportService extends RemoteService {
+	ExportProcessReport terminateExport(String terminationReason) throws IllegalArgumentException;
 }

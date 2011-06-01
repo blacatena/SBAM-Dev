@@ -144,6 +144,40 @@ public class DbAuthMethod extends HibernateAccessor {
         }
         return new ArrayList<AuthMethod>();
 	}
+	
+	public static List<AuthMethod> findBySite(int agreementId, int ucn, int ucnSuffix, String siteLocCode, String methodType, char status, char neStatus) {
+        try
+        {
+            Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
+            if (agreementId > 0)
+            	crit.add(Restrictions.eq("id.agreementId", agreementId));
+            if (ucn >= 0)
+            	crit.add(Restrictions.eq("forUcn", ucn));
+            if (ucnSuffix >= 0)
+            	crit.add(Restrictions.eq("forUcnSuffix", ucnSuffix));
+            if (siteLocCode != null)
+            	crit.add(Restrictions.eq("forSiteLocCode", siteLocCode));
+            if (methodType != null)
+            	crit.add(Restrictions.eq("id.methodType", methodType));
+            if (status != 0)
+            	crit.add(Restrictions.like("status", status));
+            if (neStatus != 0)
+            	crit.add(Restrictions.ne("status", neStatus));
+            crit.addOrder(Order.asc("id.agreementId"));
+            crit.addOrder(Order.asc("forUcn"));
+            crit.addOrder(Order.asc("forUcnSuffix"));
+            crit.addOrder(Order.asc("forSiteLocCode"));
+            @SuppressWarnings("unchecked")
+			List<AuthMethod> objects = crit.list();
+            return objects;
+        }
+        catch(Exception e)
+        {
+        	e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return new ArrayList<AuthMethod>();
+	}
 
 	public static int getNextAuthMethodKey(int agreementId, int ucn, int ucnSuffix, String siteLocCode, String methodType) {
         Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));

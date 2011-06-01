@@ -5,8 +5,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.server.database.util.SqlConstructor;
 import com.scholastic.sbam.server.database.util.SqlExecution;
+import com.scholastic.sbam.server.util.ConsoleOutputter;
+import com.scholastic.sbam.shared.exceptions.AuthenticationExportException;
 import com.scholastic.sbam.shared.objects.ExportProcessReport;
 import com.scholastic.sbam.shared.util.AppConstants;
 
@@ -20,12 +23,13 @@ import com.scholastic.sbam.shared.util.AppConstants;
  * @author Bob Lacatena
  *
  */
-public class AuthenticationGenerator implements Runnable {
+public class AuthenticationGenerator implements Runnable, ConsoleOutputter {
 	
 	protected static AuthenticationGenerator singleton;
 	
+	protected boolean						consoleOutputOn = true;
 	protected boolean 						running;
-	protected String						terminationRequest;
+	protected String						terminationReason;
 	protected String						terminationUserId;
 	protected ExportProcessReport			currentExportReport;
 	protected List<ExportProcessReport>		exportReportLog = new ArrayList<ExportProcessReport>();
@@ -77,42 +81,57 @@ public class AuthenticationGenerator implements Runnable {
 			SqlExecution mainLoopExec = new SqlExecution(mainSql.getSql());
 			
 			while (mainLoopExec.getResults().next()) {
-				if (terminationRequest != null) {
-					consoleOutput("Termination requested : " + terminationRequest);
-					currentExportReport.addMessage("Process terminating by user request : " + terminationUserId + " (" + terminationRequest + ")");
+				if (terminationReason != null) {
+					consoleOutput("Termination requested : " + terminationReason);
+					currentExportReport.addError("Process terminating by user request : " + terminationUserId + " (" + terminationReason + ")");
 					currentExportReport.setCompleted("terminated abnormally");
 					return "Export terminated by user request.";
 				}
 				processAgreement(mainLoopExec.getResults().getBigDecimal("id").intValue());
 			}
-			System.out.println(currentExportReport.getAgreements() + " agreements");
+			consoleOutput(currentExportReport.getAgreements() + " agreements processed");
+			currentExportReport.addMessage(currentExportReport.getAgreements() + " agreements processed");
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
 			currentExportReport.setCompleted("terminated with a SQL error");
+			running = false;
 			return "Export failed.";
+		} finally {
+			running = false;
 		}
 		
 		currentExportReport.setCompleted();
+		running = false;
 		
 		return "Export complete.";
 	}
 	
 	protected void processAgreement(int agreementId) {
-
-		currentExportReport.addAgreement();
-		consoleOutput("Agreement " + agreementId);
 		
-		//	Get sites
-		//		Get auth unit
-		//		Get agreement auth methods for site (including bill to, i.e. no site)
-		//		Get site auth methods
+		HibernateUtil.openSession();
+		HibernateUtil.startTransaction();
+
+		consoleOutput("Process Agreement " + agreementId);
+		
+		try {
+			new AuthenticationExportAgreement(agreementId, this, currentExportReport).exportSites();
+		} catch (AuthenticationExportException exc) {
+			currentExportReport.addError(exc.getMessage());
+		}
+		
+		if (HibernateUtil.isTransactionInProgress()) {
+			HibernateUtil.endTransaction();
+		}
+		HibernateUtil.closeSession();
 	}
 
 	@Override
 	public void run() {
+		System.out.println(new Date() + " : Export thread running.");
 		String result = generateExport(new Date());
 		consoleOutput(result);
+		System.out.println(new Date() + " : Export thread ended.");
 	}
 	
 	/**
@@ -120,20 +139,26 @@ public class AuthenticationGenerator implements Runnable {
 	 * @return
 	 * True if a new thread was initiated.  False if another thread is already running.
 	 */
-	public synchronized boolean beginThreadedExport() {
+	public synchronized boolean beginThreadedExport(boolean consoleOutputOn) {
 		if (running)
 			return false;
 		
-		System.out.println(new Date() + " : Kicking off authentication export thread...");
+		this.consoleOutputOn = consoleOutputOn;
+		
+		System.out.println(new Date() + " : Kicking off authentication export thread...");	// Not "console output" -- can't be turned off
+		
 		Thread initThread = new Thread(this);
 		initThread.setDaemon(false);		//	We use false, to that an export process cannot be interrupted.  This may be changed to true if it becomes an issue.
 		initThread.start();
-		System.out.println(new Date() + " : Thread started.");
+		
+		System.out.println(new Date() + " : Export thread started.");	// Not "console output" -- can't be turned off
 		
 		return true;
 	}
 	
 	public void consoleOutput(String message) {
+		if (!consoleOutputOn)
+			return;
 		System.out.println(new Date() + " : Authentication Export : " + message);
 	}
 	
@@ -176,17 +201,27 @@ public class AuthenticationGenerator implements Runnable {
 		this.exportReportLog = exportReportLog;
 	}
 
-	public String getTerminationRequest() {
-		return terminationRequest;
+	public String getTerminationReason() {
+		return terminationReason;
 	}
 
-	public void setTerminationRequest(String terminationUserId, String terminationRequest) {
+	public void setTerminationRequest(String terminationUserId, String terminationReason) {
 		this.terminationUserId = terminationUserId;
-		this.terminationRequest = terminationRequest;
+		this.terminationReason = terminationReason;
+		if (currentExportReport != null)
+			currentExportReport.addError("Termination requested [" + terminationReason + "]");
 	}
 
 	public String getTerminationUserId() {
 		return terminationUserId;
+	}
+
+	public boolean isConsoleOutputOn() {
+		return consoleOutputOn;
+	}
+
+	public void setConsoleOutputOn(boolean consoleOutputOn) {
+		this.consoleOutputOn = consoleOutputOn;
 	}
 	
 }

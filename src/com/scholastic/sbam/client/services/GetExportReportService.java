@@ -9,5 +9,5 @@ import com.scholastic.sbam.shared.objects.ExportProcessReport;
  */
 @RemoteServiceRelativePath("getExportReport")
 public interface GetExportReportService extends RemoteService {
-	ExportProcessReport getExportReport() throws IllegalArgumentException;
+	ExportProcessReport getExportReport(boolean consoleOutputOn) throws IllegalArgumentException;
 }

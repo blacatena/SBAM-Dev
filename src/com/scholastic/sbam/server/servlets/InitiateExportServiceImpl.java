@@ -12,12 +12,12 @@ import com.scholastic.sbam.shared.security.SecurityManager;
 public class InitiateExportServiceImpl extends AuthenticatedServiceServlet implements InitiateExportService {
 	
 	@Override
-	public ExportProcessReport initiateExport() {
+	public ExportProcessReport initiateExport(boolean consoleOutputOn) {
 		authenticate("initiate export", SecurityManager.ROLE_ADMIN);
 		
 		AuthenticationGenerator auGen = AuthenticationGenerator.getInstance();
 		
-		if (auGen.beginThreadedExport())
+		if (auGen.beginThreadedExport(consoleOutputOn))
 			return auGen.getCurrentExportReport();
 		else {
 			auGen.getCurrentExportReport().addMessage("Request to begin a new export ignored.");

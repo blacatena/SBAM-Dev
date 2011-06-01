@@ -9,13 +9,28 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class ExportProcessReport implements BeanModelTag, IsSerializable {
 	
-	public static class ProcessMessage {
+	public static class ProcessMessage implements IsSerializable {
+		
+		public static final int ALERT		= 1;
+		public static final int HIGH_ALERT	= 2;
+		
+		protected int		priority;
 		protected Date		date;
 		protected String	message;
+		
+		public ProcessMessage() {
+			date = new Date();
+			message = "No message.";
+		}
 		
 		public ProcessMessage(String message) {
 			date = new Date();
 			this.message = message;
+		}
+		
+		public ProcessMessage(String message, int priority) {
+			this(message);
+			this.priority = priority;
 		}
 
 		public Date getDate() {
@@ -24,6 +39,22 @@ public class ExportProcessReport implements BeanModelTag, IsSerializable {
 
 		public String getMessage() {
 			return message;
+		}
+		
+		public boolean isAlert() {
+			return priority >= ALERT;
+		}
+		
+		public boolean isHighAlert() {
+			return priority >= HIGH_ALERT;
+		}
+		
+		public String getStyleName() {
+			if (isHighAlert())
+				return "exportHighAlert";
+			if (isAlert())
+				return "exportAlert";
+			return "exportInfo";
 		}
 	}
 	
@@ -38,22 +69,46 @@ public class ExportProcessReport implements BeanModelTag, IsSerializable {
 	
 	protected		int		errors;
 	protected		int		agreements;
+	protected		int		sites;
 	protected		int		authUnits;
 	protected		int		ips;
 	protected		int		uids;
 	protected		int		urls;
 	
 	public ExportProcessReport() {
-		
 	}
 	
 	public void addError(String error) {
-		addMessage(error);
+		addMessage(error, ProcessMessage.HIGH_ALERT);
 		errors++;
 	}
 	
-	public void addAgreement() {
+	public void addAlert(String alert) {
+		addMessage(alert, ProcessMessage.ALERT);
+	}
+	
+	public void countAgreement() {
 		agreements++;
+	}
+	
+	public void countSite() {
+		sites++;
+	}
+	
+	public void countAuthUnit() {
+		authUnits++;
+	}
+	
+	public void countIp() {
+		ips++;
+	}
+	
+	public void countUid() {
+		uids++;
+	}
+	
+	public void countUrl() {
+		urls++;
 	}
 
 	public List<ProcessMessage> getMessages() {
@@ -68,6 +123,10 @@ public class ExportProcessReport implements BeanModelTag, IsSerializable {
 		messages.add(new ProcessMessage(message));
 	}
 	
+	public void addMessage(String message, int priority) {
+		messages.add(new ProcessMessage(message, priority));
+	}
+	
 	public void setStarted() {
 		if (running) {
 			addMessage("Start status requested when already running.");
@@ -76,7 +135,7 @@ public class ExportProcessReport implements BeanModelTag, IsSerializable {
 		running = true;
 		setTimeStarted(new Date());
 		setStatus("initiated");
-		addMessage("Process initiated.");
+		addMessage("Export process initiated.");
 	}
 	
 	public void setCompleted() {
@@ -96,7 +155,7 @@ public class ExportProcessReport implements BeanModelTag, IsSerializable {
 		} else {
 			validExport = true;
 			setStatus("succesfully");
-			addMessage("Process completed successfully.");
+			addAlert("Process completed successfully.");
 		}
 	}
 	
@@ -104,6 +163,17 @@ public class ExportProcessReport implements BeanModelTag, IsSerializable {
 		if (messages.size() == 0)
 			return null;
 		return messages.get(messages.size() - 1);
+	}
+	
+	public List<ProcessMessage> getLastMessages() {
+		return getLastMessages(10);
+	}
+	
+	public List<ProcessMessage> getLastMessages(int numMessages) {
+		if (messages.size() == 0)
+			return null;
+		int from = messages.size() < numMessages ? 0 : messages.size() - numMessages;
+		return messages.subList(from, messages.size());
 	}
 
 	public Date getTimeStarted() {
@@ -144,6 +214,14 @@ public class ExportProcessReport implements BeanModelTag, IsSerializable {
 
 	public void setAuthUnits(int authUnits) {
 		this.authUnits = authUnits;
+	}
+
+	public int getSites() {
+		return sites;
+	}
+
+	public void setSites(int sites) {
+		this.sites = sites;
 	}
 
 	public int getIps() {

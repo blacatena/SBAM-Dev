@@ -12,10 +12,11 @@ import com.scholastic.sbam.shared.security.SecurityManager;
 public class GetExportReportServiceImpl extends AuthenticatedServiceServlet implements GetExportReportService {
 	
 	@Override
-	public ExportProcessReport getExportReport() {
+	public ExportProcessReport getExportReport(boolean consoleOutputOn) {
 		authenticate("get export report", SecurityManager.ROLE_ADMIN);
 		
 		AuthenticationGenerator auGen = AuthenticationGenerator.getInstance();
+		auGen.setConsoleOutputOn(consoleOutputOn);
 		
 		return auGen.getCurrentExportReport();
 	}
