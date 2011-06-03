@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated May 20, 2011 5:59:16 PM by Hibernate Tools 3.2.4.GA
+// Generated Jun 3, 2011 1:00:24 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 

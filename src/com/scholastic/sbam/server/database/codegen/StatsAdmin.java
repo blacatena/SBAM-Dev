@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated May 20, 2011 5:59:16 PM by Hibernate Tools 3.2.4.GA
+// Generated Jun 3, 2011 3:04:04 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -10,9 +10,9 @@ import java.util.Date;
 public class StatsAdmin implements java.io.Serializable {
 
 	private int ucn;
-	private String adminUsername;
+	private String adminUid;
 	private String adminPassword;
-	private String accessGroup;
+	private String statsGroup;
 	private String note;
 	private Date createdDatetime;
 	private char status;
@@ -20,12 +20,12 @@ public class StatsAdmin implements java.io.Serializable {
 	public StatsAdmin() {
 	}
 
-	public StatsAdmin(int ucn, String adminUsername, String adminPassword,
-			String accessGroup, String note, Date createdDatetime, char status) {
+	public StatsAdmin(int ucn, String adminUid, String adminPassword,
+			String statsGroup, String note, Date createdDatetime, char status) {
 		this.ucn = ucn;
-		this.adminUsername = adminUsername;
+		this.adminUid = adminUid;
 		this.adminPassword = adminPassword;
-		this.accessGroup = accessGroup;
+		this.statsGroup = statsGroup;
 		this.note = note;
 		this.createdDatetime = createdDatetime;
 		this.status = status;
@@ -39,12 +39,12 @@ public class StatsAdmin implements java.io.Serializable {
 		this.ucn = ucn;
 	}
 
-	public String getAdminUsername() {
-		return this.adminUsername;
+	public String getAdminUid() {
+		return this.adminUid;
 	}
 
-	public void setAdminUsername(String adminUsername) {
-		this.adminUsername = adminUsername;
+	public void setAdminUid(String adminUid) {
+		this.adminUid = adminUid;
 	}
 
 	public String getAdminPassword() {
@@ -55,12 +55,12 @@ public class StatsAdmin implements java.io.Serializable {
 		this.adminPassword = adminPassword;
 	}
 
-	public String getAccessGroup() {
-		return this.accessGroup;
+	public String getStatsGroup() {
+		return this.statsGroup;
 	}
 
-	public void setAccessGroup(String accessGroup) {
-		this.accessGroup = accessGroup;
+	public void setStatsGroup(String statsGroup) {
+		this.statsGroup = statsGroup;
 	}
 
 	public String getNote() {

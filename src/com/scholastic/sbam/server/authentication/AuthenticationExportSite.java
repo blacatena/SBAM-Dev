@@ -51,8 +51,9 @@ public class AuthenticationExportSite {
 			new AuthenticationExportMethod(agreement, site, authMethod, output, exportReport).exportMethod();
 		}
 		
-		//	Agreement authentication methods
-		List<AuthMethod> agreementAuthMethods = DbAuthMethod.findByOwner(
+		//	Agreement authentication methods for this site
+		
+		List<AuthMethod> agreementAuthMethods = DbAuthMethod.findBySite(
 																agreement.getId(), 
 																site.getId().getUcn(), 
 																site.getId().getUcnSuffix(), 

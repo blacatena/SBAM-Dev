@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated May 20, 2011 5:59:16 PM by Hibernate Tools 3.2.4.GA
+// Generated Jun 3, 2011 3:04:04 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -26,6 +26,24 @@ public class AeControl implements java.io.Serializable {
 	private Date createdDatetime;
 
 	public AeControl() {
+	}
+
+	public AeControl(Date initiatedDatetime, int elapsedSeconds,
+			int countAgreements, int countSites, int countIps, int countUids,
+			int countProxyUids, int countUrls, int countProducts,
+			int countErrors, char status, Date createdDatetime) {
+		this.initiatedDatetime = initiatedDatetime;
+		this.elapsedSeconds = elapsedSeconds;
+		this.countAgreements = countAgreements;
+		this.countSites = countSites;
+		this.countIps = countIps;
+		this.countUids = countUids;
+		this.countProxyUids = countProxyUids;
+		this.countUrls = countUrls;
+		this.countProducts = countProducts;
+		this.countErrors = countErrors;
+		this.status = status;
+		this.createdDatetime = createdDatetime;
 	}
 
 	public AeControl(Date initiatedDatetime, Date terminatedDatetime,

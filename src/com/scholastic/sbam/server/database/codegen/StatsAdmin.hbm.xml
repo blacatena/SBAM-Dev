@@ -1,21 +1,21 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated May 20, 2011 5:59:16 PM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Jun 3, 2011 3:04:04 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.StatsAdmin" table="stats_admin" catalog="sbam">
         <id name="ucn" type="int">
             <column name="ucn" />
             <generator class="assigned" />
         </id>
-        <property name="adminUsername" type="string">
-            <column name="admin_username" not-null="true" />
+        <property name="adminUid" type="string">
+            <column name="admin_uid" not-null="true" />
         </property>
         <property name="adminPassword" type="string">
             <column name="admin_password" not-null="true" />
         </property>
-        <property name="accessGroup" type="string">
-            <column name="access_group" not-null="true" />
+        <property name="statsGroup" type="string">
+            <column name="stats_group" not-null="true" />
         </property>
         <property name="note" type="string">
             <column name="note" length="4000" not-null="true" />

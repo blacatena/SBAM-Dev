@@ -30,10 +30,22 @@ public class AuthenticationExportMethod {
 	
 	public void exportMethod() {
 		if (AuthMethodInstance.AM_IP.equals(authMethod.getId().getMethodType()))
-			exportReport.countIp();
+			exportIp();
 		else if (AuthMethodInstance.AM_UID.equals(authMethod.getId().getMethodType()))
-			exportReport.countUid();
+			exportUid();
 		else if (AuthMethodInstance.AM_URL.equals(authMethod.getId().getMethodType()))
-			exportReport.countUrl();
+			exportUrl();
+	}
+	
+	public void exportIp() {
+		exportReport.countIp();
+	}
+	
+	public void exportUid() {
+		exportReport.countUid();
+	}
+	
+	public void exportUrl() {
+		exportReport.countUrl();
 	}
 }

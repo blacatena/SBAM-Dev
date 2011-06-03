@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.scholastic.sbam.server.database.codegen.AeControl;
+import com.scholastic.sbam.server.database.util.HibernateAccessor;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.server.database.util.SqlConstructor;
 import com.scholastic.sbam.server.database.util.SqlExecution;
@@ -25,22 +27,68 @@ import com.scholastic.sbam.shared.util.AppConstants;
  */
 public class AuthenticationGenerator implements Runnable, ConsoleOutputter {
 	
+	public static final char				RUNNING	= 'r';
+	public static final char				ABORTED = 'a';
+	public static final char				ERROR	= 'e';
+	public static final char				COMPLETE= 'c';
+	
 	protected static AuthenticationGenerator singleton;
 	
 	protected boolean						consoleOutputOn = true;
+	protected int							countIncrement = 0;
 	protected boolean 						running;
 	protected String						terminationReason;
 	protected String						terminationUserId;
 	protected ExportProcessReport			currentExportReport;
 	protected List<ExportProcessReport>		exportReportLog = new ArrayList<ExportProcessReport>();
 	
+	protected AeControl						aeControl;
+	
 	protected AuthenticationGenerator() {
 		
 	}
 	
 	public static void main(String [] args) {
+
+		if (args != null)
+			for (String arg : args) {
+				if ("-help".equals(arg)) {
+					showHelp();
+					System.exit(0);
+				}
+				if (! ( "-silent".equals(arg) || "-verbose".equals(arg) || AppConstants.isNumeric(arg) ) ) {
+					System.out.println("Invalid parameter " + arg + " (use -help to list valid parameters).");
+					System.exit(0);
+				}
+			}
 		//	Generate Export
-		new AuthenticationGenerator().generateExport(new Date());
+		
+		AuthenticationGenerator auGen = new AuthenticationGenerator();
+		
+		auGen.forceConsoleOutput("Authentication Generator running...");
+		
+		auGen.setConsoleOutputOn(false);
+		
+		if (args != null)
+			for (String arg : args) {
+				if ("-silent".equals(arg))
+					auGen.setConsoleOutputOn(false);
+				else if ("-verbose".equals(arg))
+					auGen.setConsoleOutputOn(true);
+				else if (AppConstants.isNumeric(arg))
+					auGen.setCountIncrement(Integer.parseInt(arg));
+			}
+		
+		auGen.generateExport(new Date());
+		
+		auGen.forceConsoleOutput("Authentication Generator execution completed.");
+	}
+	
+	protected static void showHelp() {
+		System.out.println("-silent    To run without output (default).");
+		System.out.println("-verbose   To run with specific progress messages.");
+		System.out.println("n          Where n is any positive, non-zero number, to output agreement, site and method counts after every n processed agreements.");
+		System.out.println("-help      To show this help list.");
 	}
 	
 	protected synchronized String generateExport(Date execDate) {
@@ -54,6 +102,7 @@ public class AuthenticationGenerator implements Runnable, ConsoleOutputter {
 		currentExportReport.setStarted();
 		
 		try {
+			createAeControl();
 			
 			//	Cycle through all open contracts
 			
@@ -81,14 +130,19 @@ public class AuthenticationGenerator implements Runnable, ConsoleOutputter {
 			SqlExecution mainLoopExec = new SqlExecution(mainSql.getSql());
 			
 			while (mainLoopExec.getResults().next()) {
+				
 				if (terminationReason != null) {
 					consoleOutput("Termination requested : " + terminationReason);
 					currentExportReport.addError("Process terminating by user request : " + terminationUserId + " (" + terminationReason + ")");
 					currentExportReport.setCompleted("terminated abnormally");
+					closeAeControlAbort();
 					return "Export terminated by user request.";
 				}
+				
 				processAgreement(mainLoopExec.getResults().getBigDecimal("id").intValue());
+				
 			}
+			
 			consoleOutput(currentExportReport.getAgreements() + " agreements processed");
 			currentExportReport.addMessage(currentExportReport.getAgreements() + " agreements processed");
 			
@@ -96,15 +150,77 @@ public class AuthenticationGenerator implements Runnable, ConsoleOutputter {
 			e.printStackTrace();
 			currentExportReport.setCompleted("terminated with a SQL error");
 			running = false;
+			closeAeControlError();
 			return "Export failed.";
 		} finally {
 			running = false;
 		}
 		
 		currentExportReport.setCompleted();
+		closeAeControlComplete();
 		running = false;
 		
 		return "Export complete.";
+	}
+	
+	protected void createAeControl() {
+		HibernateUtil.openSession();
+		HibernateUtil.startTransaction();
+		
+		aeControl = new AeControl();
+		
+		aeControl.setCreatedDatetime(new Date());
+		aeControl.setInitiatedDatetime(new Date());
+		aeControl.setStatus(RUNNING);
+		
+		HibernateAccessor.persist(aeControl);
+		
+		HibernateUtil.endTransaction();
+		HibernateUtil.closeSession();
+	}
+	
+	protected void closeAeControlAbort() {
+		closeAeControl(true, false);
+	}
+	
+	protected void closeAeControlError() {
+		closeAeControl(false, true);
+	}
+	
+	protected void closeAeControlComplete() {
+		closeAeControl(false, false);
+	}
+	
+	protected void closeAeControl(boolean aborted, boolean error) {
+		HibernateUtil.openSession();
+		HibernateUtil.startTransaction();
+		
+		HibernateAccessor.refresh(aeControl);
+		
+		if (error) {
+			aeControl.setStatus(ERROR);
+		} else if (aborted) {
+			aeControl.setStatus(ABORTED);
+		} else {
+			aeControl.setStatus(COMPLETE);
+			aeControl.setCompletedDatetime(new Date());
+		}
+		
+		aeControl.setTerminatedDatetime(new Date());
+		aeControl.setElapsedSeconds((int) (aeControl.getTerminatedDatetime().getTime() - aeControl.getInitiatedDatetime().getTime()));
+		
+		aeControl.setCountAgreements(currentExportReport.getAgreements());
+		aeControl.setCountSites(currentExportReport.getSites());
+		aeControl.setCountIps(currentExportReport.getIps());
+		aeControl.setCountUids(currentExportReport.getUids());
+		aeControl.setCountUrls(currentExportReport.getUrls());
+		
+		aeControl.setCountErrors(currentExportReport.getErrors());
+		
+		HibernateAccessor.persist(aeControl);
+		
+		HibernateUtil.endTransaction();
+		HibernateUtil.closeSession();
 	}
 	
 	protected void processAgreement(int agreementId) {
@@ -124,6 +240,10 @@ public class AuthenticationGenerator implements Runnable, ConsoleOutputter {
 			HibernateUtil.endTransaction();
 		}
 		HibernateUtil.closeSession();
+		
+		if (countIncrement > 0 && currentExportReport.getAgreements() % countIncrement == 0)
+			forceConsoleOutput("...... " + currentExportReport.getAgreements() + " agreements, " + currentExportReport.getSites() + " sites, " + 
+					(currentExportReport.getIps() + currentExportReport.getUids() + currentExportReport.getUrls()) + " methods.");
 	}
 
 	@Override
@@ -156,7 +276,15 @@ public class AuthenticationGenerator implements Runnable, ConsoleOutputter {
 		return true;
 	}
 	
+	public void forceConsoleOutput(String message) {
+		consoleOutput(message, true);
+	}
+	
 	public void consoleOutput(String message) {
+		consoleOutput(message, consoleOutputOn);
+	}
+	
+	public void consoleOutput(String message, boolean consoleOutputOn) {
 		if (!consoleOutputOn)
 			return;
 		System.out.println(new Date() + " : Authentication Export : " + message);
@@ -222,6 +350,14 @@ public class AuthenticationGenerator implements Runnable, ConsoleOutputter {
 
 	public void setConsoleOutputOn(boolean consoleOutputOn) {
 		this.consoleOutputOn = consoleOutputOn;
+	}
+
+	public int getCountIncrement() {
+		return countIncrement;
+	}
+
+	public void setCountIncrement(int countIncrement) {
+		this.countIncrement = countIncrement;
 	}
 	
 }

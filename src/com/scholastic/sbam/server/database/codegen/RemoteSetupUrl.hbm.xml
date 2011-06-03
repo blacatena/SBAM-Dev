@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jun 3, 2011 3:04:04 PM by Hibernate Tools 3.2.4.GA -->
+<hibernate-mapping>
+    <class name="com.scholastic.sbam.server.database.codegen.RemoteSetupUrl" table="remote_setup_url" catalog="sbam">
+        <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.RemoteSetupUrlId">
+            <key-property name="agreementId" type="int">
+                <column name="agreement_id" />
+            </key-property>
+            <key-property name="ucn" type="int">
+                <column name="ucn" />
+            </key-property>
+            <key-property name="ucnSuffix" type="int">
+                <column name="ucn_suffix" />
+            </key-property>
+            <key-property name="siteLocCode" type="string">
+                <column name="site_loc_code" length="32" />
+            </key-property>
+            <key-property name="urlId" type="int">
+                <column name="url_id" />
+            </key-property>
+        </composite-id>
+        <property name="url" type="string">
+            <column name="url" length="512" not-null="true" />
+        </property>
+        <property name="approved" type="char">
+            <column name="approved" length="1" not-null="true" />
+        </property>
+        <property name="activated" type="char">
+            <column name="activated" length="1" not-null="true" />
+        </property>
+        <property name="note" type="string">
+            <column name="note" length="4000" not-null="true" />
+        </property>
+        <property name="orgPath" type="string">
+            <column name="org_path" length="1024" not-null="true" />
+        </property>
+        <property name="createdDatetime" type="timestamp">
+            <column name="created_datetime" length="19" not-null="true" />
+        </property>
+        <property name="status" type="char">
+            <column name="status" length="1" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

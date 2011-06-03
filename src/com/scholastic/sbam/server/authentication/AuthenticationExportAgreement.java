@@ -58,9 +58,9 @@ public class AuthenticationExportAgreement {
 			}
 		}
 		
-		//	Authenticate agreement related methods
+		//	Authenticate agreement related methods not associated with a site
 		
-		for (AuthMethod authMethod : DbAuthMethod.findByAgreementId(agreement.getId(), null, AppConstants.STATUS_ACTIVE, AppConstants.STATUS_DELETED)) {
+		for (AuthMethod authMethod : DbAuthMethod.findBySite(agreement.getId(), 0, 0, "", null, AppConstants.STATUS_ACTIVE, AppConstants.STATUS_DELETED)) {
 			new AuthenticationExportMethod(agreement, null, authMethod, output, exportReport).exportMethod();
 		}
 	}

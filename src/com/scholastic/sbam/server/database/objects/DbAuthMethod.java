@@ -104,22 +104,22 @@ public class DbAuthMethod extends HibernateAccessor {
 	}
 	
 	public static List<AuthMethod> findByAgreementId(int agreementId, String methodType, char status, char neStatus) {
-		return findByOwner(agreementId, 0, 0, null, methodType, status, neStatus);
+		return findByOwner(agreementId, -1, -1, null, methodType, status, neStatus);
 	}
 	
 	public static List<AuthMethod> findBySite( int ucn, int ucnSuffix, String siteLocCode, String methodType, char status, char neStatus) {
-		return findByOwner(0, ucn, ucnSuffix, siteLocCode, methodType, status, neStatus);
+		return findByOwner(-1, ucn, ucnSuffix, siteLocCode, methodType, status, neStatus);
 	}
 	
 	public static List<AuthMethod> findByOwner(int agreementId, int ucn, int ucnSuffix, String siteLocCode, String methodType, char status, char neStatus) {
         try
         {
             Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
-            if (agreementId > 0)
+            if (agreementId >= 0)
             	crit.add(Restrictions.eq("id.agreementId", agreementId));
-            if (ucn > 0)
+            if (ucn >= 0)
             	crit.add(Restrictions.eq("id.ucn", ucn));
-            if (ucnSuffix > 0)
+            if (ucnSuffix >= 0)
             	crit.add(Restrictions.eq("id.ucnSuffix", ucnSuffix));
             if (siteLocCode != null)
             	crit.add(Restrictions.eq("id.siteLocCode", siteLocCode));
@@ -141,6 +141,7 @@ public class DbAuthMethod extends HibernateAccessor {
         {
         	e.printStackTrace();
             System.out.println(e.getMessage());
+            System.out.println("Agreement ID " + agreementId + ", " + ucn + ", " + ucnSuffix + ", Loc " + siteLocCode + ", Type " + methodType + ", status " + status + ", ne status " + neStatus);
         }
         return new ArrayList<AuthMethod>();
 	}

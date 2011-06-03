@@ -27,6 +27,7 @@ import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.AgreementSiteInstance;
 import com.scholastic.sbam.shared.objects.AuthMethodInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
+import com.scholastic.sbam.shared.objects.RemoteSetupUrlInstance;
 import com.scholastic.sbam.shared.objects.SiteInstance;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
@@ -401,6 +402,18 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> implements Crea
 	public void setFor(AuthMethodInstance method, String institutionName) {
 		setFor(method.getForUcn(), method.getForUcnSuffix(), institutionName);
 		agreementId = method.getAgreementId();
+	}
+	
+	public void setFor(RemoteSetupUrlInstance remoteSetupUrl) {
+		if (remoteSetupUrl.getSite() != null && remoteSetupUrl.getSite().getInstitution() != null)
+			setFor(remoteSetupUrl, remoteSetupUrl.getSite().getInstitution().getInstitutionName());
+		else
+			setFor(remoteSetupUrl, null);
+	}
+	
+	public void setFor(RemoteSetupUrlInstance remoteSetupUrl, String institutionName) {
+		setFor(remoteSetupUrl.getUcn(), remoteSetupUrl.getUcnSuffix(), institutionName);
+		agreementId = remoteSetupUrl.getAgreementId();
 	}
 	
 	public void setFor(AgreementSiteInstance site) {
