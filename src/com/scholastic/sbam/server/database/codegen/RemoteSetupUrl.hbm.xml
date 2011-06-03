@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Jun 3, 2011 3:04:04 PM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Jun 3, 2011 6:43:10 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.RemoteSetupUrl" table="remote_setup_url" catalog="sbam">
         <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.RemoteSetupUrlId">
@@ -23,6 +23,15 @@
         </composite-id>
         <property name="url" type="string">
             <column name="url" length="512" not-null="true" />
+        </property>
+        <property name="forUcn" type="int">
+            <column name="for_ucn" not-null="true" />
+        </property>
+        <property name="forUcnSuffix" type="int">
+            <column name="for_ucn_suffix" not-null="true" />
+        </property>
+        <property name="forSiteLocCode" type="string">
+            <column name="for_site_loc_code" length="32" not-null="true" />
         </property>
         <property name="approved" type="char">
             <column name="approved" length="1" not-null="true" />

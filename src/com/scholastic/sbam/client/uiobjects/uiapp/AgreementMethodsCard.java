@@ -169,8 +169,9 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	public void sleep() {
 	}
 	
+	@Override
 	public String getFormHeading() {
-		return "Sites";
+		return "Methods";
 	}
 	
 	@Override
@@ -234,7 +235,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 				displayStatus += ", Deactivated " + UiConstants.formatDate(instance.getDeactivatedDatetime());
 		agreementIdField.setValue(AppConstants.appendCheckDigit(instance.getAgreementId()) + " &nbsp;&nbsp;&nbsp;<i>" + displayStatus + "</i>");
 		
-		if (instance.getUcnSuffix() <= 1)
+		if (instance.getForUcnSuffix() <= 1)
 			ucnDisplay.setValue(instance.getForUcn() + "");
 		else
 			ucnDisplay.setValue(instance.getForUcn() + " - " + instance.getForUcnSuffix());
@@ -588,7 +589,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 			}
 		};
 		nibf.setLabelSeparator("");
-		nibf.setEmptyNoteText("Click the note icon to add notes for this agreement site.");
+		nibf.setEmptyNoteText("Click the note icon to add notes for this method.");
 		return nibf;
 	}
 
@@ -680,31 +681,31 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	
 	/**
 	 * Match the form field values to reflect a selected institution.
-	 * @param instance
+	 * @param institution
 	 */
-	protected void matchToInstitution(InstitutionInstance instance) {
+	protected void matchToInstitution(InstitutionInstance institution) {
 		
-		if (instance == null || instance.getUcn() == 0) {
+		if (institution == null || institution.getUcn() == 0) {
 			ucnDisplay.setValue("");
 			siteLocationField.setFor(0, 0, "");
 			setMethodIdFor(0, 0, "");
 			return;
 		}
 		
-		if (focusInstance != null && focusInstance.getForUcn() == instance.getUcn()) {
+		if (focusInstance != null && focusInstance.getForUcn() == institution.getUcn()) {
 			// Same institution as instance, so use the instance UCN
-			siteLocationField.setFor(focusInstance, instance.getInstitutionName());
+			siteLocationField.setFor(focusInstance, institution.getInstitutionName());
 			siteLocationField.setValue(SiteInstance.obtainModel(focusInstance.getSite()));
 			setMethodIdFor(focusInstance.getSite().getUcn(), focusInstance.getSite().getUcnSuffix(), focusInstance.getSite().getSiteLocCode());
 		} else {
 			// Different UCN, default to suffix 1
-			siteLocationField.setFor(instance.getUcn(), 1, instance.getInstitutionName());
-			SiteInstance newMain = SiteInstance.getMainInstance(instance.getUcn(), 1);
+			siteLocationField.setFor(institution.getUcn(), 1, institution.getInstitutionName());
+			SiteInstance newMain = SiteInstance.getMainInstance(institution.getUcn(), 1);
 			siteLocationField.setValue(SiteInstance.obtainModel(newMain));
 			setMethodIdFor(newMain.getUcn(), newMain.getUcnSuffix(), newMain.getSiteLocCode());
 		}
 		
-		ucnDisplay.setValue(instance.getUcn() + "");
+		ucnDisplay.setValue(institution.getUcn() + "");
 		
 	}
 	

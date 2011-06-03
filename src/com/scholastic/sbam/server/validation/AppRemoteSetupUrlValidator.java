@@ -30,9 +30,11 @@ public class AppRemoteSetupUrlValidator {
 		patchInstance(instance);
 		
 		validateRemoteSetupUrlId(instance, instance.isNewRecord());
-		validateInstitution(instance.getUcn());
-		validateSite(instance.getUcn(), instance.getUcnSuffix(), instance.getSiteLocCode());
-		validateAgreementSite(instance.getAgreementId(), instance.getUcn(), instance.getUcnSuffix(), instance.getSiteLocCode());
+		if (instance.getUcn() > 0)
+			validateInstitution(instance.getUcn());
+		validateInstitution(instance.getForUcn());
+		validateSite(instance.getForUcn(), instance.getForUcnSuffix(), instance.getForSiteLocCode());
+		validateAgreementSite(instance.getAgreementId(), instance.getForUcn(), instance.getForUcnSuffix(), instance.getForSiteLocCode());
 		validateStatus(instance.getStatus());
 		return messages;
 	}
@@ -51,12 +53,15 @@ public class AppRemoteSetupUrlValidator {
 			instance.setSiteLocCode("");
 
 		//	Patch the "for" UCN so that its either 0/0/"", or else >0 and >0 and a value
-		if (instance.getUcn() > 0 && instance.getUcnSuffix() == 0)
-			instance.setUcnSuffix(1);
-		if (instance.getUcn() == 0) {
-			instance.setUcnSuffix(0);
-			instance.setSiteLocCode("");
+		if (instance.getForUcn() > 0 && instance.getUcnSuffix() == 0)
+			instance.setForUcnSuffix(1);
+		if (instance.getForUcn() == 0) {
+			instance.setForUcnSuffix(0);
+			instance.setForSiteLocCode("");
 		}
+		
+		if (instance.getForSiteLocCode() == null)
+			instance.setForSiteLocCode("");
 		
 		if (instance.getSiteLocCode() == null)
 			instance.setSiteLocCode("");

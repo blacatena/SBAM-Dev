@@ -30,6 +30,8 @@ public class AppAuthMethodValidator {
 		patchInstance(instance);
 		
 		validateAuthMethodId(instance, instance.isNewRecord());
+		if (instance.getUcn() > 0)
+			validateInstitution(instance.getUcn());
 		validateInstitution(instance.getForUcn());
 		validateSite(instance.getForUcn(), instance.getForUcnSuffix(), instance.getForSiteLocCode());
 		validateAgreementSite(instance.getAgreementId(), instance.getForUcn(), instance.getForUcnSuffix(), instance.getForSiteLocCode());

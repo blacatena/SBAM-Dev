@@ -19,6 +19,10 @@ public class RemoteSetupUrlInstance extends IpAddressInstance implements BeanMod
 	private int		urlId;
 	
 	private String	url;
+
+	private int		forUcn;
+	private int		forUcnSuffix;
+	private String	forSiteLocCode;
 	
 	private char	approved;
 	private char	activated;
@@ -122,6 +126,30 @@ public class RemoteSetupUrlInstance extends IpAddressInstance implements BeanMod
 //		syncMethodKey();
 	}
 
+	public int getForUcn() {
+		return forUcn;
+	}
+
+	public void setForUcn(int forUcn) {
+		this.forUcn = forUcn;
+	}
+
+	public int getForUcnSuffix() {
+		return forUcnSuffix;
+	}
+
+	public void setForUcnSuffix(int forUcnSuffix) {
+		this.forUcnSuffix = forUcnSuffix;
+	}
+
+	public String getForSiteLocCode() {
+		return forSiteLocCode;
+	}
+
+	public void setForSiteLocCode(String forSiteLocCode) {
+		this.forSiteLocCode = forSiteLocCode;
+	}
+
 	public char getApproved() {
 		return approved;
 	}
@@ -168,9 +196,9 @@ public class RemoteSetupUrlInstance extends IpAddressInstance implements BeanMod
 
 	public void setSite(SiteInstance site) {
 		this.site = site;
-		this.setUcn(site.getUcn());
-		this.setUcnSuffix(site.getUcnSuffix());
-		this.setSiteLocCode(site.getSiteLocCode());
+		this.setForUcn(site.getUcn());
+		this.setForUcnSuffix(site.getUcnSuffix());
+		this.setForSiteLocCode(site.getSiteLocCode());
 	}
 	
 	public String getStatusDescription() {
@@ -185,9 +213,9 @@ public class RemoteSetupUrlInstance extends IpAddressInstance implements BeanMod
 		mid.setSiteLocCode(siteLocCode);
 		mid.setMethodType("rsurl");
 		mid.setMethodKey(urlId);
-		mid.setForUcn(0);
-		mid.setForUcnSuffix(0);
-		mid.setForSiteLocCode("");
+		mid.setForUcn(forUcn);
+		mid.setForUcnSuffix(forUcnSuffix);
+		mid.setForSiteLocCode(forSiteLocCode);
 		mid.setProxyId(0);
 		mid.setIpId(0);
 		return mid;
@@ -201,6 +229,10 @@ public class RemoteSetupUrlInstance extends IpAddressInstance implements BeanMod
 		this.urlId						=	fromInstance.urlId;
 				
 		this.url						=	fromInstance.	url;
+		
+		this.forUcn						=	fromInstance.	forUcn;
+		this.forUcnSuffix				=	fromInstance.	forUcnSuffix;
+		this.forSiteLocCode				=	fromInstance.	forSiteLocCode;
 		
 		this.approved					=	fromInstance.	approved;
 		this.activated					=	fromInstance.	activated;

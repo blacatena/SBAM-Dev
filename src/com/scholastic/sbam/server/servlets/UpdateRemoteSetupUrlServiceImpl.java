@@ -52,7 +52,7 @@ public class UpdateRemoteSetupUrlServiceImpl extends AuthenticatedServiceServlet
 				id.setUcn(instance.getUcn());
 				id.setUcnSuffix(instance.getUcnSuffix());
 				id.setSiteLocCode(instance.getSiteLocCode());
-				id.setUrlId(DbRemoteSetupUrl.getNextRemoteSetupUrlKey(instance.getAgreementId(), instance.getUcn(), instance.getUcnSuffix(), instance.getSiteLocCode()));
+				id.setUrlId(DbRemoteSetupUrl.getNextRemoteSetupUrlId(instance.getAgreementId(), instance.getUcn(), instance.getUcnSuffix(), instance.getSiteLocCode()));
 				instance.setUrlId(id.getUrlId());
 				dbInstance.setId(id);
 				//	Set the create date/time and status
@@ -68,15 +68,15 @@ public class UpdateRemoteSetupUrlServiceImpl extends AuthenticatedServiceServlet
 			if (instance.getNote() != null)
 				dbInstance.setNote(instance.getNote());
 			
-			if (instance.getUcn() >= 0) {
-				dbInstance.getId().setUcn(instance.getUcn());
-				if (instance.getUcn() > 0) {
-					dbInstance.getId().setUcnSuffix(instance.getUcnSuffix());
-					if (instance.getSiteLocCode() != null)
-						dbInstance.getId().setSiteLocCode(instance.getSiteLocCode());
+			if (instance.getForUcn() >= 0) {
+				dbInstance.setForUcn(instance.getForUcn());
+				if (instance.getForUcn() > 0) {
+					dbInstance.setForUcnSuffix(instance.getForUcnSuffix());
+					if (instance.getForSiteLocCode() != null)
+						dbInstance.setForSiteLocCode(instance.getForSiteLocCode());
 				} else {
-					dbInstance.getId().setUcnSuffix(0);
-					dbInstance.getId().setSiteLocCode("");
+					dbInstance.setForUcnSuffix(0);
+					dbInstance.setForSiteLocCode("");
 				}
 			}
 			

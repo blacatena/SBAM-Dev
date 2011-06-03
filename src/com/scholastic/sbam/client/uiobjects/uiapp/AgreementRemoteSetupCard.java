@@ -120,8 +120,9 @@ public class AgreementRemoteSetupCard extends FormAndGridPanel<RemoteSetupUrlIns
 	public void sleep() {
 	}
 	
-	public String getmHeading() {
-		return "Sites";
+	@Override
+	public String getFormHeading() {
+		return "Methods";
 	}
 	
 	@Override
@@ -169,11 +170,11 @@ public class AgreementRemoteSetupCard extends FormAndGridPanel<RemoteSetupUrlIns
 //			if (instance.getDeactivatedDatetime() != null)
 //				displayStatus += ", Deactivated " + UiConstants.formatDate(instance.getDeactivatedDatetime());
 		agreementIdField.setValue(AppConstants.appendCheckDigit(instance.getAgreementId()) + " &nbsp;&nbsp;&nbsp;<i>" + displayStatus + "</i>");
-		
-		if (instance.getUcnSuffix() <= 1)
-			ucnDisplay.setValue(instance.getUcn() + "");
+
+		if (instance.getForUcnSuffix() <= 1)
+			ucnDisplay.setValue(instance.getForUcn() + "");
 		else
-			ucnDisplay.setValue(instance.getUcn() + " - " + instance.getUcnSuffix());
+			ucnDisplay.setValue(instance.getForUcn() + " - " + instance.getForUcnSuffix());
 		
 		institutionField.setAgreementId(getAgreementId());
 		
@@ -359,7 +360,7 @@ public class AgreementRemoteSetupCard extends FormAndGridPanel<RemoteSetupUrlIns
 			}
 		};
 		nibf.setLabelSeparator("");
-		nibf.setEmptyNoteText("Click the note icon to add notes for this agreement site.");
+		nibf.setEmptyNoteText("Click the note icon to add notes for this remote setup URL.");
 		return nibf;
 	}
 
@@ -451,31 +452,31 @@ public class AgreementRemoteSetupCard extends FormAndGridPanel<RemoteSetupUrlIns
 	
 	/**
 	 * Match the form field values to reflect a selected institution.
-	 * @param instance
+	 * @param institution
 	 */
-	protected void matchToInstitution(InstitutionInstance instance) {
+	protected void matchToInstitution(InstitutionInstance institution) {
 		
-		if (instance == null || instance.getUcn() == 0) {
+		if (institution == null || institution.getUcn() == 0) {
 			ucnDisplay.setValue("");
 			siteLocationField.setFor(0, 0, "");
 			setMethodIdFor(0, 0, "");
 			return;
 		}
 		
-		if (focusInstance != null && focusInstance.getUcn() == instance.getUcn()) {
+		if (focusInstance != null && focusInstance.getUcn() == institution.getUcn()) {
 			// Same institution as instance, so use the instance UCN
-			siteLocationField.setFor(focusInstance, instance.getInstitutionName());
+			siteLocationField.setFor(focusInstance, institution.getInstitutionName());
 			siteLocationField.setValue(SiteInstance.obtainModel(focusInstance.getSite()));
 			setMethodIdFor(focusInstance.getSite().getUcn(), focusInstance.getSite().getUcnSuffix(), focusInstance.getSite().getSiteLocCode());
 		} else {
 			// Different UCN, default to suffix 1
-			siteLocationField.setFor(instance.getUcn(), 1, instance.getInstitutionName());
-			SiteInstance newMain = SiteInstance.getMainInstance(instance.getUcn(), 1);
+			siteLocationField.setFor(institution.getUcn(), 1, institution.getInstitutionName());
+			SiteInstance newMain = SiteInstance.getMainInstance(institution.getUcn(), 1);
 			siteLocationField.setValue(SiteInstance.obtainModel(newMain));
 			setMethodIdFor(newMain.getUcn(), newMain.getUcnSuffix(), newMain.getSiteLocCode());
 		}
 		
-		ucnDisplay.setValue(instance.getUcn() + "");
+		ucnDisplay.setValue(institution.getUcn() + "");
 		
 	}
 	
@@ -505,20 +506,20 @@ public class AgreementRemoteSetupCard extends FormAndGridPanel<RemoteSetupUrlIns
 		
 		InstitutionInstance institution = (institutionField.getSelectedValue() == null) ? null : (InstitutionInstance) institutionField.getSelectedValue().getBean();
 		if (institution == null) {
-			focusInstance.setUcn(0);
-			focusInstance.setUcnSuffix(0);
-			focusInstance.setSiteLocCode("");
+			focusInstance.setForUcn(0);
+			focusInstance.setForUcnSuffix(0);
+			focusInstance.setForSiteLocCode("");
 		} else {
-			if (focusInstance.getUcn() != institution.getUcn()) {
-				focusInstance.setUcn(institution.getUcn());
-				focusInstance.setUcnSuffix(1);
+			if (focusInstance.getForUcn() != institution.getUcn()) {
+				focusInstance.setForUcn(institution.getUcn());
+				focusInstance.setForUcnSuffix(1);
 			}
 			SiteInstance site = (siteLocationField.getSelectedValue() == null) ? null : (SiteInstance) siteLocationField.getSelectedValue().getBean();
 			if (site == null) {
 				MessageBox.alert("Unexpected Error", "No site location is selected for this authentication method.", null);
 				return;
 			}
-			focusInstance.setSiteLocCode(site.getSiteLocCode());
+			focusInstance.setForSiteLocCode(site.getSiteLocCode());
 		}
 		
 		focusInstance.setUrl(urlField.getValue());
@@ -613,12 +614,6 @@ public class AgreementRemoteSetupCard extends FormAndGridPanel<RemoteSetupUrlIns
 						notesField.unlockNote();
 				}
 			});
-	}
-
-	@Override
-	public String getFormHeading() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 	
 }

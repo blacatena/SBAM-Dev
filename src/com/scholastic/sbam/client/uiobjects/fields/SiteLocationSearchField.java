@@ -412,7 +412,7 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> implements Crea
 	}
 	
 	public void setFor(RemoteSetupUrlInstance remoteSetupUrl, String institutionName) {
-		setFor(remoteSetupUrl.getUcn(), remoteSetupUrl.getUcnSuffix(), institutionName);
+		setFor(remoteSetupUrl.getForUcn(), remoteSetupUrl.getForUcnSuffix(), institutionName);
 		agreementId = remoteSetupUrl.getAgreementId();
 	}
 	

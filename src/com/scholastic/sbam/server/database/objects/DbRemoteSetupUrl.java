@@ -37,6 +37,12 @@ public class DbRemoteSetupUrl extends HibernateAccessor {
 		instance.setUcnSuffix(dbInstance.getId().getUcnSuffix());
 		instance.setSiteLocCode(dbInstance.getId().getSiteLocCode());
 		
+		instance.setUrlId(dbInstance.getId().getUrlId());
+
+		instance.setForUcn(dbInstance.getForUcn());
+		instance.setForUcnSuffix(dbInstance.getForUcnSuffix());
+		instance.setForSiteLocCode(dbInstance.getForSiteLocCode());
+		
 		instance.setApproved(dbInstance.getApproved());
 		instance.setActivated(dbInstance.getActivated());
 		
@@ -116,7 +122,7 @@ public class DbRemoteSetupUrl extends HibernateAccessor {
         return new ArrayList<RemoteSetupUrl>();
 	}
 
-	public static int getNextRemoteSetupUrlKey(int agreementId, int ucn, int ucnSuffix, String siteLocCode) {
+	public static int getNextRemoteSetupUrlId(int agreementId, int ucn, int ucnSuffix, String siteLocCode) {
         Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
         crit.add(Restrictions.eq("id.agreementId", 	agreementId));
         crit.add(Restrictions.eq("id.ucn", 			ucn));

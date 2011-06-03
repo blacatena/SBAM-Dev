@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Jun 3, 2011 3:04:04 PM by Hibernate Tools 3.2.4.GA
+// Generated Jun 3, 2011 6:43:10 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -11,6 +11,9 @@ public class RemoteSetupUrl implements java.io.Serializable {
 
 	private RemoteSetupUrlId id;
 	private String url;
+	private int forUcn;
+	private int forUcnSuffix;
+	private String forSiteLocCode;
 	private char approved;
 	private char activated;
 	private String note;
@@ -21,11 +24,15 @@ public class RemoteSetupUrl implements java.io.Serializable {
 	public RemoteSetupUrl() {
 	}
 
-	public RemoteSetupUrl(RemoteSetupUrlId id, String url, char approved,
+	public RemoteSetupUrl(RemoteSetupUrlId id, String url, int forUcn,
+			int forUcnSuffix, String forSiteLocCode, char approved,
 			char activated, String note, String orgPath, Date createdDatetime,
 			char status) {
 		this.id = id;
 		this.url = url;
+		this.forUcn = forUcn;
+		this.forUcnSuffix = forUcnSuffix;
+		this.forSiteLocCode = forSiteLocCode;
 		this.approved = approved;
 		this.activated = activated;
 		this.note = note;
@@ -48,6 +55,30 @@ public class RemoteSetupUrl implements java.io.Serializable {
 
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+	public int getForUcn() {
+		return this.forUcn;
+	}
+
+	public void setForUcn(int forUcn) {
+		this.forUcn = forUcn;
+	}
+
+	public int getForUcnSuffix() {
+		return this.forUcnSuffix;
+	}
+
+	public void setForUcnSuffix(int forUcnSuffix) {
+		this.forUcnSuffix = forUcnSuffix;
+	}
+
+	public String getForSiteLocCode() {
+		return this.forSiteLocCode;
+	}
+
+	public void setForSiteLocCode(String forSiteLocCode) {
+		this.forSiteLocCode = forSiteLocCode;
 	}
 
 	public char getApproved() {
