@@ -858,12 +858,12 @@ public class AgreementContactSearchPortlet extends GridSupportPortlet<AgreementC
 	@Override
 	public String getShortPortletName() {
 		if (focusAgreementId > 0)
-			return "UCN " + focusAgreementId;
+			return "Agreement " + focusAgreementId;
 		if (filter == null || filter.length() == 0)
-			return "UCN Search";
+			return "Agreement Contact Search";
 		if (filter.length() > 10)
-			return "UCNs for " + filter.substring(0, 10);
-		return "UCNs for " + filter;
+			return "Agreements for " + filter.substring(0, 10);
+		return "Agreements for " + filter;
 	}
 	
 	@Override

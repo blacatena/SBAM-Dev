@@ -378,7 +378,7 @@ public class DbAuthMethod extends HibernateAccessor {
     			if (termCount > 0)
         			sqlQuery += " OR ";
         		if (doBoolean)
-	    			sqlQuery += "MATCH (auth_method.note) AGAINST ('" + fullTextMatch + "') IN BOOLEAN MODE ";
+	    			sqlQuery += "MATCH (auth_method.note) AGAINST ('" + fullTextMatch + "' IN BOOLEAN MODE ) ";
 	    		else
 	        		sqlQuery += "MATCH (auth_method.note) AGAINST ('" + fullTextMatch + "') ";
     		}

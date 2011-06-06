@@ -746,12 +746,12 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 	@Override
 	public String getShortPortletName() {
 		if (focusAgreementId > 0)
-			return "UCN " + focusAgreementId;
+			return "Agreement " + focusAgreementId;
 		if (filter == null || filter.length() == 0)
-			return "UCN Search";
+			return "Agreement Search";
 		if (filter.length() > 10)
-			return "UCNs for " + filter.substring(0, 10);
-		return "UCNs for " + filter;
+			return "Agreements for " + filter.substring(0, 10);
+		return "Agreements for " + filter;
 	}
 	
 	@Override

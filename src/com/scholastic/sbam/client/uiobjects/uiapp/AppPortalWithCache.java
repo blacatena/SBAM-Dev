@@ -257,7 +257,7 @@ public class AppPortalWithCache extends Portal implements AppPortletPresenter {
 		boolean [] columnWidthSet = new boolean [getItemCount()];	// This only needs as many entries as columns, but why bother... the highest it would be is the number of portlets
 		for (UserPortletCacheInstance instance : list) {
 			if (instance.getRestoreColumn() >= 0 && instance.getRestoreColumn() < columnWidthSet.length) {
-				if (! columnWidthSet [instance.getRestoreColumn()]) {
+				if (! columnWidthSet [instance.getRestoreColumn()] && instance.getRestoreWidth() > 0) {
 					setColumnWidth(instance.getRestoreColumn(), instance.getRestoreWidth());
 					getItem(instance.getRestoreColumn()).setWidth(instance.getRestoreWidth() + getSpacing());
 					columnWidthSet [instance.getRestoreColumn()] = true; // This just makes sure we only do each column once, so first portlet in line decides the width
