@@ -4,11 +4,14 @@ import java.util.List;
 
 import com.scholastic.sbam.client.services.UrlValidationService;
 import com.scholastic.sbam.server.database.codegen.AuthMethod;
+import com.scholastic.sbam.server.database.codegen.RemoteSetupUrl;
 import com.scholastic.sbam.server.database.objects.DbAgreementTerm;
 import com.scholastic.sbam.server.database.objects.DbAuthMethod;
+import com.scholastic.sbam.server.database.objects.DbRemoteSetupUrl;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.objects.AuthMethodInstance;
 import com.scholastic.sbam.shared.objects.MethodIdInstance;
+import com.scholastic.sbam.shared.objects.RemoteSetupUrlInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
 import com.scholastic.sbam.shared.util.AppConstants;
 import com.scholastic.sbam.shared.validation.AsyncValidationResponse;
@@ -86,6 +89,20 @@ public class UrlValidationServiceImpl extends AuthenticatedServiceServlet implem
 			}
 		}
 		
+		List<RemoteSetupUrl> remoteSetupUrls  = DbRemoteSetupUrl.findByUrl(url);
+		
+		if (remoteSetupUrls != null) {
+			for (RemoteSetupUrl remoteSetupUrl : remoteSetupUrls) {
+				RemoteSetupUrlInstance amInstance = DbRemoteSetupUrl.getInstance(remoteSetupUrl);
+				//	Don't check a method against itself
+				if (methodId != null && methodId.sourceEquals(amInstance.obtainMethodId())) {
+					continue;
+				}
+				
+				otherAgreements += compare(url, methodId, amInstance.getUrl(), amInstance.obtainMethodId(), response);
+			}
+		}
+		
 		//	One message counting valid assignments within other agreements
 		if (otherAgreements > 0)
 			response.getInfoMessages().add("This URL exists on " + otherAgreements + " other agreement" +
@@ -153,6 +170,7 @@ public class UrlValidationServiceImpl extends AuthenticatedServiceServlet implem
 		// Exact same IP for the same site location on multiple agreements generates just one message with a count...
 		if (siteComparison  == SAME_LOCATION
 		&&  sourceComparison== SAME_SOURCE_TYPE
+		&&  validatedMethodId.getMethodType().equals(compareMethodId.getMethodType())
 		&&  validatedMethodId.getAgreementId() > 0)
 			return 1;
 
@@ -186,24 +204,32 @@ public class UrlValidationServiceImpl extends AuthenticatedServiceServlet implem
 			if (validatedMethodId.getForUcn() == 0)
 				msg.append(".");
 			else
-				msg.append(" for this same location.");
+				msg.append(" for this same location");
 		} else if (siteComparison == DIFF_LOCATION_CODE) {
 			msg.append(" for location code ");
 			msg.append(compareMethodId.getForSiteLocCode());
 			msg.append(".");
 		} else if (siteComparison == DIFF_UCN_SUFFIX) {
-			msg.append(" for a different Global ID.");
+			msg.append(" for a different Global ID");
 		} else {
 			if (compareMethodId.getForUcn() > 0) {
 				msg.append(" for UCN ");
 				msg.append(compareMethodId.getForUcn());
-				msg.append(".");
 			} else if (validatedMethodId.getForUcn() > 0 && compareMethodId.getAgreementId() > 0 && compareMethodId.getForUcn() == 0) {
-				msg.append(" with no UCN.");
-			} else {
-				msg.append(".");
+				msg.append(" with no UCN");
 			}
 		}
+		
+		if (!validatedMethodId.getMethodType().equals(compareMethodId.getMethodType())) {
+			if (AuthMethodInstance.AM_URL.equals(compareMethodId.getMethodType()))
+				msg.append(" as an access method");
+			else if (RemoteSetupUrlInstance.REMOTE_SETUP_URL.equals(compareMethodId.getMethodType()))
+				msg.append(" as an access method");
+			else
+				msg.append(" with an unknown usage");
+		}
+		
+		msg.append(".");
 		
 		if (isError)
 			response.getMessages().add(msg.toString());

@@ -16,6 +16,7 @@ import com.scholastic.sbam.server.database.codegen.AuthMethod;
 import com.scholastic.sbam.server.database.codegen.Contact;
 import com.scholastic.sbam.server.database.codegen.Institution;
 import com.scholastic.sbam.server.database.codegen.Product;
+import com.scholastic.sbam.server.database.codegen.RemoteSetupUrl;
 import com.scholastic.sbam.server.database.codegen.Site;
 import com.scholastic.sbam.server.database.objects.DbAgreement;
 import com.scholastic.sbam.server.database.objects.DbAgreementContact;
@@ -26,6 +27,7 @@ import com.scholastic.sbam.server.database.objects.DbAuthMethod;
 import com.scholastic.sbam.server.database.objects.DbContact;
 import com.scholastic.sbam.server.database.objects.DbInstitution;
 import com.scholastic.sbam.server.database.objects.DbProduct;
+import com.scholastic.sbam.server.database.objects.DbRemoteSetupUrl;
 import com.scholastic.sbam.server.database.objects.DbSite;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.server.fastSearch.InstitutionCache;
@@ -40,6 +42,7 @@ import com.scholastic.sbam.shared.objects.AuthMethodInstance;
 import com.scholastic.sbam.shared.objects.ContactInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.ProductInstance;
+import com.scholastic.sbam.shared.objects.RemoteSetupUrlInstance;
 import com.scholastic.sbam.shared.objects.SiteInstance;
 import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
 import com.scholastic.sbam.shared.security.SecurityManager;
@@ -176,6 +179,25 @@ public class AgreementNotesSearchServiceImpl extends AuthenticatedServiceServlet
 			//	DbProduct.setDescriptions(product);
 				
 				AgreementNotesTuple tuple = new AgreementNotesTuple(agreement, authMethod);
+				list.add(tuple);
+			}
+			
+			/* Methods */
+			
+			List<Object []> remoteSetupUrls = DbRemoteSetupUrl.findByNote(searchSettings.getFilter(), searchSettings.isDoBoolean(), AppConstants.STATUS_ANY_NONE, AppConstants.STATUS_DELETED, sortField, sortDir);
+			for (Object [] result : remoteSetupUrls) {
+				Agreement 		dbAgreement = (Agreement) result [0];
+				RemoteSetupUrl		dbRemoteSetupUrl = (RemoteSetupUrl) result [1];
+				
+				AgreementInstance	agreement	= DbAgreement.getInstance(dbAgreement);
+				RemoteSetupUrlInstance	remoteSetupUrl	= DbRemoteSetupUrl.getInstance(dbRemoteSetupUrl);
+				
+				setDescriptions(agreement);
+				setInstitution(agreement);
+				DbRemoteSetupUrl.setDescriptions(remoteSetupUrl);
+			//	DbProduct.setDescriptions(product);
+				
+				AgreementNotesTuple tuple = new AgreementNotesTuple(agreement, remoteSetupUrl);
 				list.add(tuple);
 			}
 			

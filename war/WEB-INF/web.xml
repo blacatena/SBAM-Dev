@@ -142,6 +142,16 @@
   </servlet>
   
   <servlet>
+    <servlet-name>agreementRemoteSetupUrlGetServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.AgreementRemoteSetupUrlGetServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>agreementRemoteSetupUrlSearchServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.AgreementRemoteSetupUrlSearchServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>agreementSiteGetServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.AgreementSiteGetServiceImpl</servlet-class>
   </servlet>
@@ -467,6 +477,31 @@
   </servlet>
   
   <servlet>
+    <servlet-name>remoteSetupUrlGetServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.RemoteSetupUrlGetServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>remoteSetupUrlListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.RemoteSetupUrlListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>remoteSetupUrlSearchServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.RemoteSetupUrlSearchServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updateRemoteSetupUrlServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateRemoteSetupUrlServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updateRemoteSetupUrlNoteServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateRemoteSetupUrlNoteServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>serviceListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.ServiceListServiceImpl</servlet-class>
   </servlet>
@@ -664,6 +699,16 @@
   <servlet-mapping>
     <servlet-name>agreementNotesSearchServlet</servlet-name>
     <url-pattern>/sbam/searchAgreementNotes</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>agreementRemoteSetupUrlGetServlet</servlet-name>
+    <url-pattern>/sbam/getAgreementRemoteSetupUrl</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>agreementRemoteSetupUrlSearchServlet</servlet-name>
+    <url-pattern>/sbam/searchAgreementRemoteSetupUrls</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>
@@ -999,6 +1044,31 @@
   <servlet-mapping>
     <servlet-name>updateProxyServlet</servlet-name>
     <url-pattern>/sbam/updateProxy</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>remoteSetupUrlGetServlet</servlet-name>
+    <url-pattern>/sbam/getRemoteSetupUrl</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>remoteSetupUrlListServlet</servlet-name>
+    <url-pattern>/sbam/getRemoteSetupUrls</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>remoteSetupUrlSearchServlet</servlet-name>
+    <url-pattern>/sbam/searchRemoteSetupUrls</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateRemoteSetupUrlServlet</servlet-name>
+    <url-pattern>/sbam/updateRemoteSetupUrl</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateRemoteSetupUrlNoteServlet</servlet-name>
+    <url-pattern>/sbam/updateRemoteSetupUrlNote</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

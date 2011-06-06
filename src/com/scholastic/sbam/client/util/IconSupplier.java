@@ -139,7 +139,7 @@ public class IconSupplier {
 	}
 	
 	public static String getRemoteIconName() {
-		return "remote.png";
+		return "remotehome.png";
 	}
 	
 	public static String getProgrammingIconName() {

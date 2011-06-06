@@ -613,7 +613,7 @@ public class AgreementNotesSearchPortlet extends GridSupportPortlet<AgreementNot
 	protected void setThis() {
 		this.setLayout(new FitLayout());
 		this.setHeight(forceHeight);
-		IconSupplier.setIcon(this, IconSupplier.getAgreementIconName());
+		IconSupplier.setIcon(this, IconSupplier.getNoteIconName());
 	}
 	
 	/**

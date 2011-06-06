@@ -109,6 +109,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected AgreementSitesCard	sitesCard;
 	protected AgreementContactsCard	contactsCard;
 	protected AgreementMethodsCard	methodsCard;
+	protected AgreementRemoteSetupCard	remoteSetupCard;
 	protected Grid<BeanModel>		grid;
 	protected LiveGridView			liveView;
 //	protected FormBinding			institutionBinding;
@@ -127,6 +128,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected ToggleButton			termsButton;
 	protected ToggleButton			sitesButton;
 	protected ToggleButton			methodsButton;
+	protected ToggleButton			remoteSetupButton;
 //	protected ToggleButton			remoteButton;		Remote setup is no longer used
 	protected ToggleButton			contactsButton;
 	
@@ -279,6 +281,9 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		
 		methodsCard = new AgreementMethodsCard();
 		outerContainer.add(methodsCard);
+		
+		remoteSetupCard = new AgreementRemoteSetupCard();
+		outerContainer.add(remoteSetupCard);
 		
 		add(outerContainer);
 		
@@ -727,6 +732,22 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		methodsButton.setToggleGroup(toggleGroup);
 		toolBar.add(methodsButton);
 		
+		remoteSetupButton = new ToggleButton("Remote Setup");
+		remoteSetupButton.setMinWidth(MIN_BUTTON_WIDTH);
+		remoteSetupButton.setToolTip(UiConstants.getQuickTip("Define and edit remote setup URLs for this agreement."));
+		IconSupplier.forceIcon(remoteSetupButton, IconSupplier.getRemoteIconName());
+		remoteSetupButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+				@Override
+				public void componentSelected(ButtonEvent ce) {
+				//	remoteSetupCard.setAgreementId(agreementId);
+					remoteSetupCard.setAgreement(agreement);
+					cards.setActiveItem(remoteSetupCard);
+					remoteSetupButton.toggle(true);
+				}
+			});
+		remoteSetupButton.setToggleGroup(toggleGroup);
+		toolBar.add(remoteSetupButton);
+		
 //		remoteButton = new ToggleButton("Remote Setup");
 //		remoteButton.setMinWidth(MIN_BUTTON_WIDTH);
 //		remoteButton.setToolTip(UiConstants.getQuickTip("Define and edit any remote setup for this agreement."));
@@ -792,6 +813,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		if (termsButton != null) termsButton.setEnabled(enabled);
 		if (sitesButton != null) sitesButton.setEnabled(enabled);
 		if (methodsButton != null) methodsButton.setEnabled(enabled);
+		if (remoteSetupButton != null) remoteSetupButton.setEnabled(enabled);
 		if (contactsButton != null) contactsButton.setEnabled(enabled);
 	}
 	

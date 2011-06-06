@@ -552,8 +552,12 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 //		this.setIcon(Resources.ICONS.table()); 
 		this.setLayout(new FitLayout());
 		this.setHeight(forceHeight);
-		IconSupplier.setIcon(this, IconSupplier.getInstitutionIconName());
+		setPortletIcon();
 //		this.setSize(grid.getWidth() + 50, 400);  
+	}
+	
+	protected void setPortletIcon() {
+		IconSupplier.setIcon(this, IconSupplier.getInstitutionIconName());
 	}
 	
 //	/**

@@ -122,7 +122,7 @@ public class AgreementRemoteSetupCard extends FormAndGridPanel<RemoteSetupUrlIns
 	
 	@Override
 	public String getFormHeading() {
-		return "Methods";
+		return "Remote Setup URL";
 	}
 	
 	@Override
@@ -136,7 +136,7 @@ public class AgreementRemoteSetupCard extends FormAndGridPanel<RemoteSetupUrlIns
 	 */
 	@Override
 	public void setGridAttributes(Grid<BeanModel> grid) {
-		grid.setAutoExpandColumn("methodDisplay"); 
+		grid.setAutoExpandColumn("url"); 
 		gridStore.setKeyProvider(new SimpleKeyProvider("uniqueKey")); 	
 	}
 
@@ -145,10 +145,10 @@ public class AgreementRemoteSetupCard extends FormAndGridPanel<RemoteSetupUrlIns
 
 //		columns.add(getDisplayColumn("displayUcn",							"UCN+",						100,		false,
 //					"This is the UCN+ for the site."));
-		columns.add(getHiddenColumn("url",									"URL",						180));
+		columns.add(getDisplayColumn("url",									"url",						200));
 		columns.add(getDisplayColumn("site.institution.institutionName",	"Institution",				180,
 					"This is the institution name."));
-		columns.add(getDisplayColumn("site.description",					"Location",					100,
+		columns.add(getDisplayColumn("site.description",					"Location",					180,
 					"This is the description of the location at the site."));
 		columns.add(getHiddenColumn("site.siteLocCode",						"Code",						40,
 					"This is the code for the location at the site."));
@@ -160,7 +160,7 @@ public class AgreementRemoteSetupCard extends FormAndGridPanel<RemoteSetupUrlIns
 	@Override
 	public void setFormFieldValues(RemoteSetupUrlInstance instance) {
 		
-		String displayStatus = "Method " + AppConstants.getStatusDescription(instance.getStatus());
+		String displayStatus = "RS URL " + AppConstants.getStatusDescription(instance.getStatus());
 //		if (instance.isActivated())
 //			if (instance.getReactivatedDatetime() != null)
 //				displayStatus += ", Rectivated " + UiConstants.formatDate(instance.getReactivatedDatetime());
@@ -313,7 +313,8 @@ public class AgreementRemoteSetupCard extends FormAndGridPanel<RemoteSetupUrlIns
 		
 		formColumn2.add(siteLocationField, formData);
 		formColumn2.add(statusGroup, formData);
-		formColumn2.add(urlField, formData);
+		
+		formRow2.add(urlField, formData);
 
 		panel.add(formRow1,		tData2);
 		panel.add(formColumn1,	tData1);
@@ -516,7 +517,7 @@ public class AgreementRemoteSetupCard extends FormAndGridPanel<RemoteSetupUrlIns
 			}
 			SiteInstance site = (siteLocationField.getSelectedValue() == null) ? null : (SiteInstance) siteLocationField.getSelectedValue().getBean();
 			if (site == null) {
-				MessageBox.alert("Unexpected Error", "No site location is selected for this authentication method.", null);
+				MessageBox.alert("Unexpected Error", "No site location is selected for this remote setup URL.", null);
 				return;
 			}
 			focusInstance.setForSiteLocCode(site.getSiteLocCode());
@@ -539,7 +540,7 @@ public class AgreementRemoteSetupCard extends FormAndGridPanel<RemoteSetupUrlIns
 						if (caught instanceof IllegalArgumentException)
 							MessageBox.alert("Alert", caught.getMessage(), null);
 						else {
-							MessageBox.alert("Alert", "Agreement site  update failed unexpectedly.", null);
+							MessageBox.alert("Alert", "Agreement remote setup url update failed unexpectedly.", null);
 							System.out.println(caught.getClass().getName());
 							System.out.println(caught.getMessage());
 						}
@@ -590,7 +591,7 @@ public class AgreementRemoteSetupCard extends FormAndGridPanel<RemoteSetupUrlIns
 						if (caught instanceof IllegalArgumentException)
 							MessageBox.alert("Alert", caught.getMessage(), null);
 						else {
-							MessageBox.alert("Alert", "Agreement site note update failed unexpectedly.", null);
+							MessageBox.alert("Alert", "Agreement remote setup url note update failed unexpectedly.", null);
 							System.out.println(caught.getClass().getName());
 							System.out.println(caught.getMessage());
 						}

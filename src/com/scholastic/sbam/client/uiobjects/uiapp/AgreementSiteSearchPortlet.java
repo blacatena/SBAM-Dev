@@ -651,7 +651,7 @@ public class AgreementSiteSearchPortlet extends GridSupportPortlet<AgreementSite
 	protected void setThis() {
 		this.setLayout(new FitLayout());
 		this.setHeight(forceHeight);
-		IconSupplier.setIcon(this, IconSupplier.getAgreementIconName());
+		IconSupplier.setIcon(this, IconSupplier.getSiteIconName());
 	}
 	
 	/**

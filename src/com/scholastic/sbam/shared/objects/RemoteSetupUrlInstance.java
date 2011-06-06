@@ -11,6 +11,8 @@ import com.scholastic.sbam.shared.util.AppConstants;
 
 public class RemoteSetupUrlInstance extends IpAddressInstance implements BeanModelTag, IsSerializable {
 	
+	public static final String REMOTE_SETUP_URL = "rsurl";
+	
 	private static BeanModelFactory beanModelfactory;
 	private int		agreementId;
 	private int		ucn;
@@ -211,7 +213,7 @@ public class RemoteSetupUrlInstance extends IpAddressInstance implements BeanMod
 		mid.setUcn(ucn);
 		mid.setUcnSuffix(ucnSuffix);
 		mid.setSiteLocCode(siteLocCode);
-		mid.setMethodType("rsurl");
+		mid.setMethodType(REMOTE_SETUP_URL);
 		mid.setMethodKey(urlId);
 		mid.setForUcn(forUcn);
 		mid.setForUcnSuffix(forUcnSuffix);

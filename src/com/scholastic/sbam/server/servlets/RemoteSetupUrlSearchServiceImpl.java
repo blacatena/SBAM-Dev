@@ -47,7 +47,7 @@ public class RemoteSetupUrlSearchServiceImpl extends AuthenticatedServiceServlet
 			AppConstants.TypedTerms typedTerms = AppConstants.parseTypedFilterTerms(filter, false);
 			messages = typedTerms.getMessages();
 			
-			List<Object []> tuples = DbRemoteSetupUrl.findFiltered(typedTerms, AppConstants.STATUS_DELETED);
+			List<Object []> tuples = DbRemoteSetupUrl.findFiltered(typedTerms, false, AppConstants.STATUS_DELETED);
 			
 			int loadLimit = AppConstants.STANDARD_LOAD_LIMIT;
 			if (config.get("limit") != null && config.get("limit") instanceof Integer)

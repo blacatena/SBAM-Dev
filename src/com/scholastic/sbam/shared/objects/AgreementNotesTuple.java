@@ -20,6 +20,7 @@ public class AgreementNotesTuple implements BeanModelTag, IsSerializable, UserCa
 	AgreementSiteInstance		agreementSite;
 	AgreementTermInstance		agreementTerm;
 	AuthMethodInstance			authMethod;
+	RemoteSetupUrlInstance		remoteSetupUrl;
 
 	public AgreementNotesTuple() {
 	}
@@ -45,6 +46,10 @@ public class AgreementNotesTuple implements BeanModelTag, IsSerializable, UserCa
 	public AgreementNotesTuple(AgreementInstance agreement, AuthMethodInstance authMethod) {
 		this.agreement		= agreement;
 		this.authMethod		= authMethod;
+	}
+	public AgreementNotesTuple(AgreementInstance agreement, RemoteSetupUrlInstance remoteSetupUrl) {
+		this.agreement		= agreement;
+		this.remoteSetupUrl		= remoteSetupUrl;
 	}
 	public AgreementInstance getAgreement() {
 		return agreement;
@@ -76,6 +81,8 @@ public class AgreementNotesTuple implements BeanModelTag, IsSerializable, UserCa
 				return "URL";
 			return "Access Method";
 		}
+		if (remoteSetupUrl != null)
+			return "Remote Setup URL";
 		
 		if (agreement != null)
 			return "Agreement";
@@ -91,6 +98,8 @@ public class AgreementNotesTuple implements BeanModelTag, IsSerializable, UserCa
 	public String getChildNote() {
 		if (authMethod != null)
 			return authMethod.getNote();
+		if (remoteSetupUrl != null)
+			return remoteSetupUrl.getNote();
 		if (agreementContact != null && agreementContact.getContact() != null)
 			return agreementContact.getContact().getNote();
 		if (agreementLink != null)
@@ -108,6 +117,8 @@ public class AgreementNotesTuple implements BeanModelTag, IsSerializable, UserCa
 	public String getKeyDescriptor() {
 		if (authMethod != null)
 			return authMethod.getMethodDisplay();
+		if (remoteSetupUrl != null)
+			return remoteSetupUrl.getUrl();
 		if (agreementContact != null)
 			if (agreementContact.getContact() != null)
 				return agreementContact.getContact().getFullName();
@@ -142,6 +153,8 @@ public class AgreementNotesTuple implements BeanModelTag, IsSerializable, UserCa
 			return agreementSite.getUniqueKey();
 		if (agreementTerm != null)
 			return agreementTerm.getUniqueKey();
+		if (remoteSetupUrl != null)
+			return remoteSetupUrl.getUniqueKey();
 		
 		if (agreement != null)
 			return agreement.getId() + "";
@@ -175,6 +188,12 @@ public class AgreementNotesTuple implements BeanModelTag, IsSerializable, UserCa
 	}
 	public void setAuthMethod(AuthMethodInstance authMethod) {
 		this.authMethod = authMethod;
+	}
+	public RemoteSetupUrlInstance getRemoteSetupUrl() {
+		return remoteSetupUrl;
+	}
+	public void setRemoteSetupUrl(RemoteSetupUrlInstance remoteSetupUrl) {
+		this.remoteSetupUrl = remoteSetupUrl;
 	}
 	public static String getUserCacheCategory() {
 		return getUserCacheCategory(0);

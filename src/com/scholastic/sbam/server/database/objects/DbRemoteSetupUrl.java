@@ -36,8 +36,9 @@ public class DbRemoteSetupUrl extends HibernateAccessor {
 		instance.setUcn(dbInstance.getId().getUcn());
 		instance.setUcnSuffix(dbInstance.getId().getUcnSuffix());
 		instance.setSiteLocCode(dbInstance.getId().getSiteLocCode());
-		
 		instance.setUrlId(dbInstance.getId().getUrlId());
+		
+		instance.setUrl(dbInstance.getUrl());
 
 		instance.setForUcn(dbInstance.getForUcn());
 		instance.setForUcnSuffix(dbInstance.getForUcnSuffix());
@@ -151,16 +152,16 @@ public class DbRemoteSetupUrl extends HibernateAccessor {
         return objects;
 	}
 	
-	public static List<Object []> findFiltered(String filter, char neStatus) {
+	public static List<Object []> findFiltered(String filter, boolean doBoolean, char neStatus) {
 		if (filter == null || filter.length() == 0)
 			return new ArrayList<Object []>();
 		
-    	AppConstants.TypedTerms typedTerms = AppConstants.parseTypedFilterTerms(filter, true);
+    	AppConstants.TypedTerms typedTerms = AppConstants.parseTypedFilterTerms(filter, false);
     	
-    	return findFiltered(typedTerms, neStatus);
+    	return findFiltered(typedTerms, doBoolean, neStatus);
 	}
 	
-    public static List<Object []> findFiltered(AppConstants.TypedTerms typedTerms, char neStatus) {
+    public static List<Object []> findFiltered(AppConstants.TypedTerms typedTerms, boolean doBoolean, char neStatus) {
     	
     	String sqlQuery = "SELECT {agreement.*}, {remote_setup_url.*} FROM agreement, remote_setup_url WHERE agreement.`status` <> '" + neStatus + "' " +
 		" AND remote_setup_url.status <> '" + neStatus + "' " +
@@ -182,8 +183,11 @@ public class DbRemoteSetupUrl extends HibernateAccessor {
     			if (termCount > 0)
     				sqlQuery += " OR ";
     			word = word.replace("'", "''");
-    			fullTextMatch.append("+");
+    			if (doBoolean && !word.startsWith("+"))
+    				fullTextMatch.append("+");
     			fullTextMatch.append(word);
+    			if (doBoolean && !word.endsWith("*"))
+    				fullTextMatch.append("*");
     			fullTextMatch.append(" ");
     			sqlQuery += " ( url > ' ' AND ";
     			sqlQuery += " url like '%";
@@ -196,9 +200,12 @@ public class DbRemoteSetupUrl extends HibernateAccessor {
     		for (String number : typedTerms.getNumbers()) {
     			if (termCount > 0)
     				sqlQuery += " OR ";
-    			fullTextMatch.append("+");
+    			if (doBoolean && !number.startsWith("+"))
+    				fullTextMatch.append("+");
     			fullTextMatch.append(number);
-    			fullTextMatch.append("* ");
+    			if (doBoolean && !number.endsWith("*"))
+    				fullTextMatch.append("*");
+    			fullTextMatch.append(" ");
     			sqlQuery += " ( url > ' ' AND ";
     			sqlQuery += " url like '%";
     			sqlQuery += number;
@@ -206,11 +213,16 @@ public class DbRemoteSetupUrl extends HibernateAccessor {
     			termCount++;
     		}
     		
-    		if (termCount > 0)
-    			sqlQuery += " OR ";
-    		/* Anything with all of the words and numbers in the note */
-    		sqlQuery += "MATCH (remote_setup_url.note) AGAINST ('" + fullTextMatch + "') ";
-    		
+    		if (fullTextMatch.length() > 0) {
+        		if (termCount > 0)
+        			sqlQuery += " OR ";
+	    		/* Anything with all of the words and numbers in the note */
+	    		if (doBoolean)
+	    			sqlQuery += "MATCH (remote_setup_url.note) AGAINST ('" + fullTextMatch + "' IN BOOLEAN MODE ) ";
+	    		else
+	    			sqlQuery += "MATCH (remote_setup_url.note) AGAINST ('" + fullTextMatch + "') ";
+    		}
+    			 
     		sqlQuery += ") /* 2b */";	// <--2
     	}
     	
@@ -261,7 +273,7 @@ public class DbRemoteSetupUrl extends HibernateAccessor {
             	else
             		sqlQuery += ",";
             }
-            sqlQuery += " remote_setup_url.agreement_id, remote_setup_url.method_type, remote_setup_url.method_key";
+            sqlQuery += " remote_setup_url.agreement_id, remote_setup_url.url";
             
 //			System.out.println(sqlQuery);
             

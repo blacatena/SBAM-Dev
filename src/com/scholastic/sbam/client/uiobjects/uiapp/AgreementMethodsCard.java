@@ -801,7 +801,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 						if (caught instanceof IllegalArgumentException)
 							MessageBox.alert("Alert", caught.getMessage(), null);
 						else {
-							MessageBox.alert("Alert", "Agreement site  update failed unexpectedly.", null);
+							MessageBox.alert("Alert", "Agreement authentication method update failed unexpectedly.", null);
 							System.out.println(caught.getClass().getName());
 							System.out.println(caught.getMessage());
 						}
@@ -852,7 +852,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 						if (caught instanceof IllegalArgumentException)
 							MessageBox.alert("Alert", caught.getMessage(), null);
 						else {
-							MessageBox.alert("Alert", "Agreement site note update failed unexpectedly.", null);
+							MessageBox.alert("Alert", "Agreement athentication method note update failed unexpectedly.", null);
 							System.out.println(caught.getClass().getName());
 							System.out.println(caught.getMessage());
 						}

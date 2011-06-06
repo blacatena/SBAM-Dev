@@ -32,6 +32,7 @@ import com.scholastic.sbam.client.services.SiteInstitutionWordService;
 import com.scholastic.sbam.client.services.SiteInstitutionWordServiceAsync;
 import com.scholastic.sbam.client.services.SiteLocationSearchService;
 import com.scholastic.sbam.client.services.SiteLocationSearchServiceAsync;
+import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.FilterWordInstance;
@@ -52,6 +53,10 @@ public class SiteInstitutionSearchPortlet extends InstitutionSearchPortletBase {
 	
 	public SiteInstitutionSearchPortlet() {
 		super(AppPortletIds.SITE_INSTITUTION_SEARCH.getHelpTextId());
+	}
+	
+	protected void setPortletIcon() {
+		IconSupplier.setIcon(this, IconSupplier.getSiteIconName());
 	}
 	
 	public void setPortletRenderValues() {

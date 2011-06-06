@@ -570,8 +570,11 @@ public class AgreementContactSearchPortlet extends GridSupportPortlet<AgreementC
 		
 		columnFilters.addFilter(new NumericFilter("agreement.idCheckDigit"));
 		columnFilters.addFilter(new StringFilter("agreement.institution.institutionName"));
-		columnFilters.addFilter(new StringFilter("AgreementContact.site.institution.institutionName"));
-		columnFilters.addFilter(new StringFilter("AgreementContact.site.description"));
+		columnFilters.addFilter(new StringFilter("agreementContact.contact.fullName"));
+		columnFilters.addFilter(new StringFilter("agreementContact.contact.title"));
+		columnFilters.addFilter(new StringFilter("agreementContact.contact.institution.institutionName"));
+		columnFilters.addFilter(new StringFilter("agreementContact.contact.eMail"));
+		columnFilters.addFilter(new StringFilter("agreementContact.contact.phone"));
 //		columnFilters.addFilter(new NumericFilter("agreement.currentValue"));
 //		columnFilters.addFilter(new DateFilter("agreement.expireDate"));
 		columnFilters.addFilter(new StringFilter("agreement.agreementTypeCode"));
@@ -617,7 +620,7 @@ public class AgreementContactSearchPortlet extends GridSupportPortlet<AgreementC
 	protected void setThis() {
 		this.setLayout(new FitLayout());
 		this.setHeight(forceHeight);
-		IconSupplier.setIcon(this, IconSupplier.getAgreementIconName());
+		IconSupplier.setIcon(this, IconSupplier.getContactsIconName());
 	}
 	
 	/**

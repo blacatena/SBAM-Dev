@@ -8,6 +8,7 @@ import com.scholastic.sbam.client.services.CustomerSearchService;
 import com.scholastic.sbam.client.services.CustomerSearchServiceAsync;
 import com.scholastic.sbam.client.services.CustomerWordService;
 import com.scholastic.sbam.client.services.CustomerWordServiceAsync;
+import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.FilterWordInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
@@ -20,6 +21,10 @@ public class CustomerSearchPortlet extends InstitutionSearchPortletBase {
 	
 	public CustomerSearchPortlet() {
 		super(AppPortletIds.CUSTOMER_SEARCH.getHelpTextId());
+	}
+	
+	protected void setPortletIcon() {
+		IconSupplier.setIcon(this, IconSupplier.getCustomerIconName());
 	}
 	
 	public void setPortletRenderValues() {
