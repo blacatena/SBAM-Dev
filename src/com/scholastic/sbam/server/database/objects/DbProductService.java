@@ -10,6 +10,7 @@ import org.hibernate.criterion.Restrictions;
 
 import com.scholastic.sbam.server.database.codegen.ProductService;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
+import com.scholastic.sbam.shared.util.AppConstants;
 
 /**
  * Sample database table accessor class, extending HibernateAccessor, and implementing custom get/find methods.
@@ -70,6 +71,10 @@ public class DbProductService extends HibernateAccessor {
 	}
 	
 	public static List<ProductService> findFiltered(String productCode, String serviceCode, char neStatus) {
+		return findFiltered(productCode, serviceCode, AppConstants.STATUS_ANY_NONE, neStatus);
+	}
+	
+	public static List<ProductService> findFiltered(String productCode, String serviceCode, char status, char neStatus) {
         try
         {
         	if (neStatus == 0)
@@ -81,6 +86,12 @@ public class DbProductService extends HibernateAccessor {
             if (serviceCode != null && serviceCode.length() > 0)
             	sqlQuery += " product_service.service_code = '" + serviceCode + "' AND ";
             sqlQuery += " service.service_code = product_service.service_code AND ";
+            if (status != AppConstants.STATUS_ANY_NONE) {
+                sqlQuery += " product_service.status = '" + status + "' AND ";
+                sqlQuery += " service.status = '" + status + "' AND ";
+            }
+            if (neStatus == AppConstants.STATUS_ANY_NONE)
+            	neStatus = AppConstants.STATUS_DELETED;
             sqlQuery += " service.status <> '" + neStatus + "' ";
             sqlQuery += " order by product_service.product_code, product_service.service_code";
             

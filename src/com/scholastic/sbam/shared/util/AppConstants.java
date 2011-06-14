@@ -135,6 +135,21 @@ public class AppConstants {
     	return true;
     }
     
+    public static boolean isDate(String term) {
+    	if (term.length() != 10)
+    		return false;
+    	if (! term.matches("[0-9][0-9][0-9][0-9]\\-[0-9][0-9]\\-[0-9][0-9]"))
+    		return false;
+
+//    	try {
+//			new SimpleDateFormat("yyyy-MM-dd").parse(term);
+//		} catch (ParseException e) {
+//			return false;
+//		}
+		
+		return true;
+    }
+    
     public static boolean isEmpty(String str) {
     	return str == null || str.length() == 0 || str.trim().length() == 0;
     }

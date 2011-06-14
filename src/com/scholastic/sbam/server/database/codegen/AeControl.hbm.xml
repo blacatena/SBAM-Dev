@@ -1,13 +1,16 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Jun 3, 2011 6:43:10 PM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Jun 14, 2011 5:14:03 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.AeControl" table="ae_control" catalog="sbam">
         <id name="aeId" type="java.lang.Integer">
             <column name="ae_id" />
             <generator class="identity" />
         </id>
+        <property name="asOfDate" type="date">
+            <column name="as_of_date" length="10" not-null="true" />
+        </property>
         <property name="initiatedDatetime" type="timestamp">
             <column name="initiated_datetime" length="19" not-null="true" />
         </property>
@@ -43,6 +46,9 @@
         </property>
         <property name="countErrors" type="int">
             <column name="count_errors" not-null="true" />
+        </property>
+        <property name="ucnMode" type="char">
+            <column name="ucnMode" length="1" not-null="true" />
         </property>
         <property name="status" type="char">
             <column name="status" length="1" not-null="true" />

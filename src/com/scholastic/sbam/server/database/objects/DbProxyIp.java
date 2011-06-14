@@ -12,6 +12,7 @@ import com.scholastic.sbam.server.database.codegen.ProxyIp;
 import com.scholastic.sbam.server.database.codegen.ProxyIpId;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
 import com.scholastic.sbam.shared.objects.ProxyIpInstance;
+import com.scholastic.sbam.shared.util.AppConstants;
 
 /**
  * Sample database table accessor class, extending HibernateAccessor, and implementing custom get/find methods.
@@ -66,6 +67,10 @@ public class DbProxyIp extends HibernateAccessor {
 		return reasons;
 	}
 	
+	public static List<ProxyIp> findByProxyId(int proxyId, char status) {
+		return findInRange(proxyId, 0, 0, status, AppConstants.STATUS_ANY_NONE, null, null);
+	}
+	
 	public static List<ProxyIp> findInRange(int proxyId, long loIp, long hiIp, char status, char neStatus, String sortCol, SortDir sortDirection) {
         try
         {
@@ -75,9 +80,9 @@ public class DbProxyIp extends HibernateAccessor {
             	crit.add(Restrictions.eq("id.proxyId", proxyId));
             
             if (loIp > 0)
-            	crit.add(Restrictions.ge("hiIp", loIp));
+            	crit.add(Restrictions.ge("ipHi", loIp));
             if (hiIp > 0)
-            	crit.add(Restrictions.le("loIp", hiIp));
+            	crit.add(Restrictions.le("ipLo", hiIp));
             
             if (status != 0)
             	crit.add(Restrictions.like("status", status));
@@ -91,7 +96,7 @@ public class DbProxyIp extends HibernateAccessor {
             		crit.addOrder(Order.desc(sortCol));
             } else {
             	crit.addOrder(Order.asc("id.proxyId"));
-            	crit.addOrder(Order.asc("loIp"));
+            	crit.addOrder(Order.asc("ipLo"));
             }
             
             @SuppressWarnings("unchecked")

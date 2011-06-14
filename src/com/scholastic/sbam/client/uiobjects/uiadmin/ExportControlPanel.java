@@ -30,6 +30,7 @@ import com.scholastic.sbam.client.services.TerminateExportServiceAsync;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.exceptions.AuthenticationExportException;
+import com.scholastic.sbam.shared.objects.ExportProcessMessage;
 import com.scholastic.sbam.shared.objects.ExportProcessReport;
 
 public class ExportControlPanel extends LayoutContainer implements AppSleeper {
@@ -310,7 +311,7 @@ public class ExportControlPanel extends LayoutContainer implements AppSleeper {
 		countsHtml.setHtml(countHtml.toString());
 		
 		int messagesCount = (messageCount.getValue() != null) ? messageCount.getValue().intValue() : MESSAGES_TO_DISPLAY;
-		List<ExportProcessReport.ProcessMessage> messages = exportProcessReport.getLastMessages(messagesCount);
+		List<ExportProcessMessage> messages = exportProcessReport.getLastMessages(messagesCount);
 		
 		if (messages == null) {
 			messagesHtml.setHtml("No messages.");
@@ -319,7 +320,7 @@ public class ExportControlPanel extends LayoutContainer implements AppSleeper {
 			
 		
 		StringBuffer msgHtml = new StringBuffer();
-		for (ExportProcessReport.ProcessMessage message : messages) {
+		for (ExportProcessMessage message : messages) {
 			//	Note that this is all done in reverse sequence, so that messages are displayed last, not first
 			msgHtml.insert(0, "</div>");
 			msgHtml.insert(0, message.getMessage());

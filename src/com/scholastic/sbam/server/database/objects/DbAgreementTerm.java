@@ -222,13 +222,17 @@ public class DbAgreementTerm extends HibernateAccessor {
 	}
 	
 	public static List<Object []> findActive(int agreementId) {
+		return findActive(agreementId, new Date());
+	}
+	
+	public static List<Object []> findActive(int agreementId, Date asOfDate) {
         try
         {
         	if (agreementId <= 0)
         		return new ArrayList<Object []>();
-        	
+            	
         	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        	String todayDateStr = "'" + format.format(new Date()) + "'";
+        	String todayDateStr = "'" + format.format(asOfDate) + "'";
         		
         	StringBuffer sqlQuery = new StringBuffer();
         	

@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jun 14, 2011 5:14:03 PM by Hibernate Tools 3.2.4.GA -->
+<hibernate-mapping>
+    <class name="com.scholastic.sbam.server.database.codegen.AeCst" table="ae_cst" catalog="sbam">
+        <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.AeCstId">
+            <key-property name="aeId" type="int">
+                <column name="ae_id" />
+            </key-property>
+            <key-property name="customerCode" type="string">
+                <column name="customer_code" length="32" />
+            </key-property>
+        </composite-id>
+        <property name="institutionName" type="string">
+            <column name="institution_name" not-null="true" />
+        </property>
+        <property name="address1" type="string">
+            <column name="address_1" not-null="true" />
+        </property>
+        <property name="address2" type="string">
+            <column name="address_2" not-null="true" />
+        </property>
+        <property name="city" type="string">
+            <column name="city" not-null="true" />
+        </property>
+        <property name="state" type="string">
+            <column name="state" not-null="true" />
+        </property>
+        <property name="zip" type="string">
+            <column name="zip" not-null="true" />
+        </property>
+        <property name="adminUid" type="string">
+            <column name="admin_uid" not-null="true" />
+        </property>
+        <property name="adminPassword" type="string">
+            <column name="admin_password" not-null="true" />
+        </property>
+        <property name="statsGroup" type="string">
+            <column name="stats_group" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

@@ -37,6 +37,8 @@ public class AppServerConstants {
 	private static		String	techContactName				=	"";
 	private static		String	techContactEmail			=	"";
 	
+	private static		char	defaultAeUcnMode			=	0;
+	
 	private static		InstitutionCacheConfig instCacheConfig = new InstitutionCacheConfig();
 	
 	private static final String PROPERTIES					=	"sbam.properties";
@@ -52,6 +54,7 @@ public class AppServerConstants {
 	private static final String PARM_SITE_URL				=	"SITE_URL";
 	private static final String PARM_TECH_CONTACT_NAME		=	"TECH_CONTACT_NAME";
 	private static final String PARM_TECH_CONTACT_EMAIL		=	"TECH_CONTACT_EMAIL";
+	private static final String PARM_AE_UCN_MODE			=	"AE_UCN_MODE";
 	
     private static final Log log = LogFactory.getLog(AppServerConstants.class);
 	
@@ -92,6 +95,7 @@ public class AppServerConstants {
 				siteUrl				= sysConfig.getSiteUrl();
 				techContactName		= sysConfig.getTechContactName();
 				techContactEmail	= sysConfig.getTechContactEmail();
+				defaultAeUcnMode	= sysConfig.getAeUcnMode();
 				
 				if (sysConfig.getInstConfigMaxList() > 0) {
 					instCacheConfig.setUseInnerStrings(sysConfig.getInstConfigInner() == 'y');
@@ -287,6 +291,10 @@ public class AppServerConstants {
 			reportValue(PARM_TECH_CONTACT_EMAIL, techContactEmail, prompt);
 		} else
 			techContactEmail = emailAddress;
+		if (props.containsKey(PARM_AE_UCN_MODE)) {
+			defaultAeUcnMode = props.getProperty(PARM_AE_UCN_MODE).trim().charAt(0);
+			reportValue(PARM_AE_UCN_MODE, defaultAeUcnMode + "", prompt);
+		}
 
 		in.close();
 	}
@@ -406,6 +414,10 @@ public class AppServerConstants {
 
 	public static String getTechContactEmail() {
 		return techContactEmail;
+	}
+
+	public static char getDefaultAeUcnMode() {
+		return defaultAeUcnMode;
 	}
 
 	public static InstitutionCacheConfig getInstCacheConfig() {

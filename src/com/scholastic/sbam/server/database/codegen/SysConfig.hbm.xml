@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Jun 3, 2011 6:43:10 PM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Jun 14, 2011 5:14:03 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.SysConfig" table="sys_config" catalog="sbam">
         <id name="id" type="string">
@@ -79,6 +79,9 @@
         </property>
         <property name="instConfigLoadStatus" type="string">
             <column name="inst_config_load_status" length="16" not-null="true" />
+        </property>
+        <property name="aeUcnMode" type="char">
+            <column name="ae_ucn_mode" length="1" not-null="true" />
         </property>
     </class>
 </hibernate-mapping>

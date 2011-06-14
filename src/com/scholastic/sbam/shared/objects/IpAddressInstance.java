@@ -105,6 +105,14 @@ public abstract class IpAddressInstance extends BetterRowEditInstance implements
 		return new Long [] { loValue, hiValue };
 	}
 	
+	public static String getBriefIpDisplay(Long [] ips) {
+		return getBriefIpDisplay(ips [0], ips [1]);
+	}
+	
+	public static String getBriefIpDisplay(long [] ips) {
+		return getBriefIpDisplay(ips [0], ips [1]);
+	}
+	
 	public static String getBriefIpDisplay(long ipLo, long ipHi) {
 		if (ipLo == ipHi)
 			return getOctetForm(ipLo);
@@ -146,6 +154,14 @@ public abstract class IpAddressInstance extends BetterRowEditInstance implements
 		if (ipLo == 0)
 			return getOctetForm(ipHi);
 		return getOctetForm(ipLo) + " - " + getOctetForm(ipHi);
+	}
+	
+	public static String getCommonIpRangeCode(Long [] ips) {
+		return getCommonIpRangeCode(ips [0], ips [1]);
+	}
+	
+	public static String getCommonIpRangeCode(long [] ips) {
+		return getCommonIpRangeCode(ips [0], ips [1]);
 	}
 	
 	public static String getCommonIpRangeCode(long ipLo, long ipHi) {

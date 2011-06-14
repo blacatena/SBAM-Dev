@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Jun 3, 2011 6:43:10 PM by Hibernate Tools 3.2.4.GA
+// Generated Jun 14, 2011 5:14:03 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -10,6 +10,7 @@ import java.util.Date;
 public class AeControl implements java.io.Serializable {
 
 	private Integer aeId;
+	private Date asOfDate;
 	private Date initiatedDatetime;
 	private Date terminatedDatetime;
 	private Date completedDatetime;
@@ -22,16 +23,18 @@ public class AeControl implements java.io.Serializable {
 	private int countUrls;
 	private int countProducts;
 	private int countErrors;
+	private char ucnMode;
 	private char status;
 	private Date createdDatetime;
 
 	public AeControl() {
 	}
 
-	public AeControl(Date initiatedDatetime, int elapsedSeconds,
+	public AeControl(Date asOfDate, Date initiatedDatetime, int elapsedSeconds,
 			int countAgreements, int countSites, int countIps, int countUids,
 			int countProxyUids, int countUrls, int countProducts,
-			int countErrors, char status, Date createdDatetime) {
+			int countErrors, char ucnMode, char status, Date createdDatetime) {
+		this.asOfDate = asOfDate;
 		this.initiatedDatetime = initiatedDatetime;
 		this.elapsedSeconds = elapsedSeconds;
 		this.countAgreements = countAgreements;
@@ -42,15 +45,18 @@ public class AeControl implements java.io.Serializable {
 		this.countUrls = countUrls;
 		this.countProducts = countProducts;
 		this.countErrors = countErrors;
+		this.ucnMode = ucnMode;
 		this.status = status;
 		this.createdDatetime = createdDatetime;
 	}
 
-	public AeControl(Date initiatedDatetime, Date terminatedDatetime,
-			Date completedDatetime, int elapsedSeconds, int countAgreements,
-			int countSites, int countIps, int countUids, int countProxyUids,
-			int countUrls, int countProducts, int countErrors, char status,
+	public AeControl(Date asOfDate, Date initiatedDatetime,
+			Date terminatedDatetime, Date completedDatetime,
+			int elapsedSeconds, int countAgreements, int countSites,
+			int countIps, int countUids, int countProxyUids, int countUrls,
+			int countProducts, int countErrors, char ucnMode, char status,
 			Date createdDatetime) {
+		this.asOfDate = asOfDate;
 		this.initiatedDatetime = initiatedDatetime;
 		this.terminatedDatetime = terminatedDatetime;
 		this.completedDatetime = completedDatetime;
@@ -63,6 +69,7 @@ public class AeControl implements java.io.Serializable {
 		this.countUrls = countUrls;
 		this.countProducts = countProducts;
 		this.countErrors = countErrors;
+		this.ucnMode = ucnMode;
 		this.status = status;
 		this.createdDatetime = createdDatetime;
 	}
@@ -73,6 +80,14 @@ public class AeControl implements java.io.Serializable {
 
 	public void setAeId(Integer aeId) {
 		this.aeId = aeId;
+	}
+
+	public Date getAsOfDate() {
+		return this.asOfDate;
+	}
+
+	public void setAsOfDate(Date asOfDate) {
+		this.asOfDate = asOfDate;
 	}
 
 	public Date getInitiatedDatetime() {
@@ -169,6 +184,14 @@ public class AeControl implements java.io.Serializable {
 
 	public void setCountErrors(int countErrors) {
 		this.countErrors = countErrors;
+	}
+
+	public char getUcnMode() {
+		return this.ucnMode;
+	}
+
+	public void setUcnMode(char ucnMode) {
+		this.ucnMode = ucnMode;
 	}
 
 	public char getStatus() {
