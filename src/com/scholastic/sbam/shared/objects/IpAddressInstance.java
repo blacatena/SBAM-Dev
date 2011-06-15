@@ -69,6 +69,33 @@ public abstract class IpAddressInstance extends BetterRowEditInstance implements
 		return getOctetForm(getIpOctets(ip));
 	}
 	
+	public static Long getIpRange(int [] octets) {
+		long value = 0;
+		
+		//	Both IPs have values
+		for (int i = 0; i < 4; i++) {
+			value = value * 256;
+			value += octets [i];
+		}
+
+		return value;
+	}
+	
+	public static Long [] getIpRange(int [] loOctets, int [] hiOctets) {
+		long loValue = 0;
+		long hiValue = 0;
+		
+		//	Both IPs have values
+		for (int i = 0; i < 4; i++) {
+			loValue = loValue * 256;
+			hiValue = hiValue * 256;
+			loValue += loOctets [i];
+			hiValue += hiOctets [i];
+		}
+
+		return new Long [] { loValue, hiValue };
+	}
+	
 	public static Long [] getIpRange(String [] loOctets, String [] hiOctets) {
 		long loValue = 0;
 		long hiValue = 0;
