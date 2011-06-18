@@ -1,5 +1,6 @@
 package com.scholastic.sbam.server.authentication;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -9,8 +10,17 @@ import java.util.List;
 
 
 import com.scholastic.sbam.server.database.codegen.AeControl;
+import com.scholastic.sbam.server.database.codegen.AePrefCode;
+import com.scholastic.sbam.server.database.codegen.AePrefCodeId;
+import com.scholastic.sbam.server.database.codegen.PreferenceCategory;
+import com.scholastic.sbam.server.database.codegen.PreferenceCode;
+import com.scholastic.sbam.server.database.codegen.Service;
 import com.scholastic.sbam.server.database.codegen.SysConfig;
 import com.scholastic.sbam.server.database.objects.DbAeControl;
+import com.scholastic.sbam.server.database.objects.DbAePrefCode;
+import com.scholastic.sbam.server.database.objects.DbPreferenceCategory;
+import com.scholastic.sbam.server.database.objects.DbPreferenceCode;
+import com.scholastic.sbam.server.database.objects.DbService;
 import com.scholastic.sbam.server.database.objects.DbSysConfig;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
@@ -35,14 +45,13 @@ import com.scholastic.sbam.shared.util.AppConstants;
  */
 public class AuthenticationGenerator implements Runnable, ExportController {
 	
-	public static final char				LEGACY_CUSTOMER_CODES = 'l';
-	public static final char				EXPORT_UCNS = 'u';
-	public static final String				VALID_UCN_MODES = "" + LEGACY_CUSTOMER_CODES + EXPORT_UCNS;
+	public static final int					DEBUG_COUNT = 500;
 	
 	public static final char				RUNNING	= 'r';
 	public static final char				ABORTED = 'a';
 	public static final char				ERROR	= 'e';
 	public static final char				COMPLETE= 'c';
+	public static final char				DEBUG	= 'd';
 	
 	protected static AuthenticationGenerator singleton;
 	
@@ -56,6 +65,9 @@ public class AuthenticationGenerator implements Runnable, ExportController {
 	
 	protected char							ucnMode	= 0;
 	protected Date							asOfDate = new Date();
+	protected boolean						debugMode = false;
+	
+	protected String						exportDirectory = "/tmp";
 	
 	protected AeControl						aeControl;
 	protected AeControl						lastCompleteAeControl;
@@ -74,7 +86,7 @@ public class AuthenticationGenerator implements Runnable, ExportController {
 					showHelp();
 					System.exit(0);
 				}
-				if (! ( "-silent".equals(arg) || "-verbose".equals(arg) || "-ucn".equals(arg) || "-legacy".equals(arg) || AppConstants.isNumeric(arg) || AppConstants.isDate(arg)) ) {
+				if (! ( "-silent".equals(arg) || "-verbose".equals(arg) || "-ucn".equals(arg) || "-legacy".equals(arg) || "-debug".equals(arg) || AppConstants.isNumeric(arg) || AppConstants.isDate(arg) || isPath(arg)) ) {
 					System.out.println("Invalid parameter " + arg + " (use -help to list valid parameters).");
 					System.exit(0);
 				}
@@ -99,7 +111,10 @@ public class AuthenticationGenerator implements Runnable, ExportController {
 					auGen.setUcnMode(LEGACY_CUSTOMER_CODES);
 				else if (AppConstants.isNumeric(arg))
 					auGen.setCountIncrement(Integer.parseInt(arg));
-				else if (AppConstants.isDate(arg)) {
+				else if ("-debug".equals(arg)) {
+					auGen.setDebugMode(true);
+					auGen.forceConsoleOutput("DEBUG MODE: Processing limited to " + DEBUG_COUNT + " agreements.");
+				} else if (AppConstants.isDate(arg)) {
 						try {
 							auGen.setAsOfDate(arg);
 							auGen.forceConsoleOutput("Running for  AS OF DATE " + formatDate(auGen.getAsOfDate()) + ".");
@@ -115,12 +130,21 @@ public class AuthenticationGenerator implements Runnable, ExportController {
 		auGen.forceConsoleOutput("Authentication Generator execution completed.");
 	}
 	
+	protected static boolean isPath(String arg) {
+		if (arg == null)
+			return false;
+		return (arg.length() > 0 && arg.charAt(0) == '/') 
+			|| (arg.length() > 1 && arg.startsWith("./")) 
+			|| (arg.length() > 2 && arg.startsWith("../")) ;
+	}
+	
 	protected static void showHelp() {
 		System.out.println("-silent    To run without output (default).");
 		System.out.println("-verbose   To run with specific progress messages.");
 		System.out.println("-ucn       To generate the export with UCNs.");
 		System.out.println("-legacy    To generate the export with legacy (Global) customer codes.");
 		System.out.println("n          Where n is any positive, non-zero number, to output agreement, site and method counts after every n processed agreements.");
+		System.out.println("-debug     Speeds processing by restricting the run to " + DEBUG_COUNT + " agreements.");
 		System.out.println("yyyy-mm-dd Date as of which to execute this generation.  USE WITH CAUTION AND FULL KNOWLEDGE OF WHAT YOU'RE DOING!!!");
 		System.out.println("-help      To show this help list.");
 	}
@@ -136,7 +160,7 @@ public class AuthenticationGenerator implements Runnable, ExportController {
 		currentExportReport.setStarted();
 		
 		try {
-			loadUcnMode();
+			loadSysConfigParms();
 			
 			createAeControl();
 			
@@ -182,14 +206,25 @@ public class AuthenticationGenerator implements Runnable, ExportController {
 				
 				processAgreement(mainLoopExec.getResults().getBigDecimal("id").intValue());
 				
+				if (debugMode && currentExportReport.getAgreements() > DEBUG_COUNT) {
+					forceConsoleOutput("Debug mode on and debug limit reached.");
+					break;
+				}
+				
 			}
 			
-			consoleOutput(currentExportReport.getAgreements() + " agreements processed");
+			mainLoopExec.close();
+			
+			forceConsoleOutput(currentExportReport.getAgreements() + " agreements processed");
 			currentExportReport.addMessage(currentExportReport.getAgreements() + " agreements processed");
 			
 			resolveConflicts();
 			
 			mergeAuthUnits();
+			
+			translateAuthUnits();
+			
+			copyPrefCodes();
 			
 			generateExportFiles();
 			
@@ -215,12 +250,14 @@ public class AuthenticationGenerator implements Runnable, ExportController {
 		closeAeControlComplete();
 		running = false;
 		
+		generateReportErrors();
+		
 		generateReportCounts();
 		
 		return "Export complete.";
 	}
 	
-	protected void loadUcnMode() throws Exception {
+	protected void loadSysConfigParms() throws Exception {
 		//	If the mode is already set, just use what's there
 		if (ucnMode != 0)
 			return;
@@ -298,7 +335,10 @@ public class AuthenticationGenerator implements Runnable, ExportController {
 		} else if (aborted) {
 			aeControl.setStatus(ABORTED);
 		} else {
-			aeControl.setStatus(COMPLETE);
+			if (debugMode)
+				aeControl.setStatus(DEBUG);
+			else
+				aeControl.setStatus(COMPLETE);
 			aeControl.setCompletedDatetime(new Date());
 		}
 		
@@ -388,33 +428,105 @@ public class AuthenticationGenerator implements Runnable, ExportController {
 	}
 	
 	/**
+	 * Copy all current preference code settings for the export
+	 */
+	public void copyPrefCodes() {
+		forceConsoleOutput("Copy service and preference code definitions.");
+		
+		HibernateUtil.openSession();
+		HibernateUtil.startTransaction();
+		
+		//	Process all active services (termed "products" in the old export and existing auth processes)
+		
+		List<Service> services = DbService.findAll();
+		
+		for (Service service : services) {
+			if (service.getStatus() == AppConstants.STATUS_ACTIVE) {		
+				AePrefCode aeCode = new AePrefCode();
+				
+				AePrefCodeId aeCodeId = new AePrefCodeId();
+				aeCodeId.setAeId(aeControl.getAeId());
+				aeCodeId.setPrefCode(service.getServiceCode());
+				
+				aeCode.setId(aeCodeId);
+				aeCode.setDescription(service.getDescription());
+				aeCode.setDefaultValue("y");
+				
+				DbAePrefCode.persist(aeCode);
+				
+				currentExportReport.countServices();
+			}
+		}
+
+		//	Process all active preference categories (NOTE: Old import terminology calls them "codes", but new distinction calls them "categories")
+		
+		List<PreferenceCategory> cats = DbPreferenceCategory.findAll();
+		
+		for (PreferenceCategory cat : cats) {
+			if (cat.getStatus() == AppConstants.STATUS_ACTIVE) {
+				String defaultValue = "";
+				List<PreferenceCode> values = DbPreferenceCode.findByCategory(cat.getPrefCatCode(), AppConstants.STATUS_DELETED);
+				for (PreferenceCode value : values) {
+					if (value.getStatus() == AppConstants.STATUS_ACTIVE) {
+						//	First active product, sorted by sequence number, is the default
+						defaultValue = value.getId().getPrefSelCode();
+						break;
+					}
+				}
+				
+				
+				AePrefCode aeCode = new AePrefCode();
+				
+				AePrefCodeId aeCodeId = new AePrefCodeId();
+				aeCodeId.setAeId(aeControl.getAeId());
+				aeCodeId.setPrefCode(cat.getPrefCatCode());
+				
+				aeCode.setId(aeCodeId);
+				aeCode.setDescription(cat.getDescription());
+				aeCode.setDefaultValue(defaultValue);
+				
+				DbAePrefCode.persist(aeCode);
+				
+				currentExportReport.countPreferences();
+			}
+		}
+		
+		HibernateUtil.endTransaction();
+		HibernateUtil.closeSession();
+	}
+	
+	/**
 	 * Resolve all collisions and conflicts in the generated data.
 	 */
 	public void resolveConflicts() {
-		/**
-		 * TODO
-		 * Fill in code.
-		 */
+		AuthenticationConflictResolver resolver = new AuthenticationConflictResolver(this, currentExportReport);
+		
+		resolver.resolveConflicts();
 	}
 	
 	/**
 	 * Resolve all collisions and conflicts in the generated data.
 	 */
 	public void mergeAuthUnits() {
-		/**
-		 * TODO
-		 * Fill in code.
-		 */
+		AuthenticationMerger merger = new AuthenticationMerger(this, currentExportReport);
+
+		merger.mergeAuthUnits();
+	}
+	
+	public void translateAuthUnits() {
+		AuthenticationAuthUnitTranslator translator = new AuthenticationAuthUnitTranslator(this, currentExportReport);
+
+		translator.translateAuthUnits();
 	}
 	
 	/**
 	 * Copy all data to flat files, for transfer to an authentication system.
+	 * @throws IOException 
 	 */
-	public void generateExportFiles() {
-		/**
-		 * TODO
-		 * Fill in code.
-		 */
+	public void generateExportFiles() throws Exception {
+		AuthenticationFileExporter exporter = new AuthenticationFileExporter(this, currentExportReport);
+		
+		exporter.exportAuthenticationFiles();
 	}
 	
 	public void generateReportCounts() {
@@ -432,10 +544,12 @@ public class AuthenticationGenerator implements Runnable, ExportController {
 		forceConsoleOutput("   AU... random resuse: " + currentExportReport.getAuCountReusePrevRandom());
 		forceConsoleOutput();
 		forceConsoleOutput("                 Sites: " + currentExportReport.getSites());
+		forceConsoleOutput("      Site Preferences: " + currentExportReport.getSitePrefs());
 		forceConsoleOutput("                   IPs: " + currentExportReport.getIps());
 		forceConsoleOutput("                  UIDs: " + currentExportReport.getUids());
 		forceConsoleOutput("          (Proxy UIDs): " + currentExportReport.getPuids());
 		forceConsoleOutput("                  URLs: " + currentExportReport.getUrls());
+		forceConsoleOutput("     Remote Setup URLs: " + currentExportReport.getRsUrls());
 		forceConsoleOutput("            IP Entries: " + currentExportReport.getIpEntries());
 		forceConsoleOutput("          PUID Entries: " + currentExportReport.getPuidEntries());
 		forceConsoleOutput();
@@ -448,6 +562,14 @@ public class AuthenticationGenerator implements Runnable, ExportController {
 		forceConsoleOutput("        UID Duplicates: " + currentExportReport.getUidDuplicates());
 		forceConsoleOutput("  Proxy UID Duplicates: " + currentExportReport.getPuidDuplicates());
 		forceConsoleOutput("        URL Duplicates: " + currentExportReport.getUrlDuplicates());
+		forceConsoleOutput("  RemoteSetup URL Dups: " + currentExportReport.getRsUrlDuplicates());
+		forceConsoleOutput();
+		forceConsoleOutput("    Bad Customer Codes: " + currentExportReport.getBadCustomerCodes());
+		forceConsoleOutput("  AUs w/ bad customers: " + currentExportReport.getBadCustomerCodeAus());
+		forceConsoleOutput("        AUs translated: " + currentExportReport.getAeAuCopied());
+		forceConsoleOutput();
+		forceConsoleOutput("   Services (Products): " + currentExportReport.getServices());
+		forceConsoleOutput("           Preferences: " + currentExportReport.getPreferences());
 		forceConsoleOutput();
 		forceConsoleOutput("                Errors: " + currentExportReport.getErrors());
 		forceConsoleOutput("             Conflicts: " + conflicts.size());
@@ -587,5 +709,21 @@ public class AuthenticationGenerator implements Runnable, ExportController {
 	public void setAsOfDate(String asOfDate) throws ParseException {
 		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     	this.asOfDate = format.parse(asOfDate);
+	}
+
+	public boolean isDebugMode() {
+		return debugMode;
+	}
+
+	public void setDebugMode(boolean debugMode) {
+		this.debugMode = debugMode;
+	}
+
+	public String getExportDirectory() {
+		return exportDirectory;
+	}
+
+	public void setExportDirectory(String exportDirectory) {
+		this.exportDirectory = exportDirectory;
 	}
 }

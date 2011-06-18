@@ -21,11 +21,14 @@ public class ExportProcessReport implements BeanModelTag, IsSerializable {
 	protected		int		errors;
 	protected		int		agreements;
 	protected		int		sites;
+	protected		int		sitePrefs;
 	protected		int		authUnits;
+	protected		int		aeAuCopied;
 	protected		int		ips;
 	protected		int		uids;
 	protected		int		puids;
 	protected		int		urls;
+	protected		int		rsUrls;
 	protected		int		ipEntries;
 	protected		int		puidEntries;
 	
@@ -38,6 +41,14 @@ public class ExportProcessReport implements BeanModelTag, IsSerializable {
 	protected		int		uidDuplicates;
 	protected		int		puidDuplicates;
 	protected		int		urlDuplicates;
+	protected		int		rsUrlDuplicates;
+	
+	protected		int		badCustomerCodes;
+	protected		int		badCustomerCodeAus;
+	
+	protected		int		services;
+	protected		int		preferences;
+	protected		int		customers;
 	
 	protected 		char	ucnMode;
 	
@@ -95,8 +106,16 @@ public class ExportProcessReport implements BeanModelTag, IsSerializable {
 		sites++;
 	}
 	
+	public void countSitePref() {
+		sitePrefs++;
+	}
+	
 	public void countAuthUnit() {
 		authUnits++;
+	}
+	
+	public void countAeAuCopied() {
+		aeAuCopied++;
 	}
 	
 	public void countIp() {
@@ -113,6 +132,10 @@ public class ExportProcessReport implements BeanModelTag, IsSerializable {
 	
 	public void countUrl() {
 		urls++;
+	}
+	
+	public void countRsUrl() {
+		rsUrls++;
 	}
 	
 	public void countIpEntry() {
@@ -153,6 +176,30 @@ public class ExportProcessReport implements BeanModelTag, IsSerializable {
 	
 	public void countUrlDuplicate() {
 		urlDuplicates++;
+	}
+	
+	public void countRsUrlDuplicate() {
+		rsUrlDuplicates++;
+	}
+	
+	public void countBadCustomerCodes() {
+		badCustomerCodes++;
+	}
+	
+	public void countBadCustomerCodeAus() {
+		badCustomerCodeAus++;
+	}
+	
+	public void countServices() {
+		services++;
+	}
+	
+	public void countPreferences() {
+		preferences++;
+	}
+	
+	public void countCustomers() {
+		customers++;
 	}
 
 	public List<ExportProcessMessage> getMessages() {
@@ -260,12 +307,28 @@ public class ExportProcessReport implements BeanModelTag, IsSerializable {
 		this.authUnits = authUnits;
 	}
 
+	public int getAeAuCopied() {
+		return aeAuCopied;
+	}
+
+	public void setAeAuCopied(int aeAuCopied) {
+		this.aeAuCopied = aeAuCopied;
+	}
+
 	public int getSites() {
 		return sites;
 	}
 
 	public void setSites(int sites) {
 		this.sites = sites;
+	}
+
+	public int getSitePrefs() {
+		return sitePrefs;
+	}
+
+	public void setSitePrefs(int sitePrefs) {
+		this.sitePrefs = sitePrefs;
 	}
 
 	public int getIps() {
@@ -298,6 +361,14 @@ public class ExportProcessReport implements BeanModelTag, IsSerializable {
 
 	public void setUrls(int urls) {
 		this.urls = urls;
+	}
+
+	public int getRsUrls() {
+		return rsUrls;
+	}
+
+	public void setRsUrls(int rsUrls) {
+		this.rsUrls = rsUrls;
 	}
 
 	public int getIpEntries() {
@@ -378,6 +449,54 @@ public class ExportProcessReport implements BeanModelTag, IsSerializable {
 
 	public void setUrlDuplicates(int urlDuplicates) {
 		this.urlDuplicates = urlDuplicates;
+	}
+
+	public int getRsUrlDuplicates() {
+		return rsUrlDuplicates;
+	}
+
+	public void setRsUrlDuplicates(int rsUrlDuplicates) {
+		this.rsUrlDuplicates = rsUrlDuplicates;
+	}
+
+	public int getBadCustomerCodes() {
+		return badCustomerCodes;
+	}
+
+	public void setBadCustomerCodes(int badCustomerCodes) {
+		this.badCustomerCodes = badCustomerCodes;
+	}
+
+	public int getBadCustomerCodeAus() {
+		return badCustomerCodeAus;
+	}
+
+	public void setBadCustomerCodeAus(int badCustomerCodeAus) {
+		this.badCustomerCodeAus = badCustomerCodeAus;
+	}
+
+	public int getServices() {
+		return services;
+	}
+
+	public void setServices(int services) {
+		this.services = services;
+	}
+
+	public int getPreferences() {
+		return preferences;
+	}
+
+	public void setPreferences(int preferences) {
+		this.preferences = preferences;
+	}
+
+	public int getCustomers() {
+		return customers;
+	}
+
+	public void setCustomers(int customers) {
+		this.customers = customers;
 	}
 
 	public String getStatus() {

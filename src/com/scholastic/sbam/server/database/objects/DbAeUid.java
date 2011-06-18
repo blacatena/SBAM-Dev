@@ -56,6 +56,10 @@ public class DbAeUid extends HibernateAccessor {
 		return reasons;
 	}
 	
+	public static List<AeUid> findByAeId(int aeId) {
+		return findByAuId(aeId, -1);
+	}
+	
 	public static List<AeUid> findByAuId(int aeId, int auId) {
         try
         {
@@ -66,7 +70,8 @@ public class DbAeUid extends HibernateAccessor {
             if (auId > 0)
             	crit.add(Restrictions.eq("id.auId", auId)); 
             
-            crit.addOrder(Order.desc("id.auId"));
+            crit.addOrder(Order.asc("id.auId"));
+            crit.addOrder(Order.asc("id.userId"));
             @SuppressWarnings("unchecked")
 			List<AeUid> objects = crit.list();
             return objects;

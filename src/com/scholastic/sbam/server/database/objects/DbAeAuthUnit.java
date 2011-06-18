@@ -53,7 +53,7 @@ public class DbAeAuthUnit extends HibernateAccessor {
             if (siteParentUcnSuffix > 0)
             	crit.add(Restrictions.eq("siteParentUcnSuffix", siteParentUcnSuffix));
             
-            crit.addOrder(Order.desc("auId"));
+            crit.addOrder(Order.asc("auId"));
             @SuppressWarnings("unchecked")
 			List<AeAuthUnit> objects = crit.list();
             return objects;
@@ -65,4 +65,22 @@ public class DbAeAuthUnit extends HibernateAccessor {
         }
         return null;
 	}
+	
+	public static List<AeAuthUnit> findForExport() {
+
+        try
+        {
+            Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
+            crit.addOrder(Order.asc("auId"));
+            @SuppressWarnings("unchecked")
+			List <AeAuthUnit>objects = crit.list();
+            return objects;
+        }
+        catch(Exception e)
+        {
+            System.out.println(e.getMessage());
+        }
+        return new ArrayList<AeAuthUnit>();
+	}
 }
+ 

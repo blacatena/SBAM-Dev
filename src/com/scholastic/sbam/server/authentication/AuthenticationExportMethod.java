@@ -243,9 +243,9 @@ public class AuthenticationExportMethod {
 			if (url.getRemote() != authMethod.getRemote()) {
 				AuthenticationConflict conflict = new AuthenticationConflict(authMethod, url, AuthenticationConflict.REMOTE_MISMATCH);
 				controller.addConflict(conflict);
-				exportReport.countUidConflict();
+				exportReport.countUrlConflict();
 			}
-			exportReport.countUidDuplicate();
+			exportReport.countUrlDuplicate();
 		}
 	}
 }

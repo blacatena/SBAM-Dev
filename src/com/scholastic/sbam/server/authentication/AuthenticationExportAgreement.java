@@ -14,6 +14,7 @@ import com.scholastic.sbam.server.database.codegen.AuthMethod;
 import com.scholastic.sbam.server.database.codegen.Institution;
 import com.scholastic.sbam.server.database.codegen.Product;
 import com.scholastic.sbam.server.database.codegen.ProductService;
+import com.scholastic.sbam.server.database.codegen.RemoteSetupUrl;
 import com.scholastic.sbam.server.database.codegen.Site;
 import com.scholastic.sbam.server.database.codegen.SiteId;
 import com.scholastic.sbam.server.database.objects.DbAeAuthUnit;
@@ -24,6 +25,7 @@ import com.scholastic.sbam.server.database.objects.DbAgreementTerm;
 import com.scholastic.sbam.server.database.objects.DbAuthMethod;
 import com.scholastic.sbam.server.database.objects.DbInstitution;
 import com.scholastic.sbam.server.database.objects.DbProductService;
+import com.scholastic.sbam.server.database.objects.DbRemoteSetupUrl;
 import com.scholastic.sbam.server.database.objects.DbSite;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
 import com.scholastic.sbam.server.util.ExportController;
@@ -110,6 +112,17 @@ public class AuthenticationExportAgreement {
 			}
 			new AuthenticationExportMethod(agreement, authUnit, site, institution, authMethod, controller, exportReport).exportMethod();
 		}
+		
+		//	Authenticate agreement related remote setup urls not associated with a site
+		
+		for (RemoteSetupUrl remoteSetupUrl : DbRemoteSetupUrl.findBySite(agreement.getId(), 0, 0, "", null, AppConstants.STATUS_ACTIVE, AppConstants.STATUS_DELETED)) {
+			if (site == null) {
+				site = getAgreementSite();
+				institution = getInstitution(site);
+				authUnit = getAuthUnit(site, institution);
+			}
+			new AuthenticationExportRemoteSetupUrl(agreement, authUnit, site, institution, remoteSetupUrl, controller, exportReport).exportRemoteSetupUrl();
+		}
 	}
 	
 	/**
@@ -179,7 +192,7 @@ public class AuthenticationExportAgreement {
 	protected Institution getInstitution(int ucn) {
 		Institution institution = DbInstitution.getByCode(ucn);
 		if (institution == null)
-			throw new AuthenticationExportException("Missing institution for site UCN " + ucn + "not found for agreement " + agreement.getId() + ".");
+			throw new AuthenticationExportException("Missing institution for site UCN " + ucn + " for agreement " + agreement.getId() + ".");
 		return institution;
 	}
 	
@@ -207,8 +220,8 @@ public class AuthenticationExportAgreement {
 		//	Look for current match, i.e. an AU already in use with exactly the products needed
 		List<AeAuthUnit> authUnits = DbAeAuthUnit.findBySite(
 				site.getId().getUcn(), site.getId().getUcnSuffix(), site.getId().getSiteLocCode(),
-				agreement.getBillUcn(), agreement.getBillUcnSuffix(), /* TODO Handle legacy parent problems */
-				institution.getParentUcn(), 1	//	This is a problem!!!!!
+				agreement.getBillUcn(), agreement.getBillUcnSuffix(), 
+				institution.getParentUcn(), 1	/* TODO Handle legacy parent problems */
 				);
 		
 		//	Cycle through the auth units, looking for a product match (i.e. one already being used for this export for these products)
@@ -217,6 +230,8 @@ public class AuthenticationExportAgreement {
 				exportReport.auCountExistingAgreement();
 				return authUnit;
 			}
+		
+		exportReport.countAuthUnit();
 		
 		//	Look for last execution exact match not already being using for other products
 		AeControl lastCompleteAeControl = controller.getLastCompleteAeControl();
@@ -284,8 +299,16 @@ public class AuthenticationExportAgreement {
 		authUnit.setBillUcn(agreement.getBillUcn());
 		authUnit.setBillUcnSuffix(agreement.getBillUcnSuffix());
 		
-		authUnit.setSiteParentUcn(institution.getParentUcn());
-		authUnit.setSiteParentUcnSuffix(1);
+		int parentUcn = institution.getParentUcn();
+		int parentUcnSuffix = 1;
+		
+		if (parentUcn == 0) {
+			parentUcn = site.getId().getUcn();
+			parentUcnSuffix = site.getId().getUcnSuffix();
+		}
+		
+		authUnit.setSiteParentUcn(parentUcn);
+		authUnit.setSiteParentUcnSuffix(parentUcnSuffix);
 		
 		authUnit.setCreatedDatetime(new Date());
 		

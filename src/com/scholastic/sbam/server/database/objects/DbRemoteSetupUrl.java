@@ -317,4 +317,79 @@ public class DbRemoteSetupUrl extends HibernateAccessor {
 			remoteSetupUrl.setSite( SiteInstance.getEmptyInstance());
 		}
 	}
+	
+	public static List<RemoteSetupUrl> findBySite( int ucn, int ucnSuffix, String siteLocCode, String methodType, char status, char neStatus) {
+		return findByOwner(-1, ucn, ucnSuffix, siteLocCode, methodType, status, neStatus);
+	}
+	
+	public static List<RemoteSetupUrl> findByOwner(int agreementId, int ucn, int ucnSuffix, String siteLocCode, String methodType, char status, char neStatus) {
+        try
+        {
+            Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
+            if (agreementId >= 0)
+            	crit.add(Restrictions.eq("id.agreementId", agreementId));
+            if (ucn >= 0)
+            	crit.add(Restrictions.eq("id.ucn", ucn));
+            if (ucnSuffix >= 0)
+            	crit.add(Restrictions.eq("id.ucnSuffix", ucnSuffix));
+            if (siteLocCode != null)
+            	crit.add(Restrictions.eq("id.siteLocCode", siteLocCode));
+            if (methodType != null)
+            	crit.add(Restrictions.eq("id.methodType", methodType));
+            if (status != 0)
+            	crit.add(Restrictions.like("status", status));
+            if (neStatus != 0)
+            	crit.add(Restrictions.ne("status", neStatus));
+            crit.addOrder(Order.asc("id.agreementId"));
+            crit.addOrder(Order.asc("id.ucn"));
+            crit.addOrder(Order.asc("id.ucnSuffix"));
+            crit.addOrder(Order.asc("id.siteLocCode"));
+            crit.addOrder(Order.asc("url"));
+            @SuppressWarnings("unchecked")
+			List<RemoteSetupUrl> objects = crit.list();
+            return objects;
+        }
+        catch(Exception e)
+        {
+        	e.printStackTrace();
+            System.out.println(e.getMessage());
+            System.out.println("Agreement ID " + agreementId + ", " + ucn + ", " + ucnSuffix + ", Loc " + siteLocCode + ", Type " + methodType + ", status " + status + ", ne status " + neStatus);
+        }
+        return new ArrayList<RemoteSetupUrl>();
+	}
+	
+	public static List<RemoteSetupUrl> findBySite(int agreementId, int ucn, int ucnSuffix, String siteLocCode, String methodType, char status, char neStatus) {
+        try
+        {
+            Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
+            if (agreementId > 0)
+            	crit.add(Restrictions.eq("id.agreementId", agreementId));
+            if (ucn >= 0)
+            	crit.add(Restrictions.eq("forUcn", ucn));
+            if (ucnSuffix >= 0)
+            	crit.add(Restrictions.eq("forUcnSuffix", ucnSuffix));
+            if (siteLocCode != null)
+            	crit.add(Restrictions.eq("forSiteLocCode", siteLocCode));
+            if (methodType != null)
+            	crit.add(Restrictions.eq("id.methodType", methodType));
+            if (status != 0)
+            	crit.add(Restrictions.like("status", status));
+            if (neStatus != 0)
+            	crit.add(Restrictions.ne("status", neStatus));
+            crit.addOrder(Order.asc("id.agreementId"));
+            crit.addOrder(Order.asc("forUcn"));
+            crit.addOrder(Order.asc("forUcnSuffix"));
+            crit.addOrder(Order.asc("forSiteLocCode"));
+            crit.addOrder(Order.asc("url"));
+            @SuppressWarnings("unchecked")
+			List<RemoteSetupUrl> objects = crit.list();
+            return objects;
+        }
+        catch(Exception e)
+        {
+        	e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return new ArrayList<RemoteSetupUrl>();
+	}
 }

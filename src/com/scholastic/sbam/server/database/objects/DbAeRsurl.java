@@ -26,7 +26,10 @@ public class DbAeRsurl extends HibernateAccessor {
 		aeRsurlId.setAeId(aeId);
 		aeRsurlId.setAuId(auId);
 		aeRsurlId.setUrl(url);
-
+		return getById(aeRsurlId);
+	}
+	
+	public static AeRsurl getById(AeRsurlId aeRsurlId) {
 		try {
 			AeRsurl instance = (AeRsurl) sessionFactory.getCurrentSession().get(getObjectReference(objectName), aeRsurlId);
 //			if (instance == null) {
@@ -51,6 +54,10 @@ public class DbAeRsurl extends HibernateAccessor {
 		return reasons;
 	}
 	
+	public static List<AeRsurl> findByAeId(int aeId) {
+		return findByAuId(aeId, -1);
+	}
+	
 	public static List<AeRsurl> findByAuId(int aeId, int auId) {
         try
         {
@@ -61,7 +68,8 @@ public class DbAeRsurl extends HibernateAccessor {
             if (auId > 0)
             	crit.add(Restrictions.eq("id.auId", auId)); 
             
-            crit.addOrder(Order.desc("id.auId"));
+            crit.addOrder(Order.asc("id.auId"));
+            crit.addOrder(Order.asc("id.url"));
             @SuppressWarnings("unchecked")
 			List<AeRsurl> objects = crit.list();
             return objects;

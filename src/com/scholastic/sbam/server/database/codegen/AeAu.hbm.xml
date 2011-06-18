@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Jun 14, 2011 5:14:03 PM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Jun 16, 2011 5:48:55 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.AeAu" table="ae_au" catalog="sbam">
         <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.AeAuId">
@@ -12,17 +12,17 @@
                 <column name="au_id" />
             </key-property>
         </composite-id>
-        <property name="parent" type="string">
-            <column name="parent" length="32" not-null="true" />
+        <property name="siteParentCode" type="string">
+            <column name="site_parent_code" length="32" not-null="true" />
         </property>
-        <property name="soldTo" type="string">
-            <column name="sold_to" length="32" not-null="true" />
+        <property name="billCode" type="string">
+            <column name="bill_code" length="32" not-null="true" />
         </property>
-        <property name="shipTo" type="string">
-            <column name="ship_to" length="32" not-null="true" />
+        <property name="siteCode" type="string">
+            <column name="site_code" length="32" not-null="true" />
         </property>
-        <property name="goLocCode" type="string">
-            <column name="go_loc_code" not-null="true" />
+        <property name="siteLocCode" type="string">
+            <column name="site_loc_code" not-null="true" />
         </property>
     </class>
 </hibernate-mapping>

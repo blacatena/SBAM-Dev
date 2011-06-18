@@ -27,7 +27,10 @@ public class DbAePref extends HibernateAccessor {
 		aePrefId.setAeId(aeId);
 		aePrefId.setAuId(auId);
 		aePrefId.setPrefCode(prefCode);
-
+		return getById(aePrefId);
+	}
+	
+	public static AePref getById(AePrefId aePrefId) {
 		try {
 			AePref instance = (AePref) sessionFactory.getCurrentSession().get(getObjectReference(objectName), aePrefId);
 //			if (instance == null) {
@@ -52,6 +55,10 @@ public class DbAePref extends HibernateAccessor {
 		return reasons;
 	}
 	
+	public static List<AePref> findByAeId(int aeId) {
+		return findByAuId(aeId, -1);
+	}
+	
 	public static List<AePref> findByAuId(int aeId, int auId) {
         try
         {
@@ -62,7 +69,8 @@ public class DbAePref extends HibernateAccessor {
             if (auId > 0)
             	crit.add(Restrictions.eq("id.auId", auId)); 
             
-            crit.addOrder(Order.desc("id.auId"));
+            crit.addOrder(Order.asc("id.auId"));
+            crit.addOrder(Order.asc("id.prefCode"));
             @SuppressWarnings("unchecked")
 			List<AePref> objects = crit.list();
             return objects;
