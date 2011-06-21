@@ -7,7 +7,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-public class ExportProcessReport implements BeanModelTag, IsSerializable {
+public class ExportProcessReport implements BeanModelTag, IsSerializable, Cloneable {
 	
 	List<ExportProcessMessage> messages = new ArrayList<ExportProcessMessage>();
 	
@@ -23,6 +23,7 @@ public class ExportProcessReport implements BeanModelTag, IsSerializable {
 	protected		int		sites;
 	protected		int		sitePrefs;
 	protected		int		authUnits;
+	protected		int		aeAuMerged;
 	protected		int		aeAuCopied;
 	protected		int		ips;
 	protected		int		uids;
@@ -49,6 +50,16 @@ public class ExportProcessReport implements BeanModelTag, IsSerializable {
 	protected		int		services;
 	protected		int		preferences;
 	protected		int		customers;
+	
+	protected		int		auWrites;
+	protected		int		auPrefWrites;
+	protected		int		prefCodeWrites;
+	protected		int		cstWrites;
+	protected		int		ipWrites;
+	protected		int		uidWrites;
+	protected		int		puidWrites;
+	protected		int		urlWrites;
+	protected		int		rsUrlWrites;
 	
 	protected 		char	ucnMode;
 	
@@ -112,6 +123,10 @@ public class ExportProcessReport implements BeanModelTag, IsSerializable {
 	
 	public void countAuthUnit() {
 		authUnits++;
+	}
+	
+	public void countAeAuMerged() {
+		aeAuMerged++;
 	}
 	
 	public void countAeAuCopied() {
@@ -201,7 +216,43 @@ public class ExportProcessReport implements BeanModelTag, IsSerializable {
 	public void countCustomers() {
 		customers++;
 	}
-
+	
+	public void countCstWrite() {
+		cstWrites++;
+	}
+	
+	public void countAuWrite() {
+		auWrites++;
+	}
+	
+	public void countAuPrefWrite() {
+		auPrefWrites++;
+	}
+	
+	public void countPrefCodeWrite() {
+		prefCodeWrites++;
+	}
+	
+	public void countIpWrite() {
+		ipWrites++;
+	}
+	
+	public void countUidWrite() {
+		uidWrites++;
+	}
+	
+	public void countPuidWrite() {
+		puidWrites++;
+	}
+	
+	public void countUrlWrite() {
+		urlWrites++;
+	}
+	
+	public void countRsUrlWrite() {
+		rsUrlWrites++;
+	}
+	
 	public List<ExportProcessMessage> getMessages() {
 		return messages;
 	}
@@ -313,6 +364,14 @@ public class ExportProcessReport implements BeanModelTag, IsSerializable {
 
 	public void setAeAuCopied(int aeAuCopied) {
 		this.aeAuCopied = aeAuCopied;
+	}
+
+	public int getAeAuMerged() {
+		return aeAuMerged;
+	}
+
+	public void setAeAuMerged(int aeAuMerged) {
+		this.aeAuMerged = aeAuMerged;
 	}
 
 	public int getSites() {
@@ -611,6 +670,78 @@ public class ExportProcessReport implements BeanModelTag, IsSerializable {
 		singleSiteAgreementCount++;
 	}
 
+	public int getAuWrites() {
+		return auWrites;
+	}
+
+	public void setAuWrites(int auWrites) {
+		this.auWrites = auWrites;
+	}
+
+	public int getAuPrefWrites() {
+		return auPrefWrites;
+	}
+
+	public void setAuPrefWrites(int auPrefWrites) {
+		this.auPrefWrites = auPrefWrites;
+	}
+
+	public int getPrefCodeWrites() {
+		return prefCodeWrites;
+	}
+
+	public void setPrefCodeWrites(int prefCodeWrites) {
+		this.prefCodeWrites = prefCodeWrites;
+	}
+
+	public int getCstWrites() {
+		return cstWrites;
+	}
+
+	public void setCstWrites(int cstWrites) {
+		this.cstWrites = cstWrites;
+	}
+
+	public int getIpWrites() {
+		return ipWrites;
+	}
+
+	public void setIpWrites(int ipWrites) {
+		this.ipWrites = ipWrites;
+	}
+
+	public int getUidWrites() {
+		return uidWrites;
+	}
+
+	public void setUidWrites(int uidWrites) {
+		this.uidWrites = uidWrites;
+	}
+
+	public int getPuidWrites() {
+		return puidWrites;
+	}
+
+	public void setPuidWrites(int puidWrites) {
+		this.puidWrites = puidWrites;
+	}
+
+	public int getUrlWrites() {
+		return urlWrites;
+	}
+
+	public void setUrlWrites(int urlWrites) {
+		this.urlWrites = urlWrites;
+	}
+
+	public int getRsUrlWrites() {
+		return rsUrlWrites;
+	}
+
+	public void setRsUrlWrites(int rsUrlWrites) {
+		this.rsUrlWrites = rsUrlWrites;
+	}
+
 	public boolean isValidExport() {
 		return validExport;
 	}
@@ -620,15 +751,18 @@ public class ExportProcessReport implements BeanModelTag, IsSerializable {
 	}
 
 	public long getElapsedSeconds() {
-		if (timeCompleted == null || timeStarted == null)
+		if (timeStarted == null)
 			return -1L;
+		if (timeCompleted == null)
+			return (new Date().getTime() - timeStarted.getTime()) / 1000L;
 		return (timeCompleted.getTime() - timeStarted.getTime()) / 1000L;
 	}
 
 	public long getElapsedMinutes() {
-		if (timeCompleted == null || timeStarted == null)
+		if (timeStarted == null)
 			return -1L;
+		if (timeCompleted == null)
+			return (new Date().getTime() - timeStarted.getTime()) / 60000L;
 		return (timeCompleted.getTime() - timeStarted.getTime()) / 60000L;
 	}
-	
 }

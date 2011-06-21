@@ -201,7 +201,8 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 		if (docLinksDisplay != null) 		docLinksDisplay.sleep();
 		if (welcomeMessageEditGrid != null) welcomeMessageEditGrid.sleep();
 //		if (cntntpnlProgramming != null) 	cntntpnlProgramming.sleep();
-		if (cntntpnlCacheControl != null) 	cacheControlPanel.sleep();
+		if (cacheControlPanel != null) 		cacheControlPanel.sleep();
+		if (exportControlPanel != null) 	exportControlPanel.sleep();
 	}
 	
 	public void awaken() {
@@ -219,6 +220,9 @@ public class AdminUi extends Composite implements AppSecurityManager, AppSleeper
 //		}
 		if (!cntntpnlCacheControl.isCollapsed() && cacheControlPanel != null) {
 			cacheControlPanel.awaken();
+		}
+		if (!cntntpnlExportControl.isCollapsed() && exportControlPanel != null) {
+			exportControlPanel.awaken();
 		}
 	}
 	

@@ -46,6 +46,7 @@ import com.scholastic.sbam.shared.util.AppConstants;
 public class AuthenticationGenerator implements Runnable, ExportController {
 	
 	public static final int					DEBUG_COUNT = 500;
+	public static final	int					GARBAGE_COLLECTION_POINT = 500;
 	
 	public static final char				RUNNING	= 'r';
 	public static final char				ABORTED = 'a';
@@ -211,6 +212,13 @@ public class AuthenticationGenerator implements Runnable, ExportController {
 					break;
 				}
 				
+				if (currentExportReport.getAgreements() % GARBAGE_COLLECTION_POINT == 0) {
+					Runtime.getRuntime().gc();
+					forceConsoleOutput("Total memory: " + Runtime.getRuntime().totalMemory() + 
+									" : Free  memory: " + Runtime.getRuntime().freeMemory() + 
+									" : Max   memory: " + Runtime.getRuntime().maxMemory());
+				}
+				
 			}
 			
 			mainLoopExec.close();
@@ -250,7 +258,7 @@ public class AuthenticationGenerator implements Runnable, ExportController {
 		closeAeControlComplete();
 		running = false;
 		
-		generateReportErrors();
+//		generateReportErrors();
 		
 		generateReportCounts();
 		
@@ -309,7 +317,7 @@ public class AuthenticationGenerator implements Runnable, ExportController {
 		HibernateUtil.endTransaction();
 		HibernateUtil.closeSession();
 		
-		forceConsoleOutput("Authentication Export ID assigned.");
+		forceConsoleOutput("Authentication Export ID " + aeControl.getAeId() + " assigned.");
 	}
 	
 	protected void closeAeControlAbort() {
@@ -506,8 +514,9 @@ public class AuthenticationGenerator implements Runnable, ExportController {
 	
 	/**
 	 * Resolve all collisions and conflicts in the generated data.
+	 * @throws SQLException 
 	 */
-	public void mergeAuthUnits() {
+	public void mergeAuthUnits() throws SQLException {
 		AuthenticationMerger merger = new AuthenticationMerger(this, currentExportReport);
 
 		merger.mergeAuthUnits();
@@ -530,52 +539,65 @@ public class AuthenticationGenerator implements Runnable, ExportController {
 	}
 	
 	public void generateReportCounts() {
-		forceConsoleOutput("======== Export Counts =========");
-		forceConsoleOutput("            Agreements: " + currentExportReport.getAgreements());
-		forceConsoleOutput("Single Site Agreements: " + currentExportReport.getSingleSiteAgreementCount());
-		forceConsoleOutput(" No Default Agreements: " + currentExportReport.getNoDefaultSiteAgreementCount());
+		forceConsoleOutput("========================== Export Counts ===========================");
+		forceConsoleOutput("              Agreements: " + currentExportReport.getAgreements());
+		forceConsoleOutput("  Single Site Agreements: " + currentExportReport.getSingleSiteAgreementCount());
+		forceConsoleOutput("   No Default Agreements: " + currentExportReport.getNoDefaultSiteAgreementCount());
 		forceConsoleOutput();
-		forceConsoleOutput("             Total AUs: " + currentExportReport.getAuthUnits());
-		forceConsoleOutput("   AU...    reuse same: " + currentExportReport.getAuCountReuseSameProduct());
-		forceConsoleOutput("   AU...  use existing: " + currentExportReport.getAuCountExistingAgreement());
-		forceConsoleOutput("   AU...       created: " + currentExportReport.getAuCountCreatedThisExport());
-		forceConsoleOutput("   AU...       similar: " + currentExportReport.getAuCountReuseSimilarProducts());
-		forceConsoleOutput("   AU...   prev unused: " + currentExportReport.getAuCountReusePrevUnusedAuCount());
-		forceConsoleOutput("   AU... random resuse: " + currentExportReport.getAuCountReusePrevRandom());
+		forceConsoleOutput("               Total AUs: " + currentExportReport.getAuthUnits());
+		forceConsoleOutput("     AU...    reuse same: " + currentExportReport.getAuCountReuseSameProduct());
+		forceConsoleOutput("     AU...  use existing: " + currentExportReport.getAuCountExistingAgreement());
+		forceConsoleOutput("     AU...       created: " + currentExportReport.getAuCountCreatedThisExport());
+		forceConsoleOutput("     AU...       similar: " + currentExportReport.getAuCountReuseSimilarProducts());
+		forceConsoleOutput("     AU...   prev unused: " + currentExportReport.getAuCountReusePrevUnusedAuCount());
+		forceConsoleOutput("     AU... random resuse: " + currentExportReport.getAuCountReusePrevRandom());
 		forceConsoleOutput();
-		forceConsoleOutput("                 Sites: " + currentExportReport.getSites());
-		forceConsoleOutput("      Site Preferences: " + currentExportReport.getSitePrefs());
-		forceConsoleOutput("                   IPs: " + currentExportReport.getIps());
-		forceConsoleOutput("                  UIDs: " + currentExportReport.getUids());
-		forceConsoleOutput("          (Proxy UIDs): " + currentExportReport.getPuids());
-		forceConsoleOutput("                  URLs: " + currentExportReport.getUrls());
-		forceConsoleOutput("     Remote Setup URLs: " + currentExportReport.getRsUrls());
-		forceConsoleOutput("            IP Entries: " + currentExportReport.getIpEntries());
-		forceConsoleOutput("          PUID Entries: " + currentExportReport.getPuidEntries());
+		forceConsoleOutput("                   Sites: " + currentExportReport.getSites());
+		forceConsoleOutput("        Site Preferences: " + currentExportReport.getSitePrefs());
+		forceConsoleOutput("                     IPs: " + currentExportReport.getIps());
+		forceConsoleOutput("                    UIDs: " + currentExportReport.getUids());
+		forceConsoleOutput("            (Proxy UIDs): " + currentExportReport.getPuids());
+		forceConsoleOutput("                    URLs: " + currentExportReport.getUrls());
+		forceConsoleOutput("       Remote Setup URLs: " + currentExportReport.getRsUrls());
+		forceConsoleOutput("              IP Entries: " + currentExportReport.getIpEntries());
+		forceConsoleOutput("            PUID Entries: " + currentExportReport.getPuidEntries());
 		forceConsoleOutput();
-		forceConsoleOutput("          IP Conflicts: " + currentExportReport.getIpConflicts());
-		forceConsoleOutput("         UID Conflicts: " + currentExportReport.getUidConflicts());
-		forceConsoleOutput("   Proxy UID Conflicts: " + currentExportReport.getPuidConflicts());
-		forceConsoleOutput("         URL Conflicts: " + currentExportReport.getUrlConflicts());
+		forceConsoleOutput("            IP Conflicts: " + currentExportReport.getIpConflicts());
+		forceConsoleOutput("           UID Conflicts: " + currentExportReport.getUidConflicts());
+		forceConsoleOutput("     Proxy UID Conflicts: " + currentExportReport.getPuidConflicts());
+		forceConsoleOutput("           URL Conflicts: " + currentExportReport.getUrlConflicts());
 		forceConsoleOutput();
-		forceConsoleOutput("         IP Duplicates: " + currentExportReport.getIpDuplicates());
-		forceConsoleOutput("        UID Duplicates: " + currentExportReport.getUidDuplicates());
-		forceConsoleOutput("  Proxy UID Duplicates: " + currentExportReport.getPuidDuplicates());
-		forceConsoleOutput("        URL Duplicates: " + currentExportReport.getUrlDuplicates());
-		forceConsoleOutput("  RemoteSetup URL Dups: " + currentExportReport.getRsUrlDuplicates());
+		forceConsoleOutput("           IP Duplicates: " + currentExportReport.getIpDuplicates());
+		forceConsoleOutput("          UID Duplicates: " + currentExportReport.getUidDuplicates());
+		forceConsoleOutput("    Proxy UID Duplicates: " + currentExportReport.getPuidDuplicates());
+		forceConsoleOutput("          URL Duplicates: " + currentExportReport.getUrlDuplicates());
+		forceConsoleOutput("    RemoteSetup URL Dups: " + currentExportReport.getRsUrlDuplicates());
 		forceConsoleOutput();
-		forceConsoleOutput("    Bad Customer Codes: " + currentExportReport.getBadCustomerCodes());
-		forceConsoleOutput("  AUs w/ bad customers: " + currentExportReport.getBadCustomerCodeAus());
-		forceConsoleOutput("        AUs translated: " + currentExportReport.getAeAuCopied());
+		forceConsoleOutput("      Bad Customer Codes: " + currentExportReport.getBadCustomerCodes());
+		forceConsoleOutput("    AUs w/ bad customers: " + currentExportReport.getBadCustomerCodeAus());
+		forceConsoleOutput("          AUs translated: " + currentExportReport.getAeAuCopied());
 		forceConsoleOutput();
-		forceConsoleOutput("   Services (Products): " + currentExportReport.getServices());
-		forceConsoleOutput("           Preferences: " + currentExportReport.getPreferences());
+		forceConsoleOutput("     Services (Products): " + currentExportReport.getServices());
+		forceConsoleOutput("             Preferences: " + currentExportReport.getPreferences());
 		forceConsoleOutput();
-		forceConsoleOutput("                Errors: " + currentExportReport.getErrors());
-		forceConsoleOutput("             Conflicts: " + conflicts.size());
-		forceConsoleOutput("       Elapsed seconds: " + currentExportReport.getElapsedSeconds());
-		forceConsoleOutput("       Elapsed minutes: " + currentExportReport.getElapsedMinutes());
-		forceConsoleOutput("=================================");
+		forceConsoleOutput("          AUs translated: " + currentExportReport.getAeAuCopied());
+		forceConsoleOutput("              AUs merged: " + currentExportReport.getAeAuMerged());
+		forceConsoleOutput();
+		forceConsoleOutput("              AU exports: " + currentExportReport.getAuWrites());
+		forceConsoleOutput("   AU Preference exports: " + currentExportReport.getAuPrefWrites());
+		forceConsoleOutput(" Preference Code exports: " + currentExportReport.getPrefCodeWrites());
+		forceConsoleOutput("        Customer exports: " + currentExportReport.getCstWrites());
+		forceConsoleOutput("              IP exports: " + currentExportReport.getIpWrites());
+		forceConsoleOutput("             UID exports: " + currentExportReport.getUidWrites());
+		forceConsoleOutput("       Proxy UID exports: " + currentExportReport.getPuidWrites());
+		forceConsoleOutput("             URL exports: " + currentExportReport.getUrlWrites());
+		forceConsoleOutput("Remote Setup URL exports: " + currentExportReport.getRsUrlWrites());
+		forceConsoleOutput();
+		forceConsoleOutput("                 Errors: " + currentExportReport.getErrors());
+		forceConsoleOutput("              Conflicts: " + conflicts.size());
+		forceConsoleOutput("        Elapsed seconds: " + currentExportReport.getElapsedSeconds());
+		forceConsoleOutput("        Elapsed minutes: " + currentExportReport.getElapsedMinutes());
+		forceConsoleOutput("======================================================================");
 	}
 	
 	public void generateReportErrors() {
@@ -593,6 +615,8 @@ public class AuthenticationGenerator implements Runnable, ExportController {
 	@Override
 	public void forceConsoleOutput(String message) {
 		consoleOutput(message, true);
+		if (currentExportReport != null)
+			currentExportReport.addMessage(message);
 	}
 	
 	@Override

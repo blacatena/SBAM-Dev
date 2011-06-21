@@ -46,31 +46,31 @@ public class AuthenticationFileExporter {
 		
 		try {
 			exportAus();
-			statusFile.write("Part OK", "AUs written");
+			statusFile.write("Part OK", "AUs written", exportReport.getAuWrites());
 			
 			exportAuPrefs();
-			statusFile.write("Part OK", "AU Preferences written");
+			statusFile.write("Part OK", "AU Preferences written", exportReport.getAuPrefWrites());
 			
 			exportAuIps();
-			statusFile.write("Part OK", "AU IPs written");
+			statusFile.write("Part OK", "AU IPs written", exportReport.getIpWrites());
 			
 			exportAuUids();
-			statusFile.write("Part OK", "AU UIDs written");
+			statusFile.write("Part OK", "AU UIDs written", exportReport.getUidWrites());
 			
 			exportAuPuids();
-			statusFile.write("Part OK", "AU Proxy UIDs written");
+			statusFile.write("Part OK", "AU Proxy UIDs written", exportReport.getPuidWrites());
 			
 			exportAuUrls();
-			statusFile.write("Part OK", "AU URLs written");
+			statusFile.write("Part OK", "AU URLs written", exportReport.getUrlWrites());
 			
 			exportAuRsUrls();
-			statusFile.write("Part OK", "AU Remote Setup URLs written");
+			statusFile.write("Part OK", "AU Remote Setup URLs written", exportReport.getRsUrlWrites());
 			
 			exportAuPrefCodes();
-			statusFile.write("Part OK", "AU Preference Codes written");
+			statusFile.write("Part OK", "AU Preference Codes written", exportReport.getPrefCodeWrites());
 			
-			new AuthenticationExportCustomers(controller, exportReport).exportCustomers();
-			statusFile.write("Part OK", "Customers written");
+			new AuthenticationCustomerFileExporter(controller, exportReport).exportCustomers();
+			statusFile.write("Part OK", "Customers written", exportReport.getCstWrites());
 			
 			statusFile.write("OK", "Export completed successfully");
 		} catch (Exception e) {

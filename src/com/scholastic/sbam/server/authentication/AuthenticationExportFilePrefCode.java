@@ -16,5 +16,6 @@ public class AuthenticationExportFilePrefCode extends AuthenticationExportFile {
 	 */
 	public void write(AePrefCode prefCode) {
 		write(prefCode.getId().getPrefCode(), prefCode.getDescription(), prefCode.getDefaultValue());
+		exportReport.countPrefCodeWrite();
 	}
 }

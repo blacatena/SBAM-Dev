@@ -19,5 +19,6 @@ public class AuthenticationExportFileAuRsurl extends AuthenticationExportFile {
 				auRsurl.getId().getAuId(),	//	For remote setup, this can only be the main, not remote, URL
 				auRsurl.getId().getUrl()
 			);
+		exportReport.countRsUrlWrite();
 	}
 }

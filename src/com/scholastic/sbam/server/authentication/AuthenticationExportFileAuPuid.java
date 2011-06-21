@@ -23,5 +23,6 @@ public class AuthenticationExportFileAuPuid extends AuthenticationExportFile {
 				auPuid.getUserType(), 
 				auPuid.getId().getIp()
 			);
+		exportReport.countPuidWrite();
 	}
 }

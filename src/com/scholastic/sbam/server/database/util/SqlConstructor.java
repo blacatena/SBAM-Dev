@@ -62,6 +62,12 @@ public class SqlConstructor {
 		sql.append(value);
 	}
 	
+	public void addCondition(String condition, long value) {
+		addAnd();
+		sql.append(condition);
+		sql.append(value);
+	}
+	
 	public void addCondition(String condition, Date value) {
 		addAnd();
 		sql.append(condition);

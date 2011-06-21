@@ -15,8 +15,12 @@ public class AuthenticationExportFileAuPref extends AuthenticationExportFile {
 	 * @param pref
 	 */
 	public void write(AePref pref) {
+		
 		write(pref.getId().getAuId(), pref.getId().getPrefCode(), pref.getPrefValue());
+		exportReport.countAuPrefWrite();
+		
 //		Always write an equivalent remote record
 		write(getAuId(pref.getId().getAuId(), 'y'), pref.getId().getPrefCode(), pref.getPrefValue());
+		exportReport.countAuPrefWrite();
 	}
 }

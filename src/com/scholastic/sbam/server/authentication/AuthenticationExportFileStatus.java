@@ -19,6 +19,15 @@ public class AuthenticationExportFileStatus extends AuthenticationExportFile {
 		write(
 				status,
 				segment,
+				"",
+				new Date()
+			);
+	}
+	public void write(String status, String segment, int count) {
+		write(
+				status,
+				segment,
+				count,
 				new Date()
 			);
 	}

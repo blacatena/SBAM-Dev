@@ -15,6 +15,9 @@ public class AppConstants {
 	public static 		boolean USER_PORTLET_CACHE_ACTIVE = true;	//	Use this to turn on/off the portlet cache service
 	public static 		boolean USER_ACCESS_CACHE_ACTIVE  = true;	//	Use this to turn on/off the access cache service
 	
+	public static final char ANSWER_NO			= 'n';
+	public static final char ANSWER_YES			= 'y';
+	
 	public static final char STATUS_ACTIVE		= 'A';
 	public static final char STATUS_INACTIVE	= 'I';
 	public static final char STATUS_DELETED		= 'X';

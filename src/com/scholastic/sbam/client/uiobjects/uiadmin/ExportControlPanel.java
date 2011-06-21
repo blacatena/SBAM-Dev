@@ -217,8 +217,9 @@ public class ExportControlPanel extends LayoutContainer implements AppSleeper {
 
 					public void onSuccess(ExportProcessReport exportProcessReport) {
 						if (exportProcessReport == null) {
+							System.out.println("No export process report found.");
 							refreshMessages(exportProcessReport);
-							exportButton.disable();
+							exportButton.enable();
 							enableTerminateButton();
 						} else {
 							if (exportProcessReport.isRunning())
@@ -306,7 +307,11 @@ public class ExportControlPanel extends LayoutContainer implements AppSleeper {
 		countHtml.append(" URLs");
 		countHtml.append(", ");
 		countHtml.append(exportProcessReport.getErrors());
-		countHtml.append(" Errors");
+		countHtml.append(" Errors, ");
+		countHtml.append(exportProcessReport.getElapsedMinutes());
+		countHtml.append(" Minutes (or ");
+		countHtml.append(exportProcessReport.getElapsedSeconds());
+		countHtml.append(" Seconds)");
 		
 		countsHtml.setHtml(countHtml.toString());
 		
@@ -370,6 +375,8 @@ public class ExportControlPanel extends LayoutContainer implements AppSleeper {
 
 	@Override
 	public void sleep() {
-		
+		if (exportProcessReportTimer != null) {
+			exportProcessReportTimer.cancel();
+		}
 	}
 }

@@ -30,5 +30,6 @@ public class AuthenticationExportFileCst extends AuthenticationExportFile {
 				statsAdmin == null ? "" : statsAdmin.getAdminPassword(),
 				statsAdmin == null ? "" : statsAdmin.getStatsGroup()
 			);
+		exportReport.countCstWrite();
 	}
 }

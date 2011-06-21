@@ -20,5 +20,6 @@ public class AuthenticationExportFileAuUrl extends AuthenticationExportFile {
 				auUrl.getId().getUrl(),
 				auUrl.getRemote()
 			);
+		exportReport.countUrlWrite();
 	}
 }

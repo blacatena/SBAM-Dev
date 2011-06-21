@@ -15,8 +15,13 @@ public class AuthenticationExportFileAu extends AuthenticationExportFile {
 	 * @param au
 	 */
 	public void write(AeAu au) {
+		
 		write(au.getId().getAuId(), au.getSiteParentCode(), au.getBillCode(), au.getSiteCode(), au.getSiteLocCode());
+		exportReport.countAuWrite();
+		
 		//	Always write a remote record
 		write(getAuId(au.getId().getAuId(), 'y'), au.getSiteParentCode(), au.getBillCode(), au.getSiteCode(), au.getSiteLocCode());
+		exportReport.countAuWrite();
+		
 	}
 }

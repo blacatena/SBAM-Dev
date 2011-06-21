@@ -165,6 +165,8 @@ public class AuthenticationExportAgreement {
 			siteId.setSiteLocCode(siteLocCode);
 			
 			site.setId(siteId);
+			site.setStatus(AppConstants.STATUS_ACTIVE);
+			site.setPseudoSite(AppConstants.ANSWER_NO);
 			site.setDescription("Temporary/do not persist: Created as agreement default for agreement " + agreement.getId());
 			
 			exportReport.noDefaultSiteAgreementCount();
@@ -176,9 +178,20 @@ public class AuthenticationExportAgreement {
 			siteLocCode = sites.get(0).getId().getSiteLocCode();
 			
 			site = DbSite.getById(ucn, ucnSuffix, siteLocCode);
-			if (site == null)
-				throw new AuthenticationExportException("Default site " + ucn + "-" + ucnSuffix + ":" + siteLocCode + " not found for agreement " + agreement.getId() + ".");
-			
+			if (site == null) {
+				site = new Site();
+				
+				SiteId siteId = new SiteId();
+				siteId.setUcn(ucn);
+				siteId.setUcnSuffix(ucnSuffix);
+				siteId.setSiteLocCode(siteLocCode);
+				
+				site.setId(siteId);
+				site.setStatus(AppConstants.STATUS_ACTIVE);
+				site.setPseudoSite(AppConstants.ANSWER_NO);
+				site.setDescription("Temporary/do not persist: Created as agreement default for agreement " + agreement.getId());
+//				throw new AuthenticationExportException("Default site " + ucn + "-" + ucnSuffix + ":" + siteLocCode + " not found for agreement " + agreement.getId() + ".");
+			}
 			exportReport.singleSiteAgreementCount();
 		}
 		

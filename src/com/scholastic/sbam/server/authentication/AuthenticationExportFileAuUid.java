@@ -22,5 +22,6 @@ public class AuthenticationExportFileAuUid extends AuthenticationExportFile {
 				auUid.getRemote(), 
 				auUid.getUserType()
 			);
+		exportReport.countUidWrite();
 	}
 }

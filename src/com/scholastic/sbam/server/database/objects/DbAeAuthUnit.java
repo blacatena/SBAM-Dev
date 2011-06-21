@@ -47,7 +47,7 @@ public class DbAeAuthUnit extends HibernateAccessor {
             if (billUcn > 0)
             	crit.add(Restrictions.eq("billUcn", billUcn));   
             if (billUcnSuffix > 0)
-            	crit.add(Restrictions.eq("siteParentUcnSuffix", siteParentUcnSuffix));   
+            	crit.add(Restrictions.eq("billUcnSuffix", billUcnSuffix));   
             if (siteParentUcn > 0)
             	crit.add(Restrictions.eq("siteParentUcn", siteParentUcn));   
             if (siteParentUcnSuffix > 0)

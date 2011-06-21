@@ -20,5 +20,6 @@ public class AuthenticationExportFileAuIp extends AuthenticationExportFile {
 				auIp.getId().getIp(), 
 				auIp.getRemote()
 			);
+		exportReport.countIpWrite();
 	}
 }
