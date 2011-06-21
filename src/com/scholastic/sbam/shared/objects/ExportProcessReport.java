@@ -7,7 +7,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
-public class ExportProcessReport implements BeanModelTag, IsSerializable, Cloneable {
+public class ExportProcessReport implements BeanModelTag, IsSerializable {
 	
 	List<ExportProcessMessage> messages = new ArrayList<ExportProcessMessage>();
 	
