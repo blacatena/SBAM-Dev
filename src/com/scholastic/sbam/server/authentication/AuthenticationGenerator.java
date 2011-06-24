@@ -260,6 +260,8 @@ public class AuthenticationGenerator implements Runnable, ExportController {
 		
 //		generateReportErrors();
 		
+		outputConflicts();
+		
 		generateReportCounts();
 		
 		return "Export complete.";
@@ -433,6 +435,7 @@ public class AuthenticationGenerator implements Runnable, ExportController {
 	@Override
 	public void addConflict(AuthenticationConflict conflict) {
 		conflicts.add(conflict);
+		conflict.persist(aeControl.getAeId());
 	}
 	
 	/**
@@ -505,8 +508,9 @@ public class AuthenticationGenerator implements Runnable, ExportController {
 	
 	/**
 	 * Resolve all collisions and conflicts in the generated data.
+	 * @throws SQLException 
 	 */
-	public void resolveConflicts() {
+	public void resolveConflicts() throws SQLException {
 		AuthenticationConflictResolver resolver = new AuthenticationConflictResolver(this, currentExportReport);
 		
 		resolver.resolveConflicts();
@@ -606,6 +610,12 @@ public class AuthenticationGenerator implements Runnable, ExportController {
 			forceConsoleOutput(message.getMessage());
 		}
 		forceConsoleOutput("=================================");
+	}
+	
+	public void outputConflicts() {
+		forceConsoleOutput(conflicts.size() + " total conflicts.");
+		for (AuthenticationConflict conflict : conflicts)
+			forceConsoleOutput(conflict.toString());
 	}
 	
 	public void forceConsoleOutput() {

@@ -111,6 +111,10 @@ public class DbAePuid extends HibernateAccessor {
 	}
 	
 	public static List<AePuid> findByUid(int aeId, String userId) {
+		return findByUid(aeId, userId, null);
+	}
+	
+	public static List<AePuid> findByUid(int aeId, String userId, String ipRangeCode) {
         try
         {
             Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
@@ -119,6 +123,8 @@ public class DbAePuid extends HibernateAccessor {
             	crit.add(Restrictions.eq("id.aeId", aeId));   
             if (userId != null)
             	crit.add(Restrictions.eq("id.userId", userId));
+            if (ipRangeCode != null)
+            	crit.add(Restrictions.like("ipRangeCode", ipRangeCode + "%"));
             
             crit.addOrder(Order.desc("id.auId"));
             @SuppressWarnings("unchecked")

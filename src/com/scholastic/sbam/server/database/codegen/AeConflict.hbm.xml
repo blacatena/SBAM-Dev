@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jun 23, 2011 2:41:17 PM by Hibernate Tools 3.2.4.GA -->
+<hibernate-mapping>
+    <class name="com.scholastic.sbam.server.database.codegen.AeConflict" table="ae_conflict" catalog="sbam">
+        <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.AeConflictId">
+            <key-property name="aeId" type="int">
+                <column name="ae_id" />
+            </key-property>
+            <key-property name="conflictId" type="int">
+                <column name="conflict_id" />
+            </key-property>
+        </composite-id>
+        <property name="conflictType" type="int">
+            <column name="conflict_type" not-null="true" />
+        </property>
+        <property name="conflictMsg" type="string">
+            <column name="conflict_msg" not-null="true" />
+        </property>
+        <property name="conflictKey" type="string">
+            <column name="conflict_key" not-null="true" />
+        </property>
+        <property name="methodType" type="string">
+            <column name="method_type" length="16" not-null="true" />
+        </property>
+        <property name="auId" type="int">
+            <column name="au_id" not-null="true" />
+        </property>
+        <property name="referenceAuId" type="int">
+            <column name="reference_au_id" not-null="true" />
+        </property>
+        <property name="ipLo" type="long">
+            <column name="ip_lo" not-null="true" />
+        </property>
+        <property name="ipHi" type="long">
+            <column name="ip_hi" not-null="true" />
+        </property>
+        <property name="userId" type="string">
+            <column name="user_id" not-null="true" />
+        </property>
+        <property name="password" type="string">
+            <column name="password" not-null="true" />
+        </property>
+        <property name="url" type="string">
+            <column name="url" length="1024" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>

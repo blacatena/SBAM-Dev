@@ -82,4 +82,29 @@ public class DbAeIp extends HibernateAccessor {
         }
         return null;
 	}
+	
+	public static List<AeIp> findByIpRangeCode(int aeId, String ipRangeCode) {
+        try
+        {
+            Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
+            
+            if (aeId > 0)
+            	crit.add(Restrictions.eq("id.aeId", aeId));
+            if (ipRangeCode != null)
+            	crit.add(Restrictions.like("ipRangeCode", ipRangeCode + "%")); 
+            
+            crit.addOrder(Order.asc("id.auId"));
+            crit.addOrder(Order.asc("ipLo"));
+            crit.addOrder(Order.asc("ipHi"));
+            @SuppressWarnings("unchecked")
+			List<AeIp> objects = crit.list();
+            return objects;
+        }
+        catch(Exception e)
+        {
+        	e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return null;
+	}
 }

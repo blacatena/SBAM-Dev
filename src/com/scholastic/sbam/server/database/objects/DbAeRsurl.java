@@ -81,4 +81,28 @@ public class DbAeRsurl extends HibernateAccessor {
         }
         return null;
 	}
+	
+	public static List<AeRsurl> findByUrl(int aeId, String url) {
+        try
+        {
+            Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
+            
+            if (aeId > 0)
+            	crit.add(Restrictions.eq("id.aeId", aeId));   
+            if (url != null)
+            	crit.add(Restrictions.eq("id.url", url)); 
+            
+            crit.addOrder(Order.asc("id.auId"));
+            crit.addOrder(Order.asc("id.url"));
+            @SuppressWarnings("unchecked")
+			List<AeRsurl> objects = crit.list();
+            return objects;
+        }
+        catch(Exception e)
+        {
+        	e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return null;
+	}
 }

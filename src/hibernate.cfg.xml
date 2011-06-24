@@ -33,6 +33,7 @@
         <mapping resource="com/scholastic/sbam/server/database/codegen/Site.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/PreferenceCode.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/UcnConversion.hbm.xml" />
+        <mapping resource="com/scholastic/sbam/server/database/codegen/AeConflict.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/AeCst.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/CancelReason.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/AeUid.hbm.xml" />
@@ -75,7 +76,7 @@
         <mapping resource="com/scholastic/sbam/server/database/codegen/AeRsurl.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/TermType.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/WelcomeMessage.hbm.xml" />
-        <mapping resource="com/scholastic/sbam/server/database/codegen/Contact.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/AePuid.hbm.xml" />
+        <mapping resource="com/scholastic/sbam/server/database/codegen/Contact.hbm.xml" />
     </session-factory>
 </hibernate-configuration>
