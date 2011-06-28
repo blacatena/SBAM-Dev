@@ -306,6 +306,38 @@ public class IconSupplier {
 		return "help_main.png";
 	}
 	
+	public static String getSnapshotIconName() {
+		return "snapshot.png";
+	}
+	
+	public static String getSnapshotAddIconName() {
+		return "snapshot_add.png";
+	}
+	
+	public static String getSnapshotEditIconName() {
+		return "snapshot_edit.png";
+	}
+	
+	public static String getSnapshotFolderIconName() {
+		return "snapshot_folder.png";
+	}
+	
+	public static String getSnapshotGoIconName() {
+		return "snapshot_go.png";
+	}
+	
+	public static String getSnapshot_smallIconName() {
+		return "snapshot_small.png";
+	}
+	
+	public static String getSnapshotAlertIconName() {
+		return "snapshot_alert.png";
+	}
+	
+	public static String getSnapshotPageIconName() {
+		return "snapshot_page.png";
+	}
+	
 	public static void setIcon(TabItem tabItem, String iconName) {
 		if (TAB_ICONS && tabItem != null && iconName != null && iconName.length() > 0) {
 			tabItem.setIcon(getTabIcon(iconName));

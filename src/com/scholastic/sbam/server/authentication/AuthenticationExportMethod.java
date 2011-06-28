@@ -113,8 +113,6 @@ public class AuthenticationExportMethod {
 	}
 	
 	protected void exportUid() {
-		exportReport.countUid();
-	
 		if (authMethod.getProxyId() > 0)
 			exportPuid();
 		else
@@ -181,7 +179,7 @@ public class AuthenticationExportMethod {
 	}
 	
 	protected void exportPlainUid() {
-		exportReport.countPuid();
+		exportReport.countUid();
 		
 		AeUidId uidId = new AeUidId();	
 		

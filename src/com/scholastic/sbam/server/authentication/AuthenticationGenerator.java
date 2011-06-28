@@ -559,8 +559,8 @@ public class AuthenticationGenerator implements Runnable, ExportController {
 		forceConsoleOutput("                   Sites: " + currentExportReport.getSites());
 		forceConsoleOutput("        Site Preferences: " + currentExportReport.getSitePrefs());
 		forceConsoleOutput("                     IPs: " + currentExportReport.getIps());
-		forceConsoleOutput("                    UIDs: " + currentExportReport.getUids());
-		forceConsoleOutput("            (Proxy UIDs): " + currentExportReport.getPuids());
+		forceConsoleOutput("              Plain UIDs: " + currentExportReport.getUids());
+		forceConsoleOutput("              Proxy UIDs: " + currentExportReport.getPuids());
 		forceConsoleOutput("                    URLs: " + currentExportReport.getUrls());
 		forceConsoleOutput("       Remote Setup URLs: " + currentExportReport.getRsUrls());
 		forceConsoleOutput("              IP Entries: " + currentExportReport.getIpEntries());

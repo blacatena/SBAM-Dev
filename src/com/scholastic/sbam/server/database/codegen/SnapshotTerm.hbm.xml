@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jun 28, 2011 11:14:17 AM by Hibernate Tools 3.2.4.GA -->
+<hibernate-mapping>
+    <class name="com.scholastic.sbam.server.database.codegen.SnapshotTerm" table="snapshot_term" catalog="sbam">
+        <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.SnapshotTermId">
+            <key-property name="snapshotCode" type="string">
+                <column name="snapshot_code" length="32" />
+            </key-property>
+            <key-property name="agreementId" type="int">
+                <column name="agreement_id" />
+            </key-property>
+            <key-property name="termId" type="int">
+                <column name="term_id" />
+            </key-property>
+            <key-property name="productServiceCode" type="string">
+                <column name="product_service_code" length="32" />
+            </key-property>
+            <key-property name="ucn" type="int">
+                <column name="ucn" />
+            </key-property>
+            <key-property name="ucnSuffix" type="int">
+                <column name="ucn_suffix" />
+            </key-property>
+        </composite-id>
+        <property name="startDate" type="date">
+            <column name="start_date" length="10" />
+        </property>
+        <property name="endDate" type="date">
+            <column name="end_date" length="10" />
+        </property>
+        <property name="terminateDate" type="date">
+            <column name="terminate_date" length="10" />
+        </property>
+        <property name="termType" type="string">
+            <column name="term_type" length="32" not-null="true" />
+        </property>
+        <property name="cancelReasonCode" type="string">
+            <column name="cancel_reason_code" length="32" not-null="true" />
+        </property>
+        <property name="cancelDate" type="date">
+            <column name="cancel_date" length="10" />
+        </property>
+        <property name="dollarValue" type="big_decimal">
+            <column name="dollar_value" precision="12" not-null="true">
+                <comment>The value of the term, for the entire product ensemble and all customers</comment>
+            </column>
+        </property>
+        <property name="workstations" type="int">
+            <column name="workstations" not-null="true" />
+        </property>
+        <property name="buildings" type="int">
+            <column name="buildings" not-null="true" />
+        </property>
+        <property name="population" type="int">
+            <column name="population" not-null="true" />
+        </property>
+        <property name="enrollment" type="int">
+            <column name="enrollment" not-null="true" />
+        </property>
+        <property name="commissionCode" type="string">
+            <column name="commission_code" length="32" not-null="true" />
+        </property>
+        <property name="primaryTerm" type="char">
+            <column name="primary_term" length="1" not-null="true">
+                <comment>Flag (y/n) to determine if a product term, within a group of terms, represents the primary (reporting) dates for that group</comment>
+            </column>
+        </property>
+        <property name="serviceFraction" type="long">
+            <column name="service_fraction" precision="10" scale="0" not-null="true">
+                <comment>The fraction of the dollar value (0 to 1), in the case of a service within a product ensemble, for just this service (estimated)</comment>
+            </column>
+        </property>
+        <property name="customerFraction" type="long">
+            <column name="customer_fraction" precision="10" scale="0" not-null="true">
+                <comment>The fraction of the dollar value (0 to 1), in the event of multiple customers, prorated for just this customer (estimated)</comment>
+            </column>
+        </property>
+    </class>
+</hibernate-mapping>

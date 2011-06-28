@@ -746,6 +746,10 @@ background-image:url(resources/images/icons/colorful/info.png);
 	padding-right: 10px;
 }
 
+.sbam-report-body {
+	background-color: #FFE1B6;
+}
+
 /* These are necessary, because the theme doesn't "take" -- change these if the theme changes */
 /* Managed now by adding the style "x-panel" wherever needed
 .x-border {

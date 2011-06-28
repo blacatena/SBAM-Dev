@@ -26,6 +26,7 @@ public class AppNav extends Composite implements AppSecurityManager {
 	private TabItem tbtmAgreements;
 	private TabItem tbtmProfile;
 	private AdminUi adminUi;
+	private ReportsUi reportsUi;
 	private ConfigUi configUi;
 	private WelcomeDisplay welcomeDisplay;
 	private AppWorkSpace appPortal;
@@ -33,6 +34,8 @@ public class AppNav extends Composite implements AppSecurityManager {
 	public AppNav() {
 		
 		tabPanel = new TabPanel();
+		
+		
 		
 		tbtmWelcome = new TabItem("Welcome");
 		IconSupplier.setIcon(tbtmWelcome, IconSupplier.getWelcomeIconName());
@@ -43,6 +46,8 @@ public class AppNav extends Composite implements AppSecurityManager {
 		
 		tabPanel.add(tbtmWelcome);
 	
+		
+		
 		tbtmAgreements = new TabItem("Agreements");
 		tbtmAgreements.setLayout(new FitLayout());
 		IconSupplier.setIcon(tbtmAgreements, IconSupplier.getAgreementIconName());
@@ -53,6 +58,8 @@ public class AppNav extends Composite implements AppSecurityManager {
 		
 		tabPanel.add(tbtmAgreements);
 		
+		
+		
 		tbtmConfiguration = new TabItem("Configuration");
 		tbtmConfiguration.setLayout(new FitLayout());
 		IconSupplier.setIcon(tbtmConfiguration, IconSupplier.getConfigurationIconName());
@@ -60,13 +67,22 @@ public class AppNav extends Composite implements AppSecurityManager {
 
 		configUi = new ConfigUi();
 		tbtmConfiguration.add(configUi);
+		
 		tabPanel.add(tbtmConfiguration);
+		
+		
 		
 		tbtmReports = new TabItem("Reports");
 		IconSupplier.setIcon(tbtmReports, IconSupplier.getReportIconName());
 		tbtmReports.getHeader().setToolTip(UiConstants.getQuickTip("Use the Reports tab to query, summarize, aggregate, graph and report on data."));
+		tbtmReports.setLayout(new FitLayout());
+
+		reportsUi = new ReportsUi();
+		tbtmReports.add(reportsUi);
 		
 		tabPanel.add(tbtmReports);
+		
+		
 		
 		tbtmAdministration = new TabItem("Administration");
 		IconSupplier.setIcon(tbtmAdministration, IconSupplier.getAdministrationIconName());
@@ -75,8 +91,10 @@ public class AppNav extends Composite implements AppSecurityManager {
 		
 		adminUi = new AdminUi();
 		tbtmAdministration.add(adminUi);
+		
 		tabPanel.add(tbtmAdministration);
 
+		
 		
 		tbtmProfile = new TabItem("Profile");
 		IconSupplier.setIcon(tbtmProfile, IconSupplier.getProfileIconName());
@@ -84,6 +102,8 @@ public class AppNav extends Composite implements AppSecurityManager {
 		tbtmProfile.setLayout(new FitLayout());
 		
 		tabPanel.add(tbtmProfile);
+		
+		
 		
 		addSleepListeners();
 		

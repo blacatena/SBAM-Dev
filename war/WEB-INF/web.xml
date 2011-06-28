@@ -552,6 +552,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>snapshotServiceListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.SnapshotServiceListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>termTypeListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.TermTypeListServiceImpl</servlet-class>
   </servlet>
@@ -1119,6 +1124,11 @@
   <servlet-mapping>
     <servlet-name>updateSiteLocationNoteServlet</servlet-name>
     <url-pattern>/sbam/updateSiteLocationNote</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>snapshotServiceListServlet</servlet-name>
+    <url-pattern>/sbam/getSnapshotServices</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

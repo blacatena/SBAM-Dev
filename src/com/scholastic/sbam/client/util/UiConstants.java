@@ -47,6 +47,9 @@ import com.scholastic.sbam.shared.objects.TermTypeInstance;
 public class UiConstants {
 	public static final int				QUICK_TOOL_TIP_SHOW_DELAY		= 3000;
 	public static final int				QUICK_TOOL_TIP_DISMISS_DELAY	= 2000;
+	public static final int				LAZY_TOOL_TIP_SHOW_DELAY		= 8000;
+	public static final int				LAZY_TOOL_TIP_DISMISS_DELAY		= 2000;
+	public static final int				LAZY_TOOL_TIP_HIDE_DELAY		= 200;
 	public static final DateTimeFormat	APP_DATE_LONG_FORMAT			= DateTimeFormat.getFormat(PredefinedFormat.DATE_LONG);
 	public static final DateTimeFormat	APP_DATE_TIME_FORMAT			= DateTimeFormat.getFormat(PredefinedFormat.DATE_MEDIUM);	//	DateTimeFormat.getFormat("MM/dd/yy");
 	public static final DateTimeFormat	APP_DATE_PLUS_TIME_FORMAT		= DateTimeFormat.getFormat(PredefinedFormat.DATE_TIME_MEDIUM);
@@ -452,6 +455,18 @@ public class UiConstants {
 		config.setShowDelay(QUICK_TOOL_TIP_SHOW_DELAY);
 		config.setDismissDelay(QUICK_TOOL_TIP_DISMISS_DELAY);
 		config.setAnchor("right");
+		config.setAnchorOffset(0);
+		config.setAnchorToTarget(true);
+		return config;
+	}
+
+	public static ToolTipConfig getLazyTip(String toolTip) {
+		ToolTipConfig config = new ToolTipConfig();
+		config.setText(toolTip);
+		config.setShowDelay(LAZY_TOOL_TIP_SHOW_DELAY);
+		config.setDismissDelay(LAZY_TOOL_TIP_DISMISS_DELAY);
+		config.setHideDelay(LAZY_TOOL_TIP_HIDE_DELAY);
+		config.setAnchor("center");
 		config.setAnchorOffset(0);
 		config.setAnchorToTarget(true);
 		return config;

@@ -30,7 +30,9 @@
         <mapping resource="com/scholastic/sbam/server/database/codegen/AeIp.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/AePref.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/LinkType.hbm.xml" />
+        <mapping resource="com/scholastic/sbam/server/database/codegen/SnapshotProductService.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/Site.hbm.xml" />
+        <mapping resource="com/scholastic/sbam/server/database/codegen/SnapshotTerm.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/PreferenceCode.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/UcnConversion.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/AeConflict.hbm.xml" />
@@ -55,6 +57,7 @@
         <mapping resource="com/scholastic/sbam/server/database/codegen/Institution.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/StatsAdmin.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/AgreementTerm.hbm.xml" />
+        <mapping resource="com/scholastic/sbam/server/database/codegen/Snapshot.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/AePrefCode.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/AeUrl.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/UserPortletCache.hbm.xml" />

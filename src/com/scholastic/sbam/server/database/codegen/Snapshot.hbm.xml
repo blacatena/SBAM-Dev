@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jun 28, 2011 11:14:17 AM by Hibernate Tools 3.2.4.GA -->
+<hibernate-mapping>
+    <class name="com.scholastic.sbam.server.database.codegen.Snapshot" table="snapshot" catalog="sbam">
+        <id name="snapshotCode" type="string">
+            <column name="snapshot_code" length="32" />
+            <generator class="assigned" />
+        </id>
+        <property name="snapshotName" type="string">
+            <column name="snapshot_name" not-null="true" />
+        </property>
+        <property name="snapshotType" type="string">
+            <column name="snapshot_type" length="16" not-null="true" />
+        </property>
+        <property name="productServiceType" type="char">
+            <column name="product_service_type" length="1" not-null="true" />
+        </property>
+        <property name="snapshotTaken" type="timestamp">
+            <column name="snapshot_taken" length="19" />
+        </property>
+        <property name="createdDatetime" type="timestamp">
+            <column name="created_datetime" length="19" not-null="true" />
+        </property>
+        <property name="status" type="char">
+            <column name="status" length="1" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>
