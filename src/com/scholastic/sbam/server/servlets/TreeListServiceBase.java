@@ -3,17 +3,17 @@ package com.scholastic.sbam.server.servlets;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.scholastic.sbam.shared.objects.ProductServiceTreeInstance;
+import com.scholastic.sbam.shared.objects.TreeInstance;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 /**
  * The server side implementation of the RPC service to list product service assignments.
  * 
- * Note that this class can be generalized for other implementations by making ProductServiceTreeInstance an implementation that requires the
+ * Note that this class can be generalized for other implementations by making T an implementation that requires the
  * getters and setters for Description, Type, and Children.
  */
 @SuppressWarnings("serial")
-public class ServiceTreeServiceBase extends AuthenticatedServiceServlet {
+public abstract class TreeListServiceBase<T extends TreeInstance<T>> extends AuthenticatedServiceServlet {
 	
 	/**
 	 * Return an instance to add to the response list which incorporates the previous tree structure.
@@ -31,7 +31,7 @@ public class ServiceTreeServiceBase extends AuthenticatedServiceServlet {
 	 * This results in one a directory, but two branches of b/c directories, because product B lies between A and C.  However, if A and C came one after the other, without B
 	 * in between, then they would share the same a/b/c directory structure.
 	 */
-	protected ProductServiceTreeInstance addFolderTree(List<ProductServiceTreeInstance> list, ProductServiceTreeInstance root, ProductServiceTreeInstance instance, String path) {
+	protected T addFolderTree(List<T> list, T root, T instance, String path) {
 		
 		//	If there's no path, put this service at the root
 		if (path == null || path.trim().length() == 0) {
@@ -67,15 +67,18 @@ public class ServiceTreeServiceBase extends AuthenticatedServiceServlet {
 		return root;
 	}
 	
+	protected abstract T getTreeInstance();
+	
 	/**
 	 * Create and return a new folder instance.
 	 * @param name
 	 * @return
 	 */
-	private ProductServiceTreeInstance getNewFolder(String name) {
-		ProductServiceTreeInstance folder = new ProductServiceTreeInstance();
-		folder.setDescription(name);
-		folder.setType(ProductServiceTreeInstance.FOLDER);
+	protected T getNewFolder(String name) {
+		T folder = getTreeInstance();
+		folder.setAsFolder(name);
+//		folder.setDescription(name);
+//		folder.setType(T.FOLDER);
 		return folder;
 	}
 	
@@ -90,18 +93,18 @@ public class ServiceTreeServiceBase extends AuthenticatedServiceServlet {
 	 * @param i
 	 *  The starting point in the list of folders corresponding to the current parent element.
 	 */
-	protected void addToRoot(ProductServiceTreeInstance parent, ProductServiceTreeInstance instance, String [] folders, int i) {
+	protected void addToRoot(T parent, T instance, String [] folders, int i) {
 //		Set parent select to selected if any child is : this behavior could be changed
 		if (instance.isSelected()) parent.setSelected(true);
 //		System.out.println("addToRoot: for " + instance.getDescription() + " ::: " + parent.getDescription());
 		if (i >= folders.length)	// No more folders, so append here
 			addChild(parent, instance);
 		else {
-			ProductServiceTreeInstance lastChild = getLastChild(parent);
+			T lastChild = getLastChild(parent);
 			if (lastChild == null)	//	If there's nothing below this, add from here
 				addChild(addFolders(parent, folders, i, instance.isSelected()), instance);
 			else { // If there is a child, test it for a match
-				 if (ProductServiceTreeInstance.FOLDER.equals(lastChild.getType()) && lastChild.getDescription().equals(folders [i])) // Folders match, so go to the next
+				 if (T.FOLDER.equals(lastChild.getType()) && lastChild.getDescription().equals(folders [i])) // Folders match, so go to the next
 					 addToRoot(lastChild, instance, folders, i+1);
 				 else // Folders don't match, or it's not a folder, so add remaining folders here, than add to that
 					 addChild(addFolders(parent, folders, i, instance.isSelected()), instance);
@@ -119,9 +122,9 @@ public class ServiceTreeServiceBase extends AuthenticatedServiceServlet {
 	 *  The point at which to start using names from the array.
 	 * @return
 	 */
-	protected ProductServiceTreeInstance addFolders(ProductServiceTreeInstance parent, String [] folders, int start, boolean selected) {
+	protected T addFolders(T parent, String [] folders, int start, boolean selected) {
 		for (int i = start; i < folders.length; i++) {
-			ProductServiceTreeInstance child = getNewFolder(folders [i]);
+			T child = getNewFolder(folders [i]);
 			child.setSelected(selected);
 			addChild(parent, child);
 			parent = child;
@@ -134,7 +137,7 @@ public class ServiceTreeServiceBase extends AuthenticatedServiceServlet {
 	 * @param parent
 	 * @param child
 	 */
-	protected void addChild(ProductServiceTreeInstance parent, ProductServiceTreeInstance child) {
+	protected void addChild(T parent, T child) {
 //		Set parent select to selected if any child is : this behavior could be changed
 		if (child.isSelected()) parent.setSelected(true);
 		parent.addChildInstance(child);
@@ -148,12 +151,12 @@ public class ServiceTreeServiceBase extends AuthenticatedServiceServlet {
 	 * @param instance
 	 * @return
 	 */
-	protected ProductServiceTreeInstance getLastFolder(ProductServiceTreeInstance instance) {
+	protected T getLastFolder(T instance) {
 		if (instance.getChildInstances() == null)
 			return null;
-		ProductServiceTreeInstance folder = null;
-		for (ProductServiceTreeInstance child : instance.getChildInstances())
-			if (child.getType() == ProductServiceTreeInstance.FOLDER)
+		T folder = null;
+		for (T child : instance.getChildInstances())
+			if (child.getType() == T.FOLDER)
 				folder = child;
 		return folder;
 	}
@@ -163,7 +166,7 @@ public class ServiceTreeServiceBase extends AuthenticatedServiceServlet {
 	 * @param instance
 	 * @return
 	 */
-	protected ProductServiceTreeInstance getLastChild(ProductServiceTreeInstance instance) {
+	protected T getLastChild(T instance) {
 		if (instance.getChildInstances() == null || instance.getChildInstances().size() == 0)
 			return null;
 		return instance.getChildInstances().get( instance.getChildInstances().size() - 1 );
@@ -211,8 +214,6 @@ public class ServiceTreeServiceBase extends AuthenticatedServiceServlet {
 	 * @return
 	 */
 	protected String [] parsePath(String path, char delimiter, char escapeChar) {
-		System.out.println();
-		System.out.println();
 		path = path.trim();
 		List<String> folders = new ArrayList<String>();
 		int begin = 0;

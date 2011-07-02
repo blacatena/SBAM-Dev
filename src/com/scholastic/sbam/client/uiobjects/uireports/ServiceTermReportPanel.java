@@ -49,7 +49,7 @@ public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermIn
 		cards = new FitCardLayout();
 		outerContainer.setLayout(cards);
 		
-		snapshotSelectorCard = new SnapshotSelectorCard();
+		snapshotSelectorCard = new SnapshotSelectorCard("byService");
 		outerContainer.add(snapshotSelectorCard);
 		
 		customersCard = new CustomerSelectionCard();

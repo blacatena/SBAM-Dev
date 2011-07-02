@@ -6,7 +6,7 @@ import com.google.gwt.user.client.Element;
 
 public class ServiceSelectionCard extends LayoutContainer {
 	
-	protected	ServiceSelectTree		serviceSelectTree;
+	protected	SnapshotServiceSelectTree		serviceSelectTree;
 
 	@Override
 	public void onRender(Element element, int index) {
@@ -15,7 +15,7 @@ public class ServiceSelectionCard extends LayoutContainer {
 		setLayout(new FitLayout());
 		addStyleName("sbam-report-body");
 		
-		serviceSelectTree = new ServiceSelectTree();
+		serviceSelectTree = new SnapshotServiceSelectTree();
 		serviceSelectTree.setSnapshotCode("abc");
 		
 		add(serviceSelectTree);

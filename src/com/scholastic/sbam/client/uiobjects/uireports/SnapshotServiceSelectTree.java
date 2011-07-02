@@ -46,9 +46,11 @@ import com.scholastic.sbam.client.services.SnapshotServiceListService;
 import com.scholastic.sbam.client.services.SnapshotServiceListServiceAsync;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
 import com.scholastic.sbam.client.util.IconSupplier;
-import com.scholastic.sbam.shared.objects.ProductServiceTreeInstance;
+import com.scholastic.sbam.shared.objects.SnapshotServiceTreeInstance;
 
-public class ServiceSelectTree extends LayoutContainer implements AppSleeper {
+public class SnapshotServiceSelectTree extends LayoutContainer implements AppSleeper {
+	
+	boolean allowReorganize	= false;
 	
 	/**
 	 * This is a simple utility class to simplify the creation of folder items.
@@ -210,7 +212,23 @@ public class ServiceSelectTree extends LayoutContainer implements AppSleeper {
 	
 	private final SnapshotServiceListServiceAsync snapshotServiceListService = GWT.create(SnapshotServiceListService.class);
 
-	public ServiceSelectTree() {
+	public SnapshotServiceSelectTree() {
+	}
+	
+	public SnapshotServiceSelectTree(boolean allowReorganize) {
+		this();
+		this.allowReorganize = allowReorganize;
+	}
+	
+	public SnapshotServiceSelectTree(String snapshotCode) {
+		this();
+		this.snapshotCode = snapshotCode;
+	}
+	
+	public SnapshotServiceSelectTree(String snapshotCode, boolean allowReorganize) {
+		this();
+		this.snapshotCode = snapshotCode;
+		this.allowReorganize = allowReorganize;
 	}
 
 	@Override  
@@ -226,16 +244,17 @@ public class ServiceSelectTree extends LayoutContainer implements AppSleeper {
 		panel.setHeading(panelHeading);
 		panel.setHeaderVisible(true);
 //		panel.setDeferHeight(true);
+		panel.addStyleName("sbam-report-body");
 		
 		createTreeStore();
 		StoreFilterField<ModelData> filter = getFilter();
-		ToolBar toolbar = getExpandCollapseBar();
+		ToolBar toolbar = getButtonsBar();
 		createTreePanel();
 		
 		final LayoutContainer tools = new LayoutContainer(new RowLayout(Orientation.HORIZONTAL));
 		tools.setHeight(30);
 		tools.add(filter,  new RowData(200, -1, new Margins(2)));
-		tools.add(toolbar, new RowData(200, 30, new Margins(2)));
+		tools.add(toolbar, new RowData(500, 30, new Margins(2)));
 		
 		LayoutContainer inset = new LayoutContainer(new FlowLayout(10)) {
 			@Override
@@ -262,9 +281,11 @@ public class ServiceSelectTree extends LayoutContainer implements AppSleeper {
 //		inset.add(toolbar);
 		inset.add(tools);
 		inset.add(tree);
+		inset.addStyleName("sbam-report-body");
 //		container.add(getTreePanel());
 //		inset.add(container);
-		createButtons();
+		
+//		createButtons();
 		
 		panel.add(inset);
 		
@@ -340,6 +361,7 @@ public class ServiceSelectTree extends LayoutContainer implements AppSleeper {
 //		tree.setShadow(true);
 //		tree.setToolTip("Check any services to be activated with this product and click the \"Save\" button.");
 		tree.setTrackMouseOver(true);
+		tree.addStyleName("sbam-report-body");
 
 //		tree.getStyle().setLeafIcon(IconHelper.createStyle("icon-music"));
 		
@@ -351,11 +373,34 @@ public class ServiceSelectTree extends LayoutContainer implements AppSleeper {
 	 * Set up and get a button bar with buttons to expand or collapse the tree.
 	 * @return
 	 */
-	public ToolBar getExpandCollapseBar() {
+	public ToolBar getButtonsBar() {
 		ButtonBar toolbar = new ButtonBar();
 		toolbar.setAlignment(HorizontalAlignment.RIGHT);
 		
+		Button selectAllButton = new Button("Select All");
+		IconSupplier.forceIcon(selectAllButton, IconSupplier.getCheckedIconName());
+		selectAllButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			   
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				checkAll();
+			}  
+		 
+		});
+		
+		Button deselectAllButton = new Button("Deselect All");
+		IconSupplier.forceIcon(deselectAllButton, IconSupplier.getUncheckedIconName());
+		deselectAllButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			   
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				uncheckAll();
+			}  
+		 
+		});
+		
 		Button expandButton = new Button("Expand");
+		IconSupplier.forceIcon(expandButton, IconSupplier.getExpandIconName());
 		expandButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			   
 			@Override
@@ -366,6 +411,7 @@ public class ServiceSelectTree extends LayoutContainer implements AppSleeper {
 		});
 		
 		Button collapseButton = new Button("Collapse");
+		IconSupplier.forceIcon(collapseButton, IconSupplier.getCollapseIconName());
 		collapseButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			   
 			@Override
@@ -375,31 +421,8 @@ public class ServiceSelectTree extends LayoutContainer implements AppSleeper {
 		 
 		});
 		
-		toolbar.add(expandButton);
-		toolbar.add(collapseButton);
-		
-		return toolbar;
-	}
-	
-	/**
-	 * Create and add (to the panel) the buttons to Cancel, Save or Reset the changes to the tree.
-	 */
-	public void createButtons() {
-		
-		panel.setButtonAlign(HorizontalAlignment.CENTER);
-		
-//		Button cancelButton = new Button("Cancel");
-//		IconSupplier.setIcon(cancelButton, IconSupplier.getCancelIconName());
-//		cancelButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-//			   
-//			@Override
-//			public void componentSelected(ButtonEvent ce) {
-//			}  
-//		 
-//		});
-		
 		Button saveButton = new Button("Save");
-		IconSupplier.setIcon(saveButton, IconSupplier.getSaveIconName());
+		IconSupplier.forceIcon(saveButton, IconSupplier.getSaveIconName());
 		saveButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			   
 			@Override
@@ -410,7 +433,7 @@ public class ServiceSelectTree extends LayoutContainer implements AppSleeper {
 		});
 		
 		Button resetButton = new Button("Reset");
-		IconSupplier.setIcon(resetButton, IconSupplier.getResetIconName());
+		IconSupplier.forceIcon(resetButton, IconSupplier.getResetIconName());
 		resetButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			   
 			@Override
@@ -419,18 +442,70 @@ public class ServiceSelectTree extends LayoutContainer implements AppSleeper {
 			}  
 		 
 		});
+
+		toolbar.add(selectAllButton);
+		toolbar.add(deselectAllButton);
+		toolbar.add(expandButton);
+		toolbar.add(collapseButton);
+		toolbar.add(saveButton);
+		toolbar.add(resetButton);
 		
-		panel.getButtonBar().getParent().addStyleName("x-panel-bc");	//	To get a nice, darker background behind the buttons
-//		panel.addButton(cancelButton);	
-		panel.addButton(saveButton);
-		panel.addButton(resetButton);
-		
+		return toolbar;
 	}
+	
+//	/**
+//	 * Create and add (to the panel) the buttons to Cancel, Save or Reset the changes to the tree.
+//	 */
+//	public void createButtons() {
+//		
+//		panel.setButtonAlign(HorizontalAlignment.CENTER);
+//		
+////		Button cancelButton = new Button("Cancel");
+////		IconSupplier.setIcon(cancelButton, IconSupplier.getCancelIconName());
+////		cancelButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+////			   
+////			@Override
+////			public void componentSelected(ButtonEvent ce) {
+////			}  
+////		 
+////		});
+//		
+//		Button saveButton = new Button("Save");
+//		IconSupplier.setIcon(saveButton, IconSupplier.getSaveIconName());
+//		saveButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+//			   
+//			@Override
+//			public void componentSelected(ButtonEvent ce) {
+//				doUpdate();
+//			}  
+//		 
+//		});
+//		
+//		Button resetButton = new Button("Reset");
+//		IconSupplier.setIcon(resetButton, IconSupplier.getResetIconName());
+//		resetButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+//			   
+//			@Override
+//			public void componentSelected(ButtonEvent ce) {
+//				refreshTreeData();
+//			}  
+//		 
+//		});
+//		
+//		panel.getButtonBar().getParent().addStyleName("x-panel-bc");	//	To get a nice, darker background behind the buttons
+////		panel.addButton(cancelButton);	
+//		panel.addButton(saveButton);
+//		panel.addButton(resetButton);
+//		
+//	}
 	
 	/**
 	 * Add drag/drop reorder capability to the tree.
 	 */
 	public void addReorderCapability() {
+		
+		if (!allowReorganize)
+			return;
 		
 		new TreePanelDragSource(tree);
 //		TreePanelDragSource source = new TreePanelDragSource(tree);
@@ -480,6 +555,9 @@ public class ServiceSelectTree extends LayoutContainer implements AppSleeper {
 	 * Add a contextual menu to all the user to insert, remove or rename folders.
 	 */
 	public void addContextMenu() {
+		if (!allowReorganize)
+			return;
+		
 		Menu contextMenu = new Menu();
  
 		MenuItem insert = new MenuItem();
@@ -600,8 +678,8 @@ public class ServiceSelectTree extends LayoutContainer implements AppSleeper {
 //				});
 	}
 	
-	public List<ProductServiceTreeInstance> getOrderedUpdateList() {
-		List<ProductServiceTreeInstance> updateList = new ArrayList<ProductServiceTreeInstance>();
+	public List<SnapshotServiceTreeInstance> getOrderedUpdateList() {
+		List<SnapshotServiceTreeInstance> updateList = new ArrayList<SnapshotServiceTreeInstance>();
 		
 		List<ModelData> rootItems = store.getRootItems();
 		
@@ -612,32 +690,48 @@ public class ServiceSelectTree extends LayoutContainer implements AppSleeper {
 		return updateList;
 	}
 	
-	public void addAllToList(List<ProductServiceTreeInstance> list, ModelData model) {
-		ProductServiceTreeInstance instance = getPstInstance(model );
+	//	To accomodate the chance that a filter is active, mark anything checked by getting all root items (which will refelct the filter),
+	//	For anything with children, process all chlldren (not deep=true); for anything without children, check it.
+	//	The child/no-child logic is done to avoid checking only partially filtered folders
+	public void setCheckedAll(boolean checked) {
+		for (ModelData rootItem : store.getRootItems()) {
+			if (store.getChildCount(rootItem) > 0)
+				for (ModelData childItem : store.getChildren(rootItem, true)) {
+					if (store.getChildCount(childItem) == 0)
+						tree.setChecked(childItem, checked);
+				}
+			else
+				tree.setChecked(rootItem, checked);
+		}
+	}
+	
+	public void checkAll() {
+		setCheckedAll(true);
+	}
+	
+	public void uncheckAll() {
+		setCheckedAll(false);
+	}
+	
+	public void addAllToList(List<SnapshotServiceTreeInstance> list, ModelData model) {
+		SnapshotServiceTreeInstance instance = getPstInstance(model );
 		list.add( instance );
 		addChildrenToParent(instance, model);
 //		for (ModelData child : store.getChildren(item))
 //			addAllToList(list, child);
 	}
 	
-	public void addChildrenToParent(ProductServiceTreeInstance parentInstance, ModelData parentModel) {
-		System.out.println();
-		System.out.println("add children to :" + parentInstance);
-		System.out.println(" from " + parentModel.getProperties());
-		System.out.println("Number of children is " + store.getChildCount(parentModel));
+	public void addChildrenToParent(SnapshotServiceTreeInstance parentInstance, ModelData parentModel) {
 		for (ModelData childModel : store.getChildren(parentModel)) {
-			ProductServiceTreeInstance child = getPstInstance(childModel);
-			System.out.println("Child instance " + child);
-			System.out.println(" from " + childModel.getProperties());
-			System.out.println("  add to parent " + parentInstance);
+			SnapshotServiceTreeInstance child = getPstInstance(childModel);
 			parentInstance.addChildInstance(child);
 			addChildrenToParent(child, childModel);
 		}
 	}
 	
-	public ProductServiceTreeInstance getPstInstance(ModelData item) {
-		ProductServiceTreeInstance instance = new ProductServiceTreeInstance();
-		instance.setProductCode(null);
+	public SnapshotServiceTreeInstance getPstInstance(ModelData item) {
+		SnapshotServiceTreeInstance instance = new SnapshotServiceTreeInstance();
+		instance.setSnapshotCode(snapshotCode);
 		instance.setServiceCode(getAsString(item.get("serviceCode")));
 		instance.setDescription(getAsString(item.get("description")));
 		instance.setSelected(item.get("checked") != null && item.get("checked").equals("checked"));
@@ -661,7 +755,7 @@ public class ServiceSelectTree extends LayoutContainer implements AppSleeper {
 
 	protected void asyncLoad() {
 		snapshotServiceListService.getSnapshotServices(snapshotCode, null,
-				new AsyncCallback<List<ProductServiceTreeInstance>>() {
+				new AsyncCallback<List<SnapshotServiceTreeInstance>>() {
 					public void onFailure(Throwable caught) {
 						// Show the RPC error message to the user
 						if (caught instanceof IllegalArgumentException)
@@ -673,11 +767,11 @@ public class ServiceSelectTree extends LayoutContainer implements AppSleeper {
 						}
 					}
 
-					public void onSuccess(List<ProductServiceTreeInstance> productServices) {
+					public void onSuccess(List<SnapshotServiceTreeInstance> productServices) {
 						if (store == null)
 							return;
 						store.removeAll();
-						for (ProductServiceTreeInstance instance : productServices) {
+						for (SnapshotServiceTreeInstance instance : productServices) {
 							addInstanceToStore(null, instance);
 						}
 					//	tree.expandAll();
@@ -685,7 +779,7 @@ public class ServiceSelectTree extends LayoutContainer implements AppSleeper {
 				});
 	}
 	
-	private void addInstanceToStore(ModelData parent, ProductServiceTreeInstance instance) {
+	private void addInstanceToStore(ModelData parent, SnapshotServiceTreeInstance instance) {
 		ModelData item = new BaseModelData();
 		item.set("description", instance.getDescription());
 		item.set("type", instance.getType());
@@ -697,7 +791,7 @@ public class ServiceSelectTree extends LayoutContainer implements AppSleeper {
 			store.add(parent, item, false);
 		
 		if (instance.getChildInstances() != null)
-			for (ProductServiceTreeInstance child : instance.getChildInstances()) {
+			for (SnapshotServiceTreeInstance child : instance.getChildInstances()) {
 				addInstanceToStore(item, child);
 			}
 	}
@@ -714,6 +808,16 @@ public class ServiceSelectTree extends LayoutContainer implements AppSleeper {
 
 	public void setSnapshotCode(String snapshotCode) {
 		this.snapshotCode = snapshotCode;
+		
+		refreshTreeData();
+	}
+
+	public boolean isAllowReorganize() {
+		return allowReorganize;
+	}
+
+	public void setAllowReorganize(boolean allowReorganize) {
+		this.allowReorganize = allowReorganize;
 	}
 
 //	@Override

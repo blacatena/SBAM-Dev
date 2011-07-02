@@ -629,15 +629,9 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 	}
 	
 	public void addChildrenToParent(ProductServiceTreeInstance parentInstance, ModelData parentModel) {
-		System.out.println();
-		System.out.println("add children to :" + parentInstance);
-		System.out.println(" from " + parentModel.getProperties());
-		System.out.println("Number of children is " + store.getChildCount(parentModel));
+		
 		for (ModelData childModel : store.getChildren(parentModel)) {
 			ProductServiceTreeInstance child = getPstInstance(childModel);
-			System.out.println("Child instance " + child);
-			System.out.println(" from " + childModel.getProperties());
-			System.out.println("  add to parent " + parentInstance);
 			parentInstance.addChildInstance(child);
 			addChildrenToParent(child, childModel);
 		}

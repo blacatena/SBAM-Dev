@@ -552,8 +552,23 @@
   </servlet>
   
   <servlet>
+    <servlet-name>snapshotListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.SnapshotListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>snapshotServiceListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.SnapshotServiceListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updateSnapshotServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateSnapshotServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updateSnapshotNoteServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateSnapshotNoteServiceImpl</servlet-class>
   </servlet>
   
   <servlet>
@@ -1127,8 +1142,23 @@
   </servlet-mapping>
   
   <servlet-mapping>
+    <servlet-name>snapshotListServlet</servlet-name>
+    <url-pattern>/sbam/getSnapshots</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
     <servlet-name>snapshotServiceListServlet</servlet-name>
     <url-pattern>/sbam/getSnapshotServices</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateSnapshotServlet</servlet-name>
+    <url-pattern>/sbam/updateSnapshot</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateSnapshotNoteServlet</servlet-name>
+    <url-pattern>/sbam/updateSnapshotNote</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

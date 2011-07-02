@@ -174,6 +174,14 @@ public class IconSupplier {
 		return "done.png";
 	}
 	
+	public static String getCheckedIconName() {
+		return "checked.png";
+	}
+	
+	public static String getUncheckedIconName() {
+		return "unchecked.png";
+	}
+	
 	public static String getLoginIconName() {
 		return "lock.png";
 	}
@@ -196,6 +204,14 @@ public class IconSupplier {
 	
 	public static String getRenameIconName() {
 		return "rename.png";
+	}
+	
+	public static String getExpandIconName() {
+		return "expand.png";
+	}
+	
+	public static String getCollapseIconName() {
+		return "collapse.png";
 	}
 	
 	public static String getHelpIconName() {

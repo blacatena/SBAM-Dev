@@ -29,7 +29,7 @@ public class UpdateProductServiceImpl extends AuthenticatedServiceServlet implem
 		Product dbInstance = null;
 		
 		@SuppressWarnings("unused")
-		Authentication auth = authenticate("update delete reasons", SecurityManager.ROLE_CONFIG);	// May later be used for logging activity
+		Authentication auth = authenticate("update product", SecurityManager.ROLE_CONFIG);	// May later be used for logging activity
 		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();

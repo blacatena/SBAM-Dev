@@ -21,7 +21,7 @@ import com.scholastic.sbam.shared.security.SecurityManager;
  * getters and setters for Description, Type, and Children.
  */
 @SuppressWarnings("serial")
-public class ProductServiceListServiceImpl extends ServiceTreeServiceBase implements ProductServiceListService {
+public class ProductServiceListServiceImpl extends TreeListServiceBase<ProductServiceTreeInstance> implements ProductServiceListService {
 	
 	@Override
 	public List<ProductServiceTreeInstance> getProductServices(String productCode, LoadConfig loadConfig) throws IllegalArgumentException {
@@ -70,5 +70,10 @@ public class ProductServiceListServiceImpl extends ServiceTreeServiceBase implem
 		HibernateUtil.closeSession();
 		
 		return list;
+	}
+
+	@Override
+	protected ProductServiceTreeInstance getTreeInstance() {
+		return new ProductServiceTreeInstance();
 	}
 }

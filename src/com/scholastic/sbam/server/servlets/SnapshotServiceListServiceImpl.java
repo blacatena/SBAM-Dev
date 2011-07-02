@@ -11,20 +11,20 @@ import com.scholastic.sbam.server.database.codegen.Service;
 import com.scholastic.sbam.server.database.objects.DbSnapshotProductService;
 import com.scholastic.sbam.server.database.objects.DbService;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
-import com.scholastic.sbam.shared.objects.ProductServiceTreeInstance;
+import com.scholastic.sbam.shared.objects.SnapshotServiceTreeInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
 
 /**
  * The server side implementation of the RPC service to list product service assignments.
  * 
- * Note that this class can be generalized for other implementations by making ProductServiceTreeInstance an implementation that requires the
+ * Note that this class can be generalized for other implementations by making SnapshotServiceTreeInstance an implementation that requires the
  * getters and setters for Description, Type, and Children.
  */
 @SuppressWarnings("serial")
-public class SnapshotServiceListServiceImpl extends ServiceTreeServiceBase implements SnapshotServiceListService {
+public class SnapshotServiceListServiceImpl extends TreeListServiceBase<SnapshotServiceTreeInstance> implements SnapshotServiceListService {
 	
 	@Override
-	public List<ProductServiceTreeInstance> getSnapshotServices(String snapshotCode, LoadConfig loadConfig) throws IllegalArgumentException {
+	public List<SnapshotServiceTreeInstance> getSnapshotServices(String snapshotCode, LoadConfig loadConfig) throws IllegalArgumentException {
 		
 		authenticate("list snapshot services", SecurityManager.ROLE_QUERY);
 		
@@ -34,9 +34,9 @@ public class SnapshotServiceListServiceImpl extends ServiceTreeServiceBase imple
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();
 		
-		ProductServiceTreeInstance root = null;
+		SnapshotServiceTreeInstance root = null;
 
-		List<ProductServiceTreeInstance> list = new ArrayList<ProductServiceTreeInstance>();
+		List<SnapshotServiceTreeInstance> list = new ArrayList<SnapshotServiceTreeInstance>();
 		try {
 			
 			//	Find only undeleted product services
@@ -51,12 +51,12 @@ public class SnapshotServiceListServiceImpl extends ServiceTreeServiceBase imple
 			List<Service> services = DbService.findUndeleted();
 
 			for (Service service : services) {
-				ProductServiceTreeInstance instance = new ProductServiceTreeInstance();
+				SnapshotServiceTreeInstance instance = new SnapshotServiceTreeInstance();
 				
-				instance.setProductCode(null);
+				instance.setSnapshotCode(snapshotCode);
 				instance.setServiceCode(service.getServiceCode());
 				instance.setDescription(service.getDescription());
-				instance.setType(ProductServiceTreeInstance.SERVICE);
+				instance.setType(SnapshotServiceTreeInstance.SERVICE);
 				instance.setSelected(selectedServices.contains(service.getServiceCode()));
 				
 				root = addFolderTree(list, root, instance, service.getPresentationPath());
@@ -70,5 +70,10 @@ public class SnapshotServiceListServiceImpl extends ServiceTreeServiceBase imple
 		HibernateUtil.closeSession();
 		
 		return list;
+	}
+
+	@Override
+	protected SnapshotServiceTreeInstance getTreeInstance() {
+		return new SnapshotServiceTreeInstance();
 	}
 }

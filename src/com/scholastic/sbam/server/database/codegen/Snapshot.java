@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Jun 28, 2011 11:14:17 AM by Hibernate Tools 3.2.4.GA
+// Generated Jul 1, 2011 1:29:56 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -14,6 +14,9 @@ public class Snapshot implements java.io.Serializable {
 	private String snapshotType;
 	private char productServiceType;
 	private Date snapshotTaken;
+	private int seq;
+	private String orgPath;
+	private String note;
 	private Date createdDatetime;
 	private char status;
 
@@ -21,24 +24,31 @@ public class Snapshot implements java.io.Serializable {
 	}
 
 	public Snapshot(String snapshotCode, String snapshotName,
-			String snapshotType, char productServiceType, Date createdDatetime,
-			char status) {
+			String snapshotType, char productServiceType, int seq,
+			String orgPath, String note, Date createdDatetime, char status) {
 		this.snapshotCode = snapshotCode;
 		this.snapshotName = snapshotName;
 		this.snapshotType = snapshotType;
 		this.productServiceType = productServiceType;
+		this.seq = seq;
+		this.orgPath = orgPath;
+		this.note = note;
 		this.createdDatetime = createdDatetime;
 		this.status = status;
 	}
 
 	public Snapshot(String snapshotCode, String snapshotName,
 			String snapshotType, char productServiceType, Date snapshotTaken,
-			Date createdDatetime, char status) {
+			int seq, String orgPath, String note, Date createdDatetime,
+			char status) {
 		this.snapshotCode = snapshotCode;
 		this.snapshotName = snapshotName;
 		this.snapshotType = snapshotType;
 		this.productServiceType = productServiceType;
 		this.snapshotTaken = snapshotTaken;
+		this.seq = seq;
+		this.orgPath = orgPath;
+		this.note = note;
 		this.createdDatetime = createdDatetime;
 		this.status = status;
 	}
@@ -81,6 +91,30 @@ public class Snapshot implements java.io.Serializable {
 
 	public void setSnapshotTaken(Date snapshotTaken) {
 		this.snapshotTaken = snapshotTaken;
+	}
+
+	public int getSeq() {
+		return this.seq;
+	}
+
+	public void setSeq(int seq) {
+		this.seq = seq;
+	}
+
+	public String getOrgPath() {
+		return this.orgPath;
+	}
+
+	public void setOrgPath(String orgPath) {
+		this.orgPath = orgPath;
+	}
+
+	public String getNote() {
+		return this.note;
+	}
+
+	public void setNote(String note) {
+		this.note = note;
 	}
 
 	public Date getCreatedDatetime() {
