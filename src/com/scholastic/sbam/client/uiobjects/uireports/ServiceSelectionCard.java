@@ -16,7 +16,7 @@ public class ServiceSelectionCard extends LayoutContainer {
 		addStyleName("sbam-report-body");
 		
 		serviceSelectTree = new SnapshotServiceSelectTree();
-		serviceSelectTree.setSnapshotCode("abc");
+		serviceSelectTree.setSnapshotId(1);
 		
 		add(serviceSelectTree);
 	}

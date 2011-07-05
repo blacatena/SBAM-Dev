@@ -7,6 +7,8 @@ import com.extjs.gxt.ui.client.data.BeanModelFactory;
 import com.extjs.gxt.ui.client.data.BeanModelLookup;
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
+import com.scholastic.sbam.client.util.UiConstants;
+import com.scholastic.sbam.shared.util.AppConstants;
 
 public class SnapshotInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
 	public static char	PRODUCT_TYPE = 'p';
@@ -15,7 +17,7 @@ public class SnapshotInstance extends BetterRowEditInstance implements BeanModel
 
 	protected static BeanModelFactory beanModelfactory;
 
-	protected String		snapshotCode;
+	protected int			snapshotId;
 	protected String		snapshotName;
 	protected String		snapshotType;
 	protected char			productServiceType;
@@ -52,12 +54,12 @@ public class SnapshotInstance extends BetterRowEditInstance implements BeanModel
 		return "junk";
 	}
 
-	public String getSnapshotCode() {
-		return snapshotCode;
+	public int getSnapshotId() {
+		return snapshotId;
 	}
 
-	public void setSnapshotCode(String cancelReasonCode) {
-		this.snapshotCode = cancelReasonCode;
+	public void setSnapshotId(int snapshotId) {
+		this.snapshotId = snapshotId;
 	}
 
 	public String getSnapshotName() {
@@ -143,24 +145,26 @@ public class SnapshotInstance extends BetterRowEditInstance implements BeanModel
 		setStatus(active?'A':'I');
 	}
 	
-	public static SnapshotInstance getUnknownInstance(String code) {
+	public static SnapshotInstance getUnknownInstance(int snapshotId) {
 		SnapshotInstance instance = new SnapshotInstance();
-		instance.snapshotCode = code;
-		instance.snapshotName = "Unknown snapshot " + code;
+		instance.snapshotId = snapshotId;
+		instance.snapshotName = "Unknown snapshot " + snapshotId;
 		return instance;
 	}
 	
 	public static SnapshotInstance getEmptyInstance() {
 		SnapshotInstance instance = new SnapshotInstance();
-		instance.snapshotCode = "";
+		instance.snapshotId = 0;
 		instance.snapshotName = "";
 		return instance;
 	}
 	
-	public static SnapshotInstance getNoneActiveInstance() {
+	public static SnapshotInstance getNewInstance() {
 		SnapshotInstance instance = new SnapshotInstance();
-		instance.snapshotCode = "";
-		instance.snapshotName = "None (Active)";
+		instance.snapshotId = 0;
+		instance.snapshotName = "Snapshot " + UiConstants.formatDate(new Date());
+		instance.status = AppConstants.STATUS_NEW;
+		instance.note = "";
 		return instance;
 	}
 
@@ -172,9 +176,9 @@ public class SnapshotInstance extends BetterRowEditInstance implements BeanModel
 	}
 	
 	public String getDescriptionAndCode() {
-		if (snapshotCode == null || snapshotCode.length() == 0)
+		if (snapshotId <= 0)
 			return snapshotName;
-		return snapshotName + " [ " + snapshotCode + " ]";
+		return snapshotName + " [ " + snapshotId + " ]";
 	}
 
 }

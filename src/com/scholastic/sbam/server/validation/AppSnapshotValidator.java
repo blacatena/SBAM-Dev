@@ -6,7 +6,6 @@ import java.util.List;
 import com.scholastic.sbam.server.database.codegen.Snapshot;
 import com.scholastic.sbam.server.database.objects.DbSnapshot;
 import com.scholastic.sbam.shared.objects.SnapshotInstance;
-import com.scholastic.sbam.shared.validation.CodeValidator;
 import com.scholastic.sbam.shared.validation.NameValidator;
 
 public class AppSnapshotValidator {
@@ -21,7 +20,7 @@ public class AppSnapshotValidator {
 	public List<String> validateSnapshot(SnapshotInstance instance) {
 		if (instance.getStatus() == 'X')
 			return null;
-		validateSnapshotCode(instance.getSnapshotCode(), instance.isNewRecord());
+		validateSnapshotId(instance.getSnapshotId(), instance.isNewRecord());
 		validateSnapshotName(instance.getSnapshotName());
 		validateSnapshotType(instance.getSnapshotType());
 		validateProductServiceType(instance.getProductServiceType());
@@ -29,38 +28,35 @@ public class AppSnapshotValidator {
 		return messages;
 	}
 	
-	public List<String> validateSnapshotCode(String value, boolean isNew) {
+	public List<String> validateSnapshotId(int value, boolean isNew) {
 		if (isNew) {
-			validateNewSnapshotCode(value);
+			validateNewSnapshotId(value);
 		} else {
-			validateOldSnapshotCode(value);
+			validateOldSnapshotId(value);
 		}
 		return messages;
 	}
 	
-	public List<String> validateOldSnapshotCode(String value) {
+	public List<String> validateOldSnapshotId(int value) {
 		if (!loadSnapshot())
 			return messages;
 		
-		if (value == null || value.length() == 0) {
-			addMessage("A snapshot code is required.");
+		if (value <= 0) {
+			addMessage("A snapshot id is required.");
 			return messages;
 		}
 		
-		addMessage((new CodeValidator(MIN_CODE_LEN)).validate(value));
-		
-		if (!snapshot.getSnapshotCode().equals(value))
-			addMessage("Snapshot code cannot be changed.");
+		if (!snapshot.getSnapshotId().equals(value))
+			addMessage("Snapshot id cannot be changed.");
 		
 		return messages;
 	}
 	
-	public List<String> validateNewSnapshotCode(String value) {
-		addMessage((new CodeValidator(MIN_CODE_LEN)).validate(value));
-		if (value != null && value.length() > 0) {
-			Snapshot conflict = DbSnapshot.getByCode(value);
+	public List<String> validateNewSnapshotId(int value) {
+		if (value > 0) {
+			Snapshot conflict = DbSnapshot.getById(value);
 			if (conflict != null) {
-				addMessage("Snapshot code already exists.");
+				addMessage("Snapshot id already exists.");
 			}
 		}
 		return messages;
@@ -91,9 +87,9 @@ public class AppSnapshotValidator {
 	
 	private boolean loadSnapshot() {
 		if (snapshot == null) {
-			snapshot = DbSnapshot.getByCode(original.getSnapshotCode());
+			snapshot = DbSnapshot.getById(original.getSnapshotId());
 			if (snapshot == null) {
-				addMessage("Unexpected Error: Original snapshot code not found in the database.");
+				addMessage("Unexpected Error: Original snapshot id not found in the database.");
 				return false;
 			}
 		}

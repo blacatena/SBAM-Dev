@@ -12,5 +12,5 @@ import com.scholastic.sbam.shared.objects.SnapshotServiceTreeInstance;
  */
 @RemoteServiceRelativePath("getSnapshotServices")
 public interface SnapshotServiceListService extends RemoteService {
-	List<SnapshotServiceTreeInstance> getSnapshotServices(String snapshotCode, LoadConfig loadConfig) throws IllegalArgumentException;
+	List<SnapshotServiceTreeInstance> getSnapshotServices(int snapshotId, LoadConfig loadConfig) throws IllegalArgumentException;
 }

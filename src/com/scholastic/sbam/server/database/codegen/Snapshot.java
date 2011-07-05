@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Jul 1, 2011 1:29:56 PM by Hibernate Tools 3.2.4.GA
+// Generated Jul 4, 2011 7:39:15 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -9,7 +9,7 @@ import java.util.Date;
  */
 public class Snapshot implements java.io.Serializable {
 
-	private String snapshotCode;
+	private Integer snapshotId;
 	private String snapshotName;
 	private String snapshotType;
 	private char productServiceType;
@@ -23,10 +23,9 @@ public class Snapshot implements java.io.Serializable {
 	public Snapshot() {
 	}
 
-	public Snapshot(String snapshotCode, String snapshotName,
-			String snapshotType, char productServiceType, int seq,
-			String orgPath, String note, Date createdDatetime, char status) {
-		this.snapshotCode = snapshotCode;
+	public Snapshot(String snapshotName, String snapshotType,
+			char productServiceType, int seq, String orgPath, String note,
+			Date createdDatetime, char status) {
 		this.snapshotName = snapshotName;
 		this.snapshotType = snapshotType;
 		this.productServiceType = productServiceType;
@@ -37,11 +36,9 @@ public class Snapshot implements java.io.Serializable {
 		this.status = status;
 	}
 
-	public Snapshot(String snapshotCode, String snapshotName,
-			String snapshotType, char productServiceType, Date snapshotTaken,
-			int seq, String orgPath, String note, Date createdDatetime,
-			char status) {
-		this.snapshotCode = snapshotCode;
+	public Snapshot(String snapshotName, String snapshotType,
+			char productServiceType, Date snapshotTaken, int seq,
+			String orgPath, String note, Date createdDatetime, char status) {
 		this.snapshotName = snapshotName;
 		this.snapshotType = snapshotType;
 		this.productServiceType = productServiceType;
@@ -53,12 +50,12 @@ public class Snapshot implements java.io.Serializable {
 		this.status = status;
 	}
 
-	public String getSnapshotCode() {
-		return this.snapshotCode;
+	public Integer getSnapshotId() {
+		return this.snapshotId;
 	}
 
-	public void setSnapshotCode(String snapshotCode) {
-		this.snapshotCode = snapshotCode;
+	public void setSnapshotId(Integer snapshotId) {
+		this.snapshotId = snapshotId;
 	}
 
 	public String getSnapshotName() {

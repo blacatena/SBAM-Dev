@@ -5,14 +5,14 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class SnapshotServiceTreeInstance extends TreeInstance<SnapshotServiceTreeInstance> implements BeanModelTag, IsSerializable {
 	
-	private String snapshotCode;
-	private String serviceCode;
+	private int		snapshotId;
+	private String	serviceCode;
 	
-	public String getSnapshotCode() {
-		return snapshotCode;
+	public int getSnapshotId() {
+		return snapshotId;
 	}
-	public void setSnapshotCode(String snapshotCode) {
-		this.snapshotCode = snapshotCode;
+	public void setSnapshotId(int snapshotId) {
+		this.snapshotId = snapshotId;
 	}
 	public String getServiceCode() {
 		return serviceCode;
@@ -21,6 +21,6 @@ public class SnapshotServiceTreeInstance extends TreeInstance<SnapshotServiceTre
 		this.serviceCode = serviceCode;
 	}
 	public String getUniqueKey() {
-		return snapshotCode + " / " + serviceCode;
+		return snapshotId + " / " + serviceCode;
 	}
 }

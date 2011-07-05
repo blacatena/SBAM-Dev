@@ -13,6 +13,7 @@ import com.scholastic.sbam.server.database.objects.DbService;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.objects.SnapshotServiceTreeInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
+import com.scholastic.sbam.shared.util.AppConstants;
 
 /**
  * The server side implementation of the RPC service to list product service assignments.
@@ -24,12 +25,12 @@ import com.scholastic.sbam.shared.security.SecurityManager;
 public class SnapshotServiceListServiceImpl extends TreeListServiceBase<SnapshotServiceTreeInstance> implements SnapshotServiceListService {
 	
 	@Override
-	public List<SnapshotServiceTreeInstance> getSnapshotServices(String snapshotCode, LoadConfig loadConfig) throws IllegalArgumentException {
+	public List<SnapshotServiceTreeInstance> getSnapshotServices(int snapshotId, LoadConfig loadConfig) throws IllegalArgumentException {
 		
 		authenticate("list snapshot services", SecurityManager.ROLE_QUERY);
 		
-		if (snapshotCode == null || snapshotCode.length() == 0)
-			throw new IllegalArgumentException("Snapshot code is a required argument.");
+		if (snapshotId <= 0)
+			throw new IllegalArgumentException("Snapshot ID is a required argument.");
 		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();
@@ -40,7 +41,7 @@ public class SnapshotServiceListServiceImpl extends TreeListServiceBase<Snapshot
 		try {
 			
 			//	Find only undeleted product services
-			List<SnapshotProductService> productServices = DbSnapshotProductService.findServiceBySnapshot(snapshotCode, 'X');
+			List<SnapshotProductService> productServices = DbSnapshotProductService.findServiceBySnapshot(snapshotId, AppConstants.STATUS_DELETED);
 			
 			//	Create a hash set of the selected product services
 			HashSet<String> selectedServices = new HashSet<String>();
@@ -53,7 +54,7 @@ public class SnapshotServiceListServiceImpl extends TreeListServiceBase<Snapshot
 			for (Service service : services) {
 				SnapshotServiceTreeInstance instance = new SnapshotServiceTreeInstance();
 				
-				instance.setSnapshotCode(snapshotCode);
+				instance.setSnapshotId(snapshotId);
 				instance.setServiceCode(service.getServiceCode());
 				instance.setDescription(service.getDescription());
 				instance.setType(SnapshotServiceTreeInstance.SERVICE);

@@ -303,6 +303,22 @@ div.x-item-disabled *.x-form-trigger.trigger-square {
 	background-image:url(resources/images/form/trigger-notes-add.gif);
 }
 
+.x-form-field-wrap.tree-grid-notes-button .x-form-trigger.trigger-notes-add {
+/*	background-position: 3px -2px; */
+	width: 12px;
+	left: 0;
+	margin-top: -2px;
+	padding-left: 4px;
+}
+
+.x-form-field-wrap.tree-grid-notes-button .x-form-trigger.trigger-notes-edit {
+/*	background-position: 3px -2px; */
+	width: 12px;
+	left: 0;
+	margin-top: -2px;
+	padding-left: 4px;
+}
+
 div.noteToolTip {
 	padding: 5px;
 }

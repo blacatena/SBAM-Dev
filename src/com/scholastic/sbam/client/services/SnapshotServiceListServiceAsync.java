@@ -8,6 +8,6 @@ import com.scholastic.sbam.shared.objects.SnapshotServiceTreeInstance;
 
 public interface SnapshotServiceListServiceAsync {
 
-	void getSnapshotServices(String snapshotCode, LoadConfig loadConfig, AsyncCallback<List<SnapshotServiceTreeInstance>> callback);
+	void getSnapshotServices(int snapshotId, LoadConfig loadConfig, AsyncCallback<List<SnapshotServiceTreeInstance>> callback);
 
 }

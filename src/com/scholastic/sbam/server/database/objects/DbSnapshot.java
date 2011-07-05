@@ -24,7 +24,7 @@ public class DbSnapshot extends HibernateAccessor {
 	public static SnapshotInstance getInstance(Snapshot dbInstance) {
 		SnapshotInstance instance = new SnapshotInstance();
 
-		instance.setSnapshotCode(dbInstance.getSnapshotCode());
+		instance.setSnapshotId(dbInstance.getSnapshotId());
 		
 		instance.setSnapshotName(dbInstance.getSnapshotName());
 		instance.setSnapshotType(dbInstance.getSnapshotType());
@@ -40,9 +40,9 @@ public class DbSnapshot extends HibernateAccessor {
 		return instance;
 	}
 	
-	public static Snapshot getByCode(String snapshotCode) {
+	public static Snapshot getById(int snapshotId) {
 		try {
-			Snapshot instance = (Snapshot) sessionFactory.getCurrentSession().get(getObjectReference(objectName), snapshotCode);
+			Snapshot instance = (Snapshot) sessionFactory.getCurrentSession().get(getObjectReference(objectName), snapshotId);
 			return instance;
 		} catch (RuntimeException re) {
         	re.printStackTrace();
@@ -70,7 +70,7 @@ public class DbSnapshot extends HibernateAccessor {
             	crit.add(Restrictions.like("status", status));
             if (neStatus != 0)
             	crit.add(Restrictions.ne("status", neStatus));
-            crit.addOrder(Order.asc("snapshotCode"));
+            crit.addOrder(Order.asc("snapshotId"));
             @SuppressWarnings("unchecked")
 			List<Snapshot> objects = crit.list();
             return objects;
@@ -95,7 +95,7 @@ public class DbSnapshot extends HibernateAccessor {
             	crit.add(Restrictions.ne("status", neStatus));
             crit.addOrder(Order.asc("seq"));
             crit.addOrder(Order.asc("orgPath"));
-            crit.addOrder(Order.asc("snapshotCode"));
+            crit.addOrder(Order.asc("snapshotId"));
             @SuppressWarnings("unchecked")
 			List<Snapshot> objects = crit.list();
             return objects;

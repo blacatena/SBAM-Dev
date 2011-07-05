@@ -203,12 +203,12 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 	}
 
 	
-	private String snapshotCode;
-	private String panelHeading;
+	private int						snapshotId;
+	private String					panelHeading;
 
-	private ContentPanel panel;
-	private TreePanel<ModelData> tree;
-	private TreeStore<ModelData> store;
+	private ContentPanel 			panel;
+	private TreePanel<ModelData>	tree;
+	private TreeStore<ModelData>	store;
 	
 	private final SnapshotServiceListServiceAsync snapshotServiceListService = GWT.create(SnapshotServiceListService.class);
 
@@ -220,14 +220,14 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 		this.allowReorganize = allowReorganize;
 	}
 	
-	public SnapshotServiceSelectTree(String snapshotCode) {
+	public SnapshotServiceSelectTree(int snapshotId) {
 		this();
-		this.snapshotCode = snapshotCode;
+		this.snapshotId = snapshotId;
 	}
 	
-	public SnapshotServiceSelectTree(String snapshotCode, boolean allowReorganize) {
+	public SnapshotServiceSelectTree(int snapshotId, boolean allowReorganize) {
 		this();
-		this.snapshotCode = snapshotCode;
+		this.snapshotId = snapshotId;
 		this.allowReorganize = allowReorganize;
 	}
 
@@ -731,7 +731,7 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 	
 	public SnapshotServiceTreeInstance getPstInstance(ModelData item) {
 		SnapshotServiceTreeInstance instance = new SnapshotServiceTreeInstance();
-		instance.setSnapshotCode(snapshotCode);
+		instance.setSnapshotId(snapshotId);
 		instance.setServiceCode(getAsString(item.get("serviceCode")));
 		instance.setDescription(getAsString(item.get("description")));
 		instance.setSelected(item.get("checked") != null && item.get("checked").equals("checked"));
@@ -754,14 +754,14 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 	}
 
 	protected void asyncLoad() {
-		snapshotServiceListService.getSnapshotServices(snapshotCode, null,
+		snapshotServiceListService.getSnapshotServices(snapshotId, null,
 				new AsyncCallback<List<SnapshotServiceTreeInstance>>() {
 					public void onFailure(Throwable caught) {
 						// Show the RPC error message to the user
 						if (caught instanceof IllegalArgumentException)
 							MessageBox.alert("Alert", caught.getMessage(), null);
 						else {
-							MessageBox.alert("Alert", "Get snapshot services for " + snapshotCode + " failed unexpectedly.", null);
+							MessageBox.alert("Alert", "Get snapshot services for " + snapshotId + " failed unexpectedly.", null);
 							System.out.println(caught.getClass().getName());
 							System.out.println(caught.getMessage());
 						}
@@ -802,12 +802,12 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 			panel.setHeading(panelHeading);
 	}
 
-	public String getSnapshotCode() {
-		return snapshotCode;
+	public int getSnapshotId() {
+		return snapshotId;
 	}
 
-	public void setSnapshotCode(String snapshotCode) {
-		this.snapshotCode = snapshotCode;
+	public void setSnapshotId(int snapshotId) {
+		this.snapshotId = snapshotId;
 		
 		refreshTreeData();
 	}

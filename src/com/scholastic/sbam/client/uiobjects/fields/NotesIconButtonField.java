@@ -40,17 +40,25 @@ public class NotesIconButtonField<D> extends IconButtonField<D> {
 	 * The text to display when there is no note.
 	 */
 	protected String	emptyNoteText	= "Click the icon to create a note.";
+	/**
+	 * Whether the popup should be closeable, or dismiss on its own.
+	 */
+	protected boolean	closeable		= true;
 	
 	public NotesIconButtonField(LayoutContainer constrainContainer) {
 		this.constrainContainer = constrainContainer;
 		this.setTriggerStyle("trigger-notes-add");
 	}
 	
+	public void setNote(String note) {
+		setNote(note, false);
+	}
+	
 	/**
 	 * Set the note to this value, along with the corresponding tooltip.
 	 * @param note
 	 */
-	public void setNote(String note) {
+	public void setNote(String note, boolean setMode) {
 		if (note == null)
 			note = "";
 		
@@ -63,12 +71,18 @@ public class NotesIconButtonField<D> extends IconButtonField<D> {
 		notesToolTip.setTitle("<b>Notes</b>");  
 		notesToolTip.setMouseOffset(new int[] {-2, 0});  
 		notesToolTip.setAnchor("right");  
-		notesToolTip.setCloseable(true);
+		notesToolTip.setCloseable(closeable);
 		notesToolTip.setMaxWidth(415);
 		notesToolTip.setMinWidth(200);
 		notesToolTip.setText("<div class=\"noteToolTip\"><div>" + note + "</div></div>");
 		
 		this.setToolTip(notesToolTip);
+		
+		if (setMode)
+			if (this.note.length() == 0)
+				setAddMode();
+			else
+				setEditMode();
 	}
 
 	public void setEditMode() {
@@ -190,6 +204,14 @@ public class NotesIconButtonField<D> extends IconButtonField<D> {
 		this.allowDisable = allowDisable;
 	}
 	
+	public boolean isCloseable() {
+		return closeable;
+	}
+
+	public void setCloseable(boolean closeable) {
+		this.closeable = closeable;
+	}
+
 	public String getNote() {
 		return note;
 	}

@@ -23,9 +23,9 @@ public class DbSnapshotProductService extends HibernateAccessor {
 	
 	static String objectName = SnapshotProductService.class.getSimpleName();
 	
-	public static SnapshotProductService getById(String snapshotCode, String productServiceCode) {
+	public static SnapshotProductService getById(int snapshotId, String productServiceCode) {
 		SnapshotProductServiceId spsId = new SnapshotProductServiceId();
-		spsId.setSnapshotCode(snapshotCode);
+		spsId.setSnapshotId(snapshotId);
 		spsId.setProductServiceCode(productServiceCode);
 		
 		return getById(spsId);
@@ -51,8 +51,8 @@ public class DbSnapshotProductService extends HibernateAccessor {
 	 *  Use 'X' to exclude all deleted service codes.
 	 * @return
 	 */
-	public static List<SnapshotProductService> findServiceBySnapshot(String snapshotCode, char excludeStatus) {
-		return findFilteredService(snapshotCode, null, excludeStatus);
+	public static List<SnapshotProductService> findServiceBySnapshot(int snapshotId, char excludeStatus) {
+		return findFilteredService(snapshotId, null, excludeStatus);
 	}
 	
 	/**
@@ -62,19 +62,19 @@ public class DbSnapshotProductService extends HibernateAccessor {
 	 *  Use 'X' to exclude all deleted service codes.
 	 * @return
 	 */
-	public static List<SnapshotProductService> findProductBySnapshot(String snapshotCode, char excludeStatus) {
-		return findFilteredProduct(snapshotCode, null, excludeStatus);
+	public static List<SnapshotProductService> findProductBySnapshot(int snapshotId, char excludeStatus) {
+		return findFilteredProduct(snapshotId, null, excludeStatus);
 	}
 	
-	public static List<SnapshotProductService> findFiltered(String snapshotCode, String productServiceCode) {
+	public static List<SnapshotProductService> findFiltered(int snapshotId, String productServiceCode) {
         try
         {
             Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
-            if (snapshotCode != null && snapshotCode.length() > 0)
-            	crit.add(Restrictions.like("id.snapshotCode", snapshotCode));
+            if (snapshotId > 0)
+            	crit.add(Restrictions.like("id.snapshotId", snapshotId));
             if (productServiceCode != null && productServiceCode.length() > 0)
             	crit.add(Restrictions.like("id.productServiceCode", productServiceCode));
-            crit.addOrder(Order.asc("id.snapshotCode"));
+            crit.addOrder(Order.asc("id.snapshotId"));
             crit.addOrder(Order.asc("id.productServiceCode"));
             @SuppressWarnings("unchecked")
 			List<SnapshotProductService> objects = crit.list();
@@ -88,19 +88,19 @@ public class DbSnapshotProductService extends HibernateAccessor {
         return new ArrayList<SnapshotProductService>();
 	}
 	
-	public static List<SnapshotProductService> findFilteredService(String snapshotCode, String serviceCode, char neStatus) {
-		return findFilteredService(snapshotCode, serviceCode, AppConstants.STATUS_ANY_NONE, neStatus);
+	public static List<SnapshotProductService> findFilteredService(int snapshotId, String serviceCode, char neStatus) {
+		return findFilteredService(snapshotId, serviceCode, AppConstants.STATUS_ANY_NONE, neStatus);
 	}
 	
-	public static List<SnapshotProductService> findFilteredService(String snapshotCode, String serviceCode, char status, char neStatus) {
+	public static List<SnapshotProductService> findFilteredService(int snapshotId, String serviceCode, char status, char neStatus) {
         try
         {
         	if (neStatus == 0)
-        		return findFiltered(snapshotCode, serviceCode);
+        		return findFiltered(snapshotId, serviceCode);
         	
         	String sqlQuery = "SELECT snapshot_product_service.* FROM snapshot_product_service, service WHERE ";
-            if (snapshotCode != null && snapshotCode.length() > 0)
-            	sqlQuery += " snapshot_product_service.snapshot_code = '" + snapshotCode + "' AND ";
+            if (snapshotId  > 0)
+            	sqlQuery += " snapshot_product_service.snapshot_id = '" + snapshotId + "' AND ";
             if (serviceCode != null && serviceCode.length() > 0)
             	sqlQuery += " snapshot_product_service.product_service_code = '" + serviceCode + "' AND ";
             sqlQuery += " service.service_code = snapshot_product_service.product_service_code AND ";
@@ -110,7 +110,7 @@ public class DbSnapshotProductService extends HibernateAccessor {
             if (neStatus == AppConstants.STATUS_ANY_NONE)
             	neStatus = AppConstants.STATUS_DELETED;
             sqlQuery += " service.status <> '" + neStatus + "' ";
-            sqlQuery += " order by snapshot_product_service.snapshot_code, snapshot_product_service.product_service_code";
+            sqlQuery += " order by snapshot_product_service.snapshot_id, snapshot_product_service.product_service_code";
             
             SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery);
             
@@ -129,19 +129,19 @@ public class DbSnapshotProductService extends HibernateAccessor {
         return new ArrayList<SnapshotProductService>();
 	}
 	
-	public static List<SnapshotProductService> findFilteredProduct(String snapshotCode, String productCode, char neStatus) {
-		return findFilteredService(snapshotCode, productCode, AppConstants.STATUS_ANY_NONE, neStatus);
+	public static List<SnapshotProductService> findFilteredProduct(int snapshotId, String productCode, char neStatus) {
+		return findFilteredService(snapshotId, productCode, AppConstants.STATUS_ANY_NONE, neStatus);
 	}
 	
-	public static List<SnapshotProductService> findFilteredProduct(String snapshotCode, String productCode, char status, char neStatus) {
+	public static List<SnapshotProductService> findFilteredProduct(int snapshotId, String productCode, char status, char neStatus) {
         try
         {
         	if (neStatus == 0)
-        		return findFiltered(snapshotCode, productCode);
+        		return findFiltered(snapshotId, productCode);
         	
         	String sqlQuery = "SELECT snapshot_product_service.* FROM snapshot_product_service, product WHERE ";
-            if (snapshotCode != null && snapshotCode.length() > 0)
-            	sqlQuery += " snapshot_product_service.snapshot_code = '" + snapshotCode + "' AND ";
+            if (snapshotId > 0)
+            	sqlQuery += " snapshot_product_service.snapshot_id = '" + snapshotId + "' AND ";
             if (productCode != null && productCode.length() > 0)
             	sqlQuery += " snapshot_product_service.product_service_code = '" + productCode + "' AND ";
             sqlQuery += " product.product_code = snapshot_product_service.product_service_code AND ";
@@ -151,7 +151,7 @@ public class DbSnapshotProductService extends HibernateAccessor {
             if (neStatus == AppConstants.STATUS_ANY_NONE)
             	neStatus = AppConstants.STATUS_DELETED;
             sqlQuery += " product.status <> '" + neStatus + "' ";
-            sqlQuery += " order by snapshot_product_service.snapshot_code, snapshot_product_service.product_service_code";
+            sqlQuery += " order by snapshot_product_service.snapshot_id, snapshot_product_service.product_service_code";
             
             SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery);
             

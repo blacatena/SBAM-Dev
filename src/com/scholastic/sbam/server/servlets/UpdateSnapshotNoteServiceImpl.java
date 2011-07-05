@@ -30,7 +30,7 @@ public class UpdateSnapshotNoteServiceImpl extends AuthenticatedServiceServlet i
 		try {
 			
 			//	Get existing
-			dbInstance = DbSnapshot.getByCode(instance.getSnapshotCode());
+			dbInstance = DbSnapshot.getById(instance.getSnapshotId());
 			if (dbInstance == null)
 				throw new IllegalArgumentException("Snapshot " + instance + " not found.");
 				

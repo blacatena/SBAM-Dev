@@ -30,7 +30,7 @@ public class UpdateSnapshotServiceImpl extends AuthenticatedServiceServlet imple
 		Snapshot dbInstance = null;
 		
 		@SuppressWarnings("unused")
-		Authentication auth = authenticate("update snapshot", SecurityManager.ROLE_CONFIG);	// May later be used for logging activity
+		Authentication auth = authenticate("update snapshot", SecurityManager.ROLE_QUERY);	// May later be used for logging activity
 		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();
@@ -41,8 +41,8 @@ public class UpdateSnapshotServiceImpl extends AuthenticatedServiceServlet imple
 			validateInput(instance);
 			
 			//	Get existing, or create new
-			if (instance.getSnapshotCode() != null) {
-				dbInstance = DbSnapshot.getByCode(instance.getSnapshotCode());
+			if (instance.getSnapshotId() <= 0) {
+				dbInstance = DbSnapshot.getById(instance.getSnapshotId());
 			}
 
 			//	If none found, create new
@@ -55,8 +55,8 @@ public class UpdateSnapshotServiceImpl extends AuthenticatedServiceServlet imple
 			}
 
 			//	Update values
-			if (instance.getSnapshotCode() != null)
-				dbInstance.setSnapshotCode(instance.getSnapshotCode());
+//			if (instance.getSnapshotId() > 0)
+//				dbInstance.setSnapshotId(instance.getSnapshotId());
 			if (instance.getSnapshotName() != null)
 				dbInstance.setSnapshotName(instance.getSnapshotName());
 			if (instance.getSnapshotType() != null)
@@ -96,7 +96,7 @@ public class UpdateSnapshotServiceImpl extends AuthenticatedServiceServlet imple
 			//	Refresh when new row is created, to get assigned ID
 			if (newCreated) {
 			//	DbSnapshot.refresh(dbInstance);	// This may not be necessary, but just in case
-			//	instance.setId(dbInstance.getId());	// Not auto-increment, so not needed
+				instance.setSnapshotId(dbInstance.getSnapshotId());
 				instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
 			}
 			
