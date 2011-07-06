@@ -21,6 +21,8 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Record;
 import com.extjs.gxt.ui.client.store.Store;
+import com.extjs.gxt.ui.client.store.StoreEvent;
+import com.extjs.gxt.ui.client.store.StoreListener;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -309,6 +311,34 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	 */
 	public void createTreeStore() {
 		store = new TreeStore<ModelData>();
+		
+		store.addStoreListener(new StoreListener<ModelData>() {
+			@Override
+			public void storeDataChanged(StoreEvent<ModelData> se) {
+				System.out.println("storeDataChanged");
+			}
+			@Override
+			public void storeAdd(StoreEvent<ModelData> se) {
+				System.out.println("storeAdd");
+			}
+			@Override
+			public void storeRemove(StoreEvent<ModelData> se) {
+				System.out.println("storeRemove");
+			}
+			@Override
+			public void storeUpdate(StoreEvent<ModelData> se) {
+				System.out.println("storeUpdate -- handle name change update here");
+			}
+			@Override
+			public void storeSort(StoreEvent<ModelData> se) {
+				System.out.println("storeSort");
+			}
+			@Override
+			public void storeFilter(StoreEvent<ModelData> se) {
+				System.out.println("storeFilter");
+			}
+		});
+		
 		refreshTreeData();
 	}
 	
@@ -386,7 +416,13 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	    });
 	    
 	    ColumnConfig name = new ColumnConfig("description",	"Name", 200);		//	Not snapshot.snapshotName, because folders don't have a snapshot
-	    name.setEditor(new CellEditor(new TextField<String>()));
+	    name.setEditor(new CellEditor(new TextField<String>()) {
+	    	@Override
+	    	protected void completeEdit(boolean remainVisible) {
+	    		super.completeEdit(remainVisible);
+	    		System.out.println("Edit completed");
+	    	}
+	    });
 	    
 	    ColumnConfig date = new ColumnConfig("snapshot.snapshotTaken",	"Date Snapshot Taken", 120);
 	    date.setDateTimeFormat(UiConstants.APP_DATE_PLUS_TIME_FORMAT);
