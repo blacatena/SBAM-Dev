@@ -27,6 +27,8 @@ public class UpdateSnapshotServiceImpl extends AuthenticatedServiceServlet imple
 		
 		String	messages				= null;
 		
+		int referenceId	= instance.getSnapshotId();
+		
 		Snapshot dbInstance = null;
 		
 		@SuppressWarnings("unused")
@@ -113,7 +115,11 @@ public class UpdateSnapshotServiceImpl extends AuthenticatedServiceServlet imple
 			HibernateUtil.closeSession();
 		}
 		
-		return new UpdateResponse<SnapshotInstance>(instance, messages);
+		UpdateResponse<SnapshotInstance> response = new UpdateResponse<SnapshotInstance>(instance, messages);
+		if (referenceId < 0) {
+			response.setProperty("referenceId", referenceId);
+		}
+		return response;
 	}
 	
 	private void validateInput(SnapshotInstance instance) throws IllegalArgumentException {

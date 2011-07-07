@@ -1,11 +1,14 @@
 package com.scholastic.sbam.shared.objects;
 
+import java.util.HashMap;
+
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class UpdateResponse<I extends BetterRowEditInstance> implements IsSerializable {
 	private String message;
 	private I instance;
 	private boolean newCreated;
+	private HashMap<String, Object> otherInfo;
 	
 	public UpdateResponse() {
 		
@@ -49,5 +52,26 @@ public class UpdateResponse<I extends BetterRowEditInstance> implements IsSerial
 	public void setNewCreated(boolean newCreated) {
 		this.newCreated = newCreated;
 	}
+
+	public HashMap<String, Object> getOtherInfo() {
+		if (otherInfo == null)
+			otherInfo = new HashMap<String, Object>();
+		return otherInfo;
+	}
+
+	public void setOtherInfo(HashMap<String, Object> otherInfo) {
+		this.otherInfo = otherInfo;
+	}
 	
+	public void setProperty(String key, Object value) {
+		if (otherInfo == null)
+			otherInfo = new HashMap<String, Object>();
+		otherInfo.put(key, value);
+	}
+	
+	public Object getProperty(String key) {
+		if (otherInfo == null)
+			otherInfo = new HashMap<String, Object>();
+		return otherInfo.get(key);
+	}
 }

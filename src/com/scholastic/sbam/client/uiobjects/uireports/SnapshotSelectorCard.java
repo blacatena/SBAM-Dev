@@ -59,12 +59,19 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.scholastic.sbam.client.services.SnapshotListService;
 import com.scholastic.sbam.client.services.SnapshotListServiceAsync;
+import com.scholastic.sbam.client.services.UpdateSnapshotBasicsService;
+import com.scholastic.sbam.client.services.UpdateSnapshotBasicsServiceAsync;
+import com.scholastic.sbam.client.services.UpdateSnapshotNoteService;
+import com.scholastic.sbam.client.services.UpdateSnapshotNoteServiceAsync;
+import com.scholastic.sbam.client.services.UpdateSnapshotService;
+import com.scholastic.sbam.client.services.UpdateSnapshotServiceAsync;
 import com.scholastic.sbam.client.uiobjects.fields.NotesIconButtonField;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.SnapshotInstance;
 import com.scholastic.sbam.shared.objects.SnapshotTreeInstance;
+import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper {
@@ -73,14 +80,16 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	protected boolean	allowReorganize		=	true;
 	protected String	snapshotTypeFilter	=	"";
 	
-	protected String snapshotId;
-	protected String panelHeading;
+	protected String	panelHeading;
 
 	protected ContentPanel panel;
 	protected EditorTreeGrid<ModelData> treeGrid;
 	protected TreeStore<ModelData> store;
 	
-	protected final SnapshotListServiceAsync snapshotServiceListService = GWT.create(SnapshotListService.class);
+	protected final SnapshotListServiceAsync snapshotListService = GWT.create(SnapshotListService.class);
+	protected final UpdateSnapshotBasicsServiceAsync updateSnapshotBasicsService = GWT.create(UpdateSnapshotBasicsService.class);
+	protected final UpdateSnapshotServiceAsync updateSnapshotService = GWT.create(UpdateSnapshotService.class);
+	protected final UpdateSnapshotNoteServiceAsync updateSnapshotNoteService = GWT.create(UpdateSnapshotNoteService.class);
 	
 	
 	/**
@@ -93,7 +102,7 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 		/**
 		 * 
 		 */
-		private static final long serialVersionUID = 1L;
+		protected static final long serialVersionUID = 1L;
 
 		public Folder() {
 			set("type", "folder");
@@ -101,7 +110,7 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 
 		public Folder(String description) {
 			this();
-			set("snapshotId", "");
+			set("snapshotId", 0);
 			set("description", description);
 			set("status", AppConstants.STATUS_NEW);
 			set("statusDescription", SnapshotTreeInstance.getStatusDescription(AppConstants.STATUS_NEW));
@@ -190,7 +199,7 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 			}
 		}
 		
-		private boolean isFolder(ModelData item) {
+		protected boolean isFolder(ModelData item) {
 			return item.get("type") != null && item.get("type").equals("folder");
 		}
 		
@@ -278,7 +287,7 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 		final LayoutContainer tools = new LayoutContainer(new RowLayout(Orientation.HORIZONTAL));
 		tools.setHeight(30);
 		tools.add(filter,  new RowData(200, -1, new Margins(2)));
-		tools.add(toolbar, new RowData(450, 30, new Margins(2)));
+		tools.add(toolbar, new RowData(550, 30, new Margins(2)));
 		
 		LayoutContainer inset = new LayoutContainer(new FlowLayout(10)) {
 //			@Override
@@ -314,29 +323,31 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 		
 		store.addStoreListener(new StoreListener<ModelData>() {
 			@Override
-			public void storeDataChanged(StoreEvent<ModelData> se) {
-				System.out.println("storeDataChanged");
-			}
-			@Override
-			public void storeAdd(StoreEvent<ModelData> se) {
-				System.out.println("storeAdd");
-			}
-			@Override
-			public void storeRemove(StoreEvent<ModelData> se) {
-				System.out.println("storeRemove");
-			}
-			@Override
 			public void storeUpdate(StoreEvent<ModelData> se) {
-				System.out.println("storeUpdate -- handle name change update here");
+				doUpdateSnapshots();	//	Apply name or status changes to snapshots
 			}
-			@Override
-			public void storeSort(StoreEvent<ModelData> se) {
-				System.out.println("storeSort");
-			}
-			@Override
-			public void storeFilter(StoreEvent<ModelData> se) {
-				System.out.println("storeFilter");
-			}
+			
+			//	Other events available
+//			@Override
+//			public void storeDataChanged(StoreEvent<ModelData> se) {
+//				System.out.println("storeDataChanged");
+//			}
+//			@Override
+//			public void storeAdd(StoreEvent<ModelData> se) {
+//				System.out.println("storeAdd");
+//			}
+//			@Override
+//			public void storeRemove(StoreEvent<ModelData> se) {
+//				System.out.println("storeRemove");
+//			}
+//			@Override
+//			public void storeSort(StoreEvent<ModelData> se) {
+//				System.out.println("storeSort");
+//			}
+//			@Override
+//			public void storeFilter(StoreEvent<ModelData> se) {
+//				System.out.println("storeFilter");
+//			}
 		});
 		
 		refreshTreeData();
@@ -416,13 +427,14 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	    });
 	    
 	    ColumnConfig name = new ColumnConfig("description",	"Name", 200);		//	Not snapshot.snapshotName, because folders don't have a snapshot
-	    name.setEditor(new CellEditor(new TextField<String>()) {
-	    	@Override
-	    	protected void completeEdit(boolean remainVisible) {
-	    		super.completeEdit(remainVisible);
-	    		System.out.println("Edit completed");
-	    	}
-	    });
+	    name.setEditor(new CellEditor(new TextField<String>()) );
+//	    {
+//	    	@Override
+//	    	protected void completeEdit(boolean remainVisible) {
+//	    		super.completeEdit(remainVisible);
+//	    		System.out.println("Edit completed");	// Might use this to trigger name change saves, but for now, the store is detecting them more efficiently
+//	    	}
+//	    });
 	    
 	    ColumnConfig date = new ColumnConfig("snapshot.snapshotTaken",	"Date Snapshot Taken", 120);
 	    date.setDateTimeFormat(UiConstants.APP_DATE_PLUS_TIME_FORMAT);
@@ -445,13 +457,24 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 		ButtonBar toolbar = new ButtonBar();
 		toolbar.setAlignment(HorizontalAlignment.RIGHT);
 		
-		Button newButton = new Button("New Snapshot");
-		IconSupplier.forceIcon(newButton, IconSupplier.getSnapshotAddIconName());
-		newButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+		Button newSnapshotButton = new Button("New Snapshot");
+		IconSupplier.forceIcon(newSnapshotButton, IconSupplier.getSnapshotAddIconName());
+		newSnapshotButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			   
 			@Override
 			public void componentSelected(ButtonEvent ce) {
 				createNewSnapshot();
+			}  
+		 
+		});
+		
+		Button newFolderButton = new Button("New Folder");
+		IconSupplier.forceIcon(newFolderButton, IconSupplier.getFolderAddIconName());
+		newFolderButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			   
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				createNewFolder();
 			}  
 		 
 		});
@@ -484,7 +507,7 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 			   
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				doUpdate();
+				doUpdateTreeStructure();
 			}  
 		 
 		});
@@ -500,24 +523,16 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 		 
 		});
 
-		toolbar.add(newButton);
+		toolbar.add(newSnapshotButton);
+		toolbar.add(newFolderButton);
 		toolbar.add(new SeparatorToolItem());
 		toolbar.add(expandButton);
 		toolbar.add(collapseButton);
+		toolbar.add(new SeparatorToolItem());
 		toolbar.add(saveButton);
 		toolbar.add(resetButton);
 		
 		return toolbar;
-	}
-	
-	public void createNewSnapshot() {
-	    ModelData parent = treeGrid.getSelectionModel().getSelectedItem();
-    	SnapshotTreeInstance newTreeInstance = new SnapshotTreeInstance(SnapshotInstance.getNewInstance());
-	    if (isFolder(parent)) {
-	    	addInstanceToStore(parent, newTreeInstance, true);
-	    	treeGrid.setExpanded(parent, true);
-	    } else
-	    	addInstanceToStore(null, newTreeInstance, true);
 	}
 	
 	/**
@@ -537,90 +552,6 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 			return;
 		
 		Menu contextMenu = new Menu();
- 
-		MenuItem insert = new MenuItem();
-		insert.setText("Create Folder");
-		insert.setIcon(IconSupplier.getMenuIcon(IconSupplier.getInsertIconName()));
-		insert.addSelectionListener(new SelectionListener<MenuEvent>() {  
-			  public void componentSelected(MenuEvent ce) {  
-				  ModelData parent = treeGrid.getSelectionModel().getSelectedItem();
-			     
-			      Folder child = new Folder("New Folder " + UiConstants.formatDate(new Date())); //((int) (Math.random() * 100)));
-			      // folderRename(child, "Enter a name for the new folder:");
-			      if (parent != null && isFolder(parent)) {
-				      store.insert(parent, child, 0, false);
-				      treeGrid.setExpanded(parent, true);
-			      } else 
-			    	  if (parent != null && store.getParent(parent) != null)
-			    		  store.insert(store.getParent(parent), child, store.indexOf(parent), false);
-			    	  else if (parent != null)
-			    		  store.insert(child, store.indexOf(parent), false);
-			    	  else
-			    		  store.insert(child, 0, false);
-			  }
-		});
-		contextMenu.add(insert);
-
-		MenuItem remove = new MenuItem();
-		remove.setText("Remove");
-		remove.setIcon(IconSupplier.getMenuIcon(IconSupplier.getRemoveIconName()));
-		remove.addSelectionListener(new SelectionListener<MenuEvent>() {  
-		  public void componentSelected(MenuEvent ce) {
-		    List<ModelData> selected = treeGrid.getSelectionModel().getSelectedItems();
-		    if (selected == null || selected.size() == 0) {
-		    	MessageBox.alert("Alert", "Select a row or rows to be deleted.", null);
-		    	return;
-		    }
-		    for (ModelData sel : selected) { 
-		    	if (isFolder(sel)) {
-	    			//  Save the children, to restore them after removing the folder
-	    			List<ModelData> children = store.getChildren(sel, true);
-	    			ModelData parent = store.getParent(sel);
-		    		store.remove(sel);
-		    		//	Put the children back
-		    		for (ModelData child : children) {
-		    			if (parent != null)
-		    				store.add(parent, child, true);
-		    			else
-		    				store.add(child, true);
-		    		}
-		    	} else {
-		    		Record record = store.getRecord(sel);
-		    		record.beginEdit();
-		    		record.set("status", AppConstants.STATUS_DELETED);
-		    		record.set("statusDescription", SnapshotTreeInstance.getStatusDescription(AppConstants.STATUS_DELETED));
-		    		record.endEdit();
-		    	}
-		    }  
-		  }  
-		});
-		contextMenu.add(remove);
-
-		MenuItem restore = new MenuItem();
-		restore.setText("Restore Snapshot");
-		restore.setIcon(IconSupplier.getMenuIcon(IconSupplier.getCancelIconName()));
-		restore.addSelectionListener(new SelectionListener<MenuEvent>() {  
-		  public void componentSelected(MenuEvent ce) {
-		    List<ModelData> selected = treeGrid.getSelectionModel().getSelectedItems();
-		    
-		    int count = 0;
-		    for (ModelData sel : selected) { 
-		    	if (!isFolder(sel) && AppConstants.STATUS_DELETED == sel.get("status").toString().charAt(0)) {
-		    		count++;
-		    		Record record = store.getRecord(sel);
-		    		record.beginEdit();
-		    		record.set("status", AppConstants.STATUS_ACTIVE);
-		    		record.set("statusDescription", SnapshotTreeInstance.getStatusDescription(AppConstants.STATUS_ACTIVE));
-		    		record.endEdit();
-		    	}
-		    }  
-		    if (count == 0) {
-		    	MessageBox.alert("Alert", "Select a deleted snapshot or snapsnots to be restored.", null);
-		    	return;
-		    }
-		  }  
-		});
-		contextMenu.add(restore);
 
 		MenuItem create = new MenuItem();
 		create.setText("Create Snapshot");
@@ -631,6 +562,36 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 		  }  
 		});
 		contextMenu.add(create);
+ 
+		MenuItem insert = new MenuItem();
+		insert.setText("Create Folder");
+		insert.setIcon(IconSupplier.getMenuIcon(IconSupplier.getFolderAddIconName()));
+		insert.addSelectionListener(new SelectionListener<MenuEvent>() {  
+			  public void componentSelected(MenuEvent ce) { 
+				  createNewFolder();
+			  }
+		});
+		contextMenu.add(insert);
+
+		MenuItem remove = new MenuItem();
+		remove.setText("Remove");
+		remove.setIcon(IconSupplier.getMenuIcon(IconSupplier.getRemoveIconName()));
+		remove.addSelectionListener(new SelectionListener<MenuEvent>() {  
+		  public void componentSelected(MenuEvent ce) {
+			  removeSelectedItems();
+		  }  
+		});
+		contextMenu.add(remove);
+
+		MenuItem restore = new MenuItem();
+		restore.setText("Restore Snapshot");
+		restore.setIcon(IconSupplier.getMenuIcon(IconSupplier.getCancelIconName()));
+		restore.addSelectionListener(new SelectionListener<MenuEvent>() {  
+		  public void componentSelected(MenuEvent ce) {
+			  restoreSnapshot();
+		  }  
+		});
+		contextMenu.add(restore);
 
 		if (treeGrid != null)
 			treeGrid.setContextMenu(contextMenu);
@@ -639,25 +600,188 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	/**
 	 * Reload the tree from the database.
 	 */
-	private void refreshTreeData() {
+	protected void refreshTreeData() {
 		if (store != null) {
 			//	Note... the store will be *cleared* and replaced when the data is successfully retrieved... don't removeAll() now
 			asyncLoad();
 		}
 	}
 	
+	protected void createNewFolder() { 
+		  ModelData parent = treeGrid.getSelectionModel().getSelectedItem();
+		     
+	      Folder child = new Folder("New Folder " + UiConstants.formatDate(new Date())); //((int) (Math.random() * 100)));
+	      // folderRename(child, "Enter a name for the new folder:");
+	      if (parent != null && isFolder(parent)) {
+		      store.insert(parent, child, 0, false);
+		      treeGrid.setExpanded(parent, true);
+	      } else 
+	    	  if (parent != null && store.getParent(parent) != null)
+	    		  store.insert(store.getParent(parent), child, store.indexOf(parent), false);
+	    	  else if (parent != null)
+	    		  store.insert(child, store.indexOf(parent), false);
+	    	  else
+	    		  store.insert(child, 0, false);
+	}
+	
+	protected void removeSelectedItems() {
+	    List<ModelData> selected = treeGrid.getSelectionModel().getSelectedItems();
+	    if (selected == null || selected.size() == 0) {
+	    	MessageBox.alert("Alert", "Select a row or rows to be deleted.", null);
+	    	return;
+	    }
+	    for (ModelData sel : selected) { 
+	    	if (isFolder(sel)) {
+    			//  Save the children, to restore them after removing the folder
+    			List<ModelData> children = store.getChildren(sel, true);
+    			ModelData parent = store.getParent(sel);
+	    		store.remove(sel);
+	    		//	Put the children back
+	    		for (ModelData child : children) {
+	    			if (parent != null)
+	    				store.add(parent, child, true);
+	    			else
+	    				store.add(child, true);
+	    		}
+	    	} else {
+	    		Record record = store.getRecord(sel);
+	    		record.beginEdit();
+	    		record.set("status", AppConstants.STATUS_DELETED);
+	    		record.set("statusDescription", SnapshotTreeInstance.getStatusDescription(AppConstants.STATUS_DELETED));
+	    		record.endEdit();
+	    	}
+	    }  
+	}
+	
+	protected void restoreSnapshot() {
+	    List<ModelData> selected = treeGrid.getSelectionModel().getSelectedItems();
+	    
+	    int count = 0;
+	    for (ModelData sel : selected) { 
+	    	if (!isFolder(sel) && AppConstants.STATUS_DELETED == sel.get("status").toString().charAt(0)) {
+	    		count++;
+	    		Record record = store.getRecord(sel);
+	    		record.beginEdit();
+	    		record.set("status", AppConstants.STATUS_ACTIVE);
+	    		record.set("statusDescription", SnapshotTreeInstance.getStatusDescription(AppConstants.STATUS_ACTIVE));
+	    		record.endEdit();
+	    	}
+	    }  
+	    if (count == 0) {
+	    	MessageBox.alert("Alert", "Select a deleted snapshot or snapsnots to be restored.", null);
+	    	return;
+	    }
+	}
+	
+	/**
+	 * Update a snapshot name or status... note that this is triggered automatically by an update to the store
+	 */
+	protected void doUpdateSnapshots() {
+		for (Record record : store.getModifiedRecords()) {
+			if (record.get("snapshotId") != null) {
+				doUpdateSnapshot(record);
+			} else {
+				//	Do nothing
+				System.out.println("Folder name update " + record.get("description"));
+			}
+		}
+	}
+	
+//	public void createNewSnapshot() {
+//	    ModelData parent = treeGrid.getSelectionModel().getSelectedItem();
+//    	SnapshotTreeInstance newTreeInstance = new SnapshotTreeInstance(SnapshotInstance.getNewInstance());
+//	    if (isFolder(parent)) {
+//	    	addInstanceToStore(parent, newTreeInstance, true);
+//	    	treeGrid.setExpanded(parent, true);
+//	    } else
+//	    	addInstanceToStore(null, newTreeInstance, true);
+//	}
+	
 	/**
 	 * Update the database with the current tree settings.
 	 */
-	private void doUpdate() {		
-//		updateSnapshotListService.updateSnapshotList(productCode, getOrderedUpdateList(),
+	protected void createNewSnapshot() {
+	    final ModelData parent = treeGrid.getSelectionModel().getSelectedItem();
+		
+		SnapshotInstance instance = new SnapshotInstance();
+		instance.setSnapshotId(0);
+		instance.setSnapshotName("Snapshot " + UiConstants.formatDate(new Date()));
+		instance.setSnapshotType(snapshotTypeFilter);
+		instance.setNote("");
+		instance.setProductServiceType('s');
+		instance.setStatus(AppConstants.STATUS_ACTIVE);
+		instance.setNewRecord(true);
+		
+		updateSnapshotService.updateSnapshot(instance,
+				new AsyncCallback<UpdateResponse<SnapshotInstance>>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "Create snapshot failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+					}
+
+					public void onSuccess(UpdateResponse<SnapshotInstance> result) {
+				    	SnapshotTreeInstance newTreeInstance = new SnapshotTreeInstance(result.getInstance());
+					    if (isFolder(parent)) {
+					    	addInstanceToStore(parent, newTreeInstance, true);
+					    	treeGrid.setExpanded(parent, true);
+					    } else
+					    	addInstanceToStore(null, newTreeInstance, true);
+					}
+				});
+	}
+	
+	/**
+	 * Update the database with the current tree settings.
+	 */
+	protected void doUpdateSnapshot(final Record record) {
+		char	snapshotStatus	= (Character) record.get("status");
+		String	snapshotName	= (String) record.get("description");
+		if (record.get("snapshotId") != null) {
+			final int snapshotId = (Integer) record.getModel().get("snapshotId");
+			if (snapshotId > 0) {
+				updateSnapshotBasicsService.updateSnapshotBasics(snapshotId, snapshotName, snapshotStatus, null,
+						new AsyncCallback<UpdateResponse<SnapshotInstance>>() {
+							public void onFailure(Throwable caught) {
+								// Show the RPC error message to the user
+								if (caught instanceof IllegalArgumentException)
+									MessageBox.alert("Alert", caught.getMessage(), null);
+								else {
+									MessageBox.alert("Alert", "Update snapshot " + snapshotId + " failed unexpectedly.", null);
+									System.out.println(caught.getClass().getName());
+									System.out.println(caught.getMessage());
+								}
+							}
+		
+							public void onSuccess(UpdateResponse<SnapshotInstance> result) {
+								record.commit(true);	// commit the change
+							}
+						});
+			} else {
+				System.out.println("Tried to update snapshot with no ID in " + getClass().getName());
+			}
+		} else {
+			System.out.println("Tried to update non-snapshot record in " + getClass().getName());
+		}
+	}
+	
+	/**
+	 * Update the database with the current tree settings.
+	 */
+	protected void doUpdateTreeStructure() {		
+//		updateSnapshotListService.updateSnapshotList(snapshotTypeFilter, getOrderedUpdateList(),
 //				new AsyncCallback<String>() {
 //					public void onFailure(Throwable caught) {
 //						// Show the RPC error message to the user
 //						if (caught instanceof IllegalArgumentException)
 //							MessageBox.alert("Alert", caught.getMessage(), null);
 //						else {
-//							MessageBox.alert("Alert", "Update of product services for " + productCode + " failed unexpectedly.", null);
+//							MessageBox.alert("Alert", "Update of product services for " + snapshotTypeFilter + " failed unexpectedly.", null);
 //							System.out.println(caught.getClass().getName());
 //							System.out.println(caught.getMessage());
 //						}
@@ -735,14 +859,14 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	}
 
 	protected void asyncLoad() {
-		snapshotServiceListService.getSnapshots(snapshotId, null,
+		snapshotListService.getSnapshots(snapshotTypeFilter, null,
 				new AsyncCallback<List<SnapshotTreeInstance>>() {
 					public void onFailure(Throwable caught) {
 						// Show the RPC error message to the user
 						if (caught instanceof IllegalArgumentException)
 							MessageBox.alert("Alert", caught.getMessage(), null);
 						else {
-							MessageBox.alert("Alert", "Get snapshot services for " + snapshotId + " failed unexpectedly.", null);
+							MessageBox.alert("Alert", "Get snapshot services for " + snapshotTypeFilter + " failed unexpectedly.", null);
 							System.out.println(caught.getClass().getName());
 							System.out.println(caught.getMessage());
 						}
@@ -760,11 +884,11 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 				});
 	}
 	
-	private void addInstanceToStore(ModelData parent, SnapshotTreeInstance instance) {
+	protected void addInstanceToStore(ModelData parent, SnapshotTreeInstance instance) {
 		addInstanceToStore(parent, instance, false);
 	}
 	
-	private void addInstanceToStore(ModelData parent, SnapshotTreeInstance instance, boolean insertFirst) {
+	protected void addInstanceToStore(ModelData parent, SnapshotTreeInstance instance, boolean insertFirst) {
 		ModelData item = new BaseModelData();
 		item.set("description",			instance.getDescription());
 		item.set("type",				instance.getType());
@@ -774,6 +898,8 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 		item.set("note",				instance.getNote());
 		item.set("snapshot",			SnapshotInstance.obtainModel(instance.getSnapshot()));
 		item.set("checked",				instance.isSelected() ? "checked" : "");
+		if (instance.getStatus() == AppConstants.STATUS_NEW)
+			item.set("referenceId", System.currentTimeMillis() % 100000);
 		if (parent == null)
 			if (insertFirst)
 				store.insert(item, 0, false);
@@ -803,8 +929,7 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 		        NotesIconButtonField<String> b = new NotesIconButtonField<String>(panel) {
 		        	@Override
 		        	public void updateNote(String note) {
-		        		super.updateNote(note);
-		        		System.out.println(note);
+		        		asyncUpdateNote(model, note, this);
 		        	}
 		        };
 		        b.setCloseable(false);
@@ -820,20 +945,60 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 		return buttonRenderer;
 	}
 	
+
+	protected void asyncUpdateNote(final ModelData model, String note, final NotesIconButtonField<String> notesField) {
+		
+		int snapshotId = (Integer) model.get("snapshotId");
+		
+		if (snapshotId < 0) {
+			System.out.println("Attempt to update a non-snapshot note ignored.");
+			notesField.unlockNote();
+			return;
+		}
+
+		SnapshotInstance snapshotInstance = new SnapshotInstance();
+		snapshotInstance.setSnapshotId(snapshotId);
+		snapshotInstance.setNote(note);
+	
+		//	Issue the asynchronous update request and plan on handling the response
+		updateSnapshotNoteService.updateSnapshotNote(snapshotInstance,
+				new AsyncCallback<UpdateResponse<SnapshotInstance>>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "Snapshot note update failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+						notesField.unlockNote();
+					}
+
+					public void onSuccess(UpdateResponse<SnapshotInstance> updateResponse) {
+						SnapshotInstance updatedSnapshot = (SnapshotInstance) updateResponse.getInstance();
+						//	This makes sure the field and instance are in synch
+						model.set("note", updatedSnapshot.getNote());
+						setNotesField(notesField, updatedSnapshot.getNote());
+						notesField.unlockNote();
+				}
+			});
+	}
+	
+	public void setNotesField(NotesIconButtonField<String> notesField, String note) {
+		if (note != null && note.length() > 0) {
+			notesField.setEditMode();
+			notesField.setNote(note);
+		} else {
+			notesField.setAddMode();
+			notesField.setNote("");		
+		}
+	}
+	
 	public void setPanelHeading(String panelHeading) {
 		this.panelHeading = panelHeading;
 		if (panel != null)
 			panel.setHeading(panelHeading);
-	}
-
-	public String getSnapshotId() {
-		return snapshotId;
-	}
-
-	public void setSnapshotId(String snapshotId) {
-		this.snapshotId = snapshotId;
-		
-		refreshTreeData();
 	}
 
 	public boolean isAllowReorganize() {

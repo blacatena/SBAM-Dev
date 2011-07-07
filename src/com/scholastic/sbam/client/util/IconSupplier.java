@@ -206,6 +206,10 @@ public class IconSupplier {
 		return "rename.png";
 	}
 	
+	public static String getFolderAddIconName() {
+		return "folder_add.png";
+	}
+	
 	public static String getExpandIconName() {
 		return "expand.png";
 	}
