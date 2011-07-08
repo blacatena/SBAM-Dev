@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Jul 4, 2011 7:39:15 PM by Hibernate Tools 3.2.4.GA
+// Generated Jul 8, 2011 2:59:51 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -14,6 +14,8 @@ public class Snapshot implements java.io.Serializable {
 	private String snapshotType;
 	private char productServiceType;
 	private Date snapshotTaken;
+	private int createUserId;
+	private Date expireDatetime;
 	private int seq;
 	private String orgPath;
 	private String note;
@@ -24,11 +26,12 @@ public class Snapshot implements java.io.Serializable {
 	}
 
 	public Snapshot(String snapshotName, String snapshotType,
-			char productServiceType, int seq, String orgPath, String note,
-			Date createdDatetime, char status) {
+			char productServiceType, int createUserId, int seq, String orgPath,
+			String note, Date createdDatetime, char status) {
 		this.snapshotName = snapshotName;
 		this.snapshotType = snapshotType;
 		this.productServiceType = productServiceType;
+		this.createUserId = createUserId;
 		this.seq = seq;
 		this.orgPath = orgPath;
 		this.note = note;
@@ -37,12 +40,15 @@ public class Snapshot implements java.io.Serializable {
 	}
 
 	public Snapshot(String snapshotName, String snapshotType,
-			char productServiceType, Date snapshotTaken, int seq,
-			String orgPath, String note, Date createdDatetime, char status) {
+			char productServiceType, Date snapshotTaken, int createUserId,
+			Date expireDatetime, int seq, String orgPath, String note,
+			Date createdDatetime, char status) {
 		this.snapshotName = snapshotName;
 		this.snapshotType = snapshotType;
 		this.productServiceType = productServiceType;
 		this.snapshotTaken = snapshotTaken;
+		this.createUserId = createUserId;
+		this.expireDatetime = expireDatetime;
 		this.seq = seq;
 		this.orgPath = orgPath;
 		this.note = note;
@@ -88,6 +94,22 @@ public class Snapshot implements java.io.Serializable {
 
 	public void setSnapshotTaken(Date snapshotTaken) {
 		this.snapshotTaken = snapshotTaken;
+	}
+
+	public int getCreateUserId() {
+		return this.createUserId;
+	}
+
+	public void setCreateUserId(int createUserId) {
+		this.createUserId = createUserId;
+	}
+
+	public Date getExpireDatetime() {
+		return this.expireDatetime;
+	}
+
+	public void setExpireDatetime(Date expireDatetime) {
+		this.expireDatetime = expireDatetime;
 	}
 
 	public int getSeq() {

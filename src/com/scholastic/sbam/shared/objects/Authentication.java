@@ -8,6 +8,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class Authentication implements IsSerializable {
 	public static long LOG_OFF_GRACE_PERIOD	=	1000 * 120;	// Two minute grace period to handle requests after a user has logged off
 	
+	private int				userId;
 	private String			userName;
 	private String			firstName;
 	private String			lastName;
@@ -23,11 +24,12 @@ public class Authentication implements IsSerializable {
 		
 	}
 	
-	public Authentication(String userName, String firstName, String lastName) {
-		this.userName = userName;
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.message = "";
+	public Authentication(int userId, String userName, String firstName, String lastName) {
+		this.userId		= userId;
+		this.userName	= userName;
+		this.firstName	= firstName;
+		this.lastName	= lastName;
+		this.message	= "";
 	}
 	
 	public void addRoleName(String roleName) {
@@ -49,6 +51,10 @@ public class Authentication implements IsSerializable {
 	}
 	
 	public String getDisplayName() {
+		return getDisplayName(firstName, lastName);
+	}
+	
+	public static String getDisplayName(String firstName, String lastName) {
 		if (firstName != null)
 			if (lastName != null)
 				return firstName + " " + lastName;
@@ -72,6 +78,12 @@ public class Authentication implements IsSerializable {
 		this.authenticated = authenticated;
 	}
 
+	public int getUserId() {
+		return userId;
+	}
+	public void setUserId(int userId) {
+		this.userId = userId;
+	}
 	public String getUserName() {
 		return userName;
 	}

@@ -358,6 +358,14 @@ public class IconSupplier {
 		return "snapshot_page.png";
 	}
 	
+	public static String getSnapshotCopyIconName() {
+		return "snapshot_copy.png";
+	}
+	
+	public static String getCopyIconName() {
+		return "copy.png";
+	}
+	
 	public static void setIcon(TabItem tabItem, String iconName) {
 		if (TAB_ICONS && tabItem != null && iconName != null && iconName.length() > 0) {
 			tabItem.setIcon(getTabIcon(iconName));

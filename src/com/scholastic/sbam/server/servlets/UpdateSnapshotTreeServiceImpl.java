@@ -74,34 +74,29 @@ public class UpdateSnapshotTreeServiceImpl extends AuthenticatedServiceServlet i
 		seq++;
 		
 		if (instance.getType().equals(SnapshotTreeInstance.FOLDER)) {
-			System.out.println("Do folder " + instance.getDescription());
 			//	Add folder name to the path, with the delimiter, after first escaping any instances of the escape character and delimiter character
 			String fixedFolderName = instance.getDescription().replaceAll(ESCAPE_REG_EXP, ESCAPE_REPLACEMENT);
 			fixedFolderName = fixedFolderName.replaceAll(DELIMITER_REG_EXP, "" + AppConstants.PATH_ESCAPE + AppConstants.PATH_DELIMITER);
 			path += fixedFolderName + AppConstants.PATH_DELIMITER;
-			System.out.println("Path is now " + path);
 			//  Recursively process all children
 			if (instance.getChildInstances() != null) {
 				for (SnapshotTreeInstance child : instance.getChildInstances()) {
-					System.out.println("child " + child.getDescription());
 					seq = processTreeInstance(child, seq, path, snapshotType);
 				}
 			}
 		} else {
-			System.out.println("Do snapshot " + instance.getSnapshotId() + " / " + instance.getDescription());
 			updateSnapshot(instance.getSnapshotId(), seq, path);
 		}
 		
-//		//	Process all of the children
-//		if (instance.getChildInstances() != null) {
-//			for (SnapshotTreeInstance child : instance.getChildInstances()) {
-//				if (child != null) {
-//					System.out.println("child again " + child.getDescription());
-//					child.getSnapshot().setSnapshotType(snapshotType);	//	In case it's wrong or missing, propagate the product code from the parent
-//					seq = processTreeInstance(child, seq, path, snapshotType);
-//				}
-//			}
-//		}
+		//	Process all of the children
+		if (instance.getChildInstances() != null) {
+			for (SnapshotTreeInstance child : instance.getChildInstances()) {
+				if (child != null) {
+					child.getSnapshot().setSnapshotType(snapshotType);	//	In case it's wrong or missing, propagate the product code from the parent
+					seq = processTreeInstance(child, seq, path, snapshotType);
+				}
+			}
+		}
 		
 		return seq;
 	}

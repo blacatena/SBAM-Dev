@@ -31,7 +31,6 @@ public class UpdateSnapshotServiceImpl extends AuthenticatedServiceServlet imple
 		
 		Snapshot dbInstance = null;
 		
-		@SuppressWarnings("unused")
 		Authentication auth = authenticate("update snapshot", SecurityManager.ROLE_QUERY);	// May later be used for logging activity
 		
 		HibernateUtil.openSession();
@@ -76,6 +75,9 @@ public class UpdateSnapshotServiceImpl extends AuthenticatedServiceServlet imple
 			if (instance.getStatus() != 0 && instance.getStatus() != dbInstance.getStatus())
 				dbInstance.setStatus(instance.getStatus());
 			
+			dbInstance.setExpireDatetime(instance.getExpireDatetime());
+			dbInstance.setCreateUserId(auth.getUserId());
+			
 			//	Fix nulls
 			if (dbInstance.getSnapshotName() == null)
 				dbInstance.setSnapshotName("");
@@ -100,6 +102,7 @@ public class UpdateSnapshotServiceImpl extends AuthenticatedServiceServlet imple
 			//	DbSnapshot.refresh(dbInstance);	// This may not be necessary, but just in case
 				instance.setSnapshotId(dbInstance.getSnapshotId());
 				instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
+				instance.setCreateDisplayName(auth.getDisplayName());
 			}
 			
 		} catch (IllegalArgumentException exc) {

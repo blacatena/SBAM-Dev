@@ -91,6 +91,28 @@ public class SnapshotTreeInstance extends TreeInstance<SnapshotTreeInstance> imp
 	}
 	
 	public String toString() {
-		return "Snapshot " + getSnapshotId() + "/" + getDescription();
+		return toString("");
+	}
+	
+	public String toString(String prefix) {
+		StringBuffer sb = new StringBuffer();
+		sb.append(prefix);
+		sb.append("Snapshot ");
+		sb.append(getSnapshotId());
+		sb.append(" / ");
+		sb.append(getDescription());
+		sb.append(" / ");
+		sb.append(getType());
+		sb.append("[");
+		sb.append('\n');
+		
+		for (SnapshotTreeInstance child : this.getChildInstances())
+			sb.append(child.toString(prefix + "..."));
+		
+		sb.append('\n');
+		sb.append(prefix);
+		sb.append("]");
+		
+		return sb.toString();
 	}
 }

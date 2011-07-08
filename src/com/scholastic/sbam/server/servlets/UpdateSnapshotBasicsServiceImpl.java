@@ -1,5 +1,7 @@
 package com.scholastic.sbam.server.servlets;
 
+import java.util.Date;
+
 import com.scholastic.sbam.client.services.UpdateSnapshotBasicsService;
 import com.scholastic.sbam.server.database.codegen.Snapshot;
 import com.scholastic.sbam.server.database.objects.DbSnapshot;
@@ -17,7 +19,7 @@ import com.scholastic.sbam.shared.util.AppConstants;
 public class UpdateSnapshotBasicsServiceImpl extends AuthenticatedServiceServlet implements UpdateSnapshotBasicsService {
 
 	@Override
-	public UpdateResponse<SnapshotInstance> updateSnapshotBasics(int snapshotId, String snapshotName, char snapshotStatus, String note) throws IllegalArgumentException {
+	public UpdateResponse<SnapshotInstance> updateSnapshotBasics(int snapshotId, String snapshotName, char snapshotStatus, Date expireDatetime, String note) throws IllegalArgumentException {
 		
 		if (snapshotId <= 0)
 			throw new IllegalArgumentException("Basic info can only be updated for an existing snapshot.");
@@ -50,6 +52,8 @@ public class UpdateSnapshotBasicsServiceImpl extends AuthenticatedServiceServlet
 			if (snapshotStatus > AppConstants.STATUS_ANY_NONE) {
 				dbInstance.setStatus(snapshotStatus);
 			}
+			
+			dbInstance.setExpireDatetime(expireDatetime);
 			
 			if (note != null) {
 				if (note.equalsIgnoreCase("<br>"))

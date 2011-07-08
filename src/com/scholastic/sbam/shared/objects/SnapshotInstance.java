@@ -25,6 +25,9 @@ public class SnapshotInstance extends BetterRowEditInstance implements BeanModel
 	protected String		orgPath;
 	protected int			seq;
 	protected Date			snapshotTaken;
+	protected Date			expireDatetime;
+	protected int			createUserId;
+	protected String		createDisplayName;
 	protected char			status;
 	protected boolean		active;
 	protected Date			createdDatetime;
@@ -116,6 +119,30 @@ public class SnapshotInstance extends BetterRowEditInstance implements BeanModel
 
 	public void setSnapshotTaken(Date snapshotTaken) {
 		this.snapshotTaken = snapshotTaken;
+	}
+
+	public Date getExpireDatetime() {
+		return expireDatetime;
+	}
+
+	public void setExpireDatetime(Date expireDatetime) {
+		this.expireDatetime = expireDatetime;
+	}
+
+	public int getCreateUserId() {
+		return createUserId;
+	}
+
+	public void setCreateUserId(int createUserId) {
+		this.createUserId = createUserId;
+	}
+
+	public String getCreateDisplayName() {
+		return createDisplayName;
+	}
+
+	public void setCreateDisplayName(String createDisplayName) {
+		this.createDisplayName = createDisplayName;
 	}
 
 	public char getStatus() {

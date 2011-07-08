@@ -6,8 +6,11 @@ import java.util.List;
 import com.extjs.gxt.ui.client.data.LoadConfig;
 import com.scholastic.sbam.client.services.SnapshotListService;
 import com.scholastic.sbam.server.database.codegen.Snapshot;
+import com.scholastic.sbam.server.database.codegen.User;
 import com.scholastic.sbam.server.database.objects.DbSnapshot;
+import com.scholastic.sbam.server.database.objects.DbUser;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
+import com.scholastic.sbam.shared.objects.Authentication;
 import com.scholastic.sbam.shared.objects.SnapshotTreeInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
 import com.scholastic.sbam.shared.util.AppConstants;
@@ -38,10 +41,18 @@ public class SnapshotListServiceImpl extends TreeListServiceBase<SnapshotTreeIns
 			List<Snapshot> snapshots = DbSnapshot.findForPresentation(snapshotType, AppConstants.STATUS_ANY_NONE, AppConstants.STATUS_DELETED);
 
 			for (Snapshot snapshot : snapshots) {
+				User user = DbUser.getById(snapshot.getCreateUserId());
+				
 				SnapshotTreeInstance instance = new SnapshotTreeInstance();
 				
 				instance.setSnapshot(DbSnapshot.getInstance(snapshot));
 				instance.setType(SnapshotTreeInstance.SNAPSHOT);
+				
+				if (user != null) {
+					instance.getSnapshot().setCreateDisplayName(Authentication.getDisplayName(user.getFirstName(), user.getLastName()));
+				} else {
+					instance.getSnapshot().setCreateDisplayName("Unknown creator");
+				}
 				
 				root = addFolderTree(list, root, instance, snapshot.getOrgPath());
 			}

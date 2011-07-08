@@ -63,6 +63,7 @@ public class AuthenticateServiceImpl extends RemoteServiceServlet implements Aut
 			auth.setAuthenticated(false);
 			context.setAttribute(SecurityManager.AUTHENTICATION_ATTRIBUTE, null);
 		} else {
+			auth.setUserId(user.getId());
 			auth.setUserName(userName);
 			auth.setFirstName(user.getFirstName());
 			auth.setLastName(user.getLastName());

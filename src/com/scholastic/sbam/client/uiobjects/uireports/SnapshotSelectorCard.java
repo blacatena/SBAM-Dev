@@ -32,6 +32,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
+import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
@@ -58,6 +59,7 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.IsSerializable;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.datepicker.client.CalendarUtil;
 import com.scholastic.sbam.client.services.SnapshotListService;
 import com.scholastic.sbam.client.services.SnapshotListServiceAsync;
 import com.scholastic.sbam.client.services.UpdateSnapshotBasicsService;
@@ -448,13 +450,18 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	    
 	    ColumnConfig date = new ColumnConfig("snapshot.snapshotTaken",	"Date Snapshot Taken", 120);
 	    date.setDateTimeFormat(UiConstants.APP_DATE_PLUS_TIME_FORMAT);
-	    
+
+	    ColumnConfig expi = new ColumnConfig("snapshot.expireDatetime",	"Expiration Date", 100);
+	    expi.setDateTimeFormat(UiConstants.APP_DATE_LONG_FORMAT);
+	    expi.setEditor(new CellEditor(new DateField()));
+
+	    ColumnConfig user = new ColumnConfig("snapshot.createDisplayName",	"Creator", 100);
 	    ColumnConfig stat = new ColumnConfig("statusDescription",	"Status", 50);
 	    
 	    ColumnConfig note = new ColumnConfig("notesButton", "", 30);
 	    note.setRenderer(getNoteButtonRenderer());
 	    
-	    ColumnModel cm = new ColumnModel(Arrays.asList(id, name, date, stat, note));
+	    ColumnModel cm = new ColumnModel(Arrays.asList(id, name, date, expi, user, stat, note));
 	    
 	    return cm;
 	}
@@ -603,6 +610,16 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 		});
 		contextMenu.add(restore);
 
+		MenuItem duplicate = new MenuItem();
+		duplicate.setText("Duplicate Snapshot");
+		duplicate.setIcon(IconSupplier.getMenuIcon(IconSupplier.getSnapshotCopyIconName()));
+		duplicate.addSelectionListener(new SelectionListener<MenuEvent>() {  
+		  public void componentSelected(MenuEvent ce) {
+			  System.out.println("Implement duplicate snapshot");
+		  }  
+		});
+		contextMenu.add(duplicate);
+
 		if (treeGrid != null)
 			treeGrid.setContextMenu(contextMenu);
 	}
@@ -709,6 +726,7 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 					doUpdateSnapshot(record);
 				} else {
 					foldersRenamed++;
+					record.commit(true);
 				}
 			}
 		}
@@ -732,10 +750,14 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	protected void createNewSnapshot() {
 	    final ModelData parent = treeGrid.getSelectionModel().getSelectedItem();
 		
+	    Date expireDate = new Date();
+	    CalendarUtil.addDaysToDate(expireDate, 60);
+	    
 		SnapshotInstance instance = new SnapshotInstance();
 		instance.setSnapshotId(0);
 		instance.setSnapshotName("Snapshot " + UiConstants.formatDate(new Date()));
 		instance.setSnapshotType(snapshotTypeFilter);
+		instance.setExpireDatetime(expireDate);
 		instance.setNote("");
 		instance.setProductServiceType('s');
 		instance.setStatus(AppConstants.STATUS_ACTIVE);
@@ -771,10 +793,11 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	protected void doUpdateSnapshot(final Record record) {
 		char	snapshotStatus	= (Character) record.get("status");
 		String	snapshotName	= (String) record.get("description");
+		Date	expireDatetime	= (Date) record.get("snapshot.expireDatetime");
 		if (record.get("snapshotId") != null) {
 			final int snapshotId = (Integer) record.getModel().get("snapshotId");
 			if (snapshotId > 0) {
-				updateSnapshotBasicsService.updateSnapshotBasics(snapshotId, snapshotName, snapshotStatus, null,
+				updateSnapshotBasicsService.updateSnapshotBasics(snapshotId, snapshotName, snapshotStatus, expireDatetime, null,
 						new AsyncCallback<UpdateResponse<SnapshotInstance>>() {
 							public void onFailure(Throwable caught) {
 								// Show the RPC error message to the user
@@ -788,7 +811,7 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 							}
 		
 							public void onSuccess(UpdateResponse<SnapshotInstance> result) {
-								record.commit(true);	// commit the change
+								record.commit(false);	// commit the change
 							}
 						});
 			} else {
@@ -830,13 +853,10 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 			addAllToList(updateList, rootItem);
 		}
 		
-		System.out.println(updateList);
-		
 		return updateList;
 	}
 	
 	public void addAllToList(List<SnapshotTreeInstance> list, ModelData model) {
-		System.out.println("Root item " + model.getProperties());
 		SnapshotTreeInstance instance = getSnapshotTreeInstance(model );
 		list.add( instance );
 		addChildrenToParent(instance, model);
@@ -846,12 +866,9 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	
 	public void addChildrenToParent(SnapshotTreeInstance parentInstance, ModelData parentModel) {
 		for (ModelData childModel : store.getChildren(parentModel)) {
-			System.out.println("Child " + childModel.getProperties());
 			SnapshotTreeInstance child = getSnapshotTreeInstance(childModel);
 			parentInstance.addChildInstance(child);
-			System.out.println("_____grandchildren_____"+ childModel.getProperties());
 			addChildrenToParent(child, childModel);
-			System.out.println("_____end grandchildren_____"+ childModel.getProperties());
 		}
 	}
 	
@@ -859,10 +876,8 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 		SnapshotTreeInstance instance = new SnapshotTreeInstance();
 		if (item.get("snapshot") != null)
 			instance.setSnapshot( (SnapshotInstance) ((BeanModel) item.get("snapshot")).getBean() );
-		if (instance.getSnapshot() == null)
-			instance.setDescription(getAsString(item.get("description")));
+		instance.setDescription(getAsString(item.get("description")));
 		instance.setStatus(getAsChar(item.get("status")));
-		instance.setSelected(item.get("checked") != null && item.get("checked").equals("checked"));
 		instance.setType(getAsString(item.get("type")));
 		
 		return instance;
@@ -929,6 +944,7 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 		item.set("description",			instance.getDescription());
 		item.set("type",				instance.getType());
 		item.set("snapshotId",			instance.getSnapshot().getSnapshotId());
+		item.set("expireDatetime",		instance.getSnapshot().getExpireDatetime());
 		item.set("status",				instance.getStatus());
 		item.set("statusDescription",	instance.getStatusDescription());
 		item.set("note",				instance.getNote());
