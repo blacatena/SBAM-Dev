@@ -8,10 +8,12 @@ public class SnapshotTreeInstance extends TreeInstance<SnapshotTreeInstance> imp
 	public static String		SNAPSHOT	= "snapshot";
 
 	protected SnapshotInstance	snapshot;
+	protected String			description;
 	protected char				status;
 	
 	public SnapshotTreeInstance() {
 		super();
+		snapshot = SnapshotInstance.getEmptyInstance();
 	}
 	
 	public SnapshotTreeInstance(SnapshotInstance snapshot) {
@@ -57,12 +59,17 @@ public class SnapshotTreeInstance extends TreeInstance<SnapshotTreeInstance> imp
 	
 	@Override
 	public String getDescription() {
-		return snapshot.getSnapshotName();
+		if (snapshot != null)
+			return snapshot.getSnapshotName();
+		else
+			return description;
 	}
 	
 	@Override
 	public void setDescription(String description) {
-		snapshot.setSnapshotName(description);
+		this.description = description;
+		if (snapshot != null)
+			snapshot.setSnapshotName(description);
 	}
 
 	public String getUniqueKey() {
@@ -71,7 +78,7 @@ public class SnapshotTreeInstance extends TreeInstance<SnapshotTreeInstance> imp
 
 	public static String getStatusDescription(char status) {
 		if (status == 0)
-			return "None";
+			return "";
 		if (status == AppConstants.STATUS_NEW)
 			return "New";
 		if (status == AppConstants.STATUS_DELETED)
@@ -81,5 +88,9 @@ public class SnapshotTreeInstance extends TreeInstance<SnapshotTreeInstance> imp
 		if (status == AppConstants.STATUS_INACTIVE)
 			return "Inactive";
 		return "Unknown";
+	}
+	
+	public String toString() {
+		return "Snapshot " + getSnapshotId() + "/" + getDescription();
 	}
 }

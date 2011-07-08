@@ -9,6 +9,7 @@ import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
+import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.dnd.DND.Feedback;
 import com.extjs.gxt.ui.client.dnd.TreeGridDragSource;
@@ -65,6 +66,8 @@ import com.scholastic.sbam.client.services.UpdateSnapshotNoteService;
 import com.scholastic.sbam.client.services.UpdateSnapshotNoteServiceAsync;
 import com.scholastic.sbam.client.services.UpdateSnapshotService;
 import com.scholastic.sbam.client.services.UpdateSnapshotServiceAsync;
+import com.scholastic.sbam.client.services.UpdateSnapshotTreeService;
+import com.scholastic.sbam.client.services.UpdateSnapshotTreeServiceAsync;
 import com.scholastic.sbam.client.uiobjects.fields.NotesIconButtonField;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
 import com.scholastic.sbam.client.util.IconSupplier;
@@ -90,6 +93,7 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	protected final UpdateSnapshotBasicsServiceAsync updateSnapshotBasicsService = GWT.create(UpdateSnapshotBasicsService.class);
 	protected final UpdateSnapshotServiceAsync updateSnapshotService = GWT.create(UpdateSnapshotService.class);
 	protected final UpdateSnapshotNoteServiceAsync updateSnapshotNoteService = GWT.create(UpdateSnapshotNoteService.class);
+	protected final UpdateSnapshotTreeServiceAsync updateSnapshotTreeService = GWT.create(UpdateSnapshotTreeService.class);
 	
 	
 	/**
@@ -400,10 +404,16 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	  
 	    new TreeGridDragSource(treeGrid);  
 	  
-	    TreeGridDropTarget target = new TreeGridDropTarget(treeGrid);  
+	    TreeGridDropTarget target = new TreeGridDropTarget(treeGrid) {
+	    	@Override
+	    	public void onDragDrop(DNDEvent event) {
+	    		super.onDragDrop(event);
+	    		doUpdateTreeStructure();
+	    	}
+	    };  
 	    target.setAllowSelfAsSource(true); 
 	    target.setFeedback(Feedback.BOTH);
-		target.setAllowDropOnLeaf(true);
+		target.setAllowDropOnLeaf(false);
 		target.setAutoScroll(true);
 		target.setAutoExpand(true);
 		target.setAutoExpandDelay(100);
@@ -630,8 +640,12 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	    	MessageBox.alert("Alert", "Select a row or rows to be deleted.", null);
 	    	return;
 	    }
+	    
+	    int foldersDeleted = 0;
+	    int snapshotsDeleted = 0;
 	    for (ModelData sel : selected) { 
 	    	if (isFolder(sel)) {
+	    		foldersDeleted++;
     			//  Save the children, to restore them after removing the folder
     			List<ModelData> children = store.getChildren(sel, true);
     			ModelData parent = store.getParent(sel);
@@ -644,13 +658,18 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	    				store.add(child, true);
 	    		}
 	    	} else {
+	    		snapshotsDeleted++;
 	    		Record record = store.getRecord(sel);
 	    		record.beginEdit();
 	    		record.set("status", AppConstants.STATUS_DELETED);
 	    		record.set("statusDescription", SnapshotTreeInstance.getStatusDescription(AppConstants.STATUS_DELETED));
 	    		record.endEdit();
 	    	}
-	    }  
+	    }
+	    if (snapshotsDeleted > 0)
+	    	doUpdateSnapshots();
+	    if (foldersDeleted > 0)
+	    	doUpdateTreeStructure();
 	}
 	
 	protected void restoreSnapshot() {
@@ -671,20 +690,30 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	    	MessageBox.alert("Alert", "Select a deleted snapshot or snapsnots to be restored.", null);
 	    	return;
 	    }
+	    doUpdateSnapshots();
 	}
 	
 	/**
 	 * Update a snapshot name or status... note that this is triggered automatically by an update to the store
 	 */
 	protected void doUpdateSnapshots() {
+		int foldersRenamed = 0;
 		for (Record record : store.getModifiedRecords()) {
+			if (record.get("snapshot") != null) {
+				SnapshotInstance snapshot = (SnapshotInstance) ((BeanModel) record.get("snapshot")).getBean() ;
+				snapshot.setSnapshotName(record.get("description").toString());
+			}
 			if (record.get("snapshotId") != null) {
-				doUpdateSnapshot(record);
-			} else {
-				//	Do nothing
-				System.out.println("Folder name update " + record.get("description"));
+				int snapshotId = (Integer) record.get("snapshotId");
+				if (snapshotId > 0) {
+					doUpdateSnapshot(record);
+				} else {
+					foldersRenamed++;
+				}
 			}
 		}
+		if (foldersRenamed > 0)
+			doUpdateTreeStructure();
 	}
 	
 //	public void createNewSnapshot() {
@@ -763,7 +792,7 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 							}
 						});
 			} else {
-				System.out.println("Tried to update snapshot with no ID in " + getClass().getName());
+				System.out.println("Tried to update snapshot with zero ID in " + getClass().getName());
 			}
 		} else {
 			System.out.println("Tried to update non-snapshot record in " + getClass().getName());
@@ -774,22 +803,22 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	 * Update the database with the current tree settings.
 	 */
 	protected void doUpdateTreeStructure() {		
-//		updateSnapshotListService.updateSnapshotList(snapshotTypeFilter, getOrderedUpdateList(),
-//				new AsyncCallback<String>() {
-//					public void onFailure(Throwable caught) {
-//						// Show the RPC error message to the user
-//						if (caught instanceof IllegalArgumentException)
-//							MessageBox.alert("Alert", caught.getMessage(), null);
-//						else {
-//							MessageBox.alert("Alert", "Update of product services for " + snapshotTypeFilter + " failed unexpectedly.", null);
-//							System.out.println(caught.getClass().getName());
-//							System.out.println(caught.getMessage());
-//						}
-//					}
-//
-//					public void onSuccess(String result) {
-//					}
-//				});
+		updateSnapshotTreeService.updateSnapshotTree(snapshotTypeFilter, getOrderedUpdateList(),
+				new AsyncCallback<String>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "Update of snapshot tree for " + snapshotTypeFilter + " failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+					}
+
+					public void onSuccess(String result) {
+					}
+				});
 	}
 	
 	public List<SnapshotTreeInstance> getOrderedUpdateList() {
@@ -801,10 +830,13 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 			addAllToList(updateList, rootItem);
 		}
 		
+		System.out.println(updateList);
+		
 		return updateList;
 	}
 	
 	public void addAllToList(List<SnapshotTreeInstance> list, ModelData model) {
+		System.out.println("Root item " + model.getProperties());
 		SnapshotTreeInstance instance = getSnapshotTreeInstance(model );
 		list.add( instance );
 		addChildrenToParent(instance, model);
@@ -814,15 +846,19 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	
 	public void addChildrenToParent(SnapshotTreeInstance parentInstance, ModelData parentModel) {
 		for (ModelData childModel : store.getChildren(parentModel)) {
+			System.out.println("Child " + childModel.getProperties());
 			SnapshotTreeInstance child = getSnapshotTreeInstance(childModel);
 			parentInstance.addChildInstance(child);
+			System.out.println("_____grandchildren_____"+ childModel.getProperties());
 			addChildrenToParent(child, childModel);
+			System.out.println("_____end grandchildren_____"+ childModel.getProperties());
 		}
 	}
 	
 	public SnapshotTreeInstance getSnapshotTreeInstance(ModelData item) {
 		SnapshotTreeInstance instance = new SnapshotTreeInstance();
-		instance.setSnapshot((SnapshotInstance) item.get("snapshot"));
+		if (item.get("snapshot") != null)
+			instance.setSnapshot( (SnapshotInstance) ((BeanModel) item.get("snapshot")).getBean() );
 		if (instance.getSnapshot() == null)
 			instance.setDescription(getAsString(item.get("description")));
 		instance.setStatus(getAsChar(item.get("status")));

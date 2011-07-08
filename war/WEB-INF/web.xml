@@ -577,6 +577,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>updateSnapshotTreeServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateSnapshotTreeServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>termTypeListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.TermTypeListServiceImpl</servlet-class>
   </servlet>
@@ -1169,6 +1174,11 @@
   <servlet-mapping>
     <servlet-name>updateSnapshotBasicsServlet</servlet-name>
     <url-pattern>/sbam/updateSnapshotBasics</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateSnapshotTreeServlet</servlet-name>
+    <url-pattern>/sbam/updateSnapshotTree</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>
