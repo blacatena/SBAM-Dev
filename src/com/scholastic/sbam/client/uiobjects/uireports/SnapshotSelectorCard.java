@@ -16,6 +16,7 @@ import com.extjs.gxt.ui.client.dnd.TreeGridDragSource;
 import com.extjs.gxt.ui.client.dnd.TreeGridDropTarget;
 import com.extjs.gxt.ui.client.dnd.TreePanelDropTarget;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.DNDEvent;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -32,6 +33,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
+import com.extjs.gxt.ui.client.widget.button.IconButton;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -39,8 +41,10 @@ import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.EditorGrid.ClicksToEdit;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
@@ -60,6 +64,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.IsSerializable;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
+import com.scholastic.sbam.client.services.DuplicateSnapshotService;
+import com.scholastic.sbam.client.services.DuplicateSnapshotServiceAsync;
 import com.scholastic.sbam.client.services.SnapshotListService;
 import com.scholastic.sbam.client.services.SnapshotListServiceAsync;
 import com.scholastic.sbam.client.services.UpdateSnapshotBasicsService;
@@ -91,11 +97,14 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	protected EditorTreeGrid<ModelData> treeGrid;
 	protected TreeStore<ModelData> store;
 	
+	protected SnapshotParentCardPanel		parentCardPanel;
+	
 	protected final SnapshotListServiceAsync snapshotListService = GWT.create(SnapshotListService.class);
 	protected final UpdateSnapshotBasicsServiceAsync updateSnapshotBasicsService = GWT.create(UpdateSnapshotBasicsService.class);
 	protected final UpdateSnapshotServiceAsync updateSnapshotService = GWT.create(UpdateSnapshotService.class);
 	protected final UpdateSnapshotNoteServiceAsync updateSnapshotNoteService = GWT.create(UpdateSnapshotNoteService.class);
 	protected final UpdateSnapshotTreeServiceAsync updateSnapshotTreeService = GWT.create(UpdateSnapshotTreeService.class);
+	protected final DuplicateSnapshotServiceAsync duplicateSnapshotService = GWT.create(DuplicateSnapshotService.class);
 	
 	
 	/**
@@ -403,7 +412,9 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 		treeGrid.setAutoExpandColumn("description");  
 	    treeGrid.setTrackMouseOver(true);
 	    treeGrid.setHeight(500);
-	  
+	    treeGrid.setClicksToEdit(ClicksToEdit.TWO);
+	    treeGrid.setSelectionModel(new GridSelectionModel<ModelData>());
+	    
 	    new TreeGridDragSource(treeGrid);  
 	  
 	    TreeGridDropTarget target = new TreeGridDropTarget(treeGrid) {
@@ -428,7 +439,7 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	}
 	
 	public ColumnModel getColumnModel() {
-		ColumnConfig id = new ColumnConfig("snapshotId",	"Id",  80);	//	Not snapshot.snapshotId, because folders don't have a snapshot
+		ColumnConfig id = new ColumnConfig("snapshotId",	"Id",  120);	//	Not snapshot.snapshotId, because folders don't have a snapshot
 	    id.setRenderer(new TreeGridCellRenderer<ModelData>() {
 	    	@Override
 	    	protected String getText(TreeGrid<ModelData> grid, ModelData model, String property, int rowIndex, int colIndex) {
@@ -461,7 +472,10 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	    ColumnConfig note = new ColumnConfig("notesButton", "", 30);
 	    note.setRenderer(getNoteButtonRenderer());
 	    
-	    ColumnModel cm = new ColumnModel(Arrays.asList(id, name, date, expi, user, stat, note));
+	    ColumnConfig srvc = new ColumnConfig("serviceButton", "", 30);
+	    srvc.setRenderer(getServiceButtonRenderer());
+	    
+	    ColumnModel cm = new ColumnModel(Arrays.asList(id, name, date, expi, user, stat, note, srvc));
 	    
 	    return cm;
 	}
@@ -615,7 +629,7 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 		duplicate.setIcon(IconSupplier.getMenuIcon(IconSupplier.getSnapshotCopyIconName()));
 		duplicate.addSelectionListener(new SelectionListener<MenuEvent>() {  
 		  public void componentSelected(MenuEvent ce) {
-			  System.out.println("Implement duplicate snapshot");
+			  doDuplicateSnapshots();
 		  }  
 		});
 		contextMenu.add(duplicate);
@@ -708,6 +722,30 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	    	return;
 	    }
 	    doUpdateSnapshots();
+	}
+	
+	/**
+	 * Update a snapshot name or status... note that this is triggered automatically by an update to the store
+	 */
+	protected void doDuplicateSnapshots() {
+		int snapshotsSelected = 0;
+	    List<ModelData> selected = treeGrid.getSelectionModel().getSelectedItems();
+	    
+	    if (selected == null || selected.size() == 0) {
+	    	MessageBox.alert("Alert", "Select a snapshot or snapsnots to be duplicated.", null);
+	    	return;
+	    }
+	    
+		for (ModelData snapshot : selected) {
+			if (!isFolder(snapshot)) {
+				snapshotsSelected++;
+				doDuplicateSnapshot(snapshot);
+			}
+		}
+		if (snapshotsSelected == 0) {
+	    	MessageBox.alert("Alert", "Folders cannot be duplicated.", null);
+	    	return;
+		}
 	}
 	
 	/**
@@ -819,6 +857,43 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 			}
 		} else {
 			System.out.println("Tried to update non-snapshot record in " + getClass().getName());
+		}
+	}
+	
+	/**
+	 * Update the database with the current tree settings.
+	 */
+	protected void doDuplicateSnapshot(final ModelData model) {
+		if (model.get("snapshotId") != null) {
+			final int snapshotId = (Integer) model.get("snapshotId");
+			if (snapshotId > 0) {
+				duplicateSnapshotService.duplicateSnapshot(snapshotId, null,
+						new AsyncCallback<UpdateResponse<SnapshotInstance>>() {
+							public void onFailure(Throwable caught) {
+								// Show the RPC error message to the user
+								if (caught instanceof IllegalArgumentException)
+									MessageBox.alert("Alert", caught.getMessage(), null);
+								else {
+									MessageBox.alert("Alert", "Duplicate snapshot " + snapshotId + " failed unexpectedly.", null);
+									System.out.println(caught.getClass().getName());
+									System.out.println(caught.getMessage());
+								}
+							}
+		
+							public void onSuccess(UpdateResponse<SnapshotInstance> result) {
+								SnapshotTreeInstance treeInstance = new SnapshotTreeInstance(result.getInstance());
+								addInstanceToStore(store.getParent(model), treeInstance, true);
+//								if (store.getParent(model) != null)
+//									store.insert(store.getParent(model), item, 0, false);
+//								else
+//									store.insert(item, store.indexOf(model), false);
+							}
+						});
+			} else {
+				System.out.println("Tried to duplicate snapshot with zero ID in " + getClass().getName());
+			}
+		} else {
+			System.out.println("Tried to duplicate non-snapshot record in " + getClass().getName());
 		}
 	}
 	
@@ -959,9 +1034,9 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 				store.add(item, false);
 		else
 			if (insertFirst)
-				store.add(parent, item, false);
-			else
 				store.insert(parent, item, 0, false);
+			else
+				store.add(parent, item, false);
 		
 		if (instance.getChildInstances() != null)
 			for (SnapshotTreeInstance child : instance.getChildInstances()) {
@@ -989,6 +1064,37 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 //		        b.setStyleAttribute("padding-left", "5px");
 		        b.addStyleName("tree-grid-notes-button");
 		        b.setNote(model.get("note").toString(), true);
+		       
+		        return b;  
+		      }  
+		    };  
+		    
+		return buttonRenderer;
+	}
+	
+	protected GridCellRenderer<ModelData> getServiceButtonRenderer() {
+		GridCellRenderer<ModelData> buttonRenderer = new GridCellRenderer<ModelData>() {   
+		  
+		      public Object render(final ModelData model, String property, ColumnData config, final int rowIndex,  
+		          final int colIndex, ListStore<ModelData> store, Grid<ModelData> grid) {  
+		  
+		    	if (model.get("type") != null && SnapshotTreeInstance.FOLDER.equals(model.get("type").toString()))	// For folders
+		    		return new Html("");
+		    	
+		        IconButton b = new IconButton("services-selector-button") {
+		        	@Override
+		        	public void onClick(ComponentEvent ce) {
+		        		int snapshotId = (Integer) model.get("snapshotId");
+		        		parentCardPanel.setTargetSnapshotId(snapshotId);
+		        		parentCardPanel.switchLayout(SnapshotParentCardPanel.SERVICE_PANEL);
+		        	}
+		        	
+//		        	@Override
+//		        	public void setWidth(int width) {
+//		        		super.setWidth(16);
+//		        	}
+		        };
+		        b.setSize(16, 16);
 		       
 		        return b;  
 		      }  
@@ -1059,6 +1165,14 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 
 	public void setAllowReorganize(boolean allowReorganize) {
 		this.allowReorganize = allowReorganize;
+	}
+
+	public SnapshotParentCardPanel getParentCardPanel() {
+		return parentCardPanel;
+	}
+
+	public void setParentCardPanel(SnapshotParentCardPanel parentCardPanel) {
+		this.parentCardPanel = parentCardPanel;
 	}
 
 //	@Override

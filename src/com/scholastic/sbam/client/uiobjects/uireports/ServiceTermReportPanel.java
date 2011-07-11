@@ -1,9 +1,13 @@
 package com.scholastic.sbam.client.uiobjects.uireports;
 
+import java.util.List;
+
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
@@ -15,8 +19,9 @@ import com.scholastic.sbam.client.uiobjects.foundation.GridSupportContainer;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.AgreementTermInstance;
+import com.scholastic.sbam.shared.objects.SnapshotInstance;
 
-public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermInstance> implements AppSleeper {
+public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermInstance> implements SnapshotParentCardPanel, AppSleeper {
 	
 	protected ContentPanel					outerContainer;
 	protected CardLayout					cards;
@@ -32,6 +37,8 @@ public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermIn
 	protected ToggleButton					servicesButton;
 	protected ToggleButton					criteriaButton;
 	protected ToggleButton					viewDataButton;
+	
+	protected int							targetSnapshotId;
 
 	@Override
 	public void onRender(Element element, int index) {
@@ -49,7 +56,8 @@ public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermIn
 		cards = new FitCardLayout();
 		outerContainer.setLayout(cards);
 		
-		snapshotSelectorCard = new SnapshotSelectorCard("byService");
+		snapshotSelectorCard = new SnapshotSelectorCard(SnapshotInstance.TERMS_BY_SERVICE);
+		snapshotSelectorCard.setParentCardPanel(this);
 		outerContainer.add(snapshotSelectorCard);
 		
 		customersCard = new CustomerSelectionCard();
@@ -165,6 +173,52 @@ public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermIn
 
 	@Override
 	public void sleep() {
+	}
+	
+	@Override
+	public void setTargetSnapshotId(int snapshotId) {
+		this.targetSnapshotId = snapshotId;
+	}
+
+	@Override
+	public void switchLayout(int id) {
+		
+		if (id == SnapshotParentCardPanel.SNAPSHOT_SELECTOR_PANEL) {
+			cards.setActiveItem(snapshotSelectorCard);
+			return;
+		}
+
+		//	All remaining cards require a snapshot ID
+		if (!haveSnapshotId())
+			return;
+		
+		if (id == SnapshotParentCardPanel.SERVICE_PANEL) {
+			servicesCard.setSnapshotId(targetSnapshotId);
+			cards.setActiveItem(servicesCard);
+			return;
+		}
+		
+		MessageBox.alert("Internal Error", "Attempted to switch to unknown layout ID " + id, null);
+	}
+	
+	public boolean haveSnapshotId() {
+		if (targetSnapshotId > 0)
+			return true;
+
+		MessageBox.alert("Internal Error", "Attempted to switch panels without snapshot ID.", null);
+		return false;
+	}
+
+	@Override
+	public void switchLayout(LayoutContainer container) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public List<LayoutContainer> getCards() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

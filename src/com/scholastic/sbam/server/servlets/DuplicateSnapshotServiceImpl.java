@@ -1,10 +1,13 @@
 package com.scholastic.sbam.server.servlets;
 
+import java.util.Date;
+
 import com.scholastic.sbam.client.services.DuplicateSnapshotService;
 import com.scholastic.sbam.server.database.codegen.Snapshot;
 import com.scholastic.sbam.server.database.objects.DbSnapshot;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.server.validation.AppSnapshotValidator;
+import com.scholastic.sbam.shared.objects.Authentication;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.objects.SnapshotInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
@@ -25,7 +28,7 @@ public class DuplicateSnapshotServiceImpl extends AuthenticatedServiceServlet im
 		Snapshot dbInstance = null;
 		Snapshot dbOriginal = null;
 		
-		authenticate("duplicate snapshot", SecurityManager.ROLE_QUERY);
+		Authentication auth = authenticate("duplicate snapshot", SecurityManager.ROLE_QUERY);
 		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();
@@ -57,6 +60,9 @@ public class DuplicateSnapshotServiceImpl extends AuthenticatedServiceServlet im
 			dbInstance.setOrgPath(dbOriginal.getOrgPath());
 			dbInstance.setProductServiceType(dbOriginal.getProductServiceType());
 			dbInstance.setSeq(dbOriginal.getSeq());
+			dbInstance.setExpireDatetime(dbOriginal.getExpireDatetime());
+			dbInstance.setCreateUserId(auth.getUserId());
+			dbInstance.setCreatedDatetime(new Date());
 			
 			String note = dbOriginal.getNote();
 			if (note.length() > 0)
@@ -92,6 +98,10 @@ public class DuplicateSnapshotServiceImpl extends AuthenticatedServiceServlet im
 	}
 	
 	public void copySubordinateTables(Snapshot dbInstance, Snapshot dbOriginal) {
+		copySnapshotProductServices(dbInstance, dbOriginal);
+	}
+	
+	public void copySnapshotProductServices(Snapshot dbInstance, Snapshot dbOriginal) {
 		
 	}
 }

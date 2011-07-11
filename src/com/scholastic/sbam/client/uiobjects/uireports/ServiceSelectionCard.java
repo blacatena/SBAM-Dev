@@ -7,6 +7,7 @@ import com.google.gwt.user.client.Element;
 public class ServiceSelectionCard extends LayoutContainer {
 	
 	protected	SnapshotServiceSelectTree		serviceSelectTree;
+	protected	int								snapshotId;
 
 	@Override
 	public void onRender(Element element, int index) {
@@ -16,8 +17,18 @@ public class ServiceSelectionCard extends LayoutContainer {
 		addStyleName("sbam-report-body");
 		
 		serviceSelectTree = new SnapshotServiceSelectTree();
-		serviceSelectTree.setSnapshotId(1);
+		serviceSelectTree.setSnapshotId(snapshotId);
 		
 		add(serviceSelectTree);
 	}
+
+	public int getSnapshotId() {
+		return snapshotId;
+	}
+
+	public void setSnapshotId(int snapshotId) {
+		this.snapshotId = snapshotId;
+	}
+	
+	
 }

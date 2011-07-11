@@ -11,6 +11,9 @@ import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 public class SnapshotInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
+	public static String	TERMS_BY_SERVICE	=	"termsByService";
+	public static String	TERMS_BY_PRODUCT	=	"termsByProduct";
+	
 	public static char	PRODUCT_TYPE = 'p';
 	public static char	SERVICE_TYPE = 's';
 	public static char  NO_TERM_TYPE = 'n';

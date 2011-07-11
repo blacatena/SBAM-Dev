@@ -770,6 +770,22 @@ background-image:url(resources/images/icons/colorful/info.png);
 	background-color: #FFE1B6;
 }
 
+.services-selector-button {
+	background-image:url(resources/images/icons/threestate/service.png);
+	background-repeat: no-repeat;
+	width: 16px;
+/*	padding-left: 4px;*/
+/*	padding-top: 2px;*/
+}
+
+.services-selector-button-disabled {
+	background-position: -16px 0px;
+}
+
+.services-selector-button-over {
+	background-position: -32px 0px;
+}
+
 /* These are necessary, because the theme doesn't "take" -- change these if the theme changes */
 /* Managed now by adding the style "x-panel" wherever needed
 .x-border {

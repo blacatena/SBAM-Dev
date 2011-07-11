@@ -562,6 +562,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>duplicateSnapshotServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.DuplicateSnapshotServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>updateSnapshotServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.UpdateSnapshotServiceImpl</servlet-class>
   </servlet>
@@ -1159,6 +1164,11 @@
   <servlet-mapping>
     <servlet-name>snapshotServiceListServlet</servlet-name>
     <url-pattern>/sbam/getSnapshotServices</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>duplicateSnapshotServlet</servlet-name>
+    <url-pattern>/sbam/duplicateSnapshot</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>
