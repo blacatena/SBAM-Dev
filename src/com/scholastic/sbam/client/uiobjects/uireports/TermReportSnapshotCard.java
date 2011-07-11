@@ -1,19 +1,29 @@
 package com.scholastic.sbam.client.uiobjects.uireports;
 
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.user.client.Element;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.scholastic.sbam.client.util.IconSupplier;
 
-public class TermReportSnapshotCard extends LayoutContainer {
+public class TermReportSnapshotCard extends SnapshotCardBase {
+
+	protected ContentPanel	contentPanel;
+	
+	public TermReportSnapshotCard() {
+		super();
+		this.headingToolTip = "Use this panel to view a terms based report.";
+	}
 
 	@Override
-	public void onRender(Element element, int index) {
-		super.onRender(element, index);
+	public void addPanelContent() {
+		contentPanel = new ContentPanel();
+		contentPanel.setHeading("Snapshot Terms Data View");
+		IconSupplier.setIcon(contentPanel, IconSupplier.getReportIconName());
 		
-		setLayout(new FitLayout());
-		addStyleName("sbam-report-body");
-		
-		add(new Button("Generate"));
+		add(contentPanel);
 	}
+
+	@Override
+	public ContentPanel getContentPanel() {
+		return contentPanel;
+	}
+	
 }

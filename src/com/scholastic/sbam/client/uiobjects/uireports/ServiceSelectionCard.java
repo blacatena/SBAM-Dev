@@ -1,34 +1,27 @@
 package com.scholastic.sbam.client.uiobjects.uireports;
 
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.user.client.Element;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 
-public class ServiceSelectionCard extends LayoutContainer {
+public class ServiceSelectionCard extends SnapshotCardBase {
 	
 	protected	SnapshotServiceSelectTree		serviceSelectTree;
-	protected	int								snapshotId;
 
+	public ServiceSelectionCard() {
+		this.headingToolTip = "Use this panel to select services.";
+	}
+	
 	@Override
-	public void onRender(Element element, int index) {
-		super.onRender(element, index);
-		
-		setLayout(new FitLayout());
-		addStyleName("sbam-report-body");
-		
+	public void addPanelContent() {
 		serviceSelectTree = new SnapshotServiceSelectTree();
 		serviceSelectTree.setSnapshotId(snapshotId);
+		serviceSelectTree.setPanelHeading("Snapshot Services Selector");
 		
 		add(serviceSelectTree);
 	}
 
-	public int getSnapshotId() {
-		return snapshotId;
+	@Override
+	public ContentPanel getContentPanel() {
+		return serviceSelectTree.getPanel();
 	}
-
-	public void setSnapshotId(int snapshotId) {
-		this.snapshotId = snapshotId;
-	}
-	
 	
 }

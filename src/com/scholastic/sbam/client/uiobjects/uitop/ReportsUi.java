@@ -59,6 +59,7 @@ public class ReportsUi extends Composite implements AppSecurityManager, AppSleep
 		item.setText(tabTitle);
 		if (iconName != null && iconName.length() > 0)
 			IconSupplier.setIcon(item, iconName);
+		item.getHeader().setToolTip(toolTip);
 	//	item.setClosable(false);
 //		This doesn't work -- GXT puts the tooltip on the content area, instead of the tab itself
 //		if (toolTip != null) {

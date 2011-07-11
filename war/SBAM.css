@@ -772,17 +772,30 @@ background-image:url(resources/images/icons/colorful/info.png);
 
 .services-selector-button {
 	background-image:url(resources/images/icons/threestate/service.png);
-	background-repeat: no-repeat;
-	width: 16px;
-/*	padding-left: 4px;*/
-/*	padding-top: 2px;*/
 }
 
-.services-selector-button-disabled {
+.customers-selector-button {
+	background-image:url(resources/images/icons/threestate/customer.png);
+}
+
+.terms-selector-button {
+	background-image:url(resources/images/icons/threestate/term.png);
+}
+
+.view-data-button {
+	background-image:url(resources/images/icons/threestate/viewdata.png);
+}
+
+.three-state-button {
+	background-repeat: no-repeat;
+	width: 16px;
+}
+
+.three-state-button-disabled {
 	background-position: -16px 0px;
 }
 
-.services-selector-button-over {
+.three-state-button-over {
 	background-position: -32px 0px;
 }
 

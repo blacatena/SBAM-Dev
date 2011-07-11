@@ -1,21 +1,32 @@
 package com.scholastic.sbam.client.uiobjects.uireports;
 
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.user.client.Element;
+import com.scholastic.sbam.client.util.IconSupplier;
 
-public class TermCriteriaCard extends LayoutContainer {
-
-
+public class TermCriteriaCard extends SnapshotCardBase {
+	
+	protected ContentPanel	contentPanel;
+	
+	public TermCriteriaCard() {
+		super();
+		this.headingToolTip = "Use this panel to specify term criteria for the snapshot.";
+	}
 
 	@Override
-	public void onRender(Element element, int index) {
-		super.onRender(element, index);
+	public void addPanelContent() {
+		contentPanel = new ContentPanel();
+		contentPanel.setHeading("Snapshot Terms Selector");
+		IconSupplier.setIcon(contentPanel, IconSupplier.getTermTypeIconName());
+		contentPanel.add(new Html("Term Criteria Card"));
 		
-		setLayout(new FitLayout());
-		addStyleName("sbam-report-body");
-		
-		add(new Html("Howdy hi-dee ho."));
+		add(contentPanel);
 	}
+
+	@Override
+	public ContentPanel getContentPanel() {
+		return contentPanel;
+	}
+	
+	
 }

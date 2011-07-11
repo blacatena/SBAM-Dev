@@ -51,6 +51,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treegrid.EditorTreeGrid;
@@ -106,6 +107,10 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	protected final UpdateSnapshotTreeServiceAsync updateSnapshotTreeService = GWT.create(UpdateSnapshotTreeService.class);
 	protected final DuplicateSnapshotServiceAsync duplicateSnapshotService = GWT.create(DuplicateSnapshotService.class);
 	
+	protected final ToolTipConfig servicesTip	=	getIconButtonToolTip("Use this button to restrict the services selected for this snapshot.");
+	protected final ToolTipConfig customersTip	=	getIconButtonToolTip("Use this button to restrict the customers selected for this snapshot.");
+	protected final ToolTipConfig termsTip		=	getIconButtonToolTip("Use this button to restrict the terms selected for this snapshot.");
+	protected final ToolTipConfig viewDataTip	=	getIconButtonToolTip("Use this button to view data for this snapshot.");
 	
 	/**
 	 * This is a simple utility class to simplify the creation of folder items.
@@ -475,7 +480,16 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	    ColumnConfig srvc = new ColumnConfig("serviceButton", "", 30);
 	    srvc.setRenderer(getServiceButtonRenderer());
 	    
-	    ColumnModel cm = new ColumnModel(Arrays.asList(id, name, date, expi, user, stat, note, srvc));
+	    ColumnConfig cust = new ColumnConfig("customerButton", "", 30);
+	    cust.setRenderer(getCustomerButtonRenderer());
+	    
+	    ColumnConfig term = new ColumnConfig("termButton", "", 30);
+	    term.setRenderer(getTermButtonRenderer());
+	    
+	    ColumnConfig data = new ColumnConfig("viewDataButton", "", 30);
+	    data.setRenderer(getViewDataButtonRenderer());
+	    
+	    ColumnModel cm = new ColumnModel(Arrays.asList(id, name, date, expi, user, stat, note, srvc, cust, term, data));
 	    
 	    return cm;
 	}
@@ -532,18 +546,19 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 		 
 		});
 		
-		Button saveButton = new Button("Save");
-		IconSupplier.forceIcon(saveButton, IconSupplier.getSaveIconName());
-		saveButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
-			   
-			@Override
-			public void componentSelected(ButtonEvent ce) {
-				doUpdateTreeStructure();
-			}  
-		 
-		});
+		//	This button allowed the user to explicitly save a modified tree structure... now obsolete, because update messages are sent automatically
+//		Button saveButton = new Button("Save");
+//		IconSupplier.forceIcon(saveButton, IconSupplier.getSaveIconName());
+//		saveButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+//			   
+//			@Override
+//			public void componentSelected(ButtonEvent ce) {
+//				doUpdateTreeStructure();
+//			}  
+//		 
+//		});
 		
-		Button resetButton = new Button("Reset");
+		Button resetButton = new Button("Refresh");
 		IconSupplier.forceIcon(resetButton, IconSupplier.getResetIconName());
 		resetButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			   
@@ -560,7 +575,7 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 		toolbar.add(expandButton);
 		toolbar.add(collapseButton);
 		toolbar.add(new SeparatorToolItem());
-		toolbar.add(saveButton);
+//		toolbar.add(saveButton);
 		toolbar.add(resetButton);
 		
 		return toolbar;
@@ -1072,35 +1087,76 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 		return buttonRenderer;
 	}
 	
+	protected ToolTipConfig getIconButtonToolTip(String tip) {
+		return new ToolTipConfig(tip);
+	}
+	
 	protected GridCellRenderer<ModelData> getServiceButtonRenderer() {
 		GridCellRenderer<ModelData> buttonRenderer = new GridCellRenderer<ModelData>() {   
-		  
-		      public Object render(final ModelData model, String property, ColumnData config, final int rowIndex,  
-		          final int colIndex, ListStore<ModelData> store, Grid<ModelData> grid) {  
-		  
-		    	if (model.get("type") != null && SnapshotTreeInstance.FOLDER.equals(model.get("type").toString()))	// For folders
-		    		return new Html("");
-		    	
-		        IconButton b = new IconButton("services-selector-button") {
-		        	@Override
-		        	public void onClick(ComponentEvent ce) {
-		        		int snapshotId = (Integer) model.get("snapshotId");
-		        		parentCardPanel.setTargetSnapshotId(snapshotId);
-		        		parentCardPanel.switchLayout(SnapshotParentCardPanel.SERVICE_PANEL);
-		        	}
-		        	
-//		        	@Override
-//		        	public void setWidth(int width) {
-//		        		super.setWidth(16);
-//		        	}
-		        };
-		        b.setSize(16, 16);
-		       
-		        return b;  
+	
+		      public Object render(final ModelData model, String property, ColumnData config, final int rowIndex, final int colIndex, ListStore<ModelData> store, Grid<ModelData> grid) {  
+		    	  return getLayoutSwitchButton("services-selector-button", SnapshotParentCardPanel.SERVICE_SELECTOR_PANEL, model, servicesTip) ;  
 		      }  
-		    };  
+	
+		};  
 		    
 		return buttonRenderer;
+	}
+	
+	protected GridCellRenderer<ModelData> getCustomerButtonRenderer() {
+		GridCellRenderer<ModelData> buttonRenderer = new GridCellRenderer<ModelData>() {   
+	
+		      public Object render(final ModelData model, String property, ColumnData config, final int rowIndex, final int colIndex, ListStore<ModelData> store, Grid<ModelData> grid) {  
+		    	  return getLayoutSwitchButton("customers-selector-button", SnapshotParentCardPanel.CUSTOMER_SELECTOR_PANEL, model, customersTip) ;  
+		      }  
+	
+		};  
+		    
+		return buttonRenderer;
+	}
+	
+	protected GridCellRenderer<ModelData> getTermButtonRenderer() {
+		GridCellRenderer<ModelData> buttonRenderer = new GridCellRenderer<ModelData>() {   
+	
+		      public Object render(final ModelData model, String property, ColumnData config, final int rowIndex, final int colIndex, ListStore<ModelData> store, Grid<ModelData> grid) {  
+		    	  return getLayoutSwitchButton("terms-selector-button", SnapshotParentCardPanel.CRITERIA_PANEL, model, termsTip) ;  
+		      }  
+	
+		};  
+		    
+		return buttonRenderer;
+	}
+	
+	protected GridCellRenderer<ModelData> getViewDataButtonRenderer() {
+		GridCellRenderer<ModelData> buttonRenderer = new GridCellRenderer<ModelData>() {   
+	
+		      public Object render(final ModelData model, String property, ColumnData config, final int rowIndex, final int colIndex, ListStore<ModelData> store, Grid<ModelData> grid) {  
+		    	  return getLayoutSwitchButton("view-data-button", SnapshotParentCardPanel.VIEW_DATA_PANEL, model, viewDataTip) ;  
+		      }  
+	
+		};  
+		    
+		return buttonRenderer;
+	}
+	
+	protected Object getLayoutSwitchButton(String iconStyle, final int selectorId, final ModelData model, final ToolTipConfig toolTipConfig) { 
+		  
+    	if (model.get("type") != null && SnapshotTreeInstance.FOLDER.equals(model.get("type").toString()))	// For folders
+    		return new Html("");
+    	
+		IconButton b = new IconButton("three-state-button") {
+        	@Override
+        	public void onClick(ComponentEvent ce) {
+        		int snapshotId = (Integer) model.get("snapshotId");
+        		parentCardPanel.setTargetSnapshotId(snapshotId);
+        		parentCardPanel.switchLayout(selectorId);
+        	}
+        };
+        b.setSize(16, 16);
+        b.setToolTip(toolTipConfig);
+        b.addStyleName(iconStyle);
+       
+        return b; 
 	}
 	
 

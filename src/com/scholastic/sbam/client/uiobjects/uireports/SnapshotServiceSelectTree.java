@@ -206,7 +206,7 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 	private int						snapshotId;
 	private String					panelHeading;
 
-	private ContentPanel 			panel;
+	private ContentPanel 			panel = new ContentPanel(new FitLayout());	// We need to make sure this is created even before rendering
 	private TreePanel<ModelData>	tree;
 	private TreeStore<ModelData>	store;
 	
@@ -238,7 +238,7 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 		setLayout(new FitLayout());
 		setBorders(false);
 		
-		panel = new ContentPanel(new FitLayout());
+//		panel = new ContentPanel(new FitLayout());
 		panel.setBorders(false);
 		IconSupplier.setIcon(panel, IconSupplier.getServiceIconName());
 		panel.setHeading(panelHeading);
@@ -800,6 +800,30 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 		this.panelHeading = panelHeading;
 		if (panel != null)
 			panel.setHeading(panelHeading);
+	}
+
+	public ContentPanel getPanel() {
+		return panel;
+	}
+
+	public void setPanel(ContentPanel panel) {
+		this.panel = panel;
+	}
+
+	public TreePanel<ModelData> getTree() {
+		return tree;
+	}
+
+	public void setTree(TreePanel<ModelData> tree) {
+		this.tree = tree;
+	}
+
+	public TreeStore<ModelData> getStore() {
+		return store;
+	}
+
+	public void setStore(TreeStore<ModelData> store) {
+		this.store = store;
 	}
 
 	public int getSnapshotId() {
