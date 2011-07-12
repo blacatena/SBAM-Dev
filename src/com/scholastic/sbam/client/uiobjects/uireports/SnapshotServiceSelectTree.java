@@ -44,6 +44,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.scholastic.sbam.client.services.SnapshotServiceListService;
 import com.scholastic.sbam.client.services.SnapshotServiceListServiceAsync;
+import com.scholastic.sbam.client.services.UpdateSnapshotServiceListService;
+import com.scholastic.sbam.client.services.UpdateSnapshotServiceListServiceAsync;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.objects.SnapshotServiceTreeInstance;
@@ -210,7 +212,8 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 	private TreePanel<ModelData>	tree;
 	private TreeStore<ModelData>	store;
 	
-	private final SnapshotServiceListServiceAsync snapshotServiceListService = GWT.create(SnapshotServiceListService.class);
+	private final SnapshotServiceListServiceAsync		snapshotServiceListService			= GWT.create(SnapshotServiceListService.class);
+	private final UpdateSnapshotServiceListServiceAsync	updateSnapshotServiceListService	= GWT.create(UpdateSnapshotServiceListService.class);
 
 	public SnapshotServiceSelectTree() {
 	}
@@ -299,6 +302,13 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 	 */
 	public void createTreeStore() {
 		store = new TreeStore<ModelData>();
+		refreshTreeData();
+	}
+
+	/**
+	 * Force the application to refresh its data
+	 */
+	public void refresh() {
 		refreshTreeData();
 	}
 	
@@ -508,20 +518,6 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 			return;
 		
 		new TreePanelDragSource(tree);
-//		TreePanelDragSource source = new TreePanelDragSource(tree);
-//		Original code rejected drag/drop with first item... why?  Did it mean if there's only one item?  Does it cause problems? 
-//		source.addDNDListener(new DNDListener() { 
-//		  @Override  
-//		  public void dragStart(DNDEvent e) {  
-//		    ModelData sel = tree.getSelectionModel().getSelectedItem();
-//		    if (sel != null && sel == tree.getStore().getRootItems().get(0)) {  
-//		      e.setCancelled(true);
-//		      e.getStatus().setStatus(false);
-//		      return;
-//		    }  
-//		    super.dragStart(e);
-//		  }  
-//		});
 		  
 		TreePanelDropTarget target = new MyTreePanelDropTarget(tree);
 		target.setAllowDropOnLeaf(true);
@@ -547,7 +543,7 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 //		ToolTipConfig config = new ToolTipConfig();
 //		config.setTitle("What To Do:");
 //		config.setShowDelay(1);
-//		config.setText("Check the services which apply to this product and hit save.");
+//		config.setText("Check the services to report with this snapshot and hit save.");
 //		panel.getHeader().addTool(helpButton);
 //	}
 	
@@ -660,22 +656,22 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 	 * Update the database with the current tree settings.
 	 */
 	private void doUpdate() {		
-//		updateSnapshotServiceListService.updateSnapshotServiceList(productCode, getOrderedUpdateList(),
-//				new AsyncCallback<String>() {
-//					public void onFailure(Throwable caught) {
-//						// Show the RPC error message to the user
-//						if (caught instanceof IllegalArgumentException)
-//							MessageBox.alert("Alert", caught.getMessage(), null);
-//						else {
-//							MessageBox.alert("Alert", "Update of product services for " + productCode + " failed unexpectedly.", null);
-//							System.out.println(caught.getClass().getName());
-//							System.out.println(caught.getMessage());
-//						}
-//					}
-//
-//					public void onSuccess(String result) {
-//					}
-//				});
+		updateSnapshotServiceListService.updateSnapshotServiceList(snapshotId, false, getOrderedUpdateList(),
+				new AsyncCallback<String>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "Update of services for snapshot " + snapshotId + " failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+					}
+
+					public void onSuccess(String result) {
+					}
+				});
 	}
 	
 	public List<SnapshotServiceTreeInstance> getOrderedUpdateList() {

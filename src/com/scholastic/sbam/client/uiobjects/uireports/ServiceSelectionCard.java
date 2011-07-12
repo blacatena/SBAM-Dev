@@ -18,10 +18,16 @@ public class ServiceSelectionCard extends SnapshotCardBase {
 		
 		add(serviceSelectTree);
 	}
+	
+	@Override
+	public void setSnapshotId(int snapshotId) {
+		super.setSnapshotId(snapshotId);
+		if (serviceSelectTree != null)
+			serviceSelectTree.setSnapshotId(snapshotId);
+	}
 
 	@Override
 	public ContentPanel getContentPanel() {
 		return serviceSelectTree.getPanel();
 	}
-	
 }
