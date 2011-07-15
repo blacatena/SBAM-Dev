@@ -46,7 +46,9 @@ public class SnapshotParameterSetGetServiceImpl extends AuthenticatedServiceServ
 						result.addValue(parameterValue.getId().getParameterName(), parameterValue.getParameterGroup(), parameterValue.getIntFromValue());
 					
 				} else if (parameterValue.getParameterType() == SnapshotParameterValueObject.DOUBLE) {
-					if (parameterValue.getDblToValue() > parameterValue.getDblFromValue())
+					if (parameterValue.getDblFromValue() == null)
+						throw new IllegalArgumentException("Null value found for " + parameterValue.getId().getParameterName() + " for snapshot " + snapshotId + ".");
+					if (parameterValue.getDblToValue().doubleValue() > parameterValue.getDblFromValue().doubleValue())
 						result.addValue(parameterValue.getId().getParameterName(), parameterValue.getParameterGroup(), parameterValue.getDblFromValue(), parameterValue.getDblToValue());
 					else
 						result.addValue(parameterValue.getId().getParameterName(), parameterValue.getParameterGroup(), parameterValue.getDblFromValue());
@@ -67,7 +69,12 @@ public class SnapshotParameterSetGetServiceImpl extends AuthenticatedServiceServ
 					else
 						result.addValue(parameterValue.getId().getParameterName(), parameterValue.getParameterGroup(), parameterValue.getStrFromValue());
 					
-				} else
+				} else if (parameterValue.getParameterType() == SnapshotParameterValueObject.BOOLEAN) {
+					if (parameterValue.getIntFromValue() == null)
+						throw new IllegalArgumentException("Null value found for " + parameterValue.getId().getParameterName() + " for snapshot " + snapshotId + ".");
+					result.addValue(parameterValue.getId().getParameterName(), parameterValue.getParameterGroup(), parameterValue.getIntFromValue() > 0);
+					
+				} else 
 					throw new IllegalArgumentException("Unrecognized Parameter Type " + parameterValue.getParameterType() + " for " + parameterValue.getId().getParameterName() + " for snapshot " + snapshotId + ".");
 			}
 			

@@ -17,6 +17,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.event.TreePanelEvent;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.util.Margins;
@@ -48,6 +49,7 @@ import com.scholastic.sbam.client.services.UpdateSnapshotServiceListService;
 import com.scholastic.sbam.client.services.UpdateSnapshotServiceListServiceAsync;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
 import com.scholastic.sbam.client.util.IconSupplier;
+import com.scholastic.sbam.shared.objects.SnapshotInstance;
 import com.scholastic.sbam.shared.objects.SnapshotServiceTreeInstance;
 
 public class SnapshotServiceSelectTree extends LayoutContainer implements AppSleeper {
@@ -105,6 +107,8 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 	 * @param <M>
 	 */
 	public class MyTreePanel<M extends ModelData> extends TreePanel<M> {
+		
+		protected boolean checksDisabled	= false;
 
 		public MyTreePanel(TreeStore<M> store) {
 			super(store);
@@ -144,12 +148,27 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 			super.renderChildren(parent);
 			setCheckStyle(save);
 		}
+
+		/**
+		 * Overridden to disallow user check clicks if checks are allowed but disabled.
+		 */
+		  @SuppressWarnings("rawtypes")
+		protected void onCheckClick(TreePanelEvent tpe, TreeNode node) {
+			if (checksDisabled) {
+				MessageBox.alert("Snapshot Taken", "This snapshot has already been taken.  To modify selection criteria, first use the terms panel to clear the snapshot.", null);
+				return;  
+			}
+			super.onCheckClick(tpe, node);
+		  }
 		
 		/**
-		 * Overridden to adjust model in store to match tree, both for use with the filter and for passing back to the server side
+		 * Overridden to adjust model in store to match tree, both for use with the filter and for passing back to the server side.
+		 * Also overridden to disallow if disabled.
 		 */
 		@Override
 		public void setChecked(M m, boolean checked) {
+			if (disabled)
+				return;
 			super.setChecked(m, checked);
 			if (m.getPropertyNames().contains("checked"))
 				m.set("checked", checked ? "checked" : "");
@@ -162,6 +181,10 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 		
 		private boolean isFolder(ModelData item) {
 			return item.get("type") != null && item.get("type").equals("folder");
+		}
+		
+		public void setChecksDisabled(boolean checksDisabled) {
+			this.checksDisabled = checksDisabled;
 		}
 		
 	}
@@ -207,12 +230,13 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 	}
 
 	
-	private int						snapshotId;
+	private SnapshotInstance		snapshot;
 	private String					panelHeading;
 
-	private ContentPanel 			panel = new ContentPanel(new FitLayout());	// We need to make sure this is created even before rendering
-	private TreePanel<ModelData>	tree;
-	private TreeStore<ModelData>	store;
+	private ContentPanel 			panel		= new ContentPanel(new FitLayout());	// We need to make sure this is created even before rendering
+	private TreeStore<ModelData>	store 		= new TreeStore<ModelData>();;
+	private MyTreePanel<ModelData>	tree 		= new MyTreePanel<ModelData>(store);
+	private Button					saveButton	= new Button("Save");
 	
 	private final SnapshotServiceListServiceAsync		snapshotServiceListService			= GWT.create(SnapshotServiceListService.class);
 	private final UpdateSnapshotServiceListServiceAsync	updateSnapshotServiceListService	= GWT.create(UpdateSnapshotServiceListService.class);
@@ -225,14 +249,14 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 		this.allowReorganize = allowReorganize;
 	}
 	
-	public SnapshotServiceSelectTree(int snapshotId) {
+	public SnapshotServiceSelectTree(SnapshotInstance snapshot) {
 		this();
-		this.snapshotId = snapshotId;
+		this.snapshot = snapshot;
 	}
 	
-	public SnapshotServiceSelectTree(int snapshotId, boolean allowReorganize) {
+	public SnapshotServiceSelectTree(SnapshotInstance snapshot, boolean allowReorganize) {
 		this();
-		this.snapshotId = snapshotId;
+		this.snapshot = snapshot;
 		this.allowReorganize = allowReorganize;
 	}
 
@@ -303,7 +327,7 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 	 * Create the TreeStore from the data.
 	 */
 	public void createTreeStore() {
-		store = new TreeStore<ModelData>();
+	//	store = new TreeStore<ModelData>();
 		refreshTreeData();
 	}
 
@@ -349,7 +373,8 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 	 */
 	public void createTreePanel() {
 //		EditorTreeGrid<ModelData> tree = new EditorTreeGrid<ModelData>(store, cm); 
-		tree = new MyTreePanel<ModelData>(store);
+		
+//		tree = new MyTreePanel<ModelData>(store);
 		tree.setDisplayProperty("description");
 		tree.setCheckable(true);
 		tree.setCheckNodes(CheckNodes.BOTH);
@@ -433,7 +458,7 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 		 
 		});
 		
-		Button saveButton = new Button("Save");
+//		Button saveButton = new Button("Save");
 		IconSupplier.forceIcon(saveButton, IconSupplier.getSaveIconName());
 		saveButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			   
@@ -658,14 +683,14 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 	 * Update the database with the current tree settings.
 	 */
 	private void doUpdate() {		
-		updateSnapshotServiceListService.updateSnapshotServiceList(snapshotId, allowReorganize, getOrderedUpdateList(),
+		updateSnapshotServiceListService.updateSnapshotServiceList(snapshot.getSnapshotId(), allowReorganize, getOrderedUpdateList(),
 				new AsyncCallback<String>() {
 					public void onFailure(Throwable caught) {
 						// Show the RPC error message to the user
 						if (caught instanceof IllegalArgumentException)
 							MessageBox.alert("Alert", caught.getMessage(), null);
 						else {
-							MessageBox.alert("Alert", "Update of services for snapshot " + snapshotId + " failed unexpectedly.", null);
+							MessageBox.alert("Alert", "Update of services for snapshot " + snapshot + " failed unexpectedly.", null);
 							System.out.println(caught.getClass().getName());
 							System.out.println(caught.getMessage());
 						}
@@ -729,7 +754,7 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 	
 	public SnapshotServiceTreeInstance getPstInstance(ModelData item) {
 		SnapshotServiceTreeInstance instance = new SnapshotServiceTreeInstance();
-		instance.setSnapshotId(snapshotId);
+		instance.setSnapshotId(snapshot.getSnapshotId());
 		instance.setServiceCode(getAsString(item.get("serviceCode")));
 		instance.setDescription(getAsString(item.get("description")));
 		instance.setSelected(item.get("checked") != null && item.get("checked").equals("checked"));
@@ -752,14 +777,14 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 	}
 
 	protected void asyncLoad() {
-		snapshotServiceListService.getSnapshotServices(snapshotId, null,
+		snapshotServiceListService.getSnapshotServices(snapshot.getSnapshotId(), null,
 				new AsyncCallback<List<SnapshotServiceTreeInstance>>() {
 					public void onFailure(Throwable caught) {
 						// Show the RPC error message to the user
 						if (caught instanceof IllegalArgumentException)
 							MessageBox.alert("Alert", caught.getMessage(), null);
 						else {
-							MessageBox.alert("Alert", "Get snapshot services for " + snapshotId + " failed unexpectedly.", null);
+							MessageBox.alert("Alert", "Get snapshot services for " + snapshot + " failed unexpectedly.", null);
 							System.out.println(caught.getClass().getName());
 							System.out.println(caught.getMessage());
 						}
@@ -808,11 +833,11 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 		this.panel = panel;
 	}
 
-	public TreePanel<ModelData> getTree() {
+	public MyTreePanel<ModelData> getTree() {
 		return tree;
 	}
 
-	public void setTree(TreePanel<ModelData> tree) {
+	public void setTree(MyTreePanel<ModelData> tree) {
 		this.tree = tree;
 	}
 
@@ -825,11 +850,18 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 	}
 
 	public int getSnapshotId() {
-		return snapshotId;
+		return snapshot.getSnapshotId();
+	}
+	
+	public SnapshotInstance getSnapshot() {
+		return snapshot;
 	}
 
-	public void setSnapshotId(int snapshotId) {
-		this.snapshotId = snapshotId;
+	public void setSnapshot(SnapshotInstance snapshot) {
+		this.snapshot = snapshot;
+		
+		tree.setChecksDisabled(snapshot.getSnapshotTaken() != null);
+		saveButton.setEnabled(snapshot.getSnapshotTaken() == null);
 		
 		refreshTreeData();
 	}

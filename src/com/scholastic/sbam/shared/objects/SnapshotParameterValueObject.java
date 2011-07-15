@@ -11,6 +11,7 @@ public class SnapshotParameterValueObject implements IsSerializable, BeanModelTa
 	public static int	DOUBLE  = 1;
 	public static int	STRING  = 2;
 	public static int	DATE    = 3;
+	public static int	BOOLEAN = 4;
 	
 	protected	int		valueType;
 	
@@ -54,6 +55,11 @@ public class SnapshotParameterValueObject implements IsSerializable, BeanModelTa
 		valueType = DATE;
 	}
 	
+	public SnapshotParameterValueObject(boolean value) {
+		intValue = value ? 1 : 0;
+		valueType = BOOLEAN;
+	}
+	
 	public SnapshotParameterValueObject(String value, String toValue) {
 		stringValue = value;
 		valueType = STRING;
@@ -85,6 +91,14 @@ public class SnapshotParameterValueObject implements IsSerializable, BeanModelTa
 	public void setValueType(int valueType) {
 		this.valueType = valueType;
 	}
+	
+	public boolean getBooleanValue() {
+		return intValue > 0;
+	}
+	
+	public boolean isTrue() {
+		return intValue > 0;
+	}
 
 	public int getIntValue() {
 		return intValue;
@@ -111,6 +125,8 @@ public class SnapshotParameterValueObject implements IsSerializable, BeanModelTa
 			setValue((Date) value);
 		else if (value instanceof String)
 			setValue((String) value);
+		else if (value instanceof Boolean)
+			setValue((Boolean) value);
 		else
 			setValue(value.toString());
 	}
@@ -135,6 +151,11 @@ public class SnapshotParameterValueObject implements IsSerializable, BeanModelTa
 		valueType = DATE;
 	}
 	
+	public void setValue(Boolean value) {
+		this.intValue = value ? 1 : 0;
+		valueType = BOOLEAN;
+	}
+	
 	public SnapshotParameterValueObject getToValue() {
 		return toValue;
 	}
@@ -157,6 +178,10 @@ public class SnapshotParameterValueObject implements IsSerializable, BeanModelTa
 	
 	public boolean isString() {
 		return valueType == STRING;
+	}
+	
+	public boolean isBoolean() {
+		return valueType == BOOLEAN;
 	}
 
 	public boolean isRange() {
@@ -209,6 +234,8 @@ public class SnapshotParameterValueObject implements IsSerializable, BeanModelTa
 				return "" + dateValue;
 			else if (isString())
 				return stringValue;
+			else if (isBoolean())
+				return intValue > 0 ? "true" : "false";
 			else
 				return "null";
 		} else {
@@ -220,6 +247,8 @@ public class SnapshotParameterValueObject implements IsSerializable, BeanModelTa
 				return dateValue + " <=> " + toValue.toString();
 			else if (isString())
 				return stringValue + " <=> " + toValue.toString();
+			else if (isBoolean())
+				return intValue > 0 ? "true" : "false";
 			else
 				return "null";
 		}

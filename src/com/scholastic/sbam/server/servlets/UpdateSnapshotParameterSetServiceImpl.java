@@ -113,6 +113,8 @@ public class UpdateSnapshotParameterSetServiceImpl extends AuthenticatedServiceS
 			parameter.setDblFromValue( value.getDoubleValue());
 		} else if (value.isDate()) {
 			parameter.setDateFromValue( value.getDateValue());
+		} else if (value.isBoolean()) {
+			parameter.setIntFromValue( value.getIntValue());
 		}  else
 			throw new IllegalArgumentException("Invalid value type " + value.getValueType() + " for parameter " + parameter.getId().getParameterName());
 		
@@ -126,7 +128,7 @@ public class UpdateSnapshotParameterSetServiceImpl extends AuthenticatedServiceS
 			} else if (value.getToValue().isDate()) {
 				parameter.setDateToValue( value.getToDateValue() );
 			} else
-				throw new IllegalArgumentException("Invalid value type " + value.getToValue().getValueType() + " for parameter " + parameter.getId().getParameterName());
+				throw new IllegalArgumentException("Invalid range 'to' value type " + value.getToValue().getValueType() + " for parameter " + parameter.getId().getParameterName());
 		}
 	}
 	

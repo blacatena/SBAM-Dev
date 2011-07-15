@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Jul 14, 2011 8:43:24 PM by Hibernate Tools 3.2.4.GA
+// Generated Jul 14, 2011 10:05:06 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -19,28 +19,25 @@ public class SnapshotParameter implements java.io.Serializable {
 	private String strToValue;
 	private Date dateFromValue;
 	private Date dateToValue;
-	private double dblFromValue;
-	private double dblToValue;
+	private Double dblFromValue;
+	private Double dblToValue;
 
 	public SnapshotParameter() {
 	}
 
 	public SnapshotParameter(SnapshotParameterId id, String parameterSource,
-			String parameterGroup, int parameterType, double dblFromValue,
-			double dblToValue) {
+			String parameterGroup, int parameterType) {
 		this.id = id;
 		this.parameterSource = parameterSource;
 		this.parameterGroup = parameterGroup;
 		this.parameterType = parameterType;
-		this.dblFromValue = dblFromValue;
-		this.dblToValue = dblToValue;
 	}
 
 	public SnapshotParameter(SnapshotParameterId id, String parameterSource,
 			String parameterGroup, int parameterType, Integer intToValue,
 			Integer intFromValue, String strFromValue, String strToValue,
-			Date dateFromValue, Date dateToValue, double dblFromValue,
-			double dblToValue) {
+			Date dateFromValue, Date dateToValue, Double dblFromValue,
+			Double dblToValue) {
 		this.id = id;
 		this.parameterSource = parameterSource;
 		this.parameterGroup = parameterGroup;
@@ -135,19 +132,19 @@ public class SnapshotParameter implements java.io.Serializable {
 		this.dateToValue = dateToValue;
 	}
 
-	public double getDblFromValue() {
+	public Double getDblFromValue() {
 		return this.dblFromValue;
 	}
 
-	public void setDblFromValue(double dblFromValue) {
+	public void setDblFromValue(Double dblFromValue) {
 		this.dblFromValue = dblFromValue;
 	}
 
-	public double getDblToValue() {
+	public Double getDblToValue() {
 		return this.dblToValue;
 	}
 
-	public void setDblToValue(double dblToValue) {
+	public void setDblToValue(Double dblToValue) {
 		this.dblToValue = dblToValue;
 	}
 

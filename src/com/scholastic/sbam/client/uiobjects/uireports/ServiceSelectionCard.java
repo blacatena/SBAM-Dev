@@ -14,7 +14,7 @@ public class ServiceSelectionCard extends SnapshotCardBase {
 	@Override
 	public void addPanelContent() {
 		serviceSelectTree = new SnapshotServiceSelectTree();
-		serviceSelectTree.setSnapshotId(snapshot.getSnapshotId());
+		serviceSelectTree.setSnapshot(snapshot);
 		serviceSelectTree.setPanelHeading("Snapshot Services Selector");
 		
 		add(serviceSelectTree);
@@ -24,7 +24,7 @@ public class ServiceSelectionCard extends SnapshotCardBase {
 	public void setSnapshot(SnapshotInstance snapshot) {
 		super.setSnapshot(snapshot);
 		if (serviceSelectTree != null)
-			serviceSelectTree.setSnapshotId(snapshot.getSnapshotId());
+			serviceSelectTree.setSnapshot(snapshot);
 	}
 
 	@Override

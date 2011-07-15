@@ -72,6 +72,11 @@ public class SnapshotParameterSetInstance implements BeanModelTag, IsSerializabl
 		addValue(parameterName, new SnapshotParameterValueObject(value));
 	}
 	
+	public void addValue(String parameterName, String group, boolean value) {
+		groups.put(parameterName, group);
+		addValue(parameterName, new SnapshotParameterValueObject(value));
+	}
+	
 	public void addValue(String parameterName, String group, Integer valueFrom, Integer valueTo) {
 		if (valueFrom == null)
 			return;
