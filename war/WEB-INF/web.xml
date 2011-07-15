@@ -582,6 +582,16 @@
   </servlet>
   
   <servlet>
+    <servlet-name>snapshotParameterSetGetServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.SnapshotParameterSetGetServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updateSnapshotParameterSetServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateSnapshotParameterSetServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>updateSnapshotBasicsServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.UpdateSnapshotBasicsServiceImpl</servlet-class>
   </servlet>
@@ -1194,6 +1204,16 @@
   <servlet-mapping>
     <servlet-name>updateSnapshotBasicsServlet</servlet-name>
     <url-pattern>/sbam/updateSnapshotBasics</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>snapshotParameterSetGetServlet</servlet-name>
+    <url-pattern>/sbam/getSnapshotParameterSet</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateSnapshotParameterSetServlet</servlet-name>
+    <url-pattern>/sbam/updateSnapshotParameterSet</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

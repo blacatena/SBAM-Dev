@@ -174,7 +174,7 @@ a.pdocImgLink {
 	color: #755B37; /* #A28456; */
 }
 
-.subtle-form .x-form-item-label {
+.subtle-form .x-form-item-label, .report-form-label {
 	color: #755B37; /* #A28456; */
 	font-size: 85%;
 }

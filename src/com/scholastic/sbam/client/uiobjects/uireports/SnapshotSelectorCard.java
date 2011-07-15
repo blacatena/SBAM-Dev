@@ -89,23 +89,23 @@ import com.scholastic.sbam.shared.util.AppConstants;
 public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper {
 
 	
-	protected boolean	allowReorganize		=	true;
-	protected String	snapshotTypeFilter	=	"";
+	protected boolean						allowReorganize		=	true;
+	protected String						snapshotTypeFilter	=	"";
 	
-	protected String	panelHeading;
+	protected String						panelHeading;
 
-	protected ContentPanel panel;
-	protected EditorTreeGrid<ModelData> treeGrid;
-	protected TreeStore<ModelData> store;
+	protected ContentPanel 					panel;
+	protected EditorTreeGrid<ModelData> 	treeGrid;
+	protected TreeStore<ModelData> 			store;
 	
 	protected SnapshotParentCardPanel		parentCardPanel;
 	
-	protected final SnapshotListServiceAsync snapshotListService = GWT.create(SnapshotListService.class);
-	protected final UpdateSnapshotBasicsServiceAsync updateSnapshotBasicsService = GWT.create(UpdateSnapshotBasicsService.class);
-	protected final UpdateSnapshotServiceAsync updateSnapshotService = GWT.create(UpdateSnapshotService.class);
-	protected final UpdateSnapshotNoteServiceAsync updateSnapshotNoteService = GWT.create(UpdateSnapshotNoteService.class);
-	protected final UpdateSnapshotTreeServiceAsync updateSnapshotTreeService = GWT.create(UpdateSnapshotTreeService.class);
-	protected final DuplicateSnapshotServiceAsync duplicateSnapshotService = GWT.create(DuplicateSnapshotService.class);
+	protected final SnapshotListServiceAsync 			snapshotListService = GWT.create(SnapshotListService.class);
+	protected final UpdateSnapshotBasicsServiceAsync 	updateSnapshotBasicsService = GWT.create(UpdateSnapshotBasicsService.class);
+	protected final UpdateSnapshotServiceAsync 			updateSnapshotService = GWT.create(UpdateSnapshotService.class);
+	protected final UpdateSnapshotNoteServiceAsync 		updateSnapshotNoteService = GWT.create(UpdateSnapshotNoteService.class);
+	protected final UpdateSnapshotTreeServiceAsync		updateSnapshotTreeService = GWT.create(UpdateSnapshotTreeService.class);
+	protected final DuplicateSnapshotServiceAsync 		duplicateSnapshotService = GWT.create(DuplicateSnapshotService.class);
 	
 	protected final ToolTipConfig servicesTip	=	getIconButtonToolTip("Use this button to restrict the services selected for this snapshot.");
 	protected final ToolTipConfig customersTip	=	getIconButtonToolTip("Use this button to restrict the customers selected for this snapshot.");
@@ -467,7 +467,7 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	    ColumnConfig date = new ColumnConfig("snapshot.snapshotTaken",	"Date Snapshot Taken", 120);
 	    date.setDateTimeFormat(UiConstants.APP_DATE_PLUS_TIME_FORMAT);
 
-	    ColumnConfig expi = new ColumnConfig("snapshot.expireDatetime",	"Expiration Date", 100);
+	    ColumnConfig expi = new ColumnConfig("snapshot.expireDatetime",	"Expiration Date", 120);
 	    expi.setDateTimeFormat(UiConstants.APP_DATE_LONG_FORMAT);
 	    expi.setEditor(new CellEditor(new DateField()));
 
@@ -1147,8 +1147,8 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 		IconButton b = new IconButton("three-state-button") {
         	@Override
         	public void onClick(ComponentEvent ce) {
-        		int snapshotId = (Integer) model.get("snapshotId");
-        		parentCardPanel.setTargetSnapshotId(snapshotId);
+        		SnapshotInstance snapshot = ((BeanModel) model.get("snapshot")).getBean();
+        		parentCardPanel.setTargetSnapshot(snapshot);
         		parentCardPanel.switchLayout(selectorId);
         	}
         };

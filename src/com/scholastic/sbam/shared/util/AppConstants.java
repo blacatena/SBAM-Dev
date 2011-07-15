@@ -484,4 +484,11 @@ public class AppConstants {
 		CalendarUtil.addDaysToDate(newDate, days);
 		return newDate;
 	}
+	
+	public static String getSimpleName(Object object) {
+		String name = object.getClass().getName();
+		if (name.indexOf('.') < 0)
+			return name;
+		return name.substring(name.lastIndexOf('.') + 1);
+	}
 }

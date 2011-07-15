@@ -1,6 +1,7 @@
 package com.scholastic.sbam.client.uiobjects.uireports;
 
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.scholastic.sbam.shared.objects.SnapshotInstance;
 
 public class ServiceSelectionCard extends SnapshotCardBase {
 	
@@ -13,17 +14,17 @@ public class ServiceSelectionCard extends SnapshotCardBase {
 	@Override
 	public void addPanelContent() {
 		serviceSelectTree = new SnapshotServiceSelectTree();
-		serviceSelectTree.setSnapshotId(snapshotId);
+		serviceSelectTree.setSnapshotId(snapshot.getSnapshotId());
 		serviceSelectTree.setPanelHeading("Snapshot Services Selector");
 		
 		add(serviceSelectTree);
 	}
 	
 	@Override
-	public void setSnapshotId(int snapshotId) {
-		super.setSnapshotId(snapshotId);
+	public void setSnapshot(SnapshotInstance snapshot) {
+		super.setSnapshot(snapshot);
 		if (serviceSelectTree != null)
-			serviceSelectTree.setSnapshotId(snapshotId);
+			serviceSelectTree.setSnapshotId(snapshot.getSnapshotId());
 	}
 
 	@Override

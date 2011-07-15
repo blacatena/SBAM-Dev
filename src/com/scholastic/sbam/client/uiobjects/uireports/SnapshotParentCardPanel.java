@@ -1,6 +1,7 @@
 package com.scholastic.sbam.client.uiobjects.uireports;
 
 import com.scholastic.sbam.client.uiobjects.foundation.ParentCardPanel;
+import com.scholastic.sbam.shared.objects.SnapshotInstance;
 
 public interface SnapshotParentCardPanel extends ParentCardPanel {
 	public static int	SNAPSHOT_SELECTOR_PANEL	=	1;
@@ -12,5 +13,5 @@ public interface SnapshotParentCardPanel extends ParentCardPanel {
 	public static int	VIEW_GRAPHS_PANEL		=	7;
 	
 
-	public void setTargetSnapshotId(int snapshotId);
+	public void setTargetSnapshot(SnapshotInstance snapshot);
 }

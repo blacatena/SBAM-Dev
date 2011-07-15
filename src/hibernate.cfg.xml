@@ -32,6 +32,7 @@
         <mapping resource="com/scholastic/sbam/server/database/codegen/LinkType.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/SnapshotProductService.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/Site.hbm.xml" />
+        <mapping resource="com/scholastic/sbam/server/database/codegen/SnapshotParameter.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/SnapshotTerm.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/PreferenceCode.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/UcnConversion.hbm.xml" />

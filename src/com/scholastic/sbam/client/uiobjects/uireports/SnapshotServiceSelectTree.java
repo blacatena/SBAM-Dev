@@ -52,6 +52,8 @@ import com.scholastic.sbam.shared.objects.SnapshotServiceTreeInstance;
 
 public class SnapshotServiceSelectTree extends LayoutContainer implements AppSleeper {
 	
+	
+	//	Set this to true to allow users to reogranize the service tree presentation here (as well as in the Services maintenance panel in the Configurations tab)
 	boolean allowReorganize	= false;
 	
 	/**
@@ -656,7 +658,7 @@ public class SnapshotServiceSelectTree extends LayoutContainer implements AppSle
 	 * Update the database with the current tree settings.
 	 */
 	private void doUpdate() {		
-		updateSnapshotServiceListService.updateSnapshotServiceList(snapshotId, false, getOrderedUpdateList(),
+		updateSnapshotServiceListService.updateSnapshotServiceList(snapshotId, allowReorganize, getOrderedUpdateList(),
 				new AsyncCallback<String>() {
 					public void onFailure(Throwable caught) {
 						// Show the RPC error message to the user

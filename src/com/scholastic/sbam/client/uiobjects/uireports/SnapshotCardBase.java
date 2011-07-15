@@ -6,10 +6,11 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.Element;
+import com.scholastic.sbam.shared.objects.SnapshotInstance;
 
 public abstract class SnapshotCardBase extends LayoutContainer {
 	
-	protected	int								snapshotId;
+	protected	SnapshotInstance				snapshot;
 	
 	protected	SnapshotParentCardPanel			parentCardPanel;
 	
@@ -32,13 +33,19 @@ public abstract class SnapshotCardBase extends LayoutContainer {
 	public abstract ContentPanel	getContentPanel();
 
 	public int getSnapshotId() {
-		return snapshotId;
-	}
-
-	public void setSnapshotId(int snapshotId) {
-		this.snapshotId = snapshotId;
+		if (snapshot == null)
+			return -1;
+		return snapshot.getSnapshotId();
 	}
 	
+	public SnapshotInstance getSnapshot() {
+		return snapshot;
+	}
+
+	public void setSnapshot(SnapshotInstance snapshot) {
+		this.snapshot = snapshot;
+	}
+
 	public SnapshotParentCardPanel getParentCardPanel() {
 		return parentCardPanel;
 	}

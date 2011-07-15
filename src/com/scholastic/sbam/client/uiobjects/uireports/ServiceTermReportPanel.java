@@ -12,7 +12,6 @@ import com.google.gwt.user.client.Element;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
 import com.scholastic.sbam.client.uiobjects.foundation.FitCardLayout;
 import com.scholastic.sbam.client.uiobjects.foundation.GridSupportContainer;
-import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.AgreementTermInstance;
 import com.scholastic.sbam.shared.objects.SnapshotInstance;
 
@@ -33,7 +32,7 @@ public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermIn
 	protected ToggleButton					criteriaButton;
 	protected ToggleButton					viewDataButton;
 	
-	protected int							targetSnapshotId;
+	protected SnapshotInstance				targetSnapshot;
 
 	@Override
 	public void onRender(Element element, int index) {
@@ -175,8 +174,8 @@ public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermIn
 	}
 	
 	@Override
-	public void setTargetSnapshotId(int snapshotId) {
-		this.targetSnapshotId = snapshotId;
+	public void setTargetSnapshot(SnapshotInstance snapshot) {
+		this.targetSnapshot = snapshot;
 	}
 
 	@Override
@@ -188,29 +187,29 @@ public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermIn
 		}
 
 		//	All remaining cards require a snapshot ID
-		if (!haveSnapshotId())
+		if (!haveSnapshot())
 			return;
 		
 		if (id == SnapshotParentCardPanel.SERVICE_SELECTOR_PANEL) {
-			servicesCard.setSnapshotId(targetSnapshotId);
+			servicesCard.setSnapshot(targetSnapshot);
 			cards.setActiveItem(servicesCard);
 			return;
 		}
 		
 		if (id == SnapshotParentCardPanel.CUSTOMER_SELECTOR_PANEL) {
-			customersCard.setSnapshotId(targetSnapshotId);
+			customersCard.setSnapshot(targetSnapshot);
 			cards.setActiveItem(customersCard);
 			return;
 		}
 		
 		if (id == SnapshotParentCardPanel.CRITERIA_PANEL) {
-			criteriaCard.setSnapshotId(targetSnapshotId);
+			criteriaCard.setSnapshot(targetSnapshot);
 			cards.setActiveItem(criteriaCard);
 			return;
 		}
 		
 		if (id == SnapshotParentCardPanel.VIEW_DATA_PANEL) {
-			viewDataCard.setSnapshotId(targetSnapshotId);
+			viewDataCard.setSnapshot(targetSnapshot);
 			cards.setActiveItem(viewDataCard);
 			return;
 		}
@@ -218,8 +217,8 @@ public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermIn
 		MessageBox.alert("Internal Error", "Attempted to switch to unknown layout ID " + id, null);
 	}
 	
-	public boolean haveSnapshotId() {
-		if (targetSnapshotId > 0)
+	public boolean haveSnapshot() {
+		if (targetSnapshot != null)
 			return true;
 
 		MessageBox.alert("Internal Error", "Attempted to switch panels without snapshot ID.", null);

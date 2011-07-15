@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated Jul 14, 2011 8:43:24 PM by Hibernate Tools 3.2.4.GA -->
+<hibernate-mapping>
+    <class name="com.scholastic.sbam.server.database.codegen.SnapshotParameter" table="snapshot_parameter" catalog="sbam">
+        <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.SnapshotParameterId">
+            <key-property name="snapshotId" type="int">
+                <column name="snapshot_id" />
+            </key-property>
+            <key-property name="parameterName" type="string">
+                <column name="parameter_name" length="32" />
+            </key-property>
+            <key-property name="valueId" type="int">
+                <column name="value_id" />
+            </key-property>
+        </composite-id>
+        <property name="parameterSource" type="string">
+            <column name="parameter_source" length="32" not-null="true" />
+        </property>
+        <property name="parameterGroup" type="string">
+            <column name="parameter_group" length="32" not-null="true" />
+        </property>
+        <property name="parameterType" type="int">
+            <column name="parameter_type" not-null="true" />
+        </property>
+        <property name="intToValue" type="java.lang.Integer">
+            <column name="int_to_value" />
+        </property>
+        <property name="intFromValue" type="java.lang.Integer">
+            <column name="int_from_value" />
+        </property>
+        <property name="strFromValue" type="string">
+            <column name="str_from_value" length="1024" />
+        </property>
+        <property name="strToValue" type="string">
+            <column name="str_to_value" length="1024" />
+        </property>
+        <property name="dateFromValue" type="date">
+            <column name="date_from_value" length="10" />
+        </property>
+        <property name="dateToValue" type="date">
+            <column name="date_to_value" length="10" />
+        </property>
+        <property name="dblFromValue" type="double">
+            <column name="dbl_from_value" precision="22" scale="0" not-null="true" />
+        </property>
+        <property name="dblToValue" type="double">
+            <column name="dbl_to_value" precision="22" scale="0" not-null="true" />
+        </property>
+    </class>
+</hibernate-mapping>
