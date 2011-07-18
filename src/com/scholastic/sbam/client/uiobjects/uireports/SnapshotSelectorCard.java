@@ -81,12 +81,13 @@ import com.scholastic.sbam.client.uiobjects.fields.NotesIconButtonField;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
+import com.scholastic.sbam.shared.objects.SimpleModelDataKeyProvider;
 import com.scholastic.sbam.shared.objects.SnapshotInstance;
 import com.scholastic.sbam.shared.objects.SnapshotTreeInstance;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.util.AppConstants;
 
-public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper {
+public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper, SnapshotReflection {
 
 	
 	protected boolean						allowReorganize		=	true;
@@ -341,6 +342,8 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	public void createTreeStore() {
 		store = new TreeStore<ModelData>();
 		
+		store.setKeyProvider(new SimpleModelDataKeyProvider("snapshotId"));
+		
 		store.addStoreListener(new StoreListener<ModelData>() {
 			@Override
 			public void storeUpdate(StoreEvent<ModelData> se) {
@@ -454,7 +457,7 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 	    	}
 	    });
 	    
-	    ColumnConfig name = new ColumnConfig("description",	"Name", 200);		//	Not snapshot.snapshotName, because folders don't have a snapshot
+	    ColumnConfig name = new ColumnConfig("description",	"Name", 150);		//	Not snapshot.snapshotName, because folders don't have a snapshot
 	    name.setEditor(new CellEditor(new TextField<String>()) );
 //	    {
 //	    	@Override
@@ -464,32 +467,32 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 //	    	}
 //	    });
 	    
-	    ColumnConfig date = new ColumnConfig("snapshot.snapshotTaken",	"Date Snapshot Taken", 120);
+	    ColumnConfig date = new ColumnConfig("snapshot.snapshotTaken",		"Date Snapshot Taken",		120);
 	    date.setDateTimeFormat(UiConstants.APP_DATE_PLUS_TIME_FORMAT);
 
-	    ColumnConfig expi = new ColumnConfig("snapshot.expireDatetime",	"Expiration Date", 120);
+	    ColumnConfig expi = new ColumnConfig("snapshot.expireDatetime",		"Expiration Date",			120);
 	    expi.setDateTimeFormat(UiConstants.APP_DATE_LONG_FORMAT);
 	    expi.setEditor(new CellEditor(new DateField()));
 
-	    ColumnConfig user = new ColumnConfig("snapshot.createDisplayName",	"Creator", 100);
-	    ColumnConfig stat = new ColumnConfig("statusDescription",	"Status", 50);
+	    ColumnConfig user = new ColumnConfig("snapshot.createDisplayName",	"Creator",					100);
+	    ColumnConfig stat = new ColumnConfig("statusDescription",			"Status",					60);
 	    
-	    ColumnConfig note = new ColumnConfig("notesButton", "", 30);
-	    note.setRenderer(getNoteButtonRenderer());
-	    
-	    ColumnConfig srvc = new ColumnConfig("serviceButton", "", 30);
-	    srvc.setRenderer(getServiceButtonRenderer());
-	    
-	    ColumnConfig cust = new ColumnConfig("customerButton", "", 30);
-	    cust.setRenderer(getCustomerButtonRenderer());
-	    
-	    ColumnConfig term = new ColumnConfig("termButton", "", 30);
+	    ColumnConfig term = new ColumnConfig("termButton",					"",							30);
 	    term.setRenderer(getTermButtonRenderer());
 	    
-	    ColumnConfig data = new ColumnConfig("viewDataButton", "", 30);
+	    ColumnConfig srvc = new ColumnConfig("serviceButton",				"",							30);
+	    srvc.setRenderer(getServiceButtonRenderer());
+	    
+	    ColumnConfig cust = new ColumnConfig("customerButton",				"",							30);
+	    cust.setRenderer(getCustomerButtonRenderer());
+	    
+	    ColumnConfig data = new ColumnConfig("viewDataButton",				"",							30);
 	    data.setRenderer(getViewDataButtonRenderer());
 	    
-	    ColumnModel cm = new ColumnModel(Arrays.asList(id, name, date, expi, user, stat, note, srvc, cust, term, data));
+	    ColumnConfig note = new ColumnConfig("notesButton",					"",							30);
+	    note.setRenderer(getNoteButtonRenderer());
+	    
+	    ColumnModel cm = new ColumnModel(Arrays.asList(id, name, date, expi, user, stat, term, srvc, cust, data, note));
 	    
 	    return cm;
 	}
@@ -812,7 +815,8 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 		instance.setSnapshotType(snapshotTypeFilter);
 		instance.setExpireDatetime(expireDate);
 		instance.setNote("");
-		instance.setProductServiceType('s');
+		instance.setProductServiceType(SnapshotInstance.SERVICE_TYPE);
+		instance.setUcnType(SnapshotInstance.BILL_UCN_TYPE);
 		instance.setStatus(AppConstants.STATUS_ACTIVE);
 		instance.setNewRecord(true);
 		
@@ -1148,13 +1152,21 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
         	@Override
         	public void onClick(ComponentEvent ce) {
         		SnapshotInstance snapshot = ((BeanModel) model.get("snapshot")).getBean();
-        		parentCardPanel.setTargetSnapshot(snapshot);
-        		parentCardPanel.switchLayout(selectorId);
+        		if (snapshot.getStatus() == AppConstants.STATUS_COMPILING) {
+        			MessageBox.alert("Alert", "Snapshot is currently compiling.  Please wait until compilation is complete.", null);
+        		} else {
+	        		parentCardPanel.setTargetSnapshot(snapshot);
+	        		parentCardPanel.switchLayout(selectorId);
+        		}
         	}
         };
         b.setSize(16, 16);
         b.setToolTip(toolTipConfig);
         b.addStyleName(iconStyle);
+        
+        if (model.get("snapshot.status").toString().equals(AppConstants.STATUS_COMPILING)) {
+        	b.disable();
+        }
        
         return b; 
 	}
@@ -1229,6 +1241,13 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper 
 
 	public void setParentCardPanel(SnapshotParentCardPanel parentCardPanel) {
 		this.parentCardPanel = parentCardPanel;
+	}
+
+	@Override
+	public void reflectSnapshotChanges(SnapshotInstance instance) {
+//		ModelData model = store.findModel(instance.getSnapshotId() + "");
+//		model.set("snapshot", instance);
+		treeGrid.repaint();
 	}
 
 //	@Override

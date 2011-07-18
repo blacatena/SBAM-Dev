@@ -330,6 +330,10 @@ public class IconSupplier {
 		return "snapshot.png";
 	}
 	
+	public static String getSnapshotClearIconName() {
+		return "snapshot_clear.png";
+	}
+	
 	public static String getSnapshotAddIconName() {
 		return "snapshot_add.png";
 	}

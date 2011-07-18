@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Jul 14, 2011 10:05:06 PM by Hibernate Tools 3.2.4.GA
+// Generated Jul 18, 2011 4:22:00 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -13,6 +13,7 @@ public class Snapshot implements java.io.Serializable {
 	private String snapshotName;
 	private String snapshotType;
 	private char productServiceType;
+	private char ucnType;
 	private Date snapshotTaken;
 	private int createUserId;
 	private Date expireDatetime;
@@ -26,11 +27,12 @@ public class Snapshot implements java.io.Serializable {
 	}
 
 	public Snapshot(String snapshotName, String snapshotType,
-			char productServiceType, int createUserId, int seq, String orgPath,
-			String note, Date createdDatetime, char status) {
+			char productServiceType, char ucnType, int createUserId, int seq,
+			String orgPath, String note, Date createdDatetime, char status) {
 		this.snapshotName = snapshotName;
 		this.snapshotType = snapshotType;
 		this.productServiceType = productServiceType;
+		this.ucnType = ucnType;
 		this.createUserId = createUserId;
 		this.seq = seq;
 		this.orgPath = orgPath;
@@ -40,12 +42,13 @@ public class Snapshot implements java.io.Serializable {
 	}
 
 	public Snapshot(String snapshotName, String snapshotType,
-			char productServiceType, Date snapshotTaken, int createUserId,
-			Date expireDatetime, int seq, String orgPath, String note,
-			Date createdDatetime, char status) {
+			char productServiceType, char ucnType, Date snapshotTaken,
+			int createUserId, Date expireDatetime, int seq, String orgPath,
+			String note, Date createdDatetime, char status) {
 		this.snapshotName = snapshotName;
 		this.snapshotType = snapshotType;
 		this.productServiceType = productServiceType;
+		this.ucnType = ucnType;
 		this.snapshotTaken = snapshotTaken;
 		this.createUserId = createUserId;
 		this.expireDatetime = expireDatetime;
@@ -86,6 +89,14 @@ public class Snapshot implements java.io.Serializable {
 
 	public void setProductServiceType(char productServiceType) {
 		this.productServiceType = productServiceType;
+	}
+
+	public char getUcnType() {
+		return this.ucnType;
+	}
+
+	public void setUcnType(char ucnType) {
+		this.ucnType = ucnType;
 	}
 
 	public Date getSnapshotTaken() {

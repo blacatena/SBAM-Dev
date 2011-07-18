@@ -64,6 +64,8 @@ public class UpdateSnapshotServiceImpl extends AuthenticatedServiceServlet imple
 				dbInstance.setSnapshotType(instance.getSnapshotType());
 			if (instance.getProductServiceType() != 0)
 				dbInstance.setProductServiceType(instance.getProductServiceType());
+			if (instance.getUcnType() != 0)
+				dbInstance.setUcnType(instance.getUcnType());
 			if (instance.getNote() != null)
 				dbInstance.setNote(instance.getNote());
 			if (instance.getOrgPath() != null)
@@ -85,6 +87,8 @@ public class UpdateSnapshotServiceImpl extends AuthenticatedServiceServlet imple
 				dbInstance.setSnapshotType("");
 			if (dbInstance.getProductServiceType() == 0)
 				dbInstance.setProductServiceType(SnapshotInstance.NO_TERM_TYPE);
+			if (dbInstance.getUcnType() == 0)
+				dbInstance.setUcnType(SnapshotInstance.BILL_UCN_TYPE);
 			if (dbInstance.getNote() == null)
 				dbInstance.setNote("");
 			if (dbInstance.getOrgPath() == null)

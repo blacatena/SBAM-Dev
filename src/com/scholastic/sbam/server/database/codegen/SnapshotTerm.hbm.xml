@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Jul 14, 2011 10:05:06 PM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Jul 15, 2011 4:41:53 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.SnapshotTerm" table="snapshot_term" catalog="sbam">
         <composite-id name="id" class="com.scholastic.sbam.server.database.codegen.SnapshotTermId">
@@ -22,6 +22,9 @@
             </key-property>
             <key-property name="ucnSuffix" type="int">
                 <column name="ucn_suffix" />
+            </key-property>
+            <key-property name="rowId" type="int">
+                <column name="row_id" />
             </key-property>
         </composite-id>
         <property name="startDate" type="date">

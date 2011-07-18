@@ -24,7 +24,7 @@ public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermIn
 	protected CustomerSelectionCard			customersCard;
 	protected ServiceSelectionCard			servicesCard;
 	protected TermCriteriaCard				criteriaCard;
-	protected TermReportSnapshotCard		viewDataCard;
+	protected TermReportViewDataCard		viewDataCard;
 
 	protected ToggleButton					selectorButton;
 	protected ToggleButton					customersButton;
@@ -66,7 +66,7 @@ public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermIn
 		criteriaCard.setParentCardPanel(this);
 		outerContainer.add(criteriaCard);
 		
-		viewDataCard = new TermReportSnapshotCard();
+		viewDataCard = new TermReportViewDataCard();
 		viewDataCard.setParentCardPanel(this);
 		outerContainer.add(viewDataCard);
 		
@@ -245,6 +245,12 @@ public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermIn
 	public List<LayoutContainer> getCards() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public void reflectSnapshotChanges(SnapshotInstance snapshot) {
+		System.out.println("Refelct change from snapshot " + snapshot.getSnapshotId());
+		snapshotSelectorCard.reflectSnapshotChanges(snapshot);
 	}
 
 }

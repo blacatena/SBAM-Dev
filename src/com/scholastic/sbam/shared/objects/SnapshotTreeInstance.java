@@ -87,6 +87,8 @@ public class SnapshotTreeInstance extends TreeInstance<SnapshotTreeInstance> imp
 			return "Active";
 		if (status == AppConstants.STATUS_INACTIVE)
 			return "Inactive";
+		if (status == AppConstants.STATUS_COMPILING)
+			return "Compiling";
 		return "Unknown";
 	}
 	

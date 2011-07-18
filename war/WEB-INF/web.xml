@@ -552,6 +552,16 @@
   </servlet>
   
   <servlet>
+    <servlet-name>snapshotClearServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.SnapshotClearServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>snapshotTakeServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.SnapshotTakeServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>snapshotListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.SnapshotListServiceImpl</servlet-class>
   </servlet>
@@ -559,6 +569,11 @@
   <servlet>
     <servlet-name>snapshotServiceListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.SnapshotServiceListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>snapshotTermDataListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.SnapshotTermDataListServiceImpl</servlet-class>
   </servlet>
   
   <servlet>
@@ -1172,13 +1187,28 @@
   </servlet-mapping>
   
   <servlet-mapping>
+    <servlet-name>snapshotClearServlet</servlet-name>
+    <url-pattern>/sbam/clearSnapshot</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
     <servlet-name>snapshotListServlet</servlet-name>
     <url-pattern>/sbam/getSnapshots</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>
+    <servlet-name>snapshotTakeServlet</servlet-name>
+    <url-pattern>/sbam/takeSnapshot</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
     <servlet-name>snapshotServiceListServlet</servlet-name>
     <url-pattern>/sbam/getSnapshotServices</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>snapshotTermDataListServlet</servlet-name>
+    <url-pattern>/sbam/getSnapshotTermData</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

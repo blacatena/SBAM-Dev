@@ -9,6 +9,7 @@ import org.hibernate.criterion.Restrictions;
 
 import com.scholastic.sbam.server.database.codegen.Service;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
+import com.scholastic.sbam.shared.objects.ServiceInstance;
 
 /**
  * Sample database table accessor class, extending HibernateAccessor, and implementing custom get/find methods.
@@ -30,6 +31,18 @@ public class DbService extends HibernateAccessor {
 		for (int i = 0; i < results.size(); i++)
 			reasons.add((Service) results.get(i));
 		return reasons;
+	}
+	
+	public static ServiceInstance getInstance(Service service) {
+		ServiceInstance instance = new ServiceInstance();
+		instance.setServiceCode(service.getServiceCode());
+		instance.setDescription(service.getDescription());
+		instance.setServiceType(service.getServiceType());
+		instance.setExportValue(service.getExportValue());
+		instance.setExportFile(service.getExportFile());
+		instance.setStatus(service.getStatus());
+		instance.setCreatedDatetime(service.getCreatedDatetime());
+		return instance;
 	}
 	
 	public static List<Service> findUndeleted() {

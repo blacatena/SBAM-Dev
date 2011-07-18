@@ -10,6 +10,8 @@ import org.hibernate.criterion.Restrictions;
 import com.scholastic.sbam.server.database.codegen.SnapshotParameter;
 import com.scholastic.sbam.server.database.codegen.SnapshotParameterId;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
+import com.scholastic.sbam.shared.objects.SnapshotParameterSetInstance;
+import com.scholastic.sbam.shared.objects.SnapshotParameterValueObject;
 
 /**
  * Sample database table accessor class, extending HibernateAccessor, and implementing custom get/find methods.
@@ -96,5 +98,53 @@ public class DbSnapshotParameter extends HibernateAccessor {
         if (objects == null || objects.size() == 0)
         	return 1;
         return objects.get(0).getId().getValueId() + 1;
+	}
+	
+	public static SnapshotParameterSetInstance getParameters(List<SnapshotParameter> parameterValues) {
+		SnapshotParameterSetInstance result = new SnapshotParameterSetInstance();
+		
+		for (SnapshotParameter parameterValue: parameterValues) {
+			if (parameterValue.getParameterType() == SnapshotParameterValueObject.INTEGER) {
+				if (parameterValue.getIntFromValue() == null)
+					throw new IllegalArgumentException("Null value found for " + parameterValue.getId().getParameterName() + " for snapshot " + parameterValue.getId().getSnapshotId() + ".");
+				if (parameterValue.getIntToValue() != null && parameterValue.getIntToValue().intValue() > parameterValue.getIntFromValue().intValue())
+					result.addValue(parameterValue.getId().getParameterName(), parameterValue.getParameterGroup(), parameterValue.getIntFromValue(), parameterValue.getIntToValue());
+				else
+					result.addValue(parameterValue.getId().getParameterName(), parameterValue.getParameterGroup(), parameterValue.getIntFromValue());
+				
+			} else if (parameterValue.getParameterType() == SnapshotParameterValueObject.DOUBLE) {
+				if (parameterValue.getDblFromValue() == null)
+					throw new IllegalArgumentException("Null value found for " + parameterValue.getId().getParameterName() + " for snapshot " + parameterValue.getId().getSnapshotId() + ".");
+				if (parameterValue.getDblToValue().doubleValue() > parameterValue.getDblFromValue().doubleValue())
+					result.addValue(parameterValue.getId().getParameterName(), parameterValue.getParameterGroup(), parameterValue.getDblFromValue(), parameterValue.getDblToValue());
+				else
+					result.addValue(parameterValue.getId().getParameterName(), parameterValue.getParameterGroup(), parameterValue.getDblFromValue());
+				
+			} else if (parameterValue.getParameterType() == SnapshotParameterValueObject.DATE) {
+				if (parameterValue.getDateFromValue() == null)
+					throw new IllegalArgumentException("Null value found for " + parameterValue.getId().getParameterName() + " for snapshot " + parameterValue.getId().getSnapshotId() + ".");
+				if (parameterValue.getDateToValue() != null && parameterValue.getDateToValue().after(parameterValue.getDateFromValue()))
+					result.addValue(parameterValue.getId().getParameterName(), parameterValue.getParameterGroup(), parameterValue.getDateFromValue(), parameterValue.getDateToValue());
+				else
+					result.addValue(parameterValue.getId().getParameterName(), parameterValue.getParameterGroup(), parameterValue.getDateFromValue());
+				
+			} else if (parameterValue.getParameterType() == SnapshotParameterValueObject.STRING) {
+				if (parameterValue.getStrFromValue() == null)
+					throw new IllegalArgumentException("Null value found for " + parameterValue.getId().getParameterName() + " for snapshot " + parameterValue.getId().getSnapshotId() + ".");
+				if (parameterValue.getStrToValue() != null && parameterValue.getStrToValue().compareTo(parameterValue.getStrFromValue()) > 0)
+					result.addValue(parameterValue.getId().getParameterName(), parameterValue.getParameterGroup(), parameterValue.getStrFromValue(), parameterValue.getStrToValue());
+				else
+					result.addValue(parameterValue.getId().getParameterName(), parameterValue.getParameterGroup(), parameterValue.getStrFromValue());
+				
+			} else if (parameterValue.getParameterType() == SnapshotParameterValueObject.BOOLEAN) {
+				if (parameterValue.getIntFromValue() == null)
+					throw new IllegalArgumentException("Null value found for " + parameterValue.getId().getParameterName() + " for snapshot " + parameterValue.getId().getSnapshotId() + ".");
+				result.addValue(parameterValue.getId().getParameterName(), parameterValue.getParameterGroup(), parameterValue.getIntFromValue() > 0);
+				
+			} else 
+				throw new IllegalArgumentException("Unrecognized Parameter Type " + parameterValue.getParameterType() + " for " + parameterValue.getId().getParameterName() + " for snapshot " + parameterValue.getId().getSnapshotId() + ".");
+		}
+		
+		return result;
 	}
 }

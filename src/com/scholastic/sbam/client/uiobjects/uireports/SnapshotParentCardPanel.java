@@ -14,4 +14,6 @@ public interface SnapshotParentCardPanel extends ParentCardPanel {
 	
 
 	public void setTargetSnapshot(SnapshotInstance snapshot);
+	
+	public void reflectSnapshotChanges(SnapshotInstance snapshot);
 }

@@ -24,6 +24,7 @@ public class AppSnapshotValidator {
 		validateSnapshotName(instance.getSnapshotName());
 		validateSnapshotType(instance.getSnapshotType());
 		validateProductServiceType(instance.getProductServiceType());
+		validateUcnType(instance.getUcnType());
 		validateStatus(instance.getStatus());
 		return messages;
 	}
@@ -74,7 +75,14 @@ public class AppSnapshotValidator {
 	
 	public List<String> validateProductServiceType(char productServiceType) {
 		if (productServiceType != SnapshotInstance.PRODUCT_TYPE && productServiceType != SnapshotInstance.SERVICE_TYPE && productServiceType != SnapshotInstance.NO_TERM_TYPE) {
-			addMessage("Product serviced type must be 'n', 'p' or 's'.");
+			addMessage("Product service type must be 'n', 'p' or 's'.");
+		}
+		return messages;
+	}
+	
+	public List<String> validateUcnType(char productServiceType) {
+		if (productServiceType != SnapshotInstance.BILL_UCN_TYPE && productServiceType != SnapshotInstance.SITE_UCN_TYPE && productServiceType != SnapshotInstance.NO_UCN_TYPE) {
+			addMessage("UCN type must be 'n', 'b' or 's'.");
 		}
 		return messages;
 	}

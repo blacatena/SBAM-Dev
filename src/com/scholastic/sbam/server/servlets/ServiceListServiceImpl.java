@@ -32,14 +32,7 @@ public class ServiceListServiceImpl extends AuthenticatedServiceServlet implemen
 			List<Service> services = DbService.findFiltered(null, null, (char) 0, null, (char) 0, 'X');
 
 			for (Service service : services) {
-				ServiceInstance instance = new ServiceInstance();
-				instance.setServiceCode(service.getServiceCode());
-				instance.setDescription(service.getDescription());
-				instance.setServiceType(service.getServiceType());
-				instance.setExportValue(service.getExportValue());
-				instance.setExportFile(service.getExportFile());
-				instance.setStatus(service.getStatus());
-				instance.setCreatedDatetime(service.getCreatedDatetime());
+				ServiceInstance instance = DbService.getInstance(service);
 				list.add(instance);
 			}
 

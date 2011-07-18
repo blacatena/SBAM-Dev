@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Container;
@@ -21,6 +23,8 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.scholastic.sbam.client.services.SnapshotClearService;
+import com.scholastic.sbam.client.services.SnapshotClearServiceAsync;
 import com.scholastic.sbam.client.services.SnapshotParameterSetGetService;
 import com.scholastic.sbam.client.services.SnapshotParameterSetGetServiceAsync;
 import com.scholastic.sbam.client.services.UpdateSnapshotParameterSetService;
@@ -68,15 +72,18 @@ public class TermCriteriaCard extends SnapshotCardBase implements AppSleeper {
 	protected DateRangeBinder		terminateRangeBinder	= new DateRangeBinder();
 	protected DateDefaultBinder		terminateDefaultBinder	= new DateDefaultBinder(60);
 	
-	protected Button				saveButton;
-	protected Button				resetButton;
+	protected Button				saveButton				= new Button("Save Changes");
+	protected Button				cancelButton			= new Button("Cancel Changes");
+	protected Button				clearButton				= new Button("Clear Snapshot Data");
 	
 	private final UpdateSnapshotParameterSetServiceAsync	updateSnapshotParameterSetService	= GWT.create(UpdateSnapshotParameterSetService.class);
 	private final SnapshotParameterSetGetServiceAsync		snapshotParameterSetGetService		= GWT.create(SnapshotParameterSetGetService.class);
+	private final SnapshotClearServiceAsync					snapshotClearService				= GWT.create(SnapshotClearService.class);
 	
 	public TermCriteriaCard() {
 		super();
 		this.headingToolTip = "Use this panel to specify term criteria for the snapshot.";
+		
 		
 		startFromDate		=	getDateField();
 		startToDate			=	getDateField();
@@ -185,7 +192,7 @@ public class TermCriteriaCard extends SnapshotCardBase implements AppSleeper {
 		ButtonBar toolbar = new ButtonBar();
 		toolbar.setAlignment(HorizontalAlignment.CENTER);
 		
-		saveButton = new Button("Save");
+//		saveButton = new Button("Save Changes");
 		IconSupplier.forceIcon(saveButton, IconSupplier.getSaveIconName());
 		saveButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			   
@@ -196,9 +203,9 @@ public class TermCriteriaCard extends SnapshotCardBase implements AppSleeper {
 		 
 		});
 		
-		resetButton = new Button("Reset");
-		IconSupplier.forceIcon(resetButton, IconSupplier.getRefreshIconName());
-		resetButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+//		cancelButton = new Button("Cancel Changes");
+		IconSupplier.forceIcon(cancelButton, IconSupplier.getCancelIconName());
+		cancelButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			   
 			@Override
 			public void componentSelected(ButtonEvent ce) {
@@ -207,8 +214,20 @@ public class TermCriteriaCard extends SnapshotCardBase implements AppSleeper {
 		 
 		});
 		
+//		clearButton = new Button("Clear Snapshot Data");
+		IconSupplier.forceIcon(clearButton, IconSupplier.getSnapshotClearIconName());
+		clearButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			   
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				doSnapshotClear();
+			}  
+		 
+		});
+		
 		toolbar.add(saveButton);
-		toolbar.add(resetButton);
+		toolbar.add(cancelButton);
+		toolbar.add(clearButton);
 		
 		return toolbar;
 	}
@@ -221,7 +240,7 @@ public class TermCriteriaCard extends SnapshotCardBase implements AppSleeper {
 						if (caught instanceof IllegalArgumentException)
 							MessageBox.alert("Alert", caught.getMessage(), null);
 						else {
-							MessageBox.alert("Alert", "Agreement access failed unexpectedly.", null);
+							MessageBox.alert("Alert", "Snapshot parameter load failed unexpectedly.", null);
 							System.out.println(caught.getClass().getName());
 							System.out.println(caught.getMessage());
 						}
@@ -236,6 +255,7 @@ public class TermCriteriaCard extends SnapshotCardBase implements AppSleeper {
 	protected void showParameterSet(SnapshotParameterSetInstance snapshotParameterSet) {
 		
 		clearValues();
+		setFieldStates();
 		
 		setDateFieldRange(snapshotParameterSet, START_DATE,		startFromDate,		startToDate);
 		setDateFieldRange(snapshotParameterSet, END_DATE,		endFromDate,		endToDate);
@@ -259,9 +279,14 @@ public class TermCriteriaCard extends SnapshotCardBase implements AppSleeper {
 		}
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	protected void setFieldStates() {
+		for (Field<?> field : getFields() ) {
+			field.setEnabled(snapshot.getSnapshotTaken() == null);
+		}
+	}
+
 	protected void clearValues() {
-		for (Field field : getFields() ) {
+		for (Field<?> field : getFields() ) {
 			field.setValue(null);
 			field.setOriginalValue(null);
 		}
@@ -307,6 +332,66 @@ public class TermCriteriaCard extends SnapshotCardBase implements AppSleeper {
 						handleCleanForm();
 					}
 				});
+	}
+	
+	protected void doSnapshotClear() {
+		// This listener does the update if confirmed by the user
+		final Listener<MessageBoxEvent> confirmClear = new Listener<MessageBoxEvent>() {  
+			public void handleEvent(MessageBoxEvent ce) {
+				Button btn = ce.getButtonClicked();
+				if ("Yes".equals(btn.getText()))
+					userConfirmClear();
+			}  
+		};
+		MessageBox.confirm("Are You Sure?", "This action will clear the data currently gathered for this snapshot.  Proceed?", confirmClear);
+	}
+	
+	@SuppressWarnings("unused")
+	protected void userConfirmClear() {
+		if (true) {
+			clearSnapshot();
+		} else {
+			// This listener does the update if confirmed by the user
+			final Listener<MessageBoxEvent> confirmClear = new Listener<MessageBoxEvent>() {  
+				public void handleEvent(MessageBoxEvent ce) {
+					Button btn = ce.getButtonClicked();
+					if ("Yes".equals(btn.getText()))
+						clearSnapshot();
+				}  
+			};
+			MessageBox.confirm("Are You Sure?", "You are not the creator of this snapshot.  Are you sure you wish to proceed?", confirmClear);
+		}
+	}
+	
+	
+
+	protected void clearSnapshot() {
+		clearButton.disable();
+		if (snapshot.getSnapshotTaken() == null) {
+			return;
+		}
+		snapshotClearService.clearSnapshot(snapshot.getSnapshotId(), snapshot.getSnapshotTaken(),
+				new AsyncCallback<String>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "Snapshot clear failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+					}
+
+					public void onSuccess(String result) {
+						clearButton.disable();
+						snapshot.setSnapshotTaken(null);
+						setFieldStates();	// To enable them now that the snapshot is cleared
+						if (parentCardPanel != null) {
+							parentCardPanel.reflectSnapshotChanges(snapshot);
+						}
+					}
+			});
 	}
 	
 	protected void addDirtyFieldsListener() {
@@ -378,13 +463,13 @@ public class TermCriteriaCard extends SnapshotCardBase implements AppSleeper {
 	}
 	
 	public void handleDirtyForm() {
-		if (saveButton != null) saveButton.enable();
-		if (resetButton != null) resetButton.enable();
+		if (saveButton != null && snapshot.getSnapshotTaken() == null) saveButton.enable();
+		if (cancelButton != null) cancelButton.enable();
 	}
 	
 	public void handleCleanForm() {
 		if (saveButton != null) saveButton.disable();
-		if (resetButton != null) resetButton.disable();
+		if (cancelButton != null) cancelButton.disable();
 	}
 
 	@Override
@@ -395,6 +480,7 @@ public class TermCriteriaCard extends SnapshotCardBase implements AppSleeper {
 	@Override
 	public void setSnapshot(SnapshotInstance snapshot) {
 		super.setSnapshot(snapshot);
+		clearButton.setEnabled(snapshot.getSnapshotTaken() != null);
 		loadSnapshot();
 	}
 	

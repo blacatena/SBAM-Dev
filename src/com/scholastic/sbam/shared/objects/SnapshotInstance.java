@@ -14,9 +14,13 @@ public class SnapshotInstance extends BetterRowEditInstance implements BeanModel
 	public static String	TERMS_BY_SERVICE	=	"termsByService";
 	public static String	TERMS_BY_PRODUCT	=	"termsByProduct";
 	
-	public static char	PRODUCT_TYPE = 'p';
-	public static char	SERVICE_TYPE = 's';
-	public static char  NO_TERM_TYPE = 'n';
+	public static char		PRODUCT_TYPE	= 'p';
+	public static char		SERVICE_TYPE	= 's';
+	public static char  	NO_TERM_TYPE	= 'n';
+	
+	public static char		BILL_UCN_TYPE	= 'b';
+	public static char		SITE_UCN_TYPE	= 's';
+	public static char  	NO_UCN_TYPE		= 'n';
 
 	protected static BeanModelFactory beanModelfactory;
 
@@ -24,6 +28,7 @@ public class SnapshotInstance extends BetterRowEditInstance implements BeanModel
 	protected String		snapshotName;
 	protected String		snapshotType;
 	protected char			productServiceType;
+	protected char			ucnType;
 	protected String		note;
 	protected String		orgPath;
 	protected int			seq;
@@ -90,6 +95,14 @@ public class SnapshotInstance extends BetterRowEditInstance implements BeanModel
 
 	public void setProductServiceType(char productServiceType) {
 		this.productServiceType = productServiceType;
+	}
+
+	public char getUcnType() {
+		return ucnType;
+	}
+
+	public void setUcnType(char ucnType) {
+		this.ucnType = ucnType;
 	}
 
 	public int getSeq() {
