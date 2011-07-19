@@ -470,6 +470,17 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 	    ColumnConfig date = new ColumnConfig("snapshot.snapshotTaken",		"Date Snapshot Taken",		120);
 	    date.setDateTimeFormat(UiConstants.APP_DATE_PLUS_TIME_FORMAT);
 
+	    ColumnConfig rows = new ColumnConfig("snapshot.snapshotRows",		"Entries",					80);
+	    rows.setNumberFormat(UiConstants.INTEGER_FORMAT);
+	    rows.setRenderer(new GridCellRenderer<ModelData>() {  
+				  public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,  
+				      ListStore<ModelData> store, Grid<ModelData> grid) {
+					  if (model.get(property).toString().equals("0"))
+						  return "";
+					  return model.get(property);
+				  }  
+				});
+	    
 	    ColumnConfig expi = new ColumnConfig("snapshot.expireDatetime",		"Expiration Date",			120);
 	    expi.setDateTimeFormat(UiConstants.APP_DATE_LONG_FORMAT);
 	    expi.setEditor(new CellEditor(new DateField()));
@@ -492,7 +503,7 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 	    ColumnConfig note = new ColumnConfig("notesButton",					"",							30);
 	    note.setRenderer(getNoteButtonRenderer());
 	    
-	    ColumnModel cm = new ColumnModel(Arrays.asList(id, name, date, expi, user, stat, term, srvc, cust, data, note));
+	    ColumnModel cm = new ColumnModel(Arrays.asList(id, name, date, rows, expi, user, stat, term, srvc, cust, data, note));
 	    
 	    return cm;
 	}

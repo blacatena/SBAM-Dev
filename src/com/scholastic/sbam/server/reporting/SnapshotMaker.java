@@ -232,6 +232,7 @@ public class SnapshotMaker {
 				throw new Exception("Snapshot disappered during compilation.");
 			
 			dbSnapshot.setSnapshotTaken(snapshotTaken);
+			dbSnapshot.setSnapshotRows(nextRowId);
 			dbSnapshot.setStatus(AppConstants.STATUS_ACTIVE);
 			
 			DbSnapshot.persist(dbSnapshot);

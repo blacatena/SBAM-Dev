@@ -6,30 +6,53 @@ import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
+import com.extjs.gxt.ui.client.Style.SortDir;
+import com.extjs.gxt.ui.client.data.BaseFilterPagingLoadConfig;
+import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.BeanModel;
+import com.extjs.gxt.ui.client.data.BeanModelReader;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.data.PagingLoadConfig;
+import com.extjs.gxt.ui.client.data.PagingLoadResult;
+import com.extjs.gxt.ui.client.data.PagingLoader;
+import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.Store;
+import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.grid.AggregationRowConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.extjs.gxt.ui.client.widget.grid.GroupSummaryView;
+import com.extjs.gxt.ui.client.widget.grid.HeaderGroupConfig;
+import com.extjs.gxt.ui.client.widget.grid.LiveGridView;
+import com.extjs.gxt.ui.client.widget.grid.SummaryColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.SummaryType;
 import com.extjs.gxt.ui.client.widget.grid.filters.DateFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
 import com.extjs.gxt.ui.client.widget.grid.filters.ListFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.NumericFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.SnapshotTakeService;
 import com.scholastic.sbam.client.services.SnapshotTakeServiceAsync;
+import com.scholastic.sbam.client.services.SnapshotTermDataListService;
+import com.scholastic.sbam.client.services.SnapshotTermDataListServiceAsync;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
+import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
+import com.scholastic.sbam.shared.objects.SnapshotTermDataInstance;
 import com.scholastic.sbam.shared.objects.SnapshotInstance;
+import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
 
 public class TermReportViewDataCard extends SnapshotCardBase {
 	
@@ -66,14 +89,45 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 			this.valueProperty = valueProperty;
 		}
 	}
+	
+	/**
+	 * This sorter will sort equal rows by other, standard column choices
+	 * @author Bob Lacatena
+	 *
+	 */
+	public static class TermDataStoreSorter extends StoreSorter<BeanModel> {
+		
+		public static final String [] OTHER_SORTS = {"ucn", "ucnSuffix", "agreementId", "productCode", "serviceCode", "rowId"};
+		
+		@Override
+		public int compare(Store<BeanModel> store, BeanModel m1, BeanModel m2, String property) {
+			
+			int baseCompare = super.compare(store, m1, m2, property);
+			if (baseCompare != 0)
+				return baseCompare;
+			
+			for (String otherSort : OTHER_SORTS) {
+				baseCompare = super.compare(store, m1, m2, otherSort);
+				if (baseCompare != 0)
+					return baseCompare;
+			}
+			
+			return 0;
+		};
+	}
+	
+	protected long														searchSyncId;
+	protected LiveGridView												liveView;
+	protected PagingLoader<PagingLoadResult<SnapshotTermDataInstance>>	termDataLoader;
 
-	protected ContentPanel						contentPanel = new ContentPanel();
+	protected ContentPanel								contentPanel = new ContentPanel();
 	
-	protected ListStore<BeanModel>				gridStore;
-	protected Grid<BeanModel>					grid;
-	protected GridFilters 						gridFilters;
+	protected ListStore<BeanModel>						gridStore;
+	protected Grid<BeanModel>							grid;
+	protected GridFilters 								gridFilters;
 	
-	protected final SnapshotTakeServiceAsync 	takeSnapshotService = GWT.create(SnapshotTakeService.class);
+	protected final SnapshotTakeServiceAsync 			takeSnapshotService = GWT.create(SnapshotTakeService.class);
+	protected final SnapshotTermDataListServiceAsync 	snapshotTermDataListService 		= GWT.create(SnapshotTermDataListService.class);
 	
 	public TermReportViewDataCard() {
 		super();
@@ -83,6 +137,7 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 	@Override
 	public void addPanelContent() {
 //		contentPanel = new ContentPanel();
+		contentPanel.setLayout(new FitLayout());
 		contentPanel.setHeading("Snapshot Terms Data View");
 		IconSupplier.setIcon(contentPanel, IconSupplier.getReportIconName());
 		
@@ -90,37 +145,9 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 		contentPanel.add(grid);
 		
 		add(contentPanel);
-	}
-
-	public void addGridColumns(List<ColumnConfig> columns) {
-		columns.add(getDisplayColumn("rowId",					"Row",						30,
-					"A unique number for the data row."));
-		columns.add(getDisplayColumn("agreementIdCheckDigit",	"Agreement #",				80,
-					"This is the agreement number for this service."));
-		columns.add(getDisplayColumn("ucn",						"UCN",						80,
-					"This is the recipient UCN for this service."));
-		columns.add(getDisplayColumn("institution.institutionName",	"Institution",			150,
-					"This is the recipient institution for this service."));
-		columns.add(getDisplayColumn("product.description",		"Product",					150,
-					"This is the product for this service."));
-		columns.add(getDisplayColumn("service.description",		"Service",					150,
-					"This is the service."));
-		columns.add(getDisplayColumn("startDate",				"Start",					80,		true, UiConstants.APP_DATE_TIME_FORMAT,
-					"This is the service start date for a product term."));
-		columns.add(getDisplayColumn("endDate",					"End",						80,		true, UiConstants.APP_DATE_TIME_FORMAT,
-					"This is the service end date for a product term."));
-		columns.add(getDisplayColumn("terminateDate",			"Terminate",				80,		true, UiConstants.APP_DATE_TIME_FORMAT,
-					"This is the actual service termination date for a product term."));
-		columns.add(getDisplayColumn("dollarValue",				"Full Value",				80,		true, UiConstants.DOLLARS_FORMAT,
-					"This is the full value of the product term."));
-		columns.add(getDisplayColumn("dollarFraction",			"Row Value",				80,		true, UiConstants.DOLLARS_FORMAT,
-					"This is the fraction of the total term value for this particular service for this UCN."));
-		columns.add(getHiddenColumn("dollarServiceFraction",	"Service Value",			80,		true, UiConstants.DOLLARS_FORMAT,
-					"This is the fraction of the total term value for this particular service."));
-		columns.add(getHiddenColumn("dollarUcnFraction",		"UCN Value",				80,		true, UiConstants.DOLLARS_FORMAT,
-					"This is the fraction of the total term value for this particular UCN."));
-		columns.add(getDisplayColumn("termType.description",	"Type",						50,
-					"This is the type of product term."));
+		
+		if (snapshot != null)
+			gridStore.getLoader().load();
 	}
 	
 	protected Grid<BeanModel> getGrid() {
@@ -132,6 +159,9 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 		addGridColumns(columns);
 		
 		ColumnModel cm = new ColumnModel(columns);  
+		
+		addAggregationRows(cm);
+		addHeaderGroups(cm);
 
 		gridStore = getNewGridStore();
 		
@@ -143,17 +173,114 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 		grid.setStripeRows(true);
 		grid.setColumnLines(false);
 		grid.setHideHeaders(false);
+//		grid.setHeight(600);
 		
 		gridFilters.setLocal(areGridFiltersLocal()); 
 		grid.addPlugin(gridFilters);
 
-		grid.setAutoExpandColumn("");
+		grid.setAutoExpandColumn("institution.institutionName");
 //		addGridPlugins(grid);	
 //		addRowListener(grid);
 		
 		grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+		
+	    GroupSummaryView summary = new GroupSummaryView();  
+	    summary.setForceFit(true);  
+	    summary.setShowGroupedColumn(false);
+	    
+	    grid.setView(summary);
 
 		return grid;
+	}
+
+	public void addGridColumns(List<ColumnConfig> columns) {
+		columns.add(getDisplayColumn("rowId",					"Row",						60,
+					"A unique number for the data row."));
+		columns.add(getDisplayColumn("agreementIdCheckDigit",	"Agreement #",				80,
+					"This is the agreement number for this service."));
+		columns.add(getDisplayColumn("ucn",						"UCN",						80,
+					"This is the recipient UCN for this service."));
+		columns.add(getDisplayColumn("institution.institutionName",	"Institution",			200,
+					"This is the recipient institution for this service."));
+		columns.add(getHiddenColumn("productCode",				"Product Code",				80,
+					"This is the product code for this product term."));
+		columns.add(getDisplayColumn("product.description",		"Product",					200,
+					"This is the product for this product term."));
+		columns.add(getHiddenColumn("serviceCode",				"Service Code",				80,
+		"This is the service code for a service supplied with this product term."));
+		columns.add(getDisplayColumn("service.description",		"Service",					200,
+					"This is a service supplied with this product term."));
+		columns.add(getDisplayColumn("startDate",				"Start",					80,		true, UiConstants.APP_DATE_TIME_FORMAT,
+					"This is the service start date for a product term."));
+		columns.add(getDisplayColumn("endDate",					"End",						80,		true, UiConstants.APP_DATE_TIME_FORMAT,
+					"This is the service end date for a product term."));
+		columns.add(getDisplayColumn("terminateDate",			"Terminate",				80,		true, UiConstants.APP_DATE_TIME_FORMAT,
+					"This is the actual service termination date for a product term."));
+		columns.add(getDisplayColumn("dollarValue",				"Full Value",				100,	true, UiConstants.DOLLARS_FORMAT,
+					"This is the full value of the product term."));
+		columns.add(getGridSummaryColumn("dollarFraction",			"Row Value",			100,	false, true, UiConstants.DOLLARS_FORMAT,
+					"This is the fraction of the total term value for this particular row (this service for this UCN)."));
+		columns.add(getHiddenColumn("dollarServiceFraction",	"Service Value",			80,		true, UiConstants.DOLLARS_FORMAT,
+					"This is the fraction of the total term value for this particular service."));
+		columns.add(getHiddenColumn("dollarUcnFraction",		"UCN Value",				80,		true, UiConstants.DOLLARS_FORMAT,
+					"This is the fraction of the total term value for this particular UCN."));
+		columns.add(getDisplayColumn("termType",				"Type",						50,
+					"This is the type of product term."));
+		columns.add(getHiddenColumn("primaryTerm",				"Primary?",					50,
+					"Is this the primary product term for the agreement?"));
+	}
+	
+	protected void addAggregationRows(ColumnModel cm) {
+		AggregationRowConfig<BeanModel> averages = new AggregationRowConfig<BeanModel>();  
+	    averages.setHtml("dollarValue", "Average");  
+	      
+	    // with summary type and format  
+	    averages.setSummaryType("dollarFraction", SummaryType.AVG);  
+	    averages.setSummaryFormat("dollarFraction", UiConstants.DOLLARS_FORMAT);  
+	      
+//	    // with renderer  
+//	    averages.setSummaryType("change", SummaryType.AVG);  
+//	    averages.setRenderer("change", new AggregationRenderer<BeanModel>() {  
+//	      public Object render(Number value, int colIndex, Grid<BeanModel> grid, ListStore<BeanModel> store) {  
+//	        // you can return html here  
+//	        return number.format(value.doubleValue());  
+//	      }  
+//	    });  
+
+	    cm.addAggregationRow(averages);  
+	      
+	    averages = new AggregationRowConfig<BeanModel>();  
+	    averages.setHtml("dollarValue", "Maximum");  
+	      
+	      
+	    averages.setSummaryType("dollarFraction", SummaryType.MAX);  
+	    averages.setSummaryFormat("dollarFraction", UiConstants.DOLLARS_FORMAT);  
+	  
+	    cm.addAggregationRow(averages);  
+	      
+	    averages = new AggregationRowConfig<BeanModel>();  
+	    averages.setHtml("dollarValue", "Total");  
+	      
+	    averages.setSummaryType("dollarFraction", SummaryType.SUM);  
+	    averages.setSummaryFormat("dollarFraction", UiConstants.DOLLARS_FORMAT);  
+	  
+ 
+	    cm.addAggregationRow(averages);  
+	      
+	    averages = new AggregationRowConfig<BeanModel>();  
+	    averages.setHtml("dollarValue", "Count");     
+	      
+	    averages.setSummaryType("dollarFraction", SummaryType.COUNT);  
+	    averages.setSummaryFormat("dollarFraction", UiConstants.INTEGER_FORMAT);  
+ 
+	    cm.addAggregationRow(averages);  
+	}
+	
+	protected void addHeaderGroups(ColumnModel cm) {
+		cm.addHeaderGroup(0, 2, new HeaderGroupConfig("Customer", 1, 2));
+		cm.addHeaderGroup(0, 4, new HeaderGroupConfig("Product", 1, 4));
+		cm.addHeaderGroup(0, 8, new HeaderGroupConfig("Term Dates", 1, 3));
+		cm.addHeaderGroup(0, 11, new HeaderGroupConfig("Dollars", 1, 4));
 	}
 	
 	protected ColumnConfig getDisplayColumn(String column, String heading, int size) {
@@ -224,8 +351,9 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 		return getGridColumn(column, heading, size, hidden, sortable, dateFormat, numberFormat, null);
 	}
 	
+	@SuppressWarnings("rawtypes")
 	protected ColumnConfig getGridColumn(String column, String heading, int size, boolean hidden, boolean sortable, DateTimeFormat dateFormat, NumberFormat numberFormat, String toolTip) {
-		ColumnConfig cc = new ColumnConfig(column,		heading, 		size);
+		SummaryColumnConfig cc = new SummaryColumnConfig(column,		heading, 		size);
 		cc.setId(column);
 		cc.setHidden(hidden);
 		cc.setSortable(sortable);
@@ -262,6 +390,42 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 		return cc;
 	}
 	
+	protected SummaryColumnConfig<Double> getGridSummaryColumn(String column, String heading, int size, boolean hidden, boolean sortable, NumberFormat numberFormat, String toolTip) {
+		SummaryColumnConfig<Double> cc = new SummaryColumnConfig<Double>(column,		heading, 		size);
+		cc.setId(column);
+		cc.setHidden(hidden);
+		cc.setSortable(sortable);
+		cc.setSummaryType(SummaryType.SUM);
+		if (toolTip != null)
+			cc.setToolTip(toolTip);
+		if (numberFormat != null) {
+			cc.setAlignment(HorizontalAlignment.RIGHT);
+			if (numberFormat.getPattern().equals("BWZ")) {
+				// Special implementation for blank when zero
+				cc.setRenderer(new GridCellRenderer<ModelData>() {  
+				  public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,  
+				      ListStore<ModelData> store, Grid<ModelData> grid) {
+					  if (model.get(property).toString().equals("0"))
+						  return "";
+					  return model.get(property);
+				  }  
+				});
+			} else {
+				cc.setNumberFormat(numberFormat);
+				cc.setSummaryFormat(numberFormat);
+			}
+		}
+		
+		if (gridFilters != null) {
+			if (numberFormat != null)
+				gridFilters.addFilter(new NumericFilter(column));
+			else
+				gridFilters.addFilter(new StringFilter(column));
+		}
+		
+		return cc;
+	}
+	
 	protected ColumnConfig getDisplayColumn(String name, String header, int width, String toolTip, ListStore<BeanModel> listStore) {
 		return getDisplayColumn(name, header, width, toolTip, listStore, "code", "name");
 	}
@@ -285,7 +449,27 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 	}
 	
 	public ListStore<BeanModel> getNewGridStore() {
-		return new ListStore<BeanModel>();
+		termDataLoader = getTermDataLoader();
+		
+//		termDataLoader.setLimit(PAGE_LOAD_LIMIT);
+//		termDataLoader.setRemoteSort(true);
+		
+		termDataLoader.setRemoteSort(false);
+		termDataLoader.setSortField("institution.institutionName");
+		termDataLoader.setSortDir(SortDir.ASC);
+
+//		ListStore<BeanModel> gridStore = new ListStore<BeanModel>(termDataLoader);
+		GroupingStore<BeanModel> gridStore = new GroupingStore<BeanModel>(termDataLoader);
+	
+		gridStore.setStoreSorter(new TermDataStoreSorter());
+//		gridStore.setDefaultSort("institution.institutionName", SortDir.ASC);
+		gridStore.setSortField("institution.institutionName");
+		gridStore.setSortDir(SortDir.ASC);
+		
+		gridStore.setGroupOnSort(true);
+		gridStore.groupBy("institution.institutionName");
+		
+		return gridStore;
 	}
 	
 	@Override
@@ -296,8 +480,13 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 	@Override
 	public void setSnapshot(SnapshotInstance snapshot) {
 		super.setSnapshot(snapshot);
-		if (snapshot.getSnapshotTaken() == null) {
-			takeSnapshot();
+		if (snapshot != null) {
+			if (snapshot.getSnapshotTaken() == null) {
+				takeSnapshot();
+			} else {
+				if (gridStore != null)
+					gridStore.getLoader().load();
+			}
 		}
 	}
 	
@@ -327,83 +516,74 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 							parentCardPanel.reflectSnapshotChanges(snapshot);
 						}
 						contentPanel.unmask();
+						if (gridStore != null)
+							gridStore.getLoader().load();
 					}
 				});
 	}
 	
-//	protected ContentPanel getNewContentPanel() {
-//		return new ContentPanel() {
-//			private boolean firstExpand = true;
-//			/*
-//			 * This panel has to take care of telling the grid panel to grow or shrink as it renders/resizes/expands/collapses
-//			 * (non-Javadoc)
-//			 */
-//			
-//			@Override
-//			protected void afterRender() {
-//				super.afterRender();
-//				adjustGridPanelHeight();
-//			//	dumpSizes("FormPanel afterRender");
-//			}
-//			
-//			@Override
-//			public void onResize(int width, int height) {
-//				super.onResize(width, height);
-//				adjustGridPanelHeight();
-//			//	dumpSizes("FormPanel onResize " + width);
-//			}
-//			
-//			@Override
-//			public void onCollapse() {
-//				super.onCollapse();
-//				// Resize in anticipation of what it WILL be after collapse
-//				if (gridPanel != null && gridPanel.isRendered()) {
-//					if (isHeaderVisible())
-//						gridPanel.setHeight(mainContainer.getHeight(true) - getHeader().getOffsetHeight());
-//					else
-//						gridPanel.setHeight(mainContainer.getHeight(true));
-//				}
-//			}
-//			
-//			@Override
-//			public void afterCollapse() {
-//				super.afterCollapse();
-//				adjustGridPanelHeight();
-//			}
-//			
-//			@Override
-//			public void afterExpand() {
-//				super.afterExpand();
-//				adjustGridPanelHeight();
-//				if (firstExpand) {
-//					adjustFormPanelSize(-1, -1);
-//					firstExpand = false;
-//				}
-//			}
-//			
-//			@Override
-//			public void onAfterLayout() { // This is critical... this is what makes sure that the grid panel gets resized after the formPanel actually has a size
-//				super.onAfterLayout();
-//				adjustGridPanelHeight();
-//			}
-//			
-//		};
-//	}
-//	
-//	public void adjustGridPanelHeight() {
-//		if (gridPanel == null || !gridPanel.isRendered())
-//			return;
-//		
-//		if (formPanel == null || !formPanel.isRendered())
-//			gridPanel.setHeight(mainContainer.getHeight(true));
-//		else
-//			if (formPanel.isExpanded())
-//				gridPanel.setHeight(mainContainer.getHeight(true) - formPanel.getHeight());
-//			else
-//				if (formPanel.isHeaderVisible())
-//					gridPanel.setHeight(mainContainer.getHeight(true) - formPanel.getHeader().getOffsetHeight());
-//				else
-//					gridPanel.setHeight(mainContainer.getHeight(true));
-//	}
+	/**
+	 * Construct and return a loader to handle returning a list of institutions.
+	 * @return
+	 */
+	protected PagingLoader<PagingLoadResult<SnapshotTermDataInstance>> getTermDataLoader() {
+		// proxy and reader  
+		RpcProxy<PagingLoadResult<SnapshotTermDataInstance>> proxy = new RpcProxy<PagingLoadResult<SnapshotTermDataInstance>>() {  
+			@Override  
+			public void load(Object loadConfig, final AsyncCallback<PagingLoadResult<SnapshotTermDataInstance>> callback) {
+		    	
+				// This could be as simple as calling userListService.getUsers and passing the callback
+				// Instead, here the callback is overridden so that it can catch errors and alert the users.  Then the original callback is told of the failure.
+				// On success, the original callback is just passed the onSuccess message, and the response (the list).
+				
+				AsyncCallback<SynchronizedPagingLoadResult<SnapshotTermDataInstance>> myCallback = new AsyncCallback<SynchronizedPagingLoadResult<SnapshotTermDataInstance>>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else if (caught instanceof ServiceNotReadyException)
+								MessageBox.alert("Alert", "The " + caught.getMessage() + " is not available at this time.  Please try again in a few minutes.", null);
+						else {
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+							MessageBox.alert("Alert", "Agreement site load failed unexpectedly.", null);
+						}
+						callback.onFailure(caught);
+					}
+
+					public void onSuccess(SynchronizedPagingLoadResult<SnapshotTermDataInstance> syncResult) {
+						if (syncResult.getSyncId() != searchSyncId)
+							return;
+						
+						PagingLoadResult<SnapshotTermDataInstance> result = syncResult.getResult();
+
+						callback.onSuccess(result);
+
+						grid.unmask();
+					}
+				};
+				
+				if (grid.isMasked()) grid.unmask();	//	To put our own mask message up
+				if (!grid.isMasked()) grid.mask("Loading snapshot data... Please wait...");		// Required because GXT forgets to do this when a remote sort is initiated through the columns
+				searchSyncId = System.currentTimeMillis();
+				invokeSnapshotTermDataListService((PagingLoadConfig) loadConfig, snapshot.getSnapshotId(), searchSyncId, myCallback);
+		    }  
+		};
+		BeanModelReader reader = new BeanModelReader();
+		
+		// loader and store  
+		BasePagingLoader<PagingLoadResult<SnapshotTermDataInstance>> loader = new BasePagingLoader<PagingLoadResult<SnapshotTermDataInstance>>(proxy, reader) {
+			@Override
+			  protected Object newLoadConfig() {
+				return new BaseFilterPagingLoadConfig();
+			}
+		};
+		loader.setReuseLoadConfig(false);
+		return loader;
+	}
+	
+	public void invokeSnapshotTermDataListService(PagingLoadConfig loadConfig, int snapshotId, long searchSyncId, AsyncCallback<SynchronizedPagingLoadResult<SnapshotTermDataInstance>> myCallback) {
+		snapshotTermDataListService.getSnapshotTermData((PagingLoadConfig) loadConfig, snapshotId, searchSyncId, myCallback);
+	}
 	
 }

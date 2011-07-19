@@ -38,6 +38,7 @@ public class SnapshotClearServiceImpl extends AuthenticatedServiceServlet implem
 				if (snapshotTaken == null || !snapshotTaken.equals(dbInstance.getSnapshotTaken()))
 					throw new IllegalArgumentException("INTERNAL SAFETY CHECK FAILED: Old snapshot taken date does not match that specified.");
 				dbInstance.setSnapshotTaken(null);
+				dbInstance.setSnapshotRows(0);
 				//	Persist in database
 				DbSnapshot.persist(dbInstance);
 			}

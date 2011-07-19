@@ -141,6 +141,9 @@ public class DbSnapshotTermData extends HibernateAccessor {
 		instance.setBuildings(dbTermData.getBuildings());
 		instance.setPopulation(dbTermData.getPopulation());
 		instance.setEnrollment(dbTermData.getEnrollment());
+		instance.setServiceFraction(dbTermData.getServiceFraction().doubleValue());
+		instance.setUcnFraction(dbTermData.getCustomerFraction().doubleValue());
+		
 		
 		return instance;
 	}

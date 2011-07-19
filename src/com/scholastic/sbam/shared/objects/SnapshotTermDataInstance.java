@@ -210,6 +210,22 @@ public class SnapshotTermDataInstance implements BeanModelTag, IsSerializable {
 	
 	/* Attached Instance Values */
 
+	public double getServiceFraction() {
+		return serviceFraction;
+	}
+
+	public void setServiceFraction(double serviceFraction) {
+		this.serviceFraction = serviceFraction;
+	}
+
+	public double getUcnFraction() {
+		return ucnFraction;
+	}
+
+	public void setUcnFraction(double ucnFraction) {
+		this.ucnFraction = ucnFraction;
+	}
+
 	public CancelReasonInstance getCancelReason() {
 		return cancelReason;
 	}

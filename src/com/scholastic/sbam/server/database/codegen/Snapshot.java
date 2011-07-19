@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Jul 18, 2011 4:22:00 PM by Hibernate Tools 3.2.4.GA
+// Generated Jul 19, 2011 10:00:16 AM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -15,6 +15,7 @@ public class Snapshot implements java.io.Serializable {
 	private char productServiceType;
 	private char ucnType;
 	private Date snapshotTaken;
+	private int snapshotRows;
 	private int createUserId;
 	private Date expireDatetime;
 	private int seq;
@@ -27,12 +28,14 @@ public class Snapshot implements java.io.Serializable {
 	}
 
 	public Snapshot(String snapshotName, String snapshotType,
-			char productServiceType, char ucnType, int createUserId, int seq,
-			String orgPath, String note, Date createdDatetime, char status) {
+			char productServiceType, char ucnType, int snapshotRows,
+			int createUserId, int seq, String orgPath, String note,
+			Date createdDatetime, char status) {
 		this.snapshotName = snapshotName;
 		this.snapshotType = snapshotType;
 		this.productServiceType = productServiceType;
 		this.ucnType = ucnType;
+		this.snapshotRows = snapshotRows;
 		this.createUserId = createUserId;
 		this.seq = seq;
 		this.orgPath = orgPath;
@@ -43,13 +46,14 @@ public class Snapshot implements java.io.Serializable {
 
 	public Snapshot(String snapshotName, String snapshotType,
 			char productServiceType, char ucnType, Date snapshotTaken,
-			int createUserId, Date expireDatetime, int seq, String orgPath,
-			String note, Date createdDatetime, char status) {
+			int snapshotRows, int createUserId, Date expireDatetime, int seq,
+			String orgPath, String note, Date createdDatetime, char status) {
 		this.snapshotName = snapshotName;
 		this.snapshotType = snapshotType;
 		this.productServiceType = productServiceType;
 		this.ucnType = ucnType;
 		this.snapshotTaken = snapshotTaken;
+		this.snapshotRows = snapshotRows;
 		this.createUserId = createUserId;
 		this.expireDatetime = expireDatetime;
 		this.seq = seq;
@@ -105,6 +109,14 @@ public class Snapshot implements java.io.Serializable {
 
 	public void setSnapshotTaken(Date snapshotTaken) {
 		this.snapshotTaken = snapshotTaken;
+	}
+
+	public int getSnapshotRows() {
+		return this.snapshotRows;
+	}
+
+	public void setSnapshotRows(int snapshotRows) {
+		this.snapshotRows = snapshotRows;
 	}
 
 	public int getCreateUserId() {
