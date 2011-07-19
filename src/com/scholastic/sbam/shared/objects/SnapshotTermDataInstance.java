@@ -18,7 +18,7 @@ public class SnapshotTermDataInstance implements BeanModelTag, IsSerializable {
 	protected Date		startDate;
 	protected Date		endDate;
 	protected Date		terminateDate;
-	protected String	termType;
+	protected String	termTypeCode;
 	protected String	cancelReasonCode;
 	protected Date		cancelDate;
 	protected double	dollarValue;
@@ -35,6 +35,7 @@ public class SnapshotTermDataInstance implements BeanModelTag, IsSerializable {
 	protected ServiceInstance		service;
 	protected InstitutionInstance	institution;
 	protected CancelReasonInstance	cancelReason;
+	protected TermTypeInstance		termType;
 	
 	public SnapshotTermDataInstance() {
 		super();
@@ -128,12 +129,12 @@ public class SnapshotTermDataInstance implements BeanModelTag, IsSerializable {
 		this.terminateDate = terminateDate;
 	}
 
-	public String getTermType() {
-		return termType;
+	public String getTermTypeCode() {
+		return termTypeCode;
 	}
 
-	public void setTermType(String termType) {
-		this.termType = termType;
+	public void setTermTypeCode(String termTypeCode) {
+		this.termTypeCode = termTypeCode;
 	}
 
 	public String getCancelReasonCode() {
@@ -258,8 +259,16 @@ public class SnapshotTermDataInstance implements BeanModelTag, IsSerializable {
 		this.institution = institution;
 	}
 	
-	/* COMPUTED VALUES */
+	public TermTypeInstance getTermType() {
+		return termType;
+	}
+
+	public void setTermType(TermTypeInstance termType) {
+		this.termType = termType;
+	}
 	
+	/* COMPUTED VALUES */
+
 	public int getAgreementIdCheckDigit() {
 		return AppConstants.appendCheckDigit(agreementId);
 	}

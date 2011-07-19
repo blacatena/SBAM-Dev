@@ -225,6 +225,14 @@ public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermIn
 		return false;
 	}
 
+	public ContentPanel getOuterContainer() {
+		return outerContainer;
+	}
+
+	public void setOuterContainer(ContentPanel outerContainer) {
+		this.outerContainer = outerContainer;
+	}
+
 	@Override
 	public void switchLayout(LayoutContainer container) {
 		if (container == snapshotSelectorCard)

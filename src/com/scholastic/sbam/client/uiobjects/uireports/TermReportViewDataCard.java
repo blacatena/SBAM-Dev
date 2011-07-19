@@ -224,8 +224,10 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 					"This is the fraction of the total term value for this particular service."));
 		columns.add(getHiddenColumn("dollarUcnFraction",		"UCN Value",				80,		true, UiConstants.DOLLARS_FORMAT,
 					"This is the fraction of the total term value for this particular UCN."));
-		columns.add(getDisplayColumn("termType",				"Type",						50,
-					"This is the type of product term."));
+		columns.add(getHiddenColumn("termTypeCode",				"Type Code",				75,
+					"This is the term type code for this product term."));
+		columns.add(getDisplayColumn("termType.description",	"Term Type",				80,
+					"This is the type of product term.", UiConstants.getTermTypes(), "termTypeCode", "description"));
 		columns.add(getHiddenColumn("primaryTerm",				"Primary?",					50,
 					"Is this the primary product term for the agreement?"));
 	}

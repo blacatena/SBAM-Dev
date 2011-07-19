@@ -11,11 +11,13 @@ import com.scholastic.sbam.server.database.codegen.Institution;
 import com.scholastic.sbam.server.database.codegen.Product;
 import com.scholastic.sbam.server.database.codegen.Service;
 import com.scholastic.sbam.server.database.codegen.SnapshotTermData;
+import com.scholastic.sbam.server.database.codegen.TermType;
 import com.scholastic.sbam.server.database.objects.DbCancelReason;
 import com.scholastic.sbam.server.database.objects.DbInstitution;
 import com.scholastic.sbam.server.database.objects.DbProduct;
 import com.scholastic.sbam.server.database.objects.DbService;
 import com.scholastic.sbam.server.database.objects.DbSnapshotTermData;
+import com.scholastic.sbam.server.database.objects.DbTermType;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.CancelReasonInstance;
@@ -24,6 +26,7 @@ import com.scholastic.sbam.shared.objects.ProductInstance;
 import com.scholastic.sbam.shared.objects.ServiceInstance;
 import com.scholastic.sbam.shared.objects.SnapshotTermDataInstance;
 import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
+import com.scholastic.sbam.shared.objects.TermTypeInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
 
 /**
@@ -38,10 +41,11 @@ public class SnapshotTermDataListServiceImpl extends AuthenticatedServiceServlet
 
 		//	These maps are used so that we'll reuse all instances, to be sure to conserve space in serialization
 		
-		HashMap<Integer, InstitutionInstance> institutionMap = new HashMap<Integer, InstitutionInstance>();
-		HashMap<String, ProductInstance> productMap = new HashMap<String, ProductInstance>();
-		HashMap<String, ServiceInstance> serviceMap = new HashMap<String, ServiceInstance>();
-		HashMap<String, CancelReasonInstance> cancelReasonMap = new HashMap<String, CancelReasonInstance>();
+		HashMap<Integer, InstitutionInstance>	institutionMap = new HashMap<Integer, InstitutionInstance>();
+		HashMap<String, ProductInstance>		productMap = new HashMap<String, ProductInstance>();
+		HashMap<String, ServiceInstance>		serviceMap = new HashMap<String, ServiceInstance>();
+		HashMap<String, CancelReasonInstance>	cancelReasonMap = new HashMap<String, CancelReasonInstance>();
+		HashMap<String, TermTypeInstance> 		termTypeMap = new HashMap<String, TermTypeInstance>();
 		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();
@@ -62,6 +66,8 @@ public class SnapshotTermDataListServiceImpl extends AuthenticatedServiceServlet
 				instance.setService(getService(instance.getServiceCode(), serviceMap));
 				
 				instance.setCancelReason(getCancelReason(instance.getCancelReasonCode(), cancelReasonMap));
+				
+				instance.setTermType(getTermType(instance.getTermTypeCode(), termTypeMap));
 				
 				list.add(instance);
 			}
@@ -131,6 +137,21 @@ public class SnapshotTermDataListServiceImpl extends AuthenticatedServiceServlet
 		Institution institution = DbInstitution.getByCode(ucn);
 		if (institution != null) {
 			return DbInstitution.getInstance(institution);
+		}
+		
+		return null;
+	}
+	
+	protected TermTypeInstance getTermType(String termTypeCode, HashMap<String, TermTypeInstance> termTypeMap) {
+		if (termTypeCode == null || termTypeCode.length() == 0)
+			return null;
+		
+		if (termTypeMap.containsKey(termTypeCode))
+			return termTypeMap.get(termTypeCode);
+		
+		TermType termType = DbTermType.getByCode(termTypeCode);
+		if (termType != null) {
+			return DbTermType.getInstance(termType);
 		}
 		
 		return null;

@@ -41,7 +41,6 @@ public class UpdateSnapshotTreeServiceImpl extends AuthenticatedServiceServlet i
 			
 			int seq = 0;
 			
-			System.out.println("___________________________________");
 			for (SnapshotTreeInstance instance : list) {
 				instance.getSnapshot().setSnapshotType(snapshotType);	//	In case it's wrong or missing, set the snapshotType from the service call parameter
 				if (instance.getStatus() != AppConstants.STATUS_DELETED) {

@@ -14,7 +14,6 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.dnd.DND.Feedback;
 import com.extjs.gxt.ui.client.dnd.TreeGridDragSource;
 import com.extjs.gxt.ui.client.dnd.TreeGridDropTarget;
-import com.extjs.gxt.ui.client.dnd.TreePanelDropTarget;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.DNDEvent;
@@ -46,7 +45,6 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
@@ -57,8 +55,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treegrid.EditorTreeGrid;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
-import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
-import com.extjs.gxt.ui.client.widget.treepanel.TreePanel.TreeNode;
+import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid.TreeNode;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -89,11 +86,11 @@ import com.scholastic.sbam.shared.util.AppConstants;
 
 public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper, SnapshotReflection {
 
-	
+	protected int							folderId			=	0;
 	protected boolean						allowReorganize		=	true;
 	protected String						snapshotTypeFilter	=	"";
 	
-	protected String						panelHeading;
+	protected String						panelHeading		=	"Snapshot Selector";
 
 	protected ContentPanel 					panel;
 	protected EditorTreeGrid<ModelData> 	treeGrid;
@@ -131,7 +128,8 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 
 		public Folder(String description) {
 			this();
-			set("snapshotId", 0);
+			folderId--;
+			set("snapshotId", folderId);
 			set("description", description);
 			set("status", AppConstants.STATUS_NEW);
 			set("statusDescription", SnapshotTreeInstance.getStatusDescription(AppConstants.STATUS_NEW));
@@ -153,7 +151,7 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 		}
 
 		public String toString() {
-			return getDescription();
+			return "Folder: " + getDescription();
 		}
 	};
 	
@@ -164,10 +162,10 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 	 *
 	 * @param <M>
 	 */
-	public class MyTreePanel<M extends ModelData> extends TreePanel<M> {
+	public class MyTreeGrid<M extends ModelData> extends TreeGrid<M> {
 
-		public MyTreePanel(TreeStore<M> store) {
-			super(store);
+		public MyTreeGrid(TreeStore<M> store, ColumnModel cm) {
+			super(store, cm);
 		}
 		
 		/**
@@ -181,45 +179,6 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 			return super.calculateIconStyle(model);
 		}
 		
-		/**
-		 * Overridden to automatically check anything which has the "checked" property set to "checked" when the model is added to the tree.
-		 */
-		@Override
-		protected String register(M m) {
-			String id = super.register(m);
-			setChecked(m, (m.get("checked") != null && m.get("checked").equals("checked")));
-			return id;
-		}
-		
-		/**
-		 * Overridden to turn off cascade behavior when rendering children, which happens on a load, refresh, expand, etc.
-		 * 
-		 * Basically, only do the cascade when the user checks the box.
-		 * 
-		 */
-		@Override
-		protected void renderChildren(M parent) {
-			CheckCascade save = getCheckStyle();
-			setCheckStyle(CheckCascade.NONE);
-			super.renderChildren(parent);
-			setCheckStyle(save);
-		}
-		
-		/**
-		 * Overridden to adjust model in store to match tree, both for use with the filter and for passing back to the server side
-		 */
-		@Override
-		public void setChecked(M m, boolean checked) {
-			super.setChecked(m, checked);
-			if (m.getPropertyNames().contains("checked"))
-				m.set("checked", checked ? "checked" : "");
-			if (store.contains(m)) {
-				if (store.getRecord(m).getModel().getPropertyNames().contains("checked")) {
-					store.getRecord(m).getModel().set("checked", checked ? "checked" : "");
-				}
-			}
-		}
-		
 		protected boolean isFolder(ModelData item) {
 			return item.get("type") != null && item.get("type").equals("folder");
 		}
@@ -231,9 +190,9 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 	 * @author Bob Lacatena
 	 *
 	 */
-	public class MyTreePanelDropTarget extends TreePanelDropTarget {
+	public class MyTreeGridDropTarget extends TreeGridDropTarget {
 
-		public MyTreePanelDropTarget(TreePanel<ModelData> tree) {
+		public MyTreeGridDropTarget(TreeGrid<ModelData> tree) {
 			super(tree);
 		}
 
@@ -244,11 +203,11 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 		@SuppressWarnings("rawtypes")
 		@Override
 		protected void handleAppend(DNDEvent event, final TreeNode item) {
-			final TreeNode overItem = tree.findNode(event.getTarget());
+			final TreeNode overItem = treeGrid.findNode(event.getTarget());
 		    if (overItem != null) {
 		    	if (overItem instanceof TreeNode) {
 		    		if (!isFolder((TreeNode) overItem)) {
-		    			clearStyles(event);
+		    			clearStyle(overItem);
 		    			return;
 		    		}
 		    	}
@@ -295,7 +254,7 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 		
 		panel = new ContentPanel(new FitLayout());
 		panel.setBorders(false);
-		IconSupplier.setIcon(panel, IconSupplier.getServiceIconName());
+		IconSupplier.setIcon(panel, IconSupplier.getSnapshotIconName());
 		panel.setHeading(panelHeading);
 		panel.setHeaderVisible(true);
 		panel.addStyleName("sbam-report-body");
@@ -310,27 +269,29 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 		tools.add(filter,  new RowData(200, -1, new Margins(2)));
 		tools.add(toolbar, new RowData(550, 30, new Margins(2)));
 		
-		LayoutContainer inset = new LayoutContainer(new FlowLayout(10)) {
+		LayoutContainer inset = new LayoutContainer() {
 //			@Override
 //			protected void onResize(int width, int height) {
-//				if (tree != null) {
+//				if (treeGrid != null) {
 //					if (tools.isRendered()) {
-//						tree.setHeight(height - tools.getHeight());
+//						treeGrid.setHeight(height - tools.getHeight());
 //					} else {
-//						tree.setHeight(height - 40);
+//						treeGrid.setHeight(height - 40);
 //					}
-//					tree.setWidth(width - 10);
+//					treeGrid.setWidth(width - 10);
 //				}
 //				super.onResize(width, height);	
 //			}
 		};
 
-		inset.add(tools);
+//		inset.add(tools);
 		
+		inset.setLayout(new FitLayout());
 		inset.add(treeGrid);		//	inset.add(tree);
 		
 		inset.addStyleName("sbam-report-body");
 		
+		panel.setTopComponent(tools);
 		panel.add(inset);
 		
 		add(panel);
@@ -406,7 +367,18 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 	}
 	
 	public void createTreeGrid() {
-		treeGrid = new EditorTreeGrid<ModelData>(store, getColumnModel()) {  
+		treeGrid = new EditorTreeGrid<ModelData>(store, getColumnModel()) {  	
+				/**
+				 * Overridden to return a folder icon for a leaf which is defined as a folder.
+				 */
+				@Override
+				protected AbstractImagePrototype calculateIconStyle(ModelData model) {
+					if (isLeaf(model) && isFolder(model)) {
+						return getStyle().getNodeOpenIcon();
+					}
+					return super.calculateIconStyle(model);
+				}
+			
 		      @Override  
 		      protected boolean hasChildren(ModelData m) {  
 		        if (m instanceof Folder) {  
@@ -419,13 +391,14 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 	    treeGrid.getStyle().setLeafIcon(IconSupplier.getColorfulIcon(IconSupplier.getSnapshotIconName()));  
 		treeGrid.setAutoExpandColumn("description");  
 	    treeGrid.setTrackMouseOver(true);
-	    treeGrid.setHeight(500);
+//	    treeGrid.setHeight(500);
+	    treeGrid.setAutoHeight(false);
 	    treeGrid.setClicksToEdit(ClicksToEdit.TWO);
 	    treeGrid.setSelectionModel(new GridSelectionModel<ModelData>());
 	    
 	    new TreeGridDragSource(treeGrid);  
 	  
-	    TreeGridDropTarget target = new TreeGridDropTarget(treeGrid) {
+	    MyTreeGridDropTarget target = new MyTreeGridDropTarget(treeGrid) {
 	    	@Override
 	    	public void onDragDrop(DNDEvent event) {
 	    		super.onDragDrop(event);
@@ -434,10 +407,11 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 	    };  
 	    target.setAllowSelfAsSource(true); 
 	    target.setFeedback(Feedback.BOTH);
-		target.setAllowDropOnLeaf(false);
+		target.setAllowDropOnLeaf(true);
 		target.setAutoScroll(true);
 		target.setAutoExpand(true);
 		target.setAutoExpandDelay(100);
+		target.setAddChildren(true);
 	    
 	    addContextMenu();
 	    
@@ -475,7 +449,7 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 	    rows.setRenderer(new GridCellRenderer<ModelData>() {  
 				  public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,  
 				      ListStore<ModelData> store, Grid<ModelData> grid) {
-					  if (model.get(property).toString().equals("0"))
+					  if (model.get(property) == null || model.get(property).toString().equals("0"))
 						  return "";
 					  return model.get(property);
 				  }  
@@ -1048,7 +1022,12 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 		ModelData item = new BaseModelData();
 		item.set("description",			instance.getDescription());
 		item.set("type",				instance.getType());
-		item.set("snapshotId",			instance.getSnapshot().getSnapshotId());
+		if (isFolder(item)) {
+			folderId--;
+			item.set("snapshotId",		folderId);
+		} else {
+			item.set("snapshotId",		instance.getSnapshot().getSnapshotId());
+		}
 		item.set("expireDatetime",		instance.getSnapshot().getExpireDatetime());
 		item.set("status",				instance.getStatus());
 		item.set("statusDescription",	instance.getStatusDescription());

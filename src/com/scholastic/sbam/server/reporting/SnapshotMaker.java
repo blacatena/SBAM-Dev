@@ -321,7 +321,7 @@ public class SnapshotMaker {
 		dbTermData.setCancelReasonCode(termData.getCancelReasonCode());
 		dbTermData.setCancelDate(termData.getCancelDate());
 		dbTermData.setPrimaryTerm(termData.getPrimaryTerm());
-		dbTermData.setTermType(termData.getTermType());
+		dbTermData.setTermType(termData.getTermTypeCode());
 
 		dbTermData.setWorkstations(dbAgreement.getWorkstations());
 		dbTermData.setBuildings(dbAgreement.getBuildings());

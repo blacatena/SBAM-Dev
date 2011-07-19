@@ -2,17 +2,19 @@ package com.scholastic.sbam.client.uiobjects.uitop;
 
 import java.util.List;
 
-import com.extjs.gxt.ui.client.widget.Composite;
+import com.extjs.gxt.ui.client.widget.Container;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.user.client.Element;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSecurityManager;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
 import com.scholastic.sbam.client.uiobjects.uireports.ServiceTermReportPanel;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.security.SecurityManager;
 
-public class ReportsUi extends Composite implements AppSecurityManager, AppSleeper {
+public class ReportsUi extends LayoutContainer implements AppSecurityManager, AppSleeper {
 
 	private TabPanel advanced;
 	
@@ -23,6 +25,28 @@ public class ReportsUi extends Composite implements AppSecurityManager, AppSleep
 	private ServiceTermReportPanel		productReportPanel;
 	 
 	public ReportsUi() {
+		oneOptionReportsUi();
+	}
+	@Override
+	public void onRender(Element element, int index) {
+		super.onRender(element, index);
+		oneOptionReportsUi();
+		setLayout(new FitLayout());
+	}
+	
+	/*
+	 * New method just has one selector
+	 */
+	public void oneOptionReportsUi() {
+		setLayout(new FitLayout());
+		serviceReportPanel = new ServiceTermReportPanel();
+		initComponent(serviceReportPanel);
+	}
+ 	 
+	/*
+	 * Old method used tabs
+	 */
+	public void tabbedReportsUi() {
 		
 		advanced = new TabPanel();  
 //		advanced.setSize(600, 250);  
@@ -43,6 +67,11 @@ public class ReportsUi extends Composite implements AppSecurityManager, AppSleep
 		productTermsTab.add(serviceReportPanel);
 		
 		initComponent(advanced);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public void initComponent(Container component) {
+		add(component);
 	}
 	
 	public TabItem addTab(String tabTitle) {
@@ -72,11 +101,11 @@ public class ReportsUi extends Composite implements AppSecurityManager, AppSleep
 
 	public void applyRoles(List<String> roleNames) {
 		if (roleNames.contains(SecurityManager.ROLE_QUERY)) {
-			serviceTermsTab.enable();
-			productTermsTab.enable();
+			if (serviceTermsTab != null) serviceTermsTab.enable();
+			if (productTermsTab != null) productTermsTab.enable();
 		} else {
-			serviceTermsTab.disable();
-			productTermsTab.disable();
+			if (serviceTermsTab != null) serviceTermsTab.disable();
+			if (productTermsTab != null) productTermsTab.disable();
 		}
 	}
 	
@@ -85,9 +114,9 @@ public class ReportsUi extends Composite implements AppSecurityManager, AppSleep
 	}
 	
 	public void awaken() {
-		if (advanced.getSelectedItem() == productTermsTab) {
+		if (serviceTermsTab != null && advanced.getSelectedItem() == productTermsTab) {
 			serviceReportPanel.awaken();
-		} else if (advanced.getSelectedItem() == serviceTermsTab) {
+		} else if (productTermsTab != null && advanced.getSelectedItem() == serviceTermsTab) {
 			productReportPanel.awaken();
 		}
 	}

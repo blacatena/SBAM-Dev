@@ -135,7 +135,7 @@ public class DbSnapshotTermData extends HibernateAccessor {
 		instance.setCancelReasonCode(dbTermData.getCancelReasonCode());
 		instance.setCancelDate(dbTermData.getCancelDate());
 		instance.setCommissionCode(dbTermData.getCommissionCode());
-		instance.setTermType(dbTermData.getTermType());
+		instance.setTermTypeCode(dbTermData.getTermType());
 		instance.setPrimaryTerm(dbTermData.getPrimaryTerm());
 		instance.setWorkStations(dbTermData.getWorkstations());
 		instance.setBuildings(dbTermData.getBuildings());
@@ -161,7 +161,7 @@ public class DbSnapshotTermData extends HibernateAccessor {
 		instance.setCancelReasonCode(result.getString("CANCEL_REASON_CODE"));
 		instance.setCancelDate(result.getDate("CANCEL_DATE"));
 		instance.setCommissionCode(result.getString("COMMISSION_CODE"));
-		instance.setTermType(result.getString("TERM_TYPE"));
+		instance.setTermTypeCode(result.getString("TERM_TYPE"));
 		instance.setPrimaryTerm(result.getString("PRIMARY_TERM").charAt(0));
 		instance.setWorkStations(result.getInt("WORKSTATIONS"));
 		instance.setBuildings(result.getInt("BUILDINGS"));
