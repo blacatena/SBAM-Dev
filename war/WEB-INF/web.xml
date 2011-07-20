@@ -277,11 +277,6 @@
   </servlet>
   
   <servlet>
-    <servlet-name>countryListServlet</servlet-name>
-    <servlet-class>com.scholastic.sbam.server.servlets.CountryListServiceImpl</servlet-class>
-  </servlet>
-  
-  <servlet>
     <servlet-name>updateUserPortletCacheServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.UpdateUserPortletCacheServiceImpl</servlet-class>
   </servlet>
@@ -367,6 +362,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>institutionCountryListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.InstitutionCountryListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>institutionGetServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.InstitutionGetServiceImpl</servlet-class>
   </servlet>
@@ -374,6 +374,11 @@
   <servlet>
     <servlet-name>institutionSearchServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.InstitutionSearchServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>institutionStateListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.InstitutionStateListServiceImpl</servlet-class>
   </servlet>
   
   <servlet>
@@ -622,8 +627,8 @@
   </servlet>
   
   <servlet>
-    <servlet-name>stateListServlet</servlet-name>
-    <servlet-class>com.scholastic.sbam.server.servlets.StateListServiceImpl</servlet-class>
+    <servlet-name>institutionStateListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.InstitutionStateListServiceImpl</servlet-class>
   </servlet>
   
   <servlet>
@@ -957,11 +962,6 @@
   </servlet-mapping>
   
   <servlet-mapping>
-    <servlet-name>countryListServlet</servlet-name>
-    <url-pattern>/sbam/getCountries</url-pattern>
-  </servlet-mapping>
-  
-  <servlet-mapping>
     <servlet-name>customerSearchServlet</servlet-name>
     <url-pattern>/sbam/getCustomers</url-pattern>
   </servlet-mapping>
@@ -1012,6 +1012,11 @@
   </servlet-mapping>
   
   <servlet-mapping>
+    <servlet-name>institutionCountryListServlet</servlet-name>
+    <url-pattern>/sbam/getInstitutionCountries</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
     <servlet-name>institutionGetServlet</servlet-name>
     <url-pattern>/sbam/getInstitution</url-pattern>
   </servlet-mapping>
@@ -1019,6 +1024,11 @@
   <servlet-mapping>
     <servlet-name>institutionSearchServlet</servlet-name>
     <url-pattern>/sbam/getInstitutions</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>institutionStateListServlet</servlet-name>
+    <url-pattern>/sbam/getInstitutionStates</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>
@@ -1264,11 +1274,6 @@
   <servlet-mapping>
     <servlet-name>updateSnapshotTreeServlet</servlet-name>
     <url-pattern>/sbam/updateSnapshotTree</url-pattern>
-  </servlet-mapping>
-  
-  <servlet-mapping>
-    <servlet-name>countryListServlet</servlet-name>
-    <url-pattern>/sbam/getCountries</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

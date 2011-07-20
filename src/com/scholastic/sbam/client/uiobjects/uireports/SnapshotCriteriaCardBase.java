@@ -22,7 +22,6 @@ import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -45,11 +44,14 @@ import com.scholastic.sbam.shared.util.AppConstants;
 public abstract class SnapshotCriteriaCardBase extends SnapshotCardBase implements AppSleeper {
 	
 	protected final int				DIRTY_FIELDS_LISTEN_TIME	=	250;
-	protected final String			SOURCE						=	AppConstants.getSimpleName(this);
+	
+	protected String				source;
 	
 	protected ContentPanel			contentPanel				=	 getNewContentPanel();
 	
 	protected Timer					dirtyFieldsListener;
+	
+	protected ButtonBar				toolBar;
 	
 	protected TableData				tableDataLabel1;
 	protected TableData				tableDataLabel2;
@@ -57,6 +59,7 @@ public abstract class SnapshotCriteriaCardBase extends SnapshotCardBase implemen
 	protected TableData				tableDividerRow;
 	protected TableData				table3ColumnField;
 	
+	protected boolean				provideButtons			= true;
 	protected Button				saveButton				= new Button("Save Changes");
 	protected Button				cancelButton			= new Button("Cancel Changes");
 	protected Button				clearButton				= new Button("Clear Snapshot Data");
@@ -68,10 +71,10 @@ public abstract class SnapshotCriteriaCardBase extends SnapshotCardBase implemen
 	public SnapshotCriteriaCardBase() {
 		super();
 		
-		this.headingToolTip = "Use this panel to specify term criteria for the snapshot.";
-		
-		populateFields();
+		this.headingToolTip = getPanelToolTip();
 	}
+	
+	public abstract String getPanelToolTip();
 
 	/**
 	 * Perform any required initial field population here.
@@ -95,6 +98,8 @@ public abstract class SnapshotCriteriaCardBase extends SnapshotCardBase implemen
 		createTableDataSpecifications();
 		
 		addButtonRow();
+		
+		populateFields();
 		
 		addCriteriaFields();
 		
@@ -161,7 +166,8 @@ public abstract class SnapshotCriteriaCardBase extends SnapshotCardBase implemen
 	 * Utility method to add the button row to the content panel.
 	 */
 	public void addButtonRow() {
-		contentPanel.add(getButtonsBar(), tableDividerRow);
+		toolBar = getButtonsBar();
+		contentPanel.add(toolBar, tableDividerRow);
 	}
 	
 	/**
@@ -206,7 +212,7 @@ public abstract class SnapshotCriteriaCardBase extends SnapshotCardBase implemen
 	 * Set up and get a button bar with buttons to expand or collapse the tree.
 	 * @return
 	 */
-	public ToolBar getButtonsBar() {
+	public ButtonBar getButtonsBar() {
 		ButtonBar toolbar = new ButtonBar();
 		toolbar.setAlignment(HorizontalAlignment.CENTER);
 		
@@ -385,7 +391,9 @@ public abstract class SnapshotCriteriaCardBase extends SnapshotCardBase implemen
 	 * @return
 	 */
 	protected String getSource() {
-		return SOURCE;
+		if (source == null)
+			source 	=	AppConstants.getSimpleName(this);
+		return source;
 	}
 	
 	/**
@@ -495,7 +503,7 @@ public abstract class SnapshotCriteriaCardBase extends SnapshotCardBase implemen
 					}
 
 					public void onSuccess(String result) {
-						clearButton.disable();
+						if (clearButton != null) clearButton.disable();
 						snapshot.setSnapshotTaken(null);
 						setFieldStates();	// To enable them now that the snapshot is cleared
 						if (parentCardPanel != null) {
@@ -591,7 +599,7 @@ public abstract class SnapshotCriteriaCardBase extends SnapshotCardBase implemen
 	@Override
 	public void setSnapshot(SnapshotInstance snapshot) {
 		super.setSnapshot(snapshot);
-		clearButton.setEnabled(snapshot.getSnapshotTaken() != null);
+		if (clearButton != null) clearButton.setEnabled(snapshot.getSnapshotTaken() != null);
 		loadSnapshot();
 	}
 	
@@ -611,6 +619,46 @@ public abstract class SnapshotCriteriaCardBase extends SnapshotCardBase implemen
 	public void sleep() {
 		if (dirtyFieldsListener != null)
 			dirtyFieldsListener.cancel();
+	}
+
+	public ButtonBar getToolBar() {
+		return toolBar;
+	}
+
+	public void setToolBar(ButtonBar toolBar) {
+		this.toolBar = toolBar;
+	}
+
+	public boolean isProvideButtons() {
+		return provideButtons;
+	}
+
+	public void setProvideButtons(boolean provideButtons) {
+		this.provideButtons = provideButtons;
+	}
+
+	public Button getSaveButton() {
+		return saveButton;
+	}
+
+	public void setSaveButton(Button saveButton) {
+		this.saveButton = saveButton;
+	}
+
+	public Button getCancelButton() {
+		return cancelButton;
+	}
+
+	public void setCancelButton(Button cancelButton) {
+		this.cancelButton = cancelButton;
+	}
+
+	public Button getClearButton() {
+		return clearButton;
+	}
+
+	public void setClearButton(Button clearButton) {
+		this.clearButton = clearButton;
 	}
 	
 }
