@@ -5,9 +5,14 @@ import java.util.HashMap;
 public class SnapshotMappings {
 	
 	public static String [] [] PARAMETER_PAIRS = {
-			{"startDate",		"AGREEMENT_TERM.START_DATE"},
-			{"endDate",			"AGREEMENT_TERM.END_DATE"},
-			{"terminateDate",	"AGREEMENT_TERM.TERMINATE_DATE"}
+			{"startDate",			"AGREEMENT_TERM.START_DATE"},
+			{"endDate",				"AGREEMENT_TERM.END_DATE"},
+			{"terminateDate",		"AGREEMENT_TERM.TERMINATE_DATE"},
+			{"termTypes",			"AGREEMENT_TERM.TERM_TYPE"},
+			{"termCommCodes",		"AGREEMENT_TERM.COMMISSION_CODE"},
+			{"productCommCodes",	"PRODUCT.DEFAULT_COMMISSION_CODE"},
+			{"agreementCommCodes",	"AGREEMENT.COMMISSION_CODE"},
+			{"siteCommCodes",		"AGREEMENT_SITE.COMMISSION_CODE"}
 	};
 	
 	public static HashMap<String, String> PARAMETER_MAPPINGS = getSnapshotMap();

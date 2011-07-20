@@ -5,7 +5,7 @@ import com.scholastic.sbam.shared.objects.SnapshotInstance;
 
 public class ServiceSelectionCard extends SnapshotCardBase {
 	
-	protected	SnapshotServiceSelectTree		serviceSelectTree;
+	protected	SnapshotServiceSelectTree		serviceSelectTree = new SnapshotServiceSelectTree();
 
 	public ServiceSelectionCard() {
 		this.headingToolTip = "Use this panel to select services.";
@@ -13,9 +13,9 @@ public class ServiceSelectionCard extends SnapshotCardBase {
 	
 	@Override
 	public void addPanelContent() {
-		serviceSelectTree = new SnapshotServiceSelectTree();
+//		serviceSelectTree = new SnapshotServiceSelectTree();
 		serviceSelectTree.setSnapshot(snapshot);
-		serviceSelectTree.setPanelHeading("Snapshot Services Selector");
+		serviceSelectTree.setPanelHeading(getPanelTitle());
 		
 		add(serviceSelectTree);
 	}
@@ -30,5 +30,10 @@ public class ServiceSelectionCard extends SnapshotCardBase {
 	@Override
 	public ContentPanel getContentPanel() {
 		return serviceSelectTree.getPanel();
+	}
+
+	@Override
+	public String getPanelTitle() {
+		return "Snapshot Services Selector";
 	}
 }

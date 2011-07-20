@@ -31,8 +31,8 @@
         <mapping resource="com/scholastic/sbam/server/database/codegen/AePref.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/LinkType.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/SnapshotProductService.hbm.xml" />
-        <mapping resource="com/scholastic/sbam/server/database/codegen/Site.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/SnapshotParameter.hbm.xml" />
+        <mapping resource="com/scholastic/sbam/server/database/codegen/Site.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/SnapshotTermData.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/PreferenceCode.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/UcnConversion.hbm.xml" />
@@ -57,6 +57,7 @@
         <mapping resource="com/scholastic/sbam/server/database/codegen/Agreement.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/Institution.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/StatsAdmin.hbm.xml" />
+        <mapping resource="com/scholastic/sbam/server/database/codegen/InstitutionCountry.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/AgreementTerm.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/Snapshot.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/AePrefCode.hbm.xml" />
@@ -74,6 +75,7 @@
         <mapping resource="com/scholastic/sbam/server/database/codegen/AuthMethod.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/InstitutionGroup.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/Product.hbm.xml" />
+        <mapping resource="com/scholastic/sbam/server/database/codegen/InstitutionState.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/AeAuthUnit.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/UserProfile.hbm.xml" />
         <mapping resource="com/scholastic/sbam/server/database/codegen/InstitutionPubPriv.hbm.xml" />

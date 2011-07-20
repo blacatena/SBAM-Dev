@@ -277,6 +277,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>countryListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.CountryListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>updateUserPortletCacheServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.UpdateUserPortletCacheServiceImpl</servlet-class>
   </servlet>
@@ -617,6 +622,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>stateListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.StateListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>termTypeListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.TermTypeListServiceImpl</servlet-class>
   </servlet>
@@ -947,6 +957,11 @@
   </servlet-mapping>
   
   <servlet-mapping>
+    <servlet-name>countryListServlet</servlet-name>
+    <url-pattern>/sbam/getCountries</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
     <servlet-name>customerSearchServlet</servlet-name>
     <url-pattern>/sbam/getCustomers</url-pattern>
   </servlet-mapping>
@@ -1249,6 +1264,11 @@
   <servlet-mapping>
     <servlet-name>updateSnapshotTreeServlet</servlet-name>
     <url-pattern>/sbam/updateSnapshotTree</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>countryListServlet</servlet-name>
+    <url-pattern>/sbam/getCountries</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

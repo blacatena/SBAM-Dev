@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -15,6 +16,8 @@ import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
@@ -32,12 +35,16 @@ import com.scholastic.sbam.client.services.UpdateSnapshotParameterSetServiceAsyn
 import com.scholastic.sbam.client.uiobjects.fields.BoundDateField;
 import com.scholastic.sbam.client.uiobjects.fields.DateDefaultBinder;
 import com.scholastic.sbam.client.uiobjects.fields.DateRangeBinder;
+import com.scholastic.sbam.client.uiobjects.fields.EnhancedCheckBoxGroup;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
 import com.scholastic.sbam.client.uiobjects.foundation.FieldFactory;
 import com.scholastic.sbam.client.util.IconSupplier;
+import com.scholastic.sbam.client.util.UiConstants;
+import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
 import com.scholastic.sbam.shared.objects.SnapshotInstance;
 import com.scholastic.sbam.shared.objects.SnapshotParameterSetInstance;
 import com.scholastic.sbam.shared.objects.SnapshotParameterValueObject;
+import com.scholastic.sbam.shared.objects.TermTypeInstance;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 public class TermCriteriaCard extends SnapshotCardBase implements AppSleeper {
@@ -48,8 +55,12 @@ public class TermCriteriaCard extends SnapshotCardBase implements AppSleeper {
 	protected final String			START_DATE					=	"startDate";
 	protected final String			END_DATE					=	"endDate";
 	protected final String			TERMINATE_DATE				=	"terminateDate";
+	protected final String			TERM_TYPES					=	"termTypes";
+	protected final String			PROD_COMM_CODES				=	"productCommCodes";
+	protected final String			AGREEMENT_COMM_CODES		=	"agreementCommCodes";
+	protected final String			TERM_COMM_CODES				=	"termCommCodes";
 	
-	protected ContentPanel			contentPanel;
+	protected ContentPanel			contentPanel				=	 getNewContentPanel();
 	
 	protected Timer					dirtyFieldsListener;
 	
@@ -57,6 +68,12 @@ public class TermCriteriaCard extends SnapshotCardBase implements AppSleeper {
 	protected TableData				tableDataLabel2;
 	protected TableData				tableDataField;
 	protected TableData				tableDividerRow;
+	protected TableData				table3ColumnField;
+	
+	protected CheckBoxGroup			termTypeCheckGroup		=	new EnhancedCheckBoxGroup();
+	protected CheckBoxGroup			prodCommCheckGroup		=	new EnhancedCheckBoxGroup();
+	protected CheckBoxGroup			agreementCommCheckGroup	=	new EnhancedCheckBoxGroup();
+	protected CheckBoxGroup			termCommCheckGroup		=	new EnhancedCheckBoxGroup();
 	
 	protected BoundDateField		startFromDate			=	getDateField();
 	protected BoundDateField		startToDate				=	getDateField();
@@ -82,24 +99,73 @@ public class TermCriteriaCard extends SnapshotCardBase implements AppSleeper {
 	
 	public TermCriteriaCard() {
 		super();
+		
 		this.headingToolTip = "Use this panel to specify term criteria for the snapshot.";
 		
+		termTypeCheckGroup.setName(TERM_TYPES);
+		for (BeanModel termTypeBean : UiConstants.getTermTypes().getModels()) {
+			TermTypeInstance termType = termTypeBean.getBean();
+			if (termType.getStatus() == AppConstants.STATUS_ACTIVE) {
+				CheckBox checkBox = new CheckBox();
+				checkBox.setName(termType.getTermTypeCode());
+				checkBox.setBoxLabel(termType.getDescription());
+				checkBox.setValueAttribute(termType.getTermTypeCode());
+				termTypeCheckGroup.add(checkBox);
+			}
+		}
 		
-		startFromDate		=	getDateField();
-		startToDate			=	getDateField();
-
-		endFromDate			=	getDateField();
-		endToDate			=	getDateField();
-
-		terminateFromDate	=	getDateField();
-		terminateToDate		=	getDateField();
+		prodCommCheckGroup.setName(PROD_COMM_CODES);
+		for (BeanModel commTypeBean : UiConstants.getCommissionTypes(UiConstants.CommissionTypeTargets.PRODUCT).getModels()) {
+			CommissionTypeInstance commType = commTypeBean.getBean();
+			if (commType.getStatus() == AppConstants.STATUS_ACTIVE) {
+				CheckBox checkBox = new CheckBox();
+				checkBox.setName(commType.getCommissionCode());
+				checkBox.setBoxLabel(commType.getDescription());
+				checkBox.setValueAttribute(commType.getCommissionCode());
+				prodCommCheckGroup.add(checkBox);
+			}
+		}
+		
+		agreementCommCheckGroup.setName(AGREEMENT_COMM_CODES);
+		for (BeanModel commTypeBean : UiConstants.getCommissionTypes(UiConstants.CommissionTypeTargets.AGREEMENT).getModels()) {
+			CommissionTypeInstance commType = commTypeBean.getBean();
+			if (commType.getStatus() == AppConstants.STATUS_ACTIVE) {
+				CheckBox checkBox = new CheckBox();
+				checkBox.setName(commType.getCommissionCode());
+				checkBox.setBoxLabel(commType.getDescription());
+				checkBox.setValueAttribute(commType.getCommissionCode());
+				agreementCommCheckGroup.add(checkBox);
+			}
+		}
+		
+		termCommCheckGroup.setName(PROD_COMM_CODES);
+		for (BeanModel commTypeBean : UiConstants.getCommissionTypes(UiConstants.CommissionTypeTargets.AGREEMENT_TERM).getModels()) {
+			CommissionTypeInstance commType = commTypeBean.getBean();
+			if (commType.getStatus() == AppConstants.STATUS_ACTIVE) {
+				CheckBox checkBox = new CheckBox();
+				checkBox.setName(commType.getCommissionCode());
+				checkBox.setBoxLabel(commType.getDescription());
+				checkBox.setValueAttribute(commType.getCommissionCode());
+				termCommCheckGroup.add(checkBox);
+			}
+		}
+		
+//		
+//		startFromDate		=	getDateField();
+//		startToDate			=	getDateField();
+//
+//		endFromDate			=	getDateField();
+//		endToDate			=	getDateField();
+//
+//		terminateFromDate	=	getDateField();
+//		terminateToDate		=	getDateField();
 	}
 
 	@Override
 	public void addPanelContent() {
-		contentPanel = new ContentPanel();
-		contentPanel.setHeading("Snapshot Terms Selector");
-		IconSupplier.setIcon(contentPanel, IconSupplier.getTermTypeIconName());
+//		contentPanel = new ContentPanel();
+//		contentPanel.setHeading(getPanelTitle());
+//		IconSupplier.setIcon(contentPanel, IconSupplier.getTermTypeIconName());
 		
 		createTableDataSpecifications();
 		
@@ -110,6 +176,13 @@ public class TermCriteriaCard extends SnapshotCardBase implements AppSleeper {
 		addDirtyFieldsListener();
 		
 		add(contentPanel);
+	}
+	
+	public ContentPanel getNewContentPanel() {
+		ContentPanel contentPanel = new ContentPanel();
+		contentPanel.setHeading(getPanelTitle());
+		IconSupplier.setIcon(contentPanel, IconSupplier.getTermTypeIconName());
+		return contentPanel;
 	}
 	
 	protected void createTableDataSpecifications() {
@@ -134,6 +207,10 @@ public class TermCriteriaCard extends SnapshotCardBase implements AppSleeper {
 		tableDataField.setWidth("150");
 		tableDataField.setPadding(2);
 		
+		table3ColumnField = new TableData();
+		table3ColumnField.setColspan(3);
+		table3ColumnField.setPadding(2);
+		
 	}
 	
 	protected void addTermCriteriaFields() {
@@ -149,10 +226,44 @@ public class TermCriteriaCard extends SnapshotCardBase implements AppSleeper {
 		terminateFromDate.bindLow(terminateRangeBinder);
 		terminateToDate.bindHigh(terminateRangeBinder);
 		
+		/* Dates */
+		
 		addDividerRow();
 		addDateRange("Start Date:", 	startFromDate,		startToDate);
 		addDateRange("End Date:",		endFromDate,		endToDate);
 		addDateRange("Terminate Date:",	terminateFromDate,	terminateToDate);
+
+		/* Term Types */
+
+		addDividerRow();
+		Html termTypeLabelHtml = new Html("Term Types:");
+		termTypeLabelHtml.setStyleName("report-form-label");
+		contentPanel.add(termTypeLabelHtml,		tableDataLabel1);
+		contentPanel.add(termTypeCheckGroup,	table3ColumnField);
+
+		/* Product Commission Types */
+
+		addDividerRow();
+		Html prodCommTypeLabelHtml = new Html("Product Commission Codes:");
+		prodCommTypeLabelHtml.setStyleName("report-form-label");
+		contentPanel.add(prodCommTypeLabelHtml,		tableDataLabel1);
+		contentPanel.add(prodCommCheckGroup,		table3ColumnField);
+
+		/* Agreeement Commission Types */
+
+		addDividerRow();
+		Html agreementCommTypeLabelHtml = new Html("Agreement Commission Codes:");
+		agreementCommTypeLabelHtml.setStyleName("report-form-label");
+		contentPanel.add(agreementCommTypeLabelHtml,tableDataLabel1);
+		contentPanel.add(agreementCommCheckGroup,	table3ColumnField);
+
+		/* Agreement Term Commission Types */
+
+		addDividerRow();
+		Html termCommTypeLabelHtml = new Html("Term Commission Codes:");
+		termCommTypeLabelHtml.setStyleName("report-form-label");
+		contentPanel.add(termCommTypeLabelHtml,		tableDataLabel1);
+		contentPanel.add(termCommCheckGroup,		table3ColumnField);
 	}
 	
 	public void addButtonRow() {
@@ -261,6 +372,11 @@ public class TermCriteriaCard extends SnapshotCardBase implements AppSleeper {
 		setDateFieldRange(snapshotParameterSet, END_DATE,		endFromDate,		endToDate);
 		setDateFieldRange(snapshotParameterSet, TERMINATE_DATE, terminateFromDate,	terminateToDate);
 		
+		setCheckBoxes(snapshotParameterSet, TERM_TYPES,		 		termTypeCheckGroup);
+		setCheckBoxes(snapshotParameterSet, PROD_COMM_CODES, 		prodCommCheckGroup);
+		setCheckBoxes(snapshotParameterSet, AGREEMENT_COMM_CODES,	agreementCommCheckGroup);
+		setCheckBoxes(snapshotParameterSet, TERM_COMM_CODES, 		termCommCheckGroup);
+		
 		setOriginalValues();
 		
 	}
@@ -278,6 +394,20 @@ public class TermCriteriaCard extends SnapshotCardBase implements AppSleeper {
 			toField.setValue(null);
 		}
 	}
+	
+	protected void setCheckBoxes(SnapshotParameterSetInstance snapshotParameterSet, String name, CheckBoxGroup checkGroup) {
+		List<SnapshotParameterValueObject> values = snapshotParameterSet.getValues(name);
+		if (values != null) {
+			for (SnapshotParameterValueObject value : values) {
+				int count = checkGroup.getAll().size();
+				for (int i = 0; i < count; i++) {
+					CheckBox checkBox = (CheckBox) checkGroup.get(i);
+					if (checkBox.getValueAttribute().equals(value.getStringValue()))
+						checkBox.setValue(true);
+				}
+			}
+		}
+	}
 
 	protected void setFieldStates() {
 		for (Field<?> field : getFields() ) {
@@ -287,15 +417,41 @@ public class TermCriteriaCard extends SnapshotCardBase implements AppSleeper {
 
 	protected void clearValues() {
 		for (Field<?> field : getFields() ) {
-			field.setValue(null);
-			field.setOriginalValue(null);
+			if (field instanceof CheckBoxGroup) {
+				CheckBoxGroup cbg = (CheckBoxGroup) field;
+				for (Field<?> cbf : cbg.getAll()) {
+					if (cbf instanceof CheckBox) {
+						CheckBox cb = (CheckBox) cbf;
+						cb.setValue(false);
+						cb.setOriginalValue(false);
+					} else {
+						cbf.setValue(null);
+						cbf.setOriginalValue(null);
+					}
+				}
+			} else {
+				field.setValue(null);
+				field.setOriginalValue(null);
+			}
 		}
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	protected void setOriginalValues() {
 		for (Field field : getFields() ) {
-			field.setOriginalValue(field.getValue());
+			if (field instanceof CheckBoxGroup) {
+				CheckBoxGroup cbg = (CheckBoxGroup) field;
+				for (Field cbf : cbg.getAll()) {
+					if (cbf instanceof CheckBox) {
+						CheckBox cb = (CheckBox) cbf;
+						cb.setOriginalValue(cb.getValue());
+					} else {
+						cbf.setOriginalValue(cbf.getValue());
+					}
+				}
+			} else {
+				field.setOriginalValue(field.getValue());
+			}
 		}
 	}
 	
@@ -313,6 +469,26 @@ public class TermCriteriaCard extends SnapshotCardBase implements AppSleeper {
 		snapshotParameterSet.addValue(START_DATE,		DATES_GROUP, startFromDate.getValue(),		startToDate.getValue());
 		snapshotParameterSet.addValue(END_DATE,			DATES_GROUP, endFromDate.getValue(),		endToDate.getValue());
 		snapshotParameterSet.addValue(TERMINATE_DATE,	DATES_GROUP, terminateFromDate.getValue(),	terminateToDate.getValue());
+		
+		for (CheckBox checkBox : termTypeCheckGroup.getValues()) {
+			if (checkBox.getValue())
+				snapshotParameterSet.addValue(TERM_TYPES, TERM_TYPES, checkBox.getValueAttribute());
+		}
+		
+		for (CheckBox checkBox : prodCommCheckGroup.getValues()) {
+			if (checkBox.getValue())
+				snapshotParameterSet.addValue(PROD_COMM_CODES, PROD_COMM_CODES, checkBox.getValueAttribute());
+		}
+		
+		for (CheckBox checkBox : agreementCommCheckGroup.getValues()) {
+			if (checkBox.getValue())
+				snapshotParameterSet.addValue(AGREEMENT_COMM_CODES, AGREEMENT_COMM_CODES, checkBox.getValueAttribute());
+		}
+		
+		for (CheckBox checkBox : termCommCheckGroup.getValues()) {
+			if (checkBox.getValue())
+				snapshotParameterSet.addValue(TERM_COMM_CODES, TERM_COMM_CODES, checkBox.getValueAttribute());
+		}
 		
 		updateSnapshotParameterSetService.updateSnapshotParameterSet(snapshotParameterSet,
 				new AsyncCallback<String>() {
@@ -500,6 +676,11 @@ public class TermCriteriaCard extends SnapshotCardBase implements AppSleeper {
 	public void sleep() {
 		if (dirtyFieldsListener != null)
 			dirtyFieldsListener.cancel();
+	}
+
+	@Override
+	public String getPanelTitle() {
+		return "Snapshot Terms Selector";
 	}
 	
 	

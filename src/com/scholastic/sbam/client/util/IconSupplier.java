@@ -370,6 +370,14 @@ public class IconSupplier {
 		return "copy.png";
 	}
 	
+	public static String getUsaIconName() {
+		return "usa.png";
+	}
+	
+	public static String getCountriesIconName() {
+		return "world.png";
+	}
+	
 	public static void setIcon(TabItem tabItem, String iconName) {
 		if (TAB_ICONS && tabItem != null && iconName != null && iconName.length() > 0) {
 			tabItem.setIcon(getTabIcon(iconName));

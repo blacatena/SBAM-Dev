@@ -28,6 +28,8 @@ public abstract class SnapshotCardBase extends LayoutContainer {
 		addReturnTool();
 	}
 	
+	public abstract String getPanelTitle();
+	
 	public abstract void addPanelContent();
 	
 	public abstract ContentPanel	getContentPanel();
@@ -44,6 +46,11 @@ public abstract class SnapshotCardBase extends LayoutContainer {
 
 	public void setSnapshot(SnapshotInstance snapshot) {
 		this.snapshot = snapshot;
+		if (getContentPanel() != null)
+			if (snapshot == null)
+				getContentPanel().setHeading(getPanelTitle());
+			else
+				getContentPanel().setHeading(getPanelTitle() + " for <i>" + snapshot.getSnapshotId() + " &mdash; " + snapshot.getSnapshotName() + "</i>");
 	}
 
 	public SnapshotParentCardPanel getParentCardPanel() {

@@ -20,21 +20,22 @@ public class DbInstitutionPubPriv extends HibernateAccessor {
 	public static InstitutionPubPrivInstance getInstance(InstitutionPubPriv dbInstance) {
 		InstitutionPubPrivInstance instance = new InstitutionPubPrivInstance();
 		instance.setPublicPrivateCode(dbInstance.getPubPrivCode());
+		instance.setShortName(dbInstance.getShortName());
 		instance.setDescription(dbInstance.getDescription());
 		
 		return instance;
 	}
 	
 	public static InstitutionPubPriv getByCode(String code) {
-		return (InstitutionPubPriv) getByField(objectName, "groupCode", code, "description");
+		return (InstitutionPubPriv) getByField(objectName, "publicPrivateCode", code, "description");
 	}
 	
 	public static List<InstitutionPubPriv> findAll() {
 		List<Object> results = findAll(objectName);
-		List<InstitutionPubPriv> reasons = new ArrayList<InstitutionPubPriv>();
+		List<InstitutionPubPriv> codes = new ArrayList<InstitutionPubPriv>();
 		if (results != null)
 			for (int i = 0; i < results.size(); i++)
-				reasons.add((InstitutionPubPriv) results.get(i));
-		return reasons;
+				codes.add((InstitutionPubPriv) results.get(i));
+		return codes;
 	}
 }

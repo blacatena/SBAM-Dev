@@ -25,6 +25,10 @@ import com.scholastic.sbam.client.services.ContactTypeListService;
 import com.scholastic.sbam.client.services.ContactTypeListServiceAsync;
 import com.scholastic.sbam.client.services.DeleteReasonListService;
 import com.scholastic.sbam.client.services.DeleteReasonListServiceAsync;
+import com.scholastic.sbam.client.services.InstitutionCountryListService;
+import com.scholastic.sbam.client.services.InstitutionCountryListServiceAsync;
+import com.scholastic.sbam.client.services.InstitutionStateListService;
+import com.scholastic.sbam.client.services.InstitutionStateListServiceAsync;
 import com.scholastic.sbam.client.services.LinkTypeListService;
 import com.scholastic.sbam.client.services.LinkTypeListServiceAsync;
 import com.scholastic.sbam.client.services.ProductListService;
@@ -39,6 +43,8 @@ import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
 import com.scholastic.sbam.shared.objects.ContactTypeInstance;
 import com.scholastic.sbam.shared.objects.DeleteReasonInstance;
 import com.scholastic.sbam.shared.objects.GenericCodeInstance;
+import com.scholastic.sbam.shared.objects.InstitutionCountryInstance;
+import com.scholastic.sbam.shared.objects.InstitutionStateInstance;
 import com.scholastic.sbam.shared.objects.LinkTypeInstance;
 import com.scholastic.sbam.shared.objects.ProductInstance;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
@@ -69,17 +75,19 @@ public class UiConstants {
 	
 	private final static int			REFRESH_PERIOD = 10 * 60 * 1000;	// Every 10 minutes
 	
-	private static BetterFilterListStore<BeanModel>		agreementTypes	= new BetterFilterListStore<BeanModel>();
-	private static BetterFilterListStore<BeanModel>		commissionTypes = new BetterFilterListStore<BeanModel>();
-	private static BetterFilterListStore<BeanModel>		contactTypes	= new BetterFilterListStore<BeanModel>();
-	private static BetterFilterListStore<BeanModel>		deleteReasons	= new BetterFilterListStore<BeanModel>();
-	private static BetterFilterListStore<BeanModel>		cancelReasons 	= new BetterFilterListStore<BeanModel>();
-	private static BetterFilterListStore<BeanModel>		linkTypes		= new BetterFilterListStore<BeanModel>();
-	private static BetterFilterListStore<BeanModel>		products 		= new BetterFilterListStore<BeanModel>();
-	private static ListStore<BeanModel>					termTypes 		= new ListStore<BeanModel>();
+	private static BetterFilterListStore<BeanModel>		agreementTypes		= new BetterFilterListStore<BeanModel>();
+	private static BetterFilterListStore<BeanModel>		commissionTypes 	= new BetterFilterListStore<BeanModel>();
+	private static BetterFilterListStore<BeanModel>		contactTypes		= new BetterFilterListStore<BeanModel>();
+	private static BetterFilterListStore<BeanModel>		deleteReasons		= new BetterFilterListStore<BeanModel>();
+	private static BetterFilterListStore<BeanModel>		cancelReasons 		= new BetterFilterListStore<BeanModel>();
+	private static BetterFilterListStore<BeanModel>		institutionCountries= new BetterFilterListStore<BeanModel>();
+	private static BetterFilterListStore<BeanModel>		institutionStates	= new BetterFilterListStore<BeanModel>();
+	private static BetterFilterListStore<BeanModel>		linkTypes			= new BetterFilterListStore<BeanModel>();
+	private static BetterFilterListStore<BeanModel>		products 			= new BetterFilterListStore<BeanModel>();
+	private static ListStore<BeanModel>					termTypes 			= new ListStore<BeanModel>();
 	
-	private static ListStore<BeanModel>					uidTypes		= getUidTypes();
-	private static ListStore<BeanModel>					authMethodTypes = getAuthMethodTypes();
+	private static ListStore<BeanModel>					uidTypes			= getUidTypes();
+	private static ListStore<BeanModel>					authMethodTypes 	= getAuthMethodTypes();
 	
 	private static Timer								refreshTimer;
 	
@@ -94,6 +102,8 @@ public class UiConstants {
 		loadContactTypes();
 		loadDeleteReasons();
 		loadCancelReasons();
+//		loadInstitutionStates();
+//		loadInstitutionCountries();
 		loadLinkTypes();
 		loadProducts();
 		loadTermTypes();
@@ -320,6 +330,70 @@ public class UiConstants {
 	
 	public static ListStore<BeanModel> getContactTypes() {
 		return contactTypes;
+	}
+	
+	public static void loadInstitutionCountries() {
+		InstitutionCountryListServiceAsync institutionCountryListService = GWT.create(InstitutionCountryListService.class);
+		
+		AsyncCallback<List<InstitutionCountryInstance>> callback = new AsyncCallback<List<InstitutionCountryInstance>>() {
+			public void onFailure(Throwable caught) {
+				// Show the RPC error message to the user
+				if (caught instanceof IllegalArgumentException)
+					MessageBox.alert("Alert", caught.getMessage(), null);
+				else {
+					MessageBox.alert("Alert", "Link types load failed unexpectedly.", null);
+					System.out.println(caught.getClass().getName());
+					System.out.println(caught.getMessage());
+				}
+			}
+
+			public void onSuccess(List<InstitutionCountryInstance> list) {
+				institutionCountries.removeAll();
+				if (institutionCountries.getKeyProvider() == null)
+					institutionCountries.setKeyProvider(new SimpleKeyProvider("institutionCountryCode"));
+				for (InstitutionCountryInstance instance : list) {
+					institutionCountries.add(InstitutionCountryInstance.obtainModel(instance));	
+				}
+			}
+		};
+		
+		institutionCountryListService.getInstitutionCountries(null, callback);
+	}
+	
+	public static ListStore<BeanModel> getInstitutionCountries() {
+		return institutionCountries;
+	}
+	
+	public static void loadInstitutionStates() {
+		InstitutionStateListServiceAsync institutionStateListService = GWT.create(InstitutionStateListService.class);
+		
+		AsyncCallback<List<InstitutionStateInstance>> callback = new AsyncCallback<List<InstitutionStateInstance>>() {
+			public void onFailure(Throwable caught) {
+				// Show the RPC error message to the user
+				if (caught instanceof IllegalArgumentException)
+					MessageBox.alert("Alert", caught.getMessage(), null);
+				else {
+					MessageBox.alert("Alert", "Link types load failed unexpectedly.", null);
+					System.out.println(caught.getClass().getName());
+					System.out.println(caught.getMessage());
+				}
+			}
+
+			public void onSuccess(List<InstitutionStateInstance> list) {
+				institutionStates.removeAll();
+				if (institutionStates.getKeyProvider() == null)
+					institutionStates.setKeyProvider(new SimpleKeyProvider("institutionStateCode"));
+				for (InstitutionStateInstance instance : list) {
+					institutionStates.add(InstitutionStateInstance.obtainModel(instance));	
+				}
+			}
+		};
+		
+		institutionStateListService.getInstitutionStates(null, callback);
+	}
+	
+	public static ListStore<BeanModel> getInstitutionStates() {
+		return institutionStates;
 	}
 	
 	public static void loadLinkTypes() {

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Jul 19, 2011 10:00:16 AM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Jul 20, 2011 10:53:07 AM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.Proxy" table="proxy" catalog="sbam">
         <id name="proxyId" type="java.lang.Integer">

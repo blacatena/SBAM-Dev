@@ -120,7 +120,7 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 	protected LiveGridView												liveView;
 	protected PagingLoader<PagingLoadResult<SnapshotTermDataInstance>>	termDataLoader;
 
-	protected ContentPanel								contentPanel = new ContentPanel();
+	protected ContentPanel								contentPanel	=	 getNewContentPanel();
 	
 	protected ListStore<BeanModel>						gridStore;
 	protected Grid<BeanModel>							grid;
@@ -148,6 +148,14 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 		
 		if (snapshot != null)
 			gridStore.getLoader().load();
+	}
+	
+	public ContentPanel getNewContentPanel() {
+		ContentPanel contentPanel = new ContentPanel();
+		contentPanel.setLayout(new FitLayout());
+		contentPanel.setHeading(getPanelTitle());
+		IconSupplier.setIcon(contentPanel, IconSupplier.getReportIconName());
+		return contentPanel;
 	}
 	
 	protected Grid<BeanModel> getGrid() {
@@ -199,15 +207,19 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 		columns.add(getDisplayColumn("agreementIdCheckDigit",	"Agreement #",				80,
 					"This is the agreement number for this service."));
 		columns.add(getDisplayColumn("ucn",						"UCN",						80,
-					"This is the recipient UCN for this service."));
+					"This is the UCN for this service."));
 		columns.add(getDisplayColumn("institution.institutionName",	"Institution",			200,
-					"This is the recipient institution for this service."));
+					"This is the institution for this service."));
+		columns.add(getHiddenColumn("institution.city",			"City",						100,
+					"This is the institution city for this service."));
+		columns.add(getHiddenColumn("institution.state",		"State",					60,
+					"This is the institution state for this service."));
 		columns.add(getHiddenColumn("productCode",				"Product Code",				80,
 					"This is the product code for this product term."));
 		columns.add(getDisplayColumn("product.description",		"Product",					200,
 					"This is the product for this product term."));
 		columns.add(getHiddenColumn("serviceCode",				"Service Code",				80,
-		"This is the service code for a service supplied with this product term."));
+					"This is the service code for a service supplied with this product term."));
 		columns.add(getDisplayColumn("service.description",		"Service",					200,
 					"This is a service supplied with this product term."));
 		columns.add(getDisplayColumn("startDate",				"Start",					80,		true, UiConstants.APP_DATE_TIME_FORMAT,
@@ -218,7 +230,7 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 					"This is the actual service termination date for a product term."));
 		columns.add(getDisplayColumn("dollarValue",				"Full Value",				100,	true, UiConstants.DOLLARS_FORMAT,
 					"This is the full value of the product term."));
-		columns.add(getGridSummaryColumn("dollarFraction",			"Row Value",			100,	false, true, UiConstants.DOLLARS_FORMAT,
+		columns.add(getGridSummaryColumn("dollarFraction",		"Row Value",			100,	false, true, UiConstants.DOLLARS_FORMAT,
 					"This is the fraction of the total term value for this particular row (this service for this UCN)."));
 		columns.add(getHiddenColumn("dollarServiceFraction",	"Service Value",			80,		true, UiConstants.DOLLARS_FORMAT,
 					"This is the fraction of the total term value for this particular service."));
@@ -586,6 +598,11 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 	
 	public void invokeSnapshotTermDataListService(PagingLoadConfig loadConfig, int snapshotId, long searchSyncId, AsyncCallback<SynchronizedPagingLoadResult<SnapshotTermDataInstance>> myCallback) {
 		snapshotTermDataListService.getSnapshotTermData((PagingLoadConfig) loadConfig, snapshotId, searchSyncId, myCallback);
+	}
+
+	@Override
+	public String getPanelTitle() {
+		return "Snapshot Data View";
 	}
 	
 }
