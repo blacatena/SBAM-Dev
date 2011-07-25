@@ -20,6 +20,8 @@ import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.core.client.GWT;
@@ -339,6 +341,47 @@ public abstract class SnapshotCriteriaCardBase extends SnapshotCardBase implemen
 			}
 		}
 	}
+	
+	/**
+	 * Utility method to set a list of values from a check box group.
+	 * @param snapshotParameterSet
+	 * @param name
+	 * @param radioGroup
+	 */
+	protected void setCheckBoxes(SnapshotParameterSetInstance snapshotParameterSet, String name, RadioGroup radioGroup) {
+		List<SnapshotParameterValueObject> values = snapshotParameterSet.getValues(name);
+		if (values != null) {
+			for (SnapshotParameterValueObject value : values) {
+				int count = radioGroup.getAll().size();
+				for (int i = 0; i < count; i++) {
+					Radio radioButton = (Radio) radioGroup.get(i);
+					if (radioButton.getValueAttribute().equals(value.getStringValue()))
+						radioButton.setValue(true);
+				}
+			}
+		}
+	}
+	
+	protected void setCheckBoxes(char value, String name, RadioGroup radioGroup) {
+		setCheckBoxes(value + "", name, radioGroup);
+	}
+	
+	/**
+	 * Utility method to set a list of values from a check box group.
+	 * @param snapshotParameterSet
+	 * @param name
+	 * @param radioGroup
+	 */
+	protected void setCheckBoxes(String value, String name, RadioGroup radioGroup) {
+		if (value != null) {
+			int count = radioGroup.getAll().size();
+			for (int i = 0; i < count; i++) {
+				Radio radioButton = (Radio) radioGroup.get(i);
+				if (radioButton.getValueAttribute().equals(value))
+					radioButton.setValue(true);
+			}
+		}
+	}
 
 	protected void setFieldStates() {
 		for (Field<?> field : getFields() ) {
@@ -450,6 +493,23 @@ public abstract class SnapshotCriteriaCardBase extends SnapshotCardBase implemen
 		for (CheckBox checkBox : checkBoxGroup.getValues()) {
 			if (checkBox.getValue())
 				snapshotParameterSet.addValue(name, groupName, checkBox.getValueAttribute());
+		}
+	}
+	
+	/**
+	 * Add a checkbox group as a list of values to the snapshot parameter set.
+	 * @param checkBoxGroup
+	 * The check box group to be added.
+	 * @param snapshotParameterSet
+	 * The parameter set.
+	 * @param name
+	 * The name of the parameter.
+	 * @param groupName
+	 * The group name for the parameter.
+	 */
+	public void addParametersFrom(RadioGroup checkBoxGroup, SnapshotParameterSetInstance snapshotParameterSet, String name, String groupName) {
+		if (checkBoxGroup.getValue() != null) {
+			snapshotParameterSet.addValue(name, groupName, checkBoxGroup.getValue().getValueAttribute());
 		}
 	}
 	

@@ -9,8 +9,11 @@ import com.scholastic.sbam.server.database.codegen.SnapshotParameterId;
 import com.scholastic.sbam.server.database.objects.DbSnapshot;
 import com.scholastic.sbam.server.database.objects.DbSnapshotParameter;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
+import com.scholastic.sbam.server.util.SnapshotMappings;
+import com.scholastic.sbam.shared.objects.SnapshotInstance;
 import com.scholastic.sbam.shared.objects.SnapshotParameterSetInstance;
 import com.scholastic.sbam.shared.objects.SnapshotParameterValueObject;
+import com.scholastic.sbam.shared.reporting.SnapshotParameterNames;
 import com.scholastic.sbam.shared.security.SecurityManager;
 
 /**
@@ -27,7 +30,7 @@ public class UpdateSnapshotParameterSetServiceImpl extends AuthenticatedServiceS
 		if (parameterSet.getSource() == null || parameterSet.getSource().trim().length() == 0)
 			throw new IllegalArgumentException("A parameter source is required.");
 		
-		Snapshot dbInstance = null;
+		Snapshot dbSnapshot = null;
 		
 		authenticate("update snapshot parameter set", SecurityManager.ROLE_QUERY);
 		
@@ -37,8 +40,8 @@ public class UpdateSnapshotParameterSetServiceImpl extends AuthenticatedServiceS
 		try {
 			
 			//	Get existing
-			dbInstance = DbSnapshot.getById(parameterSet.getSnapshotId());
-			if (dbInstance == null)
+			dbSnapshot = DbSnapshot.getById(parameterSet.getSnapshotId());
+			if (dbSnapshot == null)
 				throw new IllegalArgumentException("Snapshot " + parameterSet.getSnapshotId() + " not found.");
 				
 			//	Remove all previous values for this source
@@ -48,9 +51,13 @@ public class UpdateSnapshotParameterSetServiceImpl extends AuthenticatedServiceS
 				DbSnapshotParameter.delete(parameter);
 			}
 
+			boolean updateSnapshot = false;
 			for (String name : parameterSet.getValues().keySet()) {
-				persistParameterValues(name, parameterSet);
+				updateSnapshot = persistParameterValues(name, parameterSet, dbSnapshot);
 			}
+			
+			if (updateSnapshot)
+				DbSnapshot.persist(dbSnapshot);
 			
 		} catch (IllegalArgumentException exc) {
 			silentRollback();
@@ -68,7 +75,7 @@ public class UpdateSnapshotParameterSetServiceImpl extends AuthenticatedServiceS
 		return "";
 	}
 	
-	protected void persistParameterValues(String name, SnapshotParameterSetInstance parameterSet) {
+	protected boolean persistParameterValues(String name, SnapshotParameterSetInstance parameterSet, Snapshot snapshot) {
 		int									snapshotId	= parameterSet.getSnapshotId();
 		String								source		= parameterSet.getSource();
 		String								group		= parameterSet.getGroup(name);
@@ -77,6 +84,24 @@ public class UpdateSnapshotParameterSetServiceImpl extends AuthenticatedServiceS
 		for (SnapshotParameterValueObject value : values)
 			if (value != null)
 				persistParameterValue(snapshotId, source, name, group, value);
+		
+		//	Handle special updates to snapshot table
+		if (SnapshotMappings.getParameterSqlMapping(name) == null) {
+			if (name.equals(SnapshotParameterNames.UCN_TYPE)) {
+				if (values.size() == 0 || values.get(0).getStringValue().length() == 0)
+					snapshot.setUcnType(SnapshotInstance.BILL_UCN_TYPE);
+				else
+					snapshot.setUcnType(values.get(0).getStringValue().charAt(0));
+			} else if (name.equals(SnapshotParameterNames.PRODUCT_SERVICE_TYPE)) {
+				if (values.size() == 0 || values.get(0).getStringValue().length() == 0)
+					snapshot.setProductServiceType(SnapshotInstance.SERVICE_TYPE);
+				else
+					snapshot.setProductServiceType(values.get(0).getStringValue().charAt(0));
+			}
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	protected void persistParameterValue(int snapshotId, String source, String name, String group, SnapshotParameterValueObject value) {

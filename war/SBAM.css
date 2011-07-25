@@ -799,6 +799,23 @@ background-image:url(resources/images/icons/colorful/info.png);
 	background-position: -32px 0px;
 }
 
+table.sbam-report-parms {
+	borders: none;
+	border-spacing: 4px; 
+}
+
+table.sbam-report-parms td {
+	font-size: 10px;
+}
+
+td.sbam-report-parm {
+	font-weight: bold;
+}
+
+td.sbam-report-value {
+	font-style: italics;
+}
+
 /* These are necessary, because the theme doesn't "take" -- change these if the theme changes */
 /* Managed now by adding the style "x-panel" wherever needed
 .x-border {

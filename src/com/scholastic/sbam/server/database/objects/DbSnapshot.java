@@ -29,6 +29,7 @@ public class DbSnapshot extends HibernateAccessor {
 		instance.setSnapshotName(dbInstance.getSnapshotName());
 		instance.setSnapshotType(dbInstance.getSnapshotType());
 		instance.setProductServiceType(dbInstance.getProductServiceType());
+		instance.setUcnType(dbInstance.getUcnType());
 		instance.setSnapshotTaken(dbInstance.getSnapshotTaken());
 		instance.setSnapshotRows(dbInstance.getSnapshotRows());
 		

@@ -1,15 +1,15 @@
 package com.scholastic.sbam.client.uiobjects.fields;
 
-import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.Field;
 
 /**
- * CheckBoxGroup that properly returns its isDirty() value.
+ * RadioGroup that properly returns its isDirty() value.
  * 
  * @author Bob Lacatena
  *
  */
-public class EnhancedCheckBoxGroup extends CheckBoxGroup {
+public class EnhancedRadioGroup extends RadioGroup {
 	@Override
 	public boolean isDirty() {
 		for (Field<?> field : getAll()) {

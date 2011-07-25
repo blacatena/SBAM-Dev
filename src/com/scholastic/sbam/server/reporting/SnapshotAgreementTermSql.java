@@ -168,14 +168,19 @@ public class SnapshotAgreementTermSql {
 			if (values.size() == 0)
 				continue;
 			
+			String columnName = SnapshotMappings.getParameterSqlMapping(parameterName);
+					
+			if (columnName == null)	//	This parameter does not add a SQL condition this way
+				continue;
+			
 			sb.append(" ");
 			sb.append("AND");
 			sb.append(" ");
 			
 			if (values.size() == 1)
-				addSingleValueCondition(parameterName, values.get(0));
+				addSingleValueCondition(columnName, values.get(0));
 			else
-				addMultipleValueCondition(parameterName, values);
+				addMultipleValueCondition(columnName, values);
 		}
 	}
 		
@@ -209,9 +214,9 @@ public class SnapshotAgreementTermSql {
 		sb.append(")");
 	}
 	
-	protected void addMultipleValueCondition(String parameterName, List<SnapshotParameterValueObject> values) {
+	protected void addMultipleValueCondition(String columnName, List<SnapshotParameterValueObject> values) {
 		sb.append(" ");
-		sb.append(SnapshotMappings.getParameterSqlMapping(parameterName));
+		sb.append(columnName);
 		sb.append(" ");
 		sb.append("IN (");
 		int count = 0;
@@ -226,20 +231,20 @@ public class SnapshotAgreementTermSql {
 		sb.append(")");
 	}
 
-	protected void addSingleValueCondition(String parameterName, SnapshotParameterValueObject value) {
+	protected void addSingleValueCondition(String columnName, SnapshotParameterValueObject value) {
 		if (value.isRange())
-			addRangeCondition(parameterName, value);
+			addRangeCondition(columnName, value);
 		else {
 			sb.append(" ");
-			sb.append(SnapshotMappings.getParameterSqlMapping(parameterName));
+			sb.append(columnName);
 			sb.append(" = ");
 			addSqlValue(value);
 		}
 	}
 	
-	protected void addRangeCondition(String parameterName, SnapshotParameterValueObject value) {
+	protected void addRangeCondition(String columnName, SnapshotParameterValueObject value) {
 		sb.append(" ");
-		sb.append(SnapshotMappings.getParameterSqlMapping(parameterName));
+		sb.append(columnName);
 		sb.append(" ");
 		sb.append("BETWEEN");
 		sb.append(" ");

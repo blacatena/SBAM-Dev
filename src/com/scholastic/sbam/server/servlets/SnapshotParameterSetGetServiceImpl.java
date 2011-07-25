@@ -21,9 +21,10 @@ public class SnapshotParameterSetGetServiceImpl extends AuthenticatedServiceServ
 		authenticate("get snapshot parameter set", SecurityManager.ROLE_QUERY);
 
 		if (snapshotId <= 0)
-			throw new IllegalArgumentException("A UCN is required.");
-		if (source == null)
-			throw new IllegalArgumentException("A source is required.");
+			throw new IllegalArgumentException("A snapshot ID is required.");
+//		Removed, so that null will return all parameters for a snapshot
+//		if (source == null)
+//			throw new IllegalArgumentException("A source is required.");
 		
 		SnapshotParameterSetInstance result = new SnapshotParameterSetInstance();
 		

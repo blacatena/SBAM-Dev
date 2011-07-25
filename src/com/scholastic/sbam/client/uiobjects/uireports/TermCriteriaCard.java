@@ -3,6 +3,8 @@ package com.scholastic.sbam.client.uiobjects.uireports;
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
+import com.extjs.gxt.ui.client.widget.form.Radio;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.scholastic.sbam.client.uiobjects.fields.BoundDateField;
 import com.scholastic.sbam.client.uiobjects.fields.DateDefaultBinder;
 import com.scholastic.sbam.client.uiobjects.fields.DateRangeBinder;
@@ -13,18 +15,13 @@ import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
 import com.scholastic.sbam.shared.objects.SnapshotParameterSetInstance;
 import com.scholastic.sbam.shared.objects.TermTypeInstance;
+import com.scholastic.sbam.shared.reporting.SnapshotParameterNames;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 public class TermCriteriaCard extends SnapshotCriteriaCardBase implements AppSleeper {
-	
-	protected final String			DATES_GROUP					=	"Dates";
-	protected final String			START_DATE					=	"startDate";
-	protected final String			END_DATE					=	"endDate";
-	protected final String			TERMINATE_DATE				=	"terminateDate";
-	protected final String			TERM_TYPES					=	"termTypes";
-	protected final String			PROD_COMM_CODES				=	"productCommCodes";
-	protected final String			AGREEMENT_COMM_CODES		=	"agreementCommCodes";
-	protected final String			TERM_COMM_CODES				=	"termCommCodes";
+
+	protected RadioGroup			ucnTypeGroup			=	new RadioGroup();
+	protected RadioGroup			productServiceGroup		=	new RadioGroup();
 	
 	protected CheckBoxGroup			termTypeCheckGroup		=	new EnhancedCheckBoxGroup();
 	protected CheckBoxGroup			prodCommCheckGroup		=	new EnhancedCheckBoxGroup();
@@ -61,7 +58,36 @@ public class TermCriteriaCard extends SnapshotCriteriaCardBase implements AppSle
 
 	@Override
 	public void populateFields() {
-		termTypeCheckGroup.setName(TERM_TYPES);
+		ucnTypeGroup.setName(SnapshotParameterNames.UCN_TYPE);
+		
+		Radio byBillUcn = new Radio();
+		byBillUcn.setName("byBillUcn");
+		byBillUcn.setBoxLabel("by Bill To UCN");
+		byBillUcn.setValueAttribute("b");
+		ucnTypeGroup.add(byBillUcn);
+
+		Radio bySiteUcn = new Radio();
+		bySiteUcn.setName("bySiteUcn");
+		bySiteUcn.setBoxLabel("by Site To UCN");
+		bySiteUcn.setValueAttribute("s");
+		ucnTypeGroup.add(bySiteUcn);
+		
+		
+		productServiceGroup.setName(SnapshotParameterNames.PRODUCT_SERVICE_TYPE);
+		
+		Radio byProduct = new Radio();
+		byProduct.setName("byProduct");
+		byProduct.setBoxLabel("by Product");
+		byProduct.setValueAttribute("p");
+		productServiceGroup.add(byProduct);
+
+		Radio byService = new Radio();
+		byService.setName("byService");
+		byService.setBoxLabel("by Service");
+		byService.setValueAttribute("s");
+		productServiceGroup.add(byService);
+		
+		termTypeCheckGroup.setName(SnapshotParameterNames.TERM_TYPES);
 		for (BeanModel termTypeBean : UiConstants.getTermTypes().getModels()) {
 			TermTypeInstance termType = termTypeBean.getBean();
 			if (termType.getStatus() == AppConstants.STATUS_ACTIVE) {
@@ -73,7 +99,7 @@ public class TermCriteriaCard extends SnapshotCriteriaCardBase implements AppSle
 			}
 		}
 		
-		prodCommCheckGroup.setName(PROD_COMM_CODES);
+		prodCommCheckGroup.setName(SnapshotParameterNames.PROD_COMM_CODES);
 		for (BeanModel commTypeBean : UiConstants.getCommissionTypes(UiConstants.CommissionTypeTargets.PRODUCT).getModels()) {
 			CommissionTypeInstance commType = commTypeBean.getBean();
 			if (commType.getStatus() == AppConstants.STATUS_ACTIVE) {
@@ -85,7 +111,7 @@ public class TermCriteriaCard extends SnapshotCriteriaCardBase implements AppSle
 			}
 		}
 		
-		agreementCommCheckGroup.setName(AGREEMENT_COMM_CODES);
+		agreementCommCheckGroup.setName(SnapshotParameterNames.AGREEMENT_COMM_CODES);
 		for (BeanModel commTypeBean : UiConstants.getCommissionTypes(UiConstants.CommissionTypeTargets.AGREEMENT).getModels()) {
 			CommissionTypeInstance commType = commTypeBean.getBean();
 			if (commType.getStatus() == AppConstants.STATUS_ACTIVE) {
@@ -97,7 +123,7 @@ public class TermCriteriaCard extends SnapshotCriteriaCardBase implements AppSle
 			}
 		}
 		
-		termCommCheckGroup.setName(PROD_COMM_CODES);
+		termCommCheckGroup.setName(SnapshotParameterNames.PROD_COMM_CODES);
 		for (BeanModel commTypeBean : UiConstants.getCommissionTypes(UiConstants.CommissionTypeTargets.AGREEMENT_TERM).getModels()) {
 			CommissionTypeInstance commType = commTypeBean.getBean();
 			if (commType.getStatus() == AppConstants.STATUS_ACTIVE) {
@@ -127,6 +153,12 @@ public class TermCriteriaCard extends SnapshotCriteriaCardBase implements AppSle
 		
 		terminateFromDate.bindLow(terminateRangeBinder);
 		terminateToDate.bindHigh(terminateRangeBinder);
+		
+		/* Selection Control */
+		
+		addDividerRow();
+		addSingleField("Customer Selection:", ucnTypeGroup);
+		addSingleField("Product Selection:", productServiceGroup);
 		
 		/* Dates */
 		
@@ -158,26 +190,32 @@ public class TermCriteriaCard extends SnapshotCriteriaCardBase implements AppSle
 
 	@Override
 	protected void setFields(SnapshotParameterSetInstance snapshotParameterSet) {
-		setDateFieldRange(snapshotParameterSet, START_DATE,		startFromDate,		startToDate);
-		setDateFieldRange(snapshotParameterSet, END_DATE,		endFromDate,		endToDate);
-		setDateFieldRange(snapshotParameterSet, TERMINATE_DATE, terminateFromDate,	terminateToDate);
+		setDateFieldRange(snapshotParameterSet, SnapshotParameterNames.START_DATE,		startFromDate,		startToDate);
+		setDateFieldRange(snapshotParameterSet, SnapshotParameterNames.END_DATE,		endFromDate,		endToDate);
+		setDateFieldRange(snapshotParameterSet, SnapshotParameterNames.TERMINATE_DATE, terminateFromDate,	terminateToDate);
 		
-		setCheckBoxes(snapshotParameterSet, TERM_TYPES,		 		termTypeCheckGroup);
-		setCheckBoxes(snapshotParameterSet, PROD_COMM_CODES, 		prodCommCheckGroup);
-		setCheckBoxes(snapshotParameterSet, AGREEMENT_COMM_CODES,	agreementCommCheckGroup);
-		setCheckBoxes(snapshotParameterSet, TERM_COMM_CODES, 		termCommCheckGroup);
-	}
+		setCheckBoxes(snapshotParameterSet, SnapshotParameterNames.TERM_TYPES,		 		termTypeCheckGroup);
+		setCheckBoxes(snapshotParameterSet, SnapshotParameterNames.PROD_COMM_CODES, 		prodCommCheckGroup);
+		setCheckBoxes(snapshotParameterSet, SnapshotParameterNames.AGREEMENT_COMM_CODES,	agreementCommCheckGroup);
+		setCheckBoxes(snapshotParameterSet, SnapshotParameterNames.TERM_COMM_CODES, 		termCommCheckGroup);
+		
+		setCheckBoxes(snapshot.getUcnType(), SnapshotParameterNames.UCN_TYPE, ucnTypeGroup);
+		setCheckBoxes(snapshot.getProductServiceType(), SnapshotParameterNames.PRODUCT_SERVICE_TYPE, productServiceGroup);
+	};
 
 	@Override
 	public void addParametersFromFields(SnapshotParameterSetInstance snapshotParameterSet) {
-		snapshotParameterSet.addValue(START_DATE,		DATES_GROUP, startFromDate.getValue(),		startToDate.getValue());
-		snapshotParameterSet.addValue(END_DATE,			DATES_GROUP, endFromDate.getValue(),		endToDate.getValue());
-		snapshotParameterSet.addValue(TERMINATE_DATE,	DATES_GROUP, terminateFromDate.getValue(),	terminateToDate.getValue());
+		snapshotParameterSet.addValue(SnapshotParameterNames.START_DATE,		SnapshotParameterNames.DATES_GROUP, startFromDate.getValue(),		startToDate.getValue());
+		snapshotParameterSet.addValue(SnapshotParameterNames.END_DATE,			SnapshotParameterNames.DATES_GROUP, endFromDate.getValue(),		endToDate.getValue());
+		snapshotParameterSet.addValue(SnapshotParameterNames.TERMINATE_DATE,	SnapshotParameterNames.DATES_GROUP, terminateFromDate.getValue(),	terminateToDate.getValue());
 		
-		addParametersFrom(termTypeCheckGroup, snapshotParameterSet, TERM_TYPES, TERM_TYPES);
-		addParametersFrom(prodCommCheckGroup, snapshotParameterSet, PROD_COMM_CODES, PROD_COMM_CODES);
-		addParametersFrom(agreementCommCheckGroup, snapshotParameterSet, AGREEMENT_COMM_CODES, AGREEMENT_COMM_CODES);
-		addParametersFrom(termCommCheckGroup, snapshotParameterSet, TERM_COMM_CODES, TERM_COMM_CODES);
+		addParametersFrom(termTypeCheckGroup, snapshotParameterSet, SnapshotParameterNames.TERM_TYPES, SnapshotParameterNames.TERM_TYPES);
+		addParametersFrom(prodCommCheckGroup, snapshotParameterSet, SnapshotParameterNames.PROD_COMM_CODES, SnapshotParameterNames.PROD_COMM_CODES);
+		addParametersFrom(agreementCommCheckGroup, snapshotParameterSet, SnapshotParameterNames.AGREEMENT_COMM_CODES, SnapshotParameterNames.AGREEMENT_COMM_CODES);
+		addParametersFrom(termCommCheckGroup, snapshotParameterSet, SnapshotParameterNames.TERM_COMM_CODES, SnapshotParameterNames.TERM_COMM_CODES);
+
+		addParametersFrom(ucnTypeGroup, snapshotParameterSet, SnapshotParameterNames.UCN_TYPE, SnapshotParameterNames.UCN_TYPE);
+		addParametersFrom(productServiceGroup, snapshotParameterSet, SnapshotParameterNames.PRODUCT_SERVICE_TYPE, SnapshotParameterNames.PRODUCT_SERVICE_TYPE);
 		
 //		for (CheckBox checkBox : termTypeCheckGroup.getValues()) {
 //			if (checkBox.getValue())

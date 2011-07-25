@@ -43,6 +43,8 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.scholastic.sbam.client.services.SnapshotParameterSetGetService;
+import com.scholastic.sbam.client.services.SnapshotParameterSetGetServiceAsync;
 import com.scholastic.sbam.client.services.SnapshotTakeService;
 import com.scholastic.sbam.client.services.SnapshotTakeServiceAsync;
 import com.scholastic.sbam.client.services.SnapshotTermDataListService;
@@ -50,9 +52,12 @@ import com.scholastic.sbam.client.services.SnapshotTermDataListServiceAsync;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
+import com.scholastic.sbam.shared.objects.SnapshotParameterSetInstance;
+import com.scholastic.sbam.shared.objects.SnapshotParameterValueObject;
 import com.scholastic.sbam.shared.objects.SnapshotTermDataInstance;
 import com.scholastic.sbam.shared.objects.SnapshotInstance;
 import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
+import com.scholastic.sbam.shared.reporting.SnapshotParameterNames;
 
 public class TermReportViewDataCard extends SnapshotCardBase {
 	
@@ -116,6 +121,8 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 		};
 	}
 	
+	protected SnapshotParameterSetInstance								snapshotParameterSet	= null;
+	
 	protected long														searchSyncId;
 	protected LiveGridView												liveView;
 	protected PagingLoader<PagingLoadResult<SnapshotTermDataInstance>>	termDataLoader;
@@ -128,6 +135,7 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 	
 	protected final SnapshotTakeServiceAsync 			takeSnapshotService = GWT.create(SnapshotTakeService.class);
 	protected final SnapshotTermDataListServiceAsync 	snapshotTermDataListService 		= GWT.create(SnapshotTermDataListService.class);
+	private final SnapshotParameterSetGetServiceAsync	snapshotParameterSetGetService		= GWT.create(SnapshotParameterSetGetService.class);
 	
 	public TermReportViewDataCard() {
 		super();
@@ -138,7 +146,7 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 	public void addPanelContent() {
 //		contentPanel = new ContentPanel();
 		contentPanel.setLayout(new FitLayout());
-		contentPanel.setHeading("Snapshot Terms Data View");
+//		contentPanel.setHeading("Snapshot Terms Data View");
 		IconSupplier.setIcon(contentPanel, IconSupplier.getReportIconName());
 		
 		grid = getGrid(); 
@@ -195,6 +203,7 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 	    GroupSummaryView summary = new GroupSummaryView();  
 	    summary.setForceFit(true);  
 	    summary.setShowGroupedColumn(false);
+	    summary.setEmptyText("No data (agreements or product terms) qualified for this snapshot.");
 	    
 	    grid.setView(summary);
 
@@ -494,6 +503,7 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 	@Override
 	public void setSnapshot(SnapshotInstance snapshot) {
 		super.setSnapshot(snapshot);
+		loadSnapshotParameters();
 		if (snapshot != null) {
 			if (snapshot.getSnapshotTaken() == null) {
 				takeSnapshot();
@@ -560,7 +570,7 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 						else {
 							System.out.println(caught.getClass().getName());
 							System.out.println(caught.getMessage());
-							MessageBox.alert("Alert", "Agreement site load failed unexpectedly.", null);
+							MessageBox.alert("Alert", "Snapshot data load failed unexpectedly.", null);
 						}
 						callback.onFailure(caught);
 					}
@@ -600,6 +610,73 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 		snapshotTermDataListService.getSnapshotTermData((PagingLoadConfig) loadConfig, snapshotId, searchSyncId, myCallback);
 	}
 
+	protected void loadSnapshotParameters() {
+		setSnapshotParameterSet(null);
+		snapshotParameterSetGetService.getSnapshotParameterSet(snapshot.getSnapshotId(), null,	//	null for all sources
+				new AsyncCallback<SnapshotParameterSetInstance>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "Snapshot parameter load failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+					}
+
+					public void onSuccess(SnapshotParameterSetInstance snapshotParameterSet) {
+						setSnapshotParameterSet(snapshotParameterSet);
+					}
+			});
+	}
+	
+	protected void setSnapshotParameterSet(SnapshotParameterSetInstance snapshotParameterSet) {
+		this.snapshotParameterSet = snapshotParameterSet;
+		formatToolTip();
+	}
+	
+	protected void formatToolTip() {
+		StringBuffer sb = new StringBuffer();
+		if (snapshot == null) {
+			sb.append("No snapshot.");
+			sb.append("<br />");
+			sb.append("<br />");
+		} else {
+			sb.append("Snapshot <b>#");
+			sb.append(snapshot.getSnapshotId());
+			sb.append(" : ");
+			sb.append(snapshot.getSnapshotName());
+			sb.append("</b>");
+			sb.append("<br />");
+			sb.append("<br />");
+		}
+		if (snapshotParameterSet == null) {
+			sb.append("No parameters.");
+		} else {
+			sb.append("<table class=\"sbam-report-parms\">");
+			for (String parameterName : snapshotParameterSet.getValues().keySet()) {
+				List<SnapshotParameterValueObject> values = snapshotParameterSet.getValues(parameterName);
+				if (values != null && values.size() > 0) {
+					sb.append("<tr><td class=\"sbam-report-parm\">");
+					sb.append(SnapshotParameterNames.getName(parameterName));
+					sb.append("</td><td class=\"sbam-report-value\">");
+					int count = 0;
+					for (SnapshotParameterValueObject value : values) {
+						if (count > 0)
+							sb.append(", ");
+						sb.append(value.toString());
+						count++;
+					}
+				}
+				sb.append("</td></tr>");
+			}
+			sb.append("</table>");
+		}
+		getContentPanel().getHeader().setToolTip(sb.toString());
+		getContentPanel().getHeader().getToolTip().getToolTipConfig().setCloseable(true);
+	}
+	
 	@Override
 	public String getPanelTitle() {
 		return "Snapshot Data View";
