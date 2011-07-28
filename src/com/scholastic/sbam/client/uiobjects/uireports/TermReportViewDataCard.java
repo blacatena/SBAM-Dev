@@ -18,8 +18,6 @@ import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.store.Store;
-import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.grid.AggregationRowConfig;
@@ -42,6 +40,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.SnapshotParameterSetGetService;
 import com.scholastic.sbam.client.services.SnapshotParameterSetGetServiceAsync;
@@ -49,6 +48,7 @@ import com.scholastic.sbam.client.services.SnapshotTakeService;
 import com.scholastic.sbam.client.services.SnapshotTakeServiceAsync;
 import com.scholastic.sbam.client.services.SnapshotTermDataListService;
 import com.scholastic.sbam.client.services.SnapshotTermDataListServiceAsync;
+import com.scholastic.sbam.client.stores.ExtendedStoreSorter;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
@@ -95,31 +95,7 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 		}
 	}
 	
-	/**
-	 * This sorter will sort equal rows by other, standard column choices
-	 * @author Bob Lacatena
-	 *
-	 */
-	public static class TermDataStoreSorter extends StoreSorter<BeanModel> {
-		
-		public static final String [] OTHER_SORTS = {"ucn", "ucnSuffix", "agreementId", "productCode", "serviceCode", "rowId"};
-		
-		@Override
-		public int compare(Store<BeanModel> store, BeanModel m1, BeanModel m2, String property) {
-			
-			int baseCompare = super.compare(store, m1, m2, property);
-			if (baseCompare != 0)
-				return baseCompare;
-			
-			for (String otherSort : OTHER_SORTS) {
-				baseCompare = super.compare(store, m1, m2, otherSort);
-				if (baseCompare != 0)
-					return baseCompare;
-			}
-			
-			return 0;
-		};
-	}
+	public static final String [] OTHER_TERM_DATA_SORTS = {"institution.institutionName", "ucn", "ucnSuffix", "agreementId", "productCode", "serviceCode", "rowId"};
 	
 	protected SnapshotParameterSetInstance								snapshotParameterSet	= null;
 	
@@ -484,7 +460,7 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 //		ListStore<BeanModel> gridStore = new ListStore<BeanModel>(termDataLoader);
 		GroupingStore<BeanModel> gridStore = new GroupingStore<BeanModel>(termDataLoader);
 	
-		gridStore.setStoreSorter(new TermDataStoreSorter());
+		gridStore.setStoreSorter(new ExtendedStoreSorter(OTHER_TERM_DATA_SORTS));
 //		gridStore.setDefaultSort("institution.institutionName", SortDir.ASC);
 		gridStore.setSortField("institution.institutionName");
 		gridStore.setSortDir(SortDir.ASC);
@@ -636,18 +612,41 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 		formatToolTip();
 	}
 	
+	/**
+	 * Format the contents of the tooltip.
+	 * 
+	 * Note that this function must wait for the states to load (if they are needed) before continuing.  This is done with a timer.
+	 */
 	protected void formatToolTip() {
+		if (snapshotParameterSet != null && snapshotParameterSet.getValues().containsKey(SnapshotParameterNames.INSTITUTION_STATE) && !UiConstants.areInstitutionStatesLoaded()) {
+			UiConstants.loadInstitutionStates();
+			Timer timer = new Timer() {
+				@Override
+				public void run() {
+					if (UiConstants.areInstitutionStatesLoaded()) {
+						this.cancel();
+						formatToolTipNoWait();
+					}
+				}
+			};
+			timer.scheduleRepeating(200);
+		} else {
+			formatToolTipNoWait();
+		}
+	}
+		
+	protected void formatToolTipNoWait() {
 		StringBuffer sb = new StringBuffer();
 		if (snapshot == null) {
 			sb.append("No snapshot.");
 			sb.append("<br />");
 			sb.append("<br />");
 		} else {
-			sb.append("Snapshot <b>#");
+			sb.append("Snapshot <span class=\"sbam-report-title\">#");
 			sb.append(snapshot.getSnapshotId());
 			sb.append(" : ");
 			sb.append(snapshot.getSnapshotName());
-			sb.append("</b>");
+			sb.append("</span>");
 			sb.append("<br />");
 			sb.append("<br />");
 		}
@@ -665,7 +664,7 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 					for (SnapshotParameterValueObject value : values) {
 						if (count > 0)
 							sb.append(", ");
-						sb.append(value.toString());
+						sb.append(getTranslatedValue(parameterName, value.toString()));
 						count++;
 					}
 				}
@@ -675,6 +674,28 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 		}
 		getContentPanel().getHeader().setToolTip(sb.toString());
 		getContentPanel().getHeader().getToolTip().getToolTipConfig().setCloseable(true);
+	}
+	
+	protected String getTranslatedValue(String name, String value) {
+		if (name.equals(SnapshotParameterNames.UCN_TYPE)) {
+			return snapshot.getUcnTypeDescription();
+		} else if (name.equals(SnapshotParameterNames.PRODUCT_SERVICE_TYPE)) {
+			return snapshot.getProductServiceDescription();
+		} else if (name.equals(SnapshotParameterNames.TERM_TYPES)) {
+			return getCodeDescription(value, UiConstants.getTermTypes());
+		} else if (name.equals(SnapshotParameterNames.PROD_COMM_CODES)
+				|| name.equals(SnapshotParameterNames.AGREEMENT_COMM_CODES)
+				|| name.equals(SnapshotParameterNames.TERM_COMM_CODES)) {
+			return getCodeDescription(value, UiConstants.getCommissionTypes());
+		}
+		return value;
+	}
+	
+	protected String getCodeDescription(String value, ListStore<BeanModel> store) {
+		BeanModel model = store.findModel(value);
+		if (model != null && model.get("description") != null)
+			return model.get("description").toString();
+		return value;
 	}
 	
 	@Override

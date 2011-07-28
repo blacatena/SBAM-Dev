@@ -66,7 +66,7 @@ public abstract class SnapshotCardBase extends LayoutContainer {
 		ToolButton returnTool = new ToolButton("x-tool-left") {
 				@Override
 				protected void onClick(ComponentEvent ce) {
-					parentCardPanel.switchLayout(SnapshotParentCardPanel.SNAPSHOT_SELECTOR_PANEL);
+					if (parentCardPanel != null) parentCardPanel.switchLayout(SnapshotParentCardPanel.SNAPSHOT_SELECTOR_PANEL);
 				}
 			};
 		returnTool.enable();

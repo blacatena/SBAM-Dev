@@ -799,6 +799,11 @@ background-image:url(resources/images/icons/colorful/info.png);
 	background-position: -32px 0px;
 }
 
+.sbam-report-title {
+	font-size: 11px;
+	font-weight: bold;
+}
+
 table.sbam-report-parms {
 	borders: none;
 	border-spacing: 4px; 

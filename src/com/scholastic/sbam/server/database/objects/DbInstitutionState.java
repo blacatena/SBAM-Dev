@@ -21,6 +21,7 @@ public class DbInstitutionState extends HibernateAccessor {
 		InstitutionStateInstance instance = new InstitutionStateInstance();
 		instance.setStateCode(dbInstance.getStateCode());
 		instance.setDescription(dbInstance.getDescription());
+		instance.setCountryCode(dbInstance.getCountryCode());
 		
 		return instance;
 	}

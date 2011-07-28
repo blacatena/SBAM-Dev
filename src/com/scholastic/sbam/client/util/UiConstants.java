@@ -3,6 +3,7 @@ package com.scholastic.sbam.client.util;
 import java.util.Date;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -36,6 +37,7 @@ import com.scholastic.sbam.client.services.ProductListServiceAsync;
 import com.scholastic.sbam.client.services.TermTypeListService;
 import com.scholastic.sbam.client.services.TermTypeListServiceAsync;
 import com.scholastic.sbam.client.stores.BetterFilterListStore;
+import com.scholastic.sbam.client.stores.ExtendedStoreSorter;
 import com.scholastic.sbam.shared.objects.AgreementTypeInstance;
 import com.scholastic.sbam.shared.objects.AuthMethodInstance;
 import com.scholastic.sbam.shared.objects.CancelReasonInstance;
@@ -74,6 +76,8 @@ public class UiConstants {
 	}
 	
 	private final static int			REFRESH_PERIOD = 10 * 60 * 1000;	// Every 10 minutes
+
+	public static final String []		OTHER_STATE_SORTS = {"countryCode", "description", "stateCode"};
 	
 	private static BetterFilterListStore<BeanModel>		agreementTypes		= new BetterFilterListStore<BeanModel>();
 	private static BetterFilterListStore<BeanModel>		commissionTypes 	= new BetterFilterListStore<BeanModel>();
@@ -91,9 +95,36 @@ public class UiConstants {
 	
 	private static Timer								refreshTimer;
 	
+	private static boolean								agreementTypesLoaded		= false;
+	private static boolean								commissionTypesLoaded 		= false;
+	private static boolean								contactTypesLoaded			= false;
+	private static boolean								deleteReasonsLoaded			= false;
+	private static boolean								cancelReasonsLoaded 		= false;
+	private static boolean								institutionCountriesLoaded	= false;
+	private static boolean								institutionStatesLoaded		= false;
+	private static boolean								linkTypesLoaded				= false;
+	private static boolean								productsLoaded 				= false;
+	private static boolean								termTypesLoaded 			= false;
+	
 	public static void init() {
+		setStoreAttributes();
 		refresh();
 		setTimer();
+	}
+	
+	public static void setStoreAttributes() {
+		agreementTypes.setKeyProvider(new SimpleKeyProvider("agreementTypeCode"));
+		commissionTypes.setKeyProvider(new SimpleKeyProvider("commissionCode"));
+		contactTypes.setKeyProvider(new SimpleKeyProvider("contactTypeCode"));
+		deleteReasons.setKeyProvider(new SimpleKeyProvider("deleteReasonCode"));
+		cancelReasons.setKeyProvider(new SimpleKeyProvider("cancelReasonCode"));
+		institutionCountries.setKeyProvider(new SimpleKeyProvider("countryCode"));
+		institutionStates.setKeyProvider(new SimpleKeyProvider("stateCode"));
+		linkTypes.setKeyProvider(new SimpleKeyProvider("linkeTypeCode"));
+		products.setKeyProvider(new SimpleKeyProvider("productCode"));
+		termTypes.setKeyProvider(new SimpleKeyProvider("termTypeCode"));
+		
+		institutionStates.setStoreSorter(new ExtendedStoreSorter(OTHER_STATE_SORTS));
 	}
 	
 	public static void refresh() {
@@ -161,6 +192,7 @@ public class UiConstants {
 				for (TermTypeInstance instance : list) {
 					termTypes.add(TermTypeInstance.obtainModel(instance));	
 				}
+				termTypesLoaded = true;
 			}
 		};
 		
@@ -194,6 +226,7 @@ public class UiConstants {
 				for (DeleteReasonInstance instance : list) {
 					deleteReasons.add(DeleteReasonInstance.obtainModel(instance));	
 				}
+				deleteReasonsLoaded = true;
 			}
 		};
 		
@@ -224,6 +257,7 @@ public class UiConstants {
 				for (AgreementTypeInstance instance : list) {
 					agreementTypes.add(AgreementTypeInstance.obtainModel(instance));	
 				}
+				agreementTypesLoaded = true;
 			}
 		};
 		
@@ -257,7 +291,7 @@ public class UiConstants {
 				for (CancelReasonInstance instance : list) {
 					cancelReasons.add(CancelReasonInstance.obtainModel(instance));	
 				}
-				
+				cancelReasonsLoaded = true;
 			}
 		};
 		
@@ -290,6 +324,7 @@ public class UiConstants {
 				for (CommissionTypeInstance instance : list) {
 					commissionTypes.add(CommissionTypeInstance.obtainModel(instance));	
 				}
+				commissionTypesLoaded = true;
 			}
 		};
 		
@@ -322,6 +357,7 @@ public class UiConstants {
 				for (ContactTypeInstance instance : list) {
 					contactTypes.add(ContactTypeInstance.obtainModel(instance));	
 				}
+				contactTypesLoaded = true;
 			}
 		};
 		
@@ -354,6 +390,8 @@ public class UiConstants {
 				for (InstitutionCountryInstance instance : list) {
 					institutionCountries.add(InstitutionCountryInstance.obtainModel(instance));	
 				}
+				institutionCountries.sort("description", SortDir.ASC);
+				institutionCountriesLoaded = true;
 			}
 		};
 		
@@ -386,6 +424,8 @@ public class UiConstants {
 				for (InstitutionStateInstance instance : list) {
 					institutionStates.add(InstitutionStateInstance.obtainModel(instance));	
 				}
+				institutionStates.sort("countryCode", SortDir.ASC);
+				institutionStatesLoaded = true;
 			}
 		};
 		
@@ -418,10 +458,27 @@ public class UiConstants {
 				for (LinkTypeInstance instance : list) {
 					linkTypes.add(LinkTypeInstance.obtainModel(instance));	
 				}
+				linkTypesLoaded = true;
 			}
 		};
 		
 		linkTypeListService.getLinkTypes(null, callback);
+	}
+	
+	/**
+	 * States are not always kept in memory, because they're so infrequently needed.  This method lets an application clear them out.
+	 */
+	public static void flushInstitutionStates() {
+		institutionStates.removeAll();
+		institutionStatesLoaded = false;
+	}
+	
+	/**
+	 * Countries are not always kept in memory, because they're so infrequently needed.  This method lets an application clear them out.
+	 */
+	public static void flushInstitutionCountries() {
+		institutionCountries.removeAll();
+		institutionCountriesLoaded = false;
 	}
 	
 	public static ListStore<BeanModel> getLinkTypes() {
@@ -448,6 +505,7 @@ public class UiConstants {
 				for (ProductInstance instance : list) {
 					products.add(ProductInstance.obtainModel(instance));	
 				}
+				productsLoaded = true;
 			}
 		};
 		
@@ -459,6 +517,9 @@ public class UiConstants {
 	}
 	
 	public static ListStore<BeanModel> getCommissionTypes(CommissionTypeTargets target) {
+		if (target == null)
+			return commissionTypes;
+		
 		ListStore<BeanModel> list = new BetterFilterListStore<BeanModel>();
 		list.setKeyProvider(new SimpleKeyProvider("commissionTypeCode"));
 //		list.setKeyProvider(CommissionTypeInstance.obtainStaticModelKeyProvider());
@@ -561,4 +622,45 @@ public class UiConstants {
 	public static boolean isInternetExplorer() {
 		return getUserAgent().contains("msie");
 	}
+
+	public static boolean areAgreementTypesLoaded() {
+		return agreementTypesLoaded;
+	}
+
+	public static boolean areCommissionTypesLoaded() {
+		return commissionTypesLoaded;
+	}
+
+	public static boolean areContactTypesLoaded() {
+		return contactTypesLoaded;
+	}
+
+	public static boolean areDeleteReasonsLoaded() {
+		return deleteReasonsLoaded;
+	}
+
+	public static boolean areCancelReasonsLoaded() {
+		return cancelReasonsLoaded;
+	}
+
+	public static boolean areInstitutionCountriesLoaded() {
+		return institutionCountriesLoaded;
+	}
+
+	public static boolean areInstitutionStatesLoaded() {
+		return institutionStatesLoaded;
+	}
+
+	public static boolean areLinkTypesLoaded() {
+		return linkTypesLoaded;
+	}
+
+	public static boolean areProductsLoaded() {
+		return productsLoaded;
+	}
+
+	public static boolean areTermTypesLoaded() {
+		return termTypesLoaded;
+	}
+	
 }

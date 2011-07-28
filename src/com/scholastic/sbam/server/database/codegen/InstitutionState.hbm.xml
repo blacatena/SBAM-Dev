@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Jul 20, 2011 10:53:07 AM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Jul 27, 2011 9:59:11 AM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.InstitutionState" table="institution_state" catalog="sbam">
         <id name="stateCode" type="string">
@@ -10,6 +10,9 @@
         </id>
         <property name="description" type="string">
             <column name="description" not-null="true" />
+        </property>
+        <property name="countryCode" type="string">
+            <column name="country_code" length="32" not-null="true" />
         </property>
     </class>
 </hibernate-mapping>

@@ -21,7 +21,9 @@ public class SnapshotMappings {
 			{"siteCommCodes",		"AGREEMENT_SITE.COMMISSION_CODE"},
 			/* From here down are non-column-select variables */
 			{"ucnType",				null},
-			{"productServiceType",	null}
+			{"productServiceType",	null},
+			{"stateCodes",			null},
+			{"countryCodes",		null}
 	};
 	
 	public static HashMap<String, String> PARAMETER_MAPPINGS = getSnapshotMap();

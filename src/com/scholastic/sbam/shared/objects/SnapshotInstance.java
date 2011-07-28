@@ -169,6 +169,42 @@ public class SnapshotInstance extends BetterRowEditInstance implements BeanModel
 	public void setCreateDisplayName(String createDisplayName) {
 		this.createDisplayName = createDisplayName;
 	}
+	
+	public String getUcnTypeDescription() {
+		return getUcnTypeDescription(ucnType);
+	}
+	
+	public static String getUcnTypeDescription(String ucnType) {
+		if (ucnType.length() == 0)
+			return getUcnTypeDescription('?');
+		return getUcnTypeDescription(ucnType.charAt(0));
+	}
+	
+	public static String getUcnTypeDescription(char ucnType) {
+		if (ucnType == BILL_UCN_TYPE)
+			return "Bill To UCNs";
+		if (ucnType == SITE_UCN_TYPE)
+			return "Site UCNs";
+		return "Unknown";
+	}
+	
+	public String getProductServiceDescription() {
+		return getProductServiceDescription(productServiceType);
+	}
+	
+	public static String getProductServiceDescription(String productServiceType) {
+		if (productServiceType.length() == 0)
+			return getProductServiceDescription('?');
+		return getProductServiceDescription(productServiceType.charAt(0));
+	}
+	
+	public static String getProductServiceDescription(char productServiceType) {
+		if (productServiceType == PRODUCT_TYPE)
+			return "By Product";
+		if (productServiceType == SERVICE_TYPE)
+			return "By Service";
+		return "Unknown";
+	}
 
 	public char getStatus() {
 		return status;

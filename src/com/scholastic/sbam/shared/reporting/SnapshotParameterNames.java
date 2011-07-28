@@ -18,6 +18,8 @@ public class SnapshotParameterNames {
 	public final static String			PROD_COMM_CODES				=	"productCommCodes";
 	public final static String			AGREEMENT_COMM_CODES		=	"agreementCommCodes";
 	public final static String			TERM_COMM_CODES				=	"termCommCodes";
+	public final static String			INSTITUTION_STATE			=	"stateCodes";
+	public final static String			INSTITUTION_COUNTRY			=	"countryCodes";
 	
 	public final static HashMap<String, String> labels				=	getLabelsMap();
 	
@@ -33,6 +35,8 @@ public class SnapshotParameterNames {
 		map.put(PROD_COMM_CODES,		"Product Commission Code");
 		map.put(AGREEMENT_COMM_CODES,	"Agreement Commission Code");
 		map.put(TERM_COMM_CODES,		"Term Commission Code");
+		map.put(INSTITUTION_STATE,		"U.S. State");
+		map.put(INSTITUTION_COUNTRY,	"Country");
 		
 		return map;
 	}

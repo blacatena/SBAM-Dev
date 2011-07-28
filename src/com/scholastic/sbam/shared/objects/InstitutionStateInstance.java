@@ -10,8 +10,9 @@ public class InstitutionStateInstance implements BeanModelTag, IsSerializable {
 
 	private static BeanModelFactory beanModelfactory;
 
-	private String stateCode;
-	private String description;
+	protected String stateCode;
+	protected String description;
+	protected String countryCode;
 	
 	public String getStateCode() {
 		return stateCode;
@@ -26,6 +27,12 @@ public class InstitutionStateInstance implements BeanModelTag, IsSerializable {
 		this.description = description;
 	}
 
+	public String getCountryCode() {
+		return countryCode;
+	}
+	public void setCountryCode(String countryCode) {
+		this.countryCode = countryCode;
+	}
 	public static BeanModel obtainModel(InstitutionStateInstance instance) {
 		if (beanModelfactory == null)
 			beanModelfactory  = BeanModelLookup.get().getFactory(InstitutionStateInstance.class);

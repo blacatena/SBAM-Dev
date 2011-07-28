@@ -83,7 +83,7 @@ public abstract class SnapshotCriteriaCardBase extends SnapshotCardBase implemen
 	 */
 	public abstract void populateFields();
 	
-	public void popeulatCheckGroup(String name, CheckBoxGroup checkBoxGroup, List<BeanModel> models, String value, String description) {
+	public void populateCheckGroup(String name, CheckBoxGroup checkBoxGroup, List<BeanModel> models, String value, String description) {
 		checkBoxGroup.setName(name);
 		for (BeanModel model : UiConstants.getTermTypes().getModels()) {
 				CheckBox checkBox = new CheckBox();
@@ -346,6 +346,26 @@ public abstract class SnapshotCriteriaCardBase extends SnapshotCardBase implemen
 	 * Utility method to set a list of values from a check box group.
 	 * @param snapshotParameterSet
 	 * @param name
+	 * @param checkGroup
+	 */
+	protected void setCheckBoxes(SnapshotParameterSetInstance snapshotParameterSet, String name, List<CheckBox> list) {
+		List<SnapshotParameterValueObject> values = snapshotParameterSet.getValues(name);
+		if (values != null) {
+			for (SnapshotParameterValueObject value : values) {
+				int count = list.size();
+				for (int i = 0; i < count; i++) {
+					CheckBox checkBox = (CheckBox) list.get(i);
+					if (checkBox.getValueAttribute().equals(value.getStringValue()))
+						checkBox.setValue(true);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Utility method to set a list of values from a check box group.
+	 * @param snapshotParameterSet
+	 * @param name
 	 * @param radioGroup
 	 */
 	protected void setCheckBoxes(SnapshotParameterSetInstance snapshotParameterSet, String name, RadioGroup radioGroup) {
@@ -513,6 +533,13 @@ public abstract class SnapshotCriteriaCardBase extends SnapshotCardBase implemen
 		}
 	}
 	
+	public void addParametersFrom(List<CheckBox> list, SnapshotParameterSetInstance snapshotParameterSet, String name, String groupName) {
+		for (CheckBox checkBox : list) {
+			if (checkBox.getValue())
+				snapshotParameterSet.addValue(name, groupName, checkBox.getValueAttribute());
+		}
+	}
+	
 	protected void doSnapshotClear() {
 		// This listener does the update if confirmed by the user
 		final Listener<MessageBoxEvent> confirmClear = new Listener<MessageBoxEvent>() {  
@@ -642,7 +669,7 @@ public abstract class SnapshotCriteriaCardBase extends SnapshotCardBase implemen
 	}
 	
 	public void handleDirtyForm() {
-		if (saveButton != null && snapshot.getSnapshotTaken() == null) saveButton.enable();
+		if (saveButton != null && snapshot != null && snapshot.getSnapshotTaken() == null) saveButton.enable();
 		if (cancelButton != null) cancelButton.enable();
 	}
 	
