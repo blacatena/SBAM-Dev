@@ -23,8 +23,6 @@ public class CustomerSelectionCard extends SnapshotCardBase {
 
 	@Override
 	public void addPanelContent() {
-//		contentPanel.add(getPanelsContainer());
-		
 		contentPanel.add(getPanelsContainer());
 		add(contentPanel);
 	}
@@ -51,7 +49,6 @@ public class CustomerSelectionCard extends SnapshotCardBase {
 		
 		stateCard.getContentPanel().setHeaderVisible(false);	
 		statesTab.add(stateCard);
-		
 		
 		countryCard.getContentPanel().setHeaderVisible(false);
 		countriesTab.add(countryCard);

@@ -72,8 +72,9 @@ public class UpdateSnapshotServiceImpl extends AuthenticatedServiceServlet imple
 				dbInstance.setOrgPath(instance.getOrgPath());
 			if (instance.getSeq() >= 0)
 				dbInstance.setSeq(instance.getSeq());
-			if (instance.getSnapshotTaken() != null)
-				dbInstance.setSnapshotTaken(instance.getSnapshotTaken());
+			//	Snapshot taken, rows and excelFilename are only updated by those processes.
+//			if (instance.getSnapshotTaken() != null)
+//				dbInstance.setSnapshotTaken(instance.getSnapshotTaken());
 			if (instance.getStatus() != 0 && instance.getStatus() != dbInstance.getStatus())
 				dbInstance.setStatus(instance.getStatus());
 			

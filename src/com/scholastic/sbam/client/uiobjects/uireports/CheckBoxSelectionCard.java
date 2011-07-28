@@ -157,6 +157,8 @@ public abstract class CheckBoxSelectionCard extends SnapshotCriteriaCardBase {
 		
 		table.layout(true);
 		
+		if (snapshotParameterSet != null)
+			showParameterSet(snapshotParameterSet);
 	}
 
 }

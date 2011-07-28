@@ -32,6 +32,7 @@ public class DbSnapshot extends HibernateAccessor {
 		instance.setUcnType(dbInstance.getUcnType());
 		instance.setSnapshotTaken(dbInstance.getSnapshotTaken());
 		instance.setSnapshotRows(dbInstance.getSnapshotRows());
+		instance.setExcelFilename(dbInstance.getExcelFilename());
 		
 		instance.setExpireDatetime(dbInstance.getExpireDatetime());
 		instance.setCreateUserId(dbInstance.getCreateUserId());

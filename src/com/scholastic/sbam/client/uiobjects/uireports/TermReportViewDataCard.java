@@ -109,7 +109,7 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 	protected Grid<BeanModel>							grid;
 	protected GridFilters 								gridFilters;
 	
-	protected final SnapshotTakeServiceAsync 			takeSnapshotService = GWT.create(SnapshotTakeService.class);
+	protected final SnapshotTakeServiceAsync 			takeSnapshotService					= GWT.create(SnapshotTakeService.class);
 	protected final SnapshotTermDataListServiceAsync 	snapshotTermDataListService 		= GWT.create(SnapshotTermDataListService.class);
 	private final SnapshotParameterSetGetServiceAsync	snapshotParameterSetGetService		= GWT.create(SnapshotParameterSetGetService.class);
 	

@@ -45,26 +45,27 @@ import com.scholastic.sbam.shared.util.AppConstants;
 
 public abstract class SnapshotCriteriaCardBase extends SnapshotCardBase implements AppSleeper {
 	
-	protected final int				DIRTY_FIELDS_LISTEN_TIME	=	250;
+	protected final int						DIRTY_FIELDS_LISTEN_TIME	=	250;
 	
-	protected String				source;
+	protected String						source;
+	protected SnapshotParameterSetInstance	snapshotParameterSet;
 	
-	protected ContentPanel			contentPanel				=	 getNewContentPanel();
+	protected ContentPanel					contentPanel				=	 getNewContentPanel();
 	
-	protected Timer					dirtyFieldsListener;
+	protected Timer							dirtyFieldsListener;
 	
-	protected ButtonBar				toolBar;
+	protected ButtonBar						toolBar;
 	
-	protected TableData				tableDataLabel1;
-	protected TableData				tableDataLabel2;
-	protected TableData				tableDataField;
-	protected TableData				tableDividerRow;
-	protected TableData				table3ColumnField;
+	protected TableData						tableDataLabel1;
+	protected TableData						tableDataLabel2;
+	protected TableData						tableDataField;
+	protected TableData						tableDividerRow;
+	protected TableData						table3ColumnField;
 	
-	protected boolean				provideButtons			= true;
-	protected Button				saveButton				= new Button("Save Changes");
-	protected Button				cancelButton			= new Button("Cancel Changes");
-	protected Button				clearButton				= new Button("Clear Snapshot Data");
+	protected boolean						provideButtons				= true;
+	protected Button						saveButton					= new Button("Save Changes");
+	protected Button						cancelButton				= new Button("Cancel Changes");
+	protected Button						clearButton					= new Button("Clear Snapshot Data");
 	
 	private final UpdateSnapshotParameterSetServiceAsync	updateSnapshotParameterSetService	= GWT.create(UpdateSnapshotParameterSetService.class);
 	private final SnapshotParameterSetGetServiceAsync		snapshotParameterSetGetService		= GWT.create(SnapshotParameterSetGetService.class);
@@ -285,6 +286,8 @@ public abstract class SnapshotCriteriaCardBase extends SnapshotCardBase implemen
 	}
 	
 	protected void showParameterSet(SnapshotParameterSetInstance snapshotParameterSet) {
+		
+		this.snapshotParameterSet = snapshotParameterSet;
 		
 		clearValues();
 		setFieldStates();

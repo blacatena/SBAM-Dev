@@ -1,10 +1,17 @@
 package com.scholastic.sbam.server.servlets;
 
 import java.util.Date;
+import java.util.List;
 
 import com.scholastic.sbam.client.services.DuplicateSnapshotService;
 import com.scholastic.sbam.server.database.codegen.Snapshot;
+import com.scholastic.sbam.server.database.codegen.SnapshotParameter;
+import com.scholastic.sbam.server.database.codegen.SnapshotParameterId;
+import com.scholastic.sbam.server.database.codegen.SnapshotProductService;
+import com.scholastic.sbam.server.database.codegen.SnapshotProductServiceId;
 import com.scholastic.sbam.server.database.objects.DbSnapshot;
+import com.scholastic.sbam.server.database.objects.DbSnapshotParameter;
+import com.scholastic.sbam.server.database.objects.DbSnapshotProductService;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.server.validation.AppSnapshotValidator;
 import com.scholastic.sbam.shared.objects.Authentication;
@@ -57,7 +64,10 @@ public class DuplicateSnapshotServiceImpl extends AuthenticatedServiceServlet im
 			
 			dbInstance.setSnapshotType(dbOriginal.getSnapshotType());
 			dbInstance.setSnapshotTaken(null);
+			dbInstance.setSnapshotRows(0);
+			dbInstance.setExcelFilename(null);
 			dbInstance.setOrgPath(dbOriginal.getOrgPath());
+			dbInstance.setUcnType(dbOriginal.getUcnType());
 			dbInstance.setProductServiceType(dbOriginal.getProductServiceType());
 			dbInstance.setSeq(dbOriginal.getSeq());
 			dbInstance.setExpireDatetime(dbOriginal.getExpireDatetime());
@@ -98,10 +108,55 @@ public class DuplicateSnapshotServiceImpl extends AuthenticatedServiceServlet im
 	}
 	
 	public void copySubordinateTables(Snapshot dbInstance, Snapshot dbOriginal) {
+		copySnapshotParameters(dbInstance, dbOriginal);
 		copySnapshotProductServices(dbInstance, dbOriginal);
 	}
 	
+	public void copySnapshotParameters(Snapshot dbInstance, Snapshot dbOriginal) {
+		List<SnapshotParameter> parameterOriginals = DbSnapshotParameter.findBySnapshot(dbOriginal.getSnapshotId());
+		
+		for (SnapshotParameter parameterOriginal : parameterOriginals) {
+			SnapshotParameter parameterCopy = new SnapshotParameter();
+			
+			SnapshotParameterId parameterCopyId = new SnapshotParameterId();
+			parameterCopyId.setSnapshotId(dbInstance.getSnapshotId());
+			parameterCopyId.setParameterName(parameterOriginal.getId().getParameterName());
+			parameterCopyId.setValueId(parameterOriginal.getId().getValueId());
+			
+			parameterCopy.setId(parameterCopyId);
+
+			parameterCopy.setParameterSource(parameterOriginal.getParameterSource());
+			parameterCopy.setParameterGroup(parameterOriginal.getParameterGroup());
+			
+			parameterCopy.setParameterType(parameterOriginal.getParameterType());
+			
+			parameterCopy.setDateFromValue(parameterOriginal.getDateFromValue());
+			parameterCopy.setDateToValue(parameterOriginal.getDateToValue());
+			parameterCopy.setDblFromValue(parameterOriginal.getDblFromValue());
+			parameterCopy.setDblToValue(parameterOriginal.getDblToValue());
+			parameterCopy.setIntFromValue(parameterOriginal.getIntFromValue());
+			parameterCopy.setIntToValue(parameterOriginal.getIntToValue());
+			parameterCopy.setStrFromValue(parameterOriginal.getStrFromValue());
+			parameterCopy.setStrToValue(parameterOriginal.getStrToValue());
+			
+			DbSnapshotParameter.persist(parameterCopy);
+		}
+	}
+	
 	public void copySnapshotProductServices(Snapshot dbInstance, Snapshot dbOriginal) {
+		List<SnapshotProductService> productServiceOriginals = DbSnapshotProductService.findFiltered(dbOriginal.getSnapshotId(), null);
+		
+		for (SnapshotProductService productServiceOriginal : productServiceOriginals) {
+			SnapshotProductService productServiceCopy = new SnapshotProductService();
+			
+			SnapshotProductServiceId productServiceCopyId = new SnapshotProductServiceId();
+			productServiceCopyId.setSnapshotId(dbInstance.getSnapshotId());
+			productServiceCopyId.setProductServiceCode(productServiceOriginal.getId().getProductServiceCode());
+			
+			productServiceCopy.setId(productServiceCopyId);
+			
+			DbSnapshotProductService.persist(productServiceCopy);
+		}
 		
 	}
 }

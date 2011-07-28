@@ -11,12 +11,14 @@ import java.util.List;
 
 import com.scholastic.sbam.server.database.codegen.Agreement;
 import com.scholastic.sbam.server.database.codegen.AgreementSite;
+import com.scholastic.sbam.server.database.codegen.Institution;
 import com.scholastic.sbam.server.database.codegen.Snapshot;
 import com.scholastic.sbam.server.database.codegen.SnapshotProductService;
 import com.scholastic.sbam.server.database.codegen.SnapshotTermData;
 import com.scholastic.sbam.server.database.codegen.SnapshotTermDataId;
 import com.scholastic.sbam.server.database.objects.DbAgreement;
 import com.scholastic.sbam.server.database.objects.DbAgreementSite;
+import com.scholastic.sbam.server.database.objects.DbInstitution;
 import com.scholastic.sbam.server.database.objects.DbSnapshot;
 import com.scholastic.sbam.server.database.objects.DbSnapshotParameter;
 import com.scholastic.sbam.server.database.objects.DbSnapshotProductService;
@@ -24,18 +26,22 @@ import com.scholastic.sbam.server.database.objects.DbSnapshotTermData;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.objects.SnapshotInstance;
 import com.scholastic.sbam.shared.objects.SnapshotParameterSetInstance;
+import com.scholastic.sbam.shared.objects.SnapshotParameterValueObject;
 import com.scholastic.sbam.shared.objects.SnapshotTermDataInstance;
+import com.scholastic.sbam.shared.reporting.SnapshotParameterNames;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 public class SnapshotMaker {
 
-	protected Snapshot	dbSnapshot;
+	protected Snapshot										dbSnapshot;
 	
-	protected int		nextRowId = 1;
+	protected SnapshotParameterSetInstance					parameters;
 	
-	protected HashMap<String, SnapshotProductServiceEntry> productServiceMap;
+	protected int											nextRowId = 1;
 	
-	protected char		savedStatus;
+	protected HashMap<String, SnapshotProductServiceEntry>	productServiceMap;
+	
+	protected char											savedStatus;
 	
 	public SnapshotMaker() {
 	}
@@ -113,6 +119,7 @@ public class SnapshotMaker {
 			if (dbSnapshot != null) {
 				dbSnapshot.setStatus(savedStatus);
 				dbSnapshot.setSnapshotTaken(null);
+				dbSnapshot.setExcelFilename(null);
 				DbSnapshot.persist(dbSnapshot);
 			}
 			
@@ -167,7 +174,7 @@ public class SnapshotMaker {
 			
 			//	Load snapshot parameters and services
 			
-			SnapshotParameterSetInstance parameters = DbSnapshotParameter.getParameters( DbSnapshotParameter.findBySnapshot(dbSnapshot.getSnapshotId() ));
+			parameters = DbSnapshotParameter.getParameters( DbSnapshotParameter.findBySnapshot(dbSnapshot.getSnapshotId() ));
 			
 			List<SnapshotProductService> snapshotProductServices;
 			if (dbSnapshot.getProductServiceType() == SnapshotInstance.PRODUCT_TYPE)
@@ -184,8 +191,6 @@ public class SnapshotMaker {
 			//	This does not do the customer piece...
 			
 			String productServiceSql = new SnapshotAgreementTermSql(dbSnapshot, parameters, snapshotProductServices).getSnapshotSql(); // getSnapshotSql(dbSnapshot, parameters, snapshotProductServices);
-			
-			System.out.println(productServiceSql);
 			
 			// 	We use straight SQL, because normal Hibernate access wants to load the full dataset into memory, which uses just too much space.
 			Connection conn   = HibernateUtil.getConnection();
@@ -233,6 +238,7 @@ public class SnapshotMaker {
 			
 			dbSnapshot.setSnapshotTaken(snapshotTaken);
 			dbSnapshot.setSnapshotRows(nextRowId);
+			dbSnapshot.setExcelFilename(null);
 			dbSnapshot.setStatus(AppConstants.STATUS_ACTIVE);
 			
 			DbSnapshot.persist(dbSnapshot);
@@ -298,6 +304,30 @@ public class SnapshotMaker {
 	}
 	
 	protected void createTermDataRow(SnapshotTermDataInstance termData, int ucn, int ucnSuffix, double ucnFraction, Agreement dbAgreement) {
+		Institution institution = null;
+		
+		//	Apply any country filter
+		if (parameters.getValues().containsKey(SnapshotParameterNames.INSTITUTION_COUNTRY)
+		&&  parameters.getValues().get(SnapshotParameterNames.INSTITUTION_COUNTRY) != null
+		&&  parameters.getValues().get(SnapshotParameterNames.INSTITUTION_COUNTRY).size() > 0) {
+			if (institution == null) {
+				institution = DbInstitution.getByCode(ucn);
+			}
+			if (!isSelectedCountry(institution))
+				return;
+		}
+		
+		//	Apply any state filter
+		if (parameters.getValues().containsKey(SnapshotParameterNames.INSTITUTION_STATE)
+				&&  parameters.getValues().get(SnapshotParameterNames.INSTITUTION_STATE) != null
+				&&  parameters.getValues().get(SnapshotParameterNames.INSTITUTION_STATE).size() > 0) {
+			if (institution == null) {
+				institution = DbInstitution.getByCode(ucn);
+			}
+			if (!isSelectedState(institution))
+				return;
+		}
+		
 		SnapshotTermData dbTermData		= new SnapshotTermData();
 		
 		SnapshotTermDataId dbTermDataId = new SnapshotTermDataId();
@@ -337,6 +367,46 @@ public class SnapshotMaker {
 		
 		nextRowId++;
 		
+	}
+	
+	protected boolean isSelectedCountry(Institution institution) {
+		if (institution == null)
+			return true;
+
+		for (SnapshotParameterValueObject value : parameters.getValues().get(SnapshotParameterNames.INSTITUTION_COUNTRY)) {
+			if (institution.getCountry() == null)
+				return true;
+			if (institution.getCountry().equalsIgnoreCase(value.getStringValue()))
+				return true;
+		}
+		
+		return false;
+	}
+	
+	protected boolean isSelectedState(Institution institution) {
+		if (institution == null)
+			return true;
+		
+		//	If we already selected by country, don't apply this except to USA or CAN
+		if (parameters.getValues().containsKey(SnapshotParameterNames.INSTITUTION_COUNTRY)
+		&&  parameters.getValues().get(SnapshotParameterNames.INSTITUTION_COUNTRY) != null
+		&&  parameters.getValues().get(SnapshotParameterNames.INSTITUTION_COUNTRY).size() > 0) {
+			if (institution.getCountry() != null
+			&&  !institution.getCountry().equalsIgnoreCase("USA")
+			&&  !institution.getCountry().equalsIgnoreCase("CAN")
+			&&  !institution.getCountry().equalsIgnoreCase("US")
+			&&  !institution.getCountry().equalsIgnoreCase("CA"))
+				return true;
+		}
+
+		for (SnapshotParameterValueObject value : parameters.getValues().get(SnapshotParameterNames.INSTITUTION_STATE)) {
+			if (institution.getState() == null)
+				return true;
+			if (institution.getState().equalsIgnoreCase(value.getStringValue()))
+				return true;
+		}
+		
+		return false;
 	}
 
 	private void silentRollback() {

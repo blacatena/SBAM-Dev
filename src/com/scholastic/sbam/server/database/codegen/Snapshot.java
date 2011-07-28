@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Jul 27, 2011 9:59:11 AM by Hibernate Tools 3.2.4.GA
+// Generated Jul 28, 2011 1:20:31 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -16,6 +16,7 @@ public class Snapshot implements java.io.Serializable {
 	private char ucnType;
 	private Date snapshotTaken;
 	private int snapshotRows;
+	private String excelFilename;
 	private int createUserId;
 	private Date expireDatetime;
 	private int seq;
@@ -46,14 +47,16 @@ public class Snapshot implements java.io.Serializable {
 
 	public Snapshot(String snapshotName, String snapshotType,
 			char productServiceType, char ucnType, Date snapshotTaken,
-			int snapshotRows, int createUserId, Date expireDatetime, int seq,
-			String orgPath, String note, Date createdDatetime, char status) {
+			int snapshotRows, String excelFilename, int createUserId,
+			Date expireDatetime, int seq, String orgPath, String note,
+			Date createdDatetime, char status) {
 		this.snapshotName = snapshotName;
 		this.snapshotType = snapshotType;
 		this.productServiceType = productServiceType;
 		this.ucnType = ucnType;
 		this.snapshotTaken = snapshotTaken;
 		this.snapshotRows = snapshotRows;
+		this.excelFilename = excelFilename;
 		this.createUserId = createUserId;
 		this.expireDatetime = expireDatetime;
 		this.seq = seq;
@@ -117,6 +120,14 @@ public class Snapshot implements java.io.Serializable {
 
 	public void setSnapshotRows(int snapshotRows) {
 		this.snapshotRows = snapshotRows;
+	}
+
+	public String getExcelFilename() {
+		return this.excelFilename;
+	}
+
+	public void setExcelFilename(String excelFilename) {
+		this.excelFilename = excelFilename;
 	}
 
 	public int getCreateUserId() {

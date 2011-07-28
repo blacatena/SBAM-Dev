@@ -34,6 +34,7 @@ public class SnapshotInstance extends BetterRowEditInstance implements BeanModel
 	protected int			seq;
 	protected Date			snapshotTaken;
 	protected int			snapshotRows;
+	protected String		excelFilename;
 	protected Date			expireDatetime;
 	protected int			createUserId;
 	protected String		createDisplayName;
@@ -144,6 +145,14 @@ public class SnapshotInstance extends BetterRowEditInstance implements BeanModel
 
 	public void setSnapshotRows(int snapshotRows) {
 		this.snapshotRows = snapshotRows;
+	}
+
+	public String getExcelFilename() {
+		return excelFilename;
+	}
+
+	public void setExcelFilename(String excelFilename) {
+		this.excelFilename = excelFilename;
 	}
 
 	public Date getExpireDatetime() {
