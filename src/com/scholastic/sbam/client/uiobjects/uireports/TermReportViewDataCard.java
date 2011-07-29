@@ -703,4 +703,12 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 		return "Snapshot Data View";
 	}
 	
+	@Override
+	public boolean okayToReturn() {
+		if (gridStore != null) {
+			gridStore.removeAll();
+		}
+		return true;
+	}
+	
 }

@@ -66,13 +66,20 @@ public abstract class SnapshotCardBase extends LayoutContainer {
 		ToolButton returnTool = new ToolButton("x-tool-left") {
 				@Override
 				protected void onClick(ComponentEvent ce) {
-					if (parentCardPanel != null) parentCardPanel.switchLayout(SnapshotParentCardPanel.SNAPSHOT_SELECTOR_PANEL);
+					if (parentCardPanel != null && okayToReturn()) parentCardPanel.switchLayout(SnapshotParentCardPanel.SNAPSHOT_SELECTOR_PANEL);
 				}
 			};
 		returnTool.enable();
 		
 		getContentPanel().getHeader().addTool(returnTool);
 		getContentPanel().getHeader().setToolTip(headingToolTip + "  Use the return arrow tool at the top right to return to the snapshot selector.");
+	}
+	
+	/**
+	 * Override this method to do any cleanup required before the user exits, or to refuse exit.
+	 */
+	public boolean okayToReturn() {
+		return true;
 	}
 	
 }

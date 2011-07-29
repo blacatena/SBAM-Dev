@@ -109,6 +109,10 @@ public abstract class CheckBoxSelectionCard extends SnapshotCriteriaCardBase {
 					if (row + 1 < perCol) {
 						tableBreaks [row] [col] = true;
 						row++;	// This leaves a null cell that will get a break added to it
+						if (row >= perCol) {
+							row = 0;
+							col++;
+						}
 					}
 				}
 				breakColVal = models.get(i).get(breakColumn).toString();
@@ -134,7 +138,9 @@ public abstract class CheckBoxSelectionCard extends SnapshotCriteriaCardBase {
 				BeanModel model = tableModels [row] [col];
 				if (model == null) {
 					if (breakColumn != null && tableBreaks [row] [col]) {
-						table.add(new Html("<hr />"));
+						table.add(new Html("<hr />"), td);
+					} else {
+						table.add(new Html(""), td);
 					}
 					continue;
 				}

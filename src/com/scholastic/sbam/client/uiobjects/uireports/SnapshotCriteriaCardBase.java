@@ -595,6 +595,8 @@ public abstract class SnapshotCriteriaCardBase extends SnapshotCardBase implemen
 					public void onSuccess(String result) {
 						if (clearButton != null) clearButton.disable();
 						snapshot.setSnapshotTaken(null);
+						snapshot.setSnapshotRows(0);
+						snapshot.setExcelFilename(null);
 						setFieldStates();	// To enable them now that the snapshot is cleared
 						if (parentCardPanel != null) {
 							parentCardPanel.reflectSnapshotChanges(snapshot);

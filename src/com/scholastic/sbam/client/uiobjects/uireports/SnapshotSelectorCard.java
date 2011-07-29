@@ -109,6 +109,7 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 	protected final ToolTipConfig customersTip	=	getIconButtonToolTip("Use this button to restrict the customers selected for this snapshot.");
 	protected final ToolTipConfig termsTip		=	getIconButtonToolTip("Use this button to restrict the terms selected for this snapshot.");
 	protected final ToolTipConfig viewDataTip	=	getIconButtonToolTip("Use this button to view data for this snapshot.");
+	protected final ToolTipConfig excelTip		=	getIconButtonToolTip("Use this button to download the data for this snapshot as an excel spreadsheet.");
 	
 	/**
 	 * This is a simple utility class to simplify the creation of folder items.
@@ -474,10 +475,13 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 	    ColumnConfig data = new ColumnConfig("viewDataButton",				"",							30);
 	    data.setRenderer(getViewDataButtonRenderer());
 	    
+	    ColumnConfig excl = new ColumnConfig("excelButton",					"",							30);
+	    excl.setRenderer(getExcelButtonRenderer());
+	    
 	    ColumnConfig note = new ColumnConfig("notesButton",					"",							30);
 	    note.setRenderer(getNoteButtonRenderer());
 	    
-	    ColumnModel cm = new ColumnModel(Arrays.asList(id, name, date, rows, expi, user, stat, term, srvc, cust, data, note));
+	    ColumnModel cm = new ColumnModel(Arrays.asList(id, name, date, rows, expi, user, stat, term, srvc, cust, data, excl, note));
 	    
 	    return cm;
 	}
@@ -1133,6 +1137,18 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 		return buttonRenderer;
 	}
 	
+	protected GridCellRenderer<ModelData> getExcelButtonRenderer() {
+		GridCellRenderer<ModelData> buttonRenderer = new GridCellRenderer<ModelData>() {   
+	
+		      public Object render(final ModelData model, String property, ColumnData config, final int rowIndex, final int colIndex, ListStore<ModelData> store, Grid<ModelData> grid) {  
+		    	  return getExcelDownloadButton(model) ;  
+		      }  
+	
+		};  
+		    
+		return buttonRenderer;
+	}
+	
 	protected Object getLayoutSwitchButton(String iconStyle, final int selectorId, final ModelData model, final ToolTipConfig toolTipConfig) { 
 		  
     	if (model.get("type") != null && SnapshotTreeInstance.FOLDER.equals(model.get("type").toString()))	// For folders
@@ -1153,6 +1169,33 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
         b.setSize(16, 16);
         b.setToolTip(toolTipConfig);
         b.addStyleName(iconStyle);
+        
+        if (model.get("snapshot.status").toString().equals(AppConstants.STATUS_COMPILING)) {
+        	b.disable();
+        }
+       
+        return b; 
+	}
+	
+	protected Object getExcelDownloadButton(final ModelData model) { 
+		  
+    	if (model.get("type") != null && SnapshotTreeInstance.FOLDER.equals(model.get("type").toString()))	// For folders
+    		return new Html("");
+    	
+		IconButton b = new IconButton("three-state-button") {
+        	@Override
+        	public void onClick(ComponentEvent ce) {
+        		SnapshotInstance snapshot = ((BeanModel) model.get("snapshot")).getBean();
+        		if (snapshot.getStatus() == AppConstants.STATUS_COMPILING) {
+        			MessageBox.alert("Alert", "Snapshot is currently compiling.  Please wait until compilation is complete.", null);
+        		} else {
+        			System.out.println("Download");
+        		}
+        	}
+        };
+        b.setSize(16, 16);
+        b.setToolTip(excelTip);
+        b.addStyleName("excel-button");
         
         if (model.get("snapshot.status").toString().equals(AppConstants.STATUS_COMPILING)) {
         	b.disable();
@@ -1235,9 +1278,25 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 
 	@Override
 	public void reflectSnapshotChanges(SnapshotInstance instance) {
-//		ModelData model = store.findModel(instance.getSnapshotId() + "");
-//		model.set("snapshot", instance);
-		treeGrid.repaint();
+		if (instance == null)
+			return;
+		System.out.println("Reflect changes for snapshot " + instance.getSnapshotId());
+		ModelData model = store.findModel(instance.getSnapshotId() + "");
+		if (model == null) {
+			System.out.println("Model not found");
+			return;
+		}
+		Record record = store.getRecord(model);
+		if (record == null) {
+			System.out.println("Record not found");
+			return;
+		}
+
+		record.beginEdit();
+		record.getModel().set("snapshot", SnapshotInstance.obtainModel(instance));
+		record.endEdit();
+		record.commit(false);
+
 	}
 
 //	@Override
