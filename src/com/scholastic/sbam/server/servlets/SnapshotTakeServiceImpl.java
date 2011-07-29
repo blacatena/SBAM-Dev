@@ -1,9 +1,8 @@
 package com.scholastic.sbam.server.servlets;
 
-import java.util.Date;
-
 import com.scholastic.sbam.client.services.SnapshotTakeService;
 import com.scholastic.sbam.server.reporting.SnapshotMaker;
+import com.scholastic.sbam.shared.objects.SnapshotInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
 
 /**
@@ -13,7 +12,7 @@ import com.scholastic.sbam.shared.security.SecurityManager;
 public class SnapshotTakeServiceImpl extends AuthenticatedServiceServlet implements SnapshotTakeService {
 
 	@Override
-	public Date takeSnapshot(int snapshotId) throws IllegalArgumentException {
+	public SnapshotInstance takeSnapshot(int snapshotId) throws IllegalArgumentException {
 		
 		if (snapshotId <= 0)
 			throw new IllegalArgumentException("Snapshot data can only be compiled for an existing snapshot.");

@@ -1,7 +1,6 @@
 package com.scholastic.sbam.client.uiobjects.uireports;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -497,7 +496,7 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 		contentPanel.mask("Please wait while the snapshot is compiled.");
 		
 		takeSnapshotService.takeSnapshot(snapshot.getSnapshotId(),
-				new AsyncCallback<Date>() {
+				new AsyncCallback<SnapshotInstance>() {
 					public void onFailure(Throwable caught) {
 						// Show the RPC error message to the user
 						if (caught instanceof IllegalArgumentException)
@@ -510,8 +509,10 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 						contentPanel.unmask();
 					}
 
-					public void onSuccess(Date result) {
-						snapshot.setSnapshotTaken(result);
+					public void onSuccess(SnapshotInstance result) {
+						snapshot.setSnapshotTaken(result.getSnapshotTaken());
+						snapshot.setSnapshotRows(result.getSnapshotRows());
+						snapshot.setExcelFilename(result.getExcelFilename());
 						if (parentCardPanel != null) {
 							parentCardPanel.reflectSnapshotChanges(snapshot);
 						}

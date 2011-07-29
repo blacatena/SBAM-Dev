@@ -1280,7 +1280,6 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 	public void reflectSnapshotChanges(SnapshotInstance instance) {
 		if (instance == null)
 			return;
-		System.out.println("Reflect changes for snapshot " + instance.getSnapshotId());
 		ModelData model = store.findModel(instance.getSnapshotId() + "");
 		if (model == null) {
 			System.out.println("Model not found");

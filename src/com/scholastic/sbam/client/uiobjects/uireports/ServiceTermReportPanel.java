@@ -257,7 +257,6 @@ public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermIn
 
 	@Override
 	public void reflectSnapshotChanges(SnapshotInstance snapshot) {
-		System.out.println("Refelct change from snapshot " + snapshot.getSnapshotId());
 		snapshotSelectorCard.reflectSnapshotChanges(snapshot);
 	}
 

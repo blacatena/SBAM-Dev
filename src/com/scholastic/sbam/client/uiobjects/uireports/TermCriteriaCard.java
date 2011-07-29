@@ -13,6 +13,7 @@ import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
+import com.scholastic.sbam.shared.objects.SnapshotInstance;
 import com.scholastic.sbam.shared.objects.SnapshotParameterSetInstance;
 import com.scholastic.sbam.shared.objects.TermTypeInstance;
 import com.scholastic.sbam.shared.reporting.SnapshotParameterNames;
@@ -216,27 +217,10 @@ public class TermCriteriaCard extends SnapshotCriteriaCardBase implements AppSle
 
 		addParametersFrom(ucnTypeGroup, snapshotParameterSet, SnapshotParameterNames.UCN_TYPE, SnapshotParameterNames.UCN_TYPE);
 		addParametersFrom(productServiceGroup, snapshotParameterSet, SnapshotParameterNames.PRODUCT_SERVICE_TYPE, SnapshotParameterNames.PRODUCT_SERVICE_TYPE);
-		
-//		for (CheckBox checkBox : termTypeCheckGroup.getValues()) {
-//			if (checkBox.getValue())
-//				snapshotParameterSet.addValue(TERM_TYPES, TERM_TYPES, checkBox.getValueAttribute());
-//		}
-//		
-//		for (CheckBox checkBox : prodCommCheckGroup.getValues()) {
-//			if (checkBox.getValue())
-//				snapshotParameterSet.addValue(PROD_COMM_CODES, PROD_COMM_CODES, checkBox.getValueAttribute());
-//		}
-//		
-//		for (CheckBox checkBox : agreementCommCheckGroup.getValues()) {
-//			if (checkBox.getValue())
-//				snapshotParameterSet.addValue(AGREEMENT_COMM_CODES, AGREEMENT_COMM_CODES, checkBox.getValueAttribute());
-//		}
-//		
-//		for (CheckBox checkBox : termCommCheckGroup.getValues()) {
-//			if (checkBox.getValue())
-//				snapshotParameterSet.addValue(TERM_COMM_CODES, TERM_COMM_CODES, checkBox.getValueAttribute());
-//		}
 	}
 	
-	
+	@Override
+	public void setSnapshot(SnapshotInstance snapshot) {
+		super.setSnapshot(snapshot);
+	}
 }

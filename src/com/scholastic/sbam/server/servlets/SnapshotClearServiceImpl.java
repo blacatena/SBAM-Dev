@@ -22,7 +22,7 @@ public class SnapshotClearServiceImpl extends AuthenticatedServiceServlet implem
 		
 		Snapshot dbInstance = null;
 		
-		authenticate("update snapshot basics", SecurityManager.ROLE_QUERY);
+		authenticate("clear snapshot", SecurityManager.ROLE_QUERY);
 		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();
@@ -35,10 +35,12 @@ public class SnapshotClearServiceImpl extends AuthenticatedServiceServlet implem
 				throw new IllegalArgumentException("Snapshot " + snapshotId + " not found.");
 			
 			if (dbInstance.getSnapshotTaken() != null) {
-				if (snapshotTaken == null || !snapshotTaken.equals(dbInstance.getSnapshotTaken()))
+				if (snapshotTaken == null || !snapshotTaken.equals(dbInstance.getSnapshotTaken())) {
 					throw new IllegalArgumentException("INTERNAL SAFETY CHECK FAILED: Old snapshot taken date does not match that specified.");
+				}
 				dbInstance.setSnapshotTaken(null);
 				dbInstance.setSnapshotRows(0);
+				dbInstance.setExcelFilename(null);
 				//	Persist in database
 				DbSnapshot.persist(dbInstance);
 			}
