@@ -567,6 +567,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>snapshotExcelServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.SnapshotExcelServlet</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>snapshotTakeServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.SnapshotTakeServiceImpl</servlet-class>
   </servlet>
@@ -1214,6 +1219,11 @@
   <servlet-mapping>
     <servlet-name>snapshotClearServlet</servlet-name>
     <url-pattern>/sbam/clearSnapshot</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>snapshotExcelServlet</servlet-name>
+    <url-pattern>/sbam/getSnapshot.xls</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

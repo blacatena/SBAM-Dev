@@ -58,6 +58,7 @@ import com.extjs.gxt.ui.client.widget.treegrid.TreeGridCellRenderer;
 import com.extjs.gxt.ui.client.widget.treegrid.TreeGrid.TreeNode;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.IsSerializable;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
@@ -1189,7 +1190,7 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
         		if (snapshot.getStatus() == AppConstants.STATUS_COMPILING) {
         			MessageBox.alert("Alert", "Snapshot is currently compiling.  Please wait until compilation is complete.", null);
         		} else {
-        			System.out.println("Download");
+        			Window.open("sbam/getSnapshot.xls", "new", "");
         		}
         	}
         };
