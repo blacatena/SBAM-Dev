@@ -25,6 +25,20 @@ public class InstitutionCountryInstance implements BeanModelTag, IsSerializable 
 	public void setDescription(String description) {
 		this.description = description;
 	}
+	
+	public static InstitutionCountryInstance getEmptyInstance() {
+		InstitutionCountryInstance instance = new InstitutionCountryInstance();
+		instance.countryCode = "";
+		instance.description = "";
+		return instance;
+	}
+	
+	public static InstitutionCountryInstance getUnknownInstance(String code) {
+		InstitutionCountryInstance instance = new InstitutionCountryInstance();
+		instance.countryCode = code;
+		instance.description = "Unknown country " + code;
+		return instance;
+	}
 
 	public static BeanModel obtainModel(InstitutionCountryInstance instance) {
 		if (beanModelfactory == null)

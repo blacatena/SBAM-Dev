@@ -109,6 +109,13 @@ public class TermTypeInstance extends BetterRowEditInstance implements BeanModel
 		return description + " [ " + termTypeCode + " ]";
 	}
 	
+	public static TermTypeInstance getEmptyInstance() {
+		TermTypeInstance instance = new TermTypeInstance();
+		instance.termTypeCode = "";
+		instance.description = "";
+		return instance;
+	}
+	
 	public static TermTypeInstance getUnknownInstance(String code) {
 		TermTypeInstance instance = new TermTypeInstance();
 		instance.termTypeCode = code;

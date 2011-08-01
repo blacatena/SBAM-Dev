@@ -146,72 +146,17 @@ public class ServiceInstance extends BetterRowEditInstance implements BeanModelT
 		return '?';
 	}
 	
-	/*
-	 * Unused Enum for service types (unnecessarily complex for just two values):
-	 * 
-	 * 
-
-	public enum ServiceType {
-		INITIAL ('I', "Initial"),
-		ADD_ON  ('A', "Add-on");
-		
-		private char	code;
-		private String	name;
-		
-		ServiceType(char code, String name) {
-			this.code = code;
-			this.name = name;
-		}
-		
-		public char getCode() {
-			return code;
-		}
-		
-		public String getName() {
-			return name;
-		}
-		
-		public static getNames() {
-			int i = 0;
-			String [] names = new String [values().length];
-			for (ServiceType type : values() ) {
-				names [i] = type.getName();
-				i++;
-			}
-		}
-		
-		public static ServiceType find(String name) {
-			for (ServiceType type : values()) {
-				if (type.name.equals(name))
-					return type;
-			}
-			return null;
-		}
-		
-		public static ServiceType find(char code) {
-			for (ServiceType type : values()) {
-				if (type.code == code)
-					return type;
-			}
-			return null;
-		}
-
-
-		public static String findName(char code) {
-			ServiceType type = ServiceType.find(code);
-			if (type != null)
-				return type.getName();
-			return "Unknown '" + code + "'";
-		}
-	
-		public static char findCode(String name) {
-			if (serviceTypeName == null)
-				return '_';
-			ServiceType type = ServiceType.find(name);
-			if (type != null)
-				return type.getCode();
-			return '?';
-		}
+	public static ServiceInstance getEmptyInstance() {
+		ServiceInstance instance = new ServiceInstance();
+		instance.serviceCode = "";
+		instance.description = "";
+		return instance;
 	}
-	 */
+	
+	public static ServiceInstance getUnknownInstance(String code) {
+		ServiceInstance instance = new ServiceInstance();
+		instance.serviceCode = code;
+		instance.description = "Unknown service " + code;
+		return instance;
+	}
 }

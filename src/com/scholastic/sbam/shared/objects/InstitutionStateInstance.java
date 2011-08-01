@@ -33,6 +33,21 @@ public class InstitutionStateInstance implements BeanModelTag, IsSerializable {
 	public void setCountryCode(String countryCode) {
 		this.countryCode = countryCode;
 	}
+	
+	public static InstitutionStateInstance getEmptyInstance() {
+		InstitutionStateInstance instance = new InstitutionStateInstance();
+		instance.stateCode = "";
+		instance.description = "";
+		return instance;
+	}
+	
+	public static InstitutionStateInstance getUnknownInstance(String code) {
+		InstitutionStateInstance instance = new InstitutionStateInstance();
+		instance.stateCode = code;
+		instance.description = "Unknown state " + code;
+		return instance;
+	}
+	
 	public static BeanModel obtainModel(InstitutionStateInstance instance) {
 		if (beanModelfactory == null)
 			beanModelfactory  = BeanModelLookup.get().getFactory(InstitutionStateInstance.class);

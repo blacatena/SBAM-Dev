@@ -1,6 +1,7 @@
 package com.scholastic.sbam.server.reporting;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.TreeMap;
 import java.util.List;
 
@@ -13,31 +14,46 @@ import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.BuiltinFormats;
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 
 import com.scholastic.sbam.server.database.codegen.CancelReason;
+import com.scholastic.sbam.server.database.codegen.CommissionType;
 import com.scholastic.sbam.server.database.codegen.Institution;
+import com.scholastic.sbam.server.database.codegen.InstitutionCountry;
+import com.scholastic.sbam.server.database.codegen.InstitutionState;
 import com.scholastic.sbam.server.database.codegen.Product;
 import com.scholastic.sbam.server.database.codegen.Service;
+import com.scholastic.sbam.server.database.codegen.Snapshot;
 import com.scholastic.sbam.server.database.codegen.SnapshotParameter;
 import com.scholastic.sbam.server.database.codegen.SnapshotTermData;
 import com.scholastic.sbam.server.database.codegen.TermType;
 import com.scholastic.sbam.server.database.objects.DbCancelReason;
+import com.scholastic.sbam.server.database.objects.DbCommissionType;
 import com.scholastic.sbam.server.database.objects.DbInstitution;
+import com.scholastic.sbam.server.database.objects.DbInstitutionCountry;
+import com.scholastic.sbam.server.database.objects.DbInstitutionState;
 import com.scholastic.sbam.server.database.objects.DbProduct;
 import com.scholastic.sbam.server.database.objects.DbService;
+import com.scholastic.sbam.server.database.objects.DbSnapshot;
 import com.scholastic.sbam.server.database.objects.DbSnapshotParameter;
 import com.scholastic.sbam.server.database.objects.DbSnapshotTermData;
 import com.scholastic.sbam.server.database.objects.DbTermType;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.objects.CancelReasonInstance;
+import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
+import com.scholastic.sbam.shared.objects.InstitutionCountryInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
+import com.scholastic.sbam.shared.objects.InstitutionStateInstance;
 import com.scholastic.sbam.shared.objects.ProductInstance;
 import com.scholastic.sbam.shared.objects.ServiceInstance;
+import com.scholastic.sbam.shared.objects.SnapshotInstance;
 import com.scholastic.sbam.shared.objects.SnapshotParameterValueObject;
 import com.scholastic.sbam.shared.objects.SnapshotTermDataInstance;
 import com.scholastic.sbam.shared.objects.TermTypeInstance;
 import com.scholastic.sbam.shared.reporting.SnapshotParameterNames;
+import com.scholastic.sbam.shared.util.AppConstants;
 
 public class SnapshotExcelWorkbookMaker {
 	
@@ -52,16 +68,20 @@ public class SnapshotExcelWorkbookMaker {
 	protected static final int		COUNTRY_WIDTH			= 12;
 	
 	protected static final String	EXCEL_TEXT_FORMAT		=	"text";
-	protected static final String	EXCEL_CURRENCY_FORMAT	=	"$#,##0.00;[Red]($#,##0.00)";	//	or "#,##0.00"
+	protected static final String	EXCEL_CURRENCY_FORMAT	=	BuiltinFormats.getBuiltinFormat(6);	//	"$#,##0.00;[Red]($#,##0.00)";	//	or "#,##0.00"
+	protected static final String	EXCEL_FRACTION_FORMAT	=	"0.00%";
 	protected static final String	EXCEL_NUMBER_FORMAT		=	"#,##0";
 	protected static final String	EXCEL_INTEGER_FORMAT	=	"0";
 	protected static final String	EXCEL_LONG_DATE_FORMAT	=	"d-mmm-yy";
+	protected static final String	EXCEL_DATE_TIME_FORMAT	=	"m/d/yy h:mm";
 	
 	protected static final short	TEXT_FORMAT				=	HSSFDataFormat.getBuiltinFormat(EXCEL_TEXT_FORMAT);
 	protected static final short	CURRENCY_FORMAT			=	HSSFDataFormat.getBuiltinFormat(EXCEL_CURRENCY_FORMAT);
+	protected static final short	FRACTION_FORMAT			=	HSSFDataFormat.getBuiltinFormat(EXCEL_FRACTION_FORMAT);
 	protected static final short	NUMBER_FORMAT			=	HSSFDataFormat.getBuiltinFormat(EXCEL_NUMBER_FORMAT);
 	protected static final short	INTEGER_FORMAT			=	HSSFDataFormat.getBuiltinFormat(EXCEL_INTEGER_FORMAT);
 	protected static final short	DATE_FORMAT				=	HSSFDataFormat.getBuiltinFormat(EXCEL_LONG_DATE_FORMAT);
+	protected static final short	DATE_TIME_FORMAT		=	HSSFDataFormat.getBuiltinFormat(EXCEL_DATE_TIME_FORMAT);
 	
 	protected int					snapshotId;
 	
@@ -79,7 +99,10 @@ public class SnapshotExcelWorkbookMaker {
 	
 	protected final HSSFCellStyle	TEXT_STYLE				=	createTextStyle();
 	protected final HSSFCellStyle	BOLD_STYLE				=	createBoldStyle();
+	protected final HSSFCellStyle	BOLD_RIGHT_STYLE		=	createBoldRightStyle();
 	protected final HSSFCellStyle	DATE_STYLE				=	createDateStyle();
+	protected final HSSFCellStyle	DATE_TIME_STYLE			=	createDateTimeStyle();
+	protected final HSSFCellStyle	FRACTION_STYLE			=	createFractionStyle();
 	protected final HSSFCellStyle	NUMBER_STYLE			=	createNumberStyle();
 	protected final HSSFCellStyle	INTEGER_STYLE			=	createIntegerStyle();
 	protected final HSSFCellStyle	CURRENCY_STYLE			=	createCurrencyStyle();
@@ -88,11 +111,14 @@ public class SnapshotExcelWorkbookMaker {
 
 	//	These maps are used so that we'll reuse all instances, to be sure to conserve space in serialization
 	
-	protected TreeMap<Integer, InstitutionInstance>	institutionMap	= new TreeMap<Integer, InstitutionInstance>();
-	protected TreeMap<String, ProductInstance>		productMap		= new TreeMap<String, ProductInstance>();
-	protected TreeMap<String, ServiceInstance>		serviceMap		= new TreeMap<String, ServiceInstance>();
-	protected TreeMap<String, CancelReasonInstance>	cancelReasonMap = new TreeMap<String, CancelReasonInstance>();
-	protected TreeMap<String, TermTypeInstance> 	termTypeMap		= new TreeMap<String, TermTypeInstance>();
+	protected TreeMap<Integer, InstitutionInstance>			institutionMap		= new TreeMap<Integer, InstitutionInstance>();
+	protected TreeMap<String, ProductInstance>				productMap			= new TreeMap<String, ProductInstance>();
+	protected TreeMap<String, ServiceInstance>				serviceMap			= new TreeMap<String, ServiceInstance>();
+	protected TreeMap<String, CancelReasonInstance>			cancelReasonMap 	= new TreeMap<String, CancelReasonInstance>();
+	protected TreeMap<String, TermTypeInstance> 			termTypeMap			= new TreeMap<String, TermTypeInstance>();
+	protected HashMap<String, CommissionTypeInstance>		commissionTypeMap	= new HashMap<String, CommissionTypeInstance>();
+	protected HashMap<String, InstitutionStateInstance>		institutionStateMap	= new HashMap<String, InstitutionStateInstance>();
+	protected HashMap<String, InstitutionCountryInstance>	institutionCountryMap	= new HashMap<String, InstitutionCountryInstance>();
 	
 	public SnapshotExcelWorkbookMaker(int snapshotId) {
 		this.snapshotId = snapshotId;
@@ -159,10 +185,28 @@ public class SnapshotExcelWorkbookMaker {
 		return thisStyle;
 	}
 	
+	protected HSSFCellStyle createDateTimeStyle() {
+		HSSFCellStyle thisStyle = wb.createCellStyle();
+		
+		thisStyle.setDataFormat(DATE_TIME_FORMAT);
+		thisStyle.setWrapText(true);
+		
+		return thisStyle;
+	}
+	
 	protected HSSFCellStyle createNumberStyle() {
 		HSSFCellStyle thisStyle = wb.createCellStyle();
 		
 		thisStyle.setDataFormat(NUMBER_FORMAT);
+		thisStyle.setWrapText(true);
+		
+		return thisStyle;
+	}
+	
+	protected HSSFCellStyle createFractionStyle() {
+		HSSFCellStyle thisStyle = wb.createCellStyle();
+		
+		thisStyle.setDataFormat(FRACTION_FORMAT);
 		thisStyle.setWrapText(true);
 		
 		return thisStyle;
@@ -194,12 +238,68 @@ public class SnapshotExcelWorkbookMaker {
 		return thisStyle;
 	}
 	
+	protected HSSFCellStyle createBoldRightStyle() {
+		HSSFCellStyle thisStyle = createBoldStyle();
+		
+		thisStyle.setAlignment(CellStyle.ALIGN_RIGHT);
+		
+		return thisStyle;
+	}
+	
 	protected void populateCoverSheet() throws ServletException {
 		int coverRow = 0;
 		
-		coverRow = addCoverCell(coverRow, "Snapshot ID", snapshotId + "");
+		setCoverSheetWidths();
 		
-		coverRow = addParameters(coverRow);
+		SnapshotInstance snapshot = getSnapshot(); 
+		coverRow = addCoverCell(coverRow, "Snapshot ID", snapshotId + "  " + snapshot.getSnapshotName());
+		coverRow = addCoverCell(coverRow, "Compiled", snapshot.getSnapshotTaken() + "");
+		coverRow = addCoverCell(coverRow, "Rows Selected", snapshot.getSnapshotRows() + "");
+		coverRow = addCoverCell(coverRow, "Created By", snapshot.getCreateDisplayName());
+		
+		if (snapshot.getNote() != null && snapshot.getNote().length() > 0) {
+			coverRow++;	//	Blank line
+			coverRow = addCoverCell(coverRow, "Notes", snapshot.getNote());
+		}
+		
+		coverRow++;	//	Blank line
+		
+		coverRow = addParameters(snapshot, coverRow);
+	}
+	
+	protected void setCoverSheetWidths() {
+		for (int i = 0; i < 30; i++)
+			coverSheet.setColumnWidth(i, getCharacterWidth(30));
+	}
+	
+	protected SnapshotInstance getSnapshot() throws ServletException {
+		Snapshot dbSnapshot = null;
+		
+		HibernateUtil.openSession();
+		HibernateUtil.startTransaction();
+
+		try {
+			
+			//	Get existing
+			dbSnapshot = DbSnapshot.getById(snapshotId);
+			if (dbSnapshot == null)
+				throw new ServletException("Snapshot " + snapshotId + " not found.");
+			
+			if (dbSnapshot.getStatus() != AppConstants.STATUS_ACTIVE)
+				if (dbSnapshot.getStatus() == AppConstants.STATUS_COMPILING)	
+					throw new ServletException("INTERNAL SAFETY CHECK FAILED: Snapshot is currently compiling.");
+				else	
+					throw new ServletException("INTERNAL SAFETY CHECK FAILED: Invalid snapshot status " + dbSnapshot.getStatus() + ".");
+			
+			if (dbSnapshot.getSnapshotTaken() == null)
+				throw new ServletException("INTERNAL SAFETY CHECK FAILED: Snapshot has not been taken.");
+		} finally {
+			if (HibernateUtil.isTransactionInProgress())
+				HibernateUtil.endTransaction();
+			HibernateUtil.closeSession();
+		}
+		
+		return DbSnapshot.getInstance(dbSnapshot);	
 	}
 	
 	protected int addCoverCell(int coverRow, String... cellContent) {
@@ -209,7 +309,7 @@ public class SnapshotExcelWorkbookMaker {
 			HSSFCell cell = row.createCell(cellNum);
 			cell.setCellValue(cellContent [cellNum]);
 			if (cellNum == 0)
-				cell.setCellStyle(BOLD_STYLE);
+				cell.setCellStyle(BOLD_RIGHT_STYLE);
 			else
 				cell.setCellStyle(TEXT_STYLE);
 		}
@@ -217,7 +317,23 @@ public class SnapshotExcelWorkbookMaker {
 		return ++coverRow;
 	}
 	
-	public int addParameters(int coverRow) throws ServletException {
+	protected int addCoverCell(int coverRow, String label, Date... cellContent) {
+		HSSFRow row = coverSheet.createRow(coverRow);
+		
+		HSSFCell cell = row.createCell(0);
+		cell.setCellStyle(BOLD_RIGHT_STYLE);
+		cell.setCellValue(label);
+		
+		for (int cellNum = 1; cellNum < cellContent.length; cellNum++) {
+			cell = row.createCell(cellNum);
+			cell.setCellValue(cellContent [cellNum]);
+			cell.setCellStyle(DATE_TIME_STYLE);
+		}
+		
+		return ++coverRow;
+	}
+	
+	public int addParameters(SnapshotInstance snapshot, int coverRow) throws ServletException {
 		
 		HSSFRow row = null;
 		
@@ -237,7 +353,7 @@ public class SnapshotExcelWorkbookMaker {
 					cellNum = 0; 
 					
 					HSSFCell cell = row.createCell(cellNum++);
-					cell.setCellStyle(BOLD_STYLE);
+					cell.setCellStyle(BOLD_RIGHT_STYLE);
 					cell.setCellValue(SnapshotParameterNames.getLabel(parameterValue.getId().getParameterName()));
 					
 					lastParameterName = parameterValue.getId().getParameterName();
@@ -273,7 +389,7 @@ public class SnapshotExcelWorkbookMaker {
 					if (parameterValue.getStrToValue() != null && parameterValue.getStrToValue().compareTo(parameterValue.getStrFromValue()) > 0)
 						addCell(row, cellNum++, parameterValue.getStrFromValue() + "<==>" + parameterValue.getStrToValue());
 					else
-						addCell(row, cellNum++, parameterValue.getStrFromValue());
+						addCell(row, cellNum++, getTranslatedValue(snapshot, parameterValue.getId().getParameterName(), parameterValue.getStrFromValue()));
 					
 				} else if (parameterValue.getParameterType() == SnapshotParameterValueObject.BOOLEAN) {
 					if (parameterValue.getIntFromValue() == null)
@@ -292,6 +408,25 @@ public class SnapshotExcelWorkbookMaker {
 		return coverRow;
 	}
 	
+	protected String getTranslatedValue(SnapshotInstance snapshot, String name, String value) {
+		if (name.equals(SnapshotParameterNames.UCN_TYPE)) {
+			return snapshot.getUcnTypeDescription();
+		} else if (name.equals(SnapshotParameterNames.PRODUCT_SERVICE_TYPE)) {
+			return snapshot.getProductServiceDescription();
+		} else if (name.equals(SnapshotParameterNames.TERM_TYPES)) {
+			return getTermType(value).getDescription();
+		} else if (name.equals(SnapshotParameterNames.INSTITUTION_STATE)) {
+			return getInstitutionState(value).getDescription();
+		} else if (name.equals(SnapshotParameterNames.INSTITUTION_COUNTRY)) {
+			return getInstitutionCountry(value).getDescription();
+		} else if (name.equals(SnapshotParameterNames.PROD_COMM_CODES)
+				|| name.equals(SnapshotParameterNames.AGREEMENT_COMM_CODES)
+				|| name.equals(SnapshotParameterNames.TERM_COMM_CODES)) {
+			return getCommissionType(value).getDescription();
+		}
+		return value;
+	}
+	
 	protected void startDataSheet() {
 //		dataSheet.setDefaultRowHeight((short) 50);
 		
@@ -302,6 +437,8 @@ public class SnapshotExcelWorkbookMaker {
 		dataSheet.setColumnWidth(cellNum++, getCharacterWidth(16));
 		dataSheet.setColumnWidth(cellNum++, getCharacterWidth(16));
 		dataSheet.setColumnWidth(cellNum++, getDollarWidth());
+		dataSheet.setColumnWidth(cellNum++, getCharacterWidth(16));
+		dataSheet.setColumnWidth(cellNum++, getCharacterWidth(CODE_WIDTH));
 		dataSheet.setColumnWidth(cellNum++, getDateWidth());
 		dataSheet.setColumnWidth(cellNum++, getDateWidth());
 		dataSheet.setColumnWidth(cellNum++, getDateWidth());
@@ -339,6 +476,8 @@ public class SnapshotExcelWorkbookMaker {
 		addCell(row, cellNum++, "Product Code");
 		addCell(row, cellNum++, "Service Code");
 		addCell(row, cellNum++, "Total Term Dollar Value");
+		addCell(row, cellNum++, "Term Type");
+		addCell(row, cellNum++, "Commission Type");
 		addCell(row, cellNum++, "Start Date");
 		addCell(row, cellNum++, "End Date");
 		addCell(row, cellNum++, "Terminate Date");
@@ -363,15 +502,15 @@ public class SnapshotExcelWorkbookMaker {
 			//	Find only undeleted cancel reasons
 			List<SnapshotTermData> snapshotTermDatas = DbSnapshotTermData.findFiltered(snapshotId, -1, -1, null, null, -1, -1, null);
 
-			//	First pass, just load the ancillary tables if it's needed for the main data sheet
+			//	First pass, just load the ancillary tables if it's needed for the main data sheet, so we know how many we have for the look up formulas
 			
 			if (useLookups) {
 				for (SnapshotTermData snapshotTermData : snapshotTermDatas) {
-					getInstitution(snapshotTermData.getId().getUcn(), institutionMap);			
-					getProduct(snapshotTermData.getId().getProductCode(), productMap);
-					getService(snapshotTermData.getId().getServiceCode(), serviceMap);
-					getCancelReason(snapshotTermData.getCancelReasonCode(), cancelReasonMap);
-					getTermType(snapshotTermData.getTermType(), termTypeMap);
+					getInstitution(snapshotTermData.getId().getUcn());			
+					getProduct(snapshotTermData.getId().getProductCode());
+					getService(snapshotTermData.getId().getServiceCode());
+					getCancelReason(snapshotTermData.getCancelReasonCode());
+					getTermType(snapshotTermData.getTermType());
 				}
 			}
 			
@@ -380,11 +519,16 @@ public class SnapshotExcelWorkbookMaker {
 			for (SnapshotTermData snapshotTermData : snapshotTermDatas) {
 				SnapshotTermDataInstance instance = DbSnapshotTermData.getInstance(snapshotTermData);
 
-				instance.setInstitution(getInstitution(instance.getUcn(), institutionMap));			
-				instance.setProduct(getProduct(instance.getProductCode(), productMap));
-				instance.setService(getService(instance.getServiceCode(), serviceMap));
-				instance.setCancelReason(getCancelReason(instance.getCancelReasonCode(), cancelReasonMap));
-				instance.setTermType(getTermType(instance.getTermTypeCode(), termTypeMap));
+				instance.setInstitution(getInstitution(instance.getUcn()));			
+				instance.setProduct(getProduct(instance.getProductCode()));
+				instance.setService(getService(instance.getServiceCode()));
+				instance.setCancelReason(getCancelReason(instance.getCancelReasonCode()));
+				instance.setTermType(getTermType(instance.getTermTypeCode()));
+				
+				if (instance.getProduct() != null) {
+					instance.getProduct().setDefaultCommTypeInstance(getCommissionType(instance.getProduct().getDefaultCommissionCode()));
+					instance.getProduct().setDefaultTermTypeInstance(getTermType(instance.getProduct().getDefaultTermType()));
+				}
 				
 				processTermData(instance);
 			}
@@ -407,18 +551,20 @@ public class SnapshotExcelWorkbookMaker {
 		addCell(row, cellNum++, instance.getProductCode());
 		addCell(row, cellNum++, instance.getServiceCode());
 		addCell(row, cellNum++, instance.getDollarValue());
+		addCell(row, cellNum++, instance.getTermType().getDescriptionAndCode());
+		addCell(row, cellNum++, instance.getCommissionCode());
 		addCell(row, cellNum++, instance.getStartDate());
 		addCell(row, cellNum++, instance.getEndDate());
 		addCell(row, cellNum++, instance.getTerminateDate());
 		addCell(row, cellNum++, instance.getDollarFraction());
-		addCell(row, cellNum++, instance.getServiceFraction());
+		addCell(row, cellNum++, instance.getServiceFraction(), FRACTION_STYLE);
 		addCell(row, cellNum++, instance.getDollarServiceFraction());
-		addCell(row, cellNum++, instance.getUcnFraction());
+		addCell(row, cellNum++, instance.getUcnFraction(), FRACTION_STYLE);
 		addCell(row, cellNum++, instance.getDollarUcnFraction());
 		if (useLookups) {
-			for (int col = 2; col < 5; col++)
+			for (int col = 2; col < 7; col++)
 				addFormulaCell(row, cellNum++, getLookupFunction(productSheet, "C", row.getRowNum(), productMap.size(), col), TEXT_STYLE);
-			for (int col = 2; col < 4; col++)
+			for (int col = 2; col < 5; col++)
 				addFormulaCell(row, cellNum++, getLookupFunction(serviceSheet, "D", row.getRowNum(), serviceMap.size(), col), TEXT_STYLE);
 			for (int col = 2; col < 8; col++)
 				addFormulaCell(row, cellNum++, getLookupFunction(institutionSheet, "B", row.getRowNum(), institutionMap.size(), col), TEXT_STYLE);
@@ -524,27 +670,27 @@ public class SnapshotExcelWorkbookMaker {
 	protected int addProductWidths(HSSFSheet sheet, int cellNum) {
 		sheet.setColumnWidth(cellNum++, getCharacterWidth(DESCRIPTION_WIDTH));
 		sheet.setColumnWidth(cellNum++, getCharacterWidth(CODE_WIDTH));
-//		sheet.setColumnWidth(cellNum++, getCharacterWidth(DESCRIPTION_WIDTH));
+		sheet.setColumnWidth(cellNum++, getCharacterWidth(DESCRIPTION_WIDTH));
 		sheet.setColumnWidth(cellNum++, getCharacterWidth(CODE_WIDTH));
-//		sheet.setColumnWidth(cellNum++, getCharacterWidth(DESCRIPTION_WIDTH));
+		sheet.setColumnWidth(cellNum++, getCharacterWidth(DESCRIPTION_WIDTH));
 		return cellNum;
 	}
 	
 	protected int addProductHeadings(HSSFRow row, int cellNum) {
 		addCell(row, cellNum++, "Product");
 		addCell(row, cellNum++, "Default Term Type Code");
-//		addCell(row, cellNum++, "Default Term Type");
+		addCell(row, cellNum++, "Default Term Type");
 		addCell(row, cellNum++, "Default Commission Type Code");
-//		addCell(row, cellNum++, "Default Commission Type");
+		addCell(row, cellNum++, "Default Commission Type");
 		return cellNum;
 	}
 	
 	protected int addProductCells(HSSFRow row, int cellNum, ProductInstance product) {
 		addCell(row, cellNum++, product.getDescription());
 		addCell(row, cellNum++, product.getDefaultTermType());
-//		addCell(row, cellNum++, product.getDefaultTermTypeInstance().getDescription());
+		addCell(row, cellNum++, product.getDefaultTermTypeInstance().getDescription());
 		addCell(row, cellNum++, product.getDefaultCommissionCode());
-//		addCell(row, cellNum++, product.getDefaultCommTypeInstance().getDescription());
+		addCell(row, cellNum++, product.getDefaultCommTypeInstance().getDescription());
 		return cellNum;
 	}
 	
@@ -576,21 +722,21 @@ public class SnapshotExcelWorkbookMaker {
 	protected int addServiceWidths(HSSFSheet sheet, int cellNum) {
 		sheet.setColumnWidth(cellNum++, getCharacterWidth(DESCRIPTION_WIDTH));
 		sheet.setColumnWidth(cellNum++, getCharacterWidth(CODE_WIDTH));
-//		sheet.setColumnWidth(cellNum++, getCharacterWidth(DESCRIPTION_WIDTH));
+		sheet.setColumnWidth(cellNum++, getCharacterWidth(DESCRIPTION_WIDTH));
 		return cellNum;
 	}
 	
 	protected int addServiceHeadings(HSSFRow row, int cellNum) {
 		addCell(row, cellNum++, "Service");
 		addCell(row, cellNum++, "Service Type Code");
-//		addCell(row, cellNum++, "Service Type");
+		addCell(row, cellNum++, "Service Type");
 		return cellNum;
 	}
 	
 	protected int addServiceCells(HSSFRow row, int cellNum, ServiceInstance service) {
 		addCell(row, cellNum++, service.getDescription());
 		addCell(row, cellNum++, service.getServiceType() + "");
-//		addCell(row, cellNum++, service.getServiceTypeName());
+		addCell(row, cellNum++, service.getServiceTypeName());
 		return cellNum;
 	}
 	
@@ -646,9 +792,9 @@ public class SnapshotExcelWorkbookMaker {
 		return cell;
 	}
 	
-	protected ServiceInstance getService(String serviceCode, TreeMap<String, ServiceInstance> serviceMap) {
+	protected ServiceInstance getService(String serviceCode) {
 		if (serviceCode == null || serviceCode.length() == 0)
-			return null;
+			return ServiceInstance.getEmptyInstance();	//	Could reduce memory footprint by caching/returning one instance of this
 		
 		if (serviceMap.containsKey(serviceCode))
 			return serviceMap.get(serviceCode);
@@ -659,12 +805,12 @@ public class SnapshotExcelWorkbookMaker {
 			return serviceMap.get(serviceCode);
 		}
 		
-		return null;
+		return ServiceInstance.getUnknownInstance(serviceCode);
 	}
 	
-	protected ProductInstance getProduct(String productCode, TreeMap<String, ProductInstance> productMap) {
+	protected ProductInstance getProduct(String productCode) {
 		if (productCode == null || productCode.length() == 0)
-			return null;
+			return ProductInstance.getEmptyInstance();	//	Could reduce memory footprint by caching/returning one instance of this
 		
 		if (productMap.containsKey(productCode))
 			return productMap.get(productCode);
@@ -675,12 +821,12 @@ public class SnapshotExcelWorkbookMaker {
 			return productMap.get(productCode);
 		}
 		
-		return null;
+		return ProductInstance.getUnknownInstance(productCode);
 	}
 	
-	protected CancelReasonInstance getCancelReason(String cancelReasonCode, TreeMap<String, CancelReasonInstance> cancelReasonMap) {
+	protected CancelReasonInstance getCancelReason(String cancelReasonCode) {
 		if (cancelReasonCode == null || cancelReasonCode.length() == 0)
-			return null;
+			return CancelReasonInstance.getEmptyInstance();	//	Could reduce memory footprint by caching/returning one instance of this
 		
 		if (cancelReasonMap.containsKey(cancelReasonCode))
 			return cancelReasonMap.get(cancelReasonCode);
@@ -691,12 +837,12 @@ public class SnapshotExcelWorkbookMaker {
 			return cancelReasonMap.get(cancelReasonCode);
 		}
 		
-		return null;
+		return CancelReasonInstance.getUnknownInstance(cancelReasonCode);
 	}
 	
-	protected InstitutionInstance getInstitution(int ucn, TreeMap<Integer, InstitutionInstance> institutionMap) {
+	protected InstitutionInstance getInstitution(int ucn) {
 		if (ucn <= 0)
-			return null;
+			return InstitutionInstance.getEmptyInstance();	//	Could reduce memory footprint by caching/returning one instance of this
 		
 		if (institutionMap.containsKey(ucn))
 			return institutionMap.get(ucn);
@@ -707,12 +853,12 @@ public class SnapshotExcelWorkbookMaker {
 			return institutionMap.get(ucn);
 		}
 		
-		return null;
+		return InstitutionInstance.getUnknownInstance(ucn);
 	}
 	
-	protected TermTypeInstance getTermType(String termTypeCode, TreeMap<String, TermTypeInstance> termTypeMap) {
+	protected TermTypeInstance getTermType(String termTypeCode) {
 		if (termTypeCode == null || termTypeCode.length() == 0)
-			return null;
+			return TermTypeInstance.getEmptyInstance();	//	Could reduce memory footprint by caching/returning one instance of this
 		
 		if (termTypeMap.containsKey(termTypeCode))
 			return termTypeMap.get(termTypeCode);
@@ -720,10 +866,58 @@ public class SnapshotExcelWorkbookMaker {
 		TermType termType = DbTermType.getByCode(termTypeCode);
 		if (termType != null) {
 			termTypeMap.put(termTypeCode, DbTermType.getInstance(termType));
-			termTypeMap.get(termTypeCode);
+			return termTypeMap.get(termTypeCode);
 		}
 		
-		return null;
+		return TermTypeInstance.getUnknownInstance(termTypeCode);
+	}
+	
+	protected CommissionTypeInstance getCommissionType(String commissionTypeCode) {
+		if (commissionTypeCode == null || commissionTypeCode.length() == 0)
+			return CommissionTypeInstance.getEmptyInstance();	//	Could reduce memory footprint by caching/returning one instance of this
+		
+		if (commissionTypeMap.containsKey(commissionTypeCode))
+			return commissionTypeMap.get(commissionTypeCode);
+		
+		CommissionType commissionType = DbCommissionType.getByCode(commissionTypeCode);
+		if (commissionType != null) {
+			commissionTypeMap.put(commissionTypeCode, DbCommissionType.getInstance(commissionType));
+			return commissionTypeMap.get(commissionTypeCode);
+		}
+		
+		return CommissionTypeInstance.getUnknownInstance(commissionTypeCode);
+	}
+	
+	protected InstitutionStateInstance getInstitutionState(String institutionStateCode) {
+		if (institutionStateCode == null || institutionStateCode.length() == 0)
+			return InstitutionStateInstance.getEmptyInstance();	//	Could reduce memory footprint by caching/returning one instance of this
+		
+		if (institutionStateMap.containsKey(institutionStateCode))
+			return institutionStateMap.get(institutionStateCode);
+		
+		InstitutionState institutionState = DbInstitutionState.getByCode(institutionStateCode);
+		if (institutionState != null) {
+			institutionStateMap.put(institutionStateCode, DbInstitutionState.getInstance(institutionState));
+			return institutionStateMap.get(institutionStateCode);
+		}
+		
+		return InstitutionStateInstance.getUnknownInstance(institutionStateCode);
+	}
+	
+	protected InstitutionCountryInstance getInstitutionCountry(String institutionCountryCode) {
+		if (institutionCountryCode == null || institutionCountryCode.length() == 0)
+			return InstitutionCountryInstance.getEmptyInstance();	//	Could reduce memory footprint by caching/returning one instance of this
+		
+		if (institutionCountryMap.containsKey(institutionCountryCode))
+			return institutionCountryMap.get(institutionCountryCode);
+		
+		InstitutionCountry institutionCountry = DbInstitutionCountry.getByCode(institutionCountryCode);
+		if (institutionCountry != null) {
+			institutionCountryMap.put(institutionCountryCode, DbInstitutionCountry.getInstance(institutionCountry));
+			return institutionCountryMap.get(institutionCountryCode);
+		}
+		
+		return InstitutionCountryInstance.getUnknownInstance(institutionCountryCode);
 	}
 
 	public boolean usesLookups() {
