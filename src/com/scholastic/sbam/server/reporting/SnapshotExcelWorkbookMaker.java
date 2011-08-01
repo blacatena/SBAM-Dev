@@ -29,6 +29,7 @@ import com.scholastic.sbam.server.database.codegen.Snapshot;
 import com.scholastic.sbam.server.database.codegen.SnapshotParameter;
 import com.scholastic.sbam.server.database.codegen.SnapshotTermData;
 import com.scholastic.sbam.server.database.codegen.TermType;
+import com.scholastic.sbam.server.database.codegen.User;
 import com.scholastic.sbam.server.database.objects.DbCancelReason;
 import com.scholastic.sbam.server.database.objects.DbCommissionType;
 import com.scholastic.sbam.server.database.objects.DbInstitution;
@@ -40,7 +41,9 @@ import com.scholastic.sbam.server.database.objects.DbSnapshot;
 import com.scholastic.sbam.server.database.objects.DbSnapshotParameter;
 import com.scholastic.sbam.server.database.objects.DbSnapshotTermData;
 import com.scholastic.sbam.server.database.objects.DbTermType;
+import com.scholastic.sbam.server.database.objects.DbUser;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
+import com.scholastic.sbam.shared.objects.Authentication;
 import com.scholastic.sbam.shared.objects.CancelReasonInstance;
 import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
 import com.scholastic.sbam.shared.objects.InstitutionCountryInstance;
@@ -274,6 +277,7 @@ public class SnapshotExcelWorkbookMaker {
 	
 	protected SnapshotInstance getSnapshot() throws ServletException {
 		Snapshot dbSnapshot = null;
+		User     dbUser		= null;
 		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();
@@ -293,13 +297,23 @@ public class SnapshotExcelWorkbookMaker {
 			
 			if (dbSnapshot.getSnapshotTaken() == null)
 				throw new ServletException("INTERNAL SAFETY CHECK FAILED: Snapshot has not been taken.");
+			
+			dbUser = DbUser.getById(dbSnapshot.getCreateUserId());
+
 		} finally {
 			if (HibernateUtil.isTransactionInProgress())
 				HibernateUtil.endTransaction();
 			HibernateUtil.closeSession();
 		}
 		
-		return DbSnapshot.getInstance(dbSnapshot);	
+		SnapshotInstance snapshot = DbSnapshot.getInstance(dbSnapshot);	
+		if (dbUser != null) {
+			snapshot.setCreateDisplayName(Authentication.getDisplayName(dbUser.getFirstName(), dbUser.getLastName()));
+		} else {
+			snapshot.setCreateDisplayName("Unknown creator " + dbSnapshot.getCreateUserId());
+		}
+		
+		return snapshot;
 	}
 	
 	protected int addCoverCell(int coverRow, String... cellContent) {

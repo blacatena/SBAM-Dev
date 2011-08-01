@@ -632,11 +632,6 @@
   </servlet>
   
   <servlet>
-    <servlet-name>institutionStateListServlet</servlet-name>
-    <servlet-class>com.scholastic.sbam.server.servlets.InstitutionStateListServiceImpl</servlet-class>
-  </servlet>
-  
-  <servlet>
     <servlet-name>termTypeListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.TermTypeListServiceImpl</servlet-class>
   </servlet>
