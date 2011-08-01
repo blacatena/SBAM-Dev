@@ -11,20 +11,21 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
+import com.scholastic.sbam.server.database.codegen.Snapshot;
+import com.scholastic.sbam.server.database.objects.DbSnapshot;
+import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.server.reporting.SnapshotExcelWorkbookMaker;
+import com.scholastic.sbam.server.reporting.SnapshotMaker;
 import com.scholastic.sbam.server.util.SecurityEnforcer;
 import com.scholastic.sbam.shared.objects.Authentication;
 import com.scholastic.sbam.shared.security.SecurityManager;
+import com.scholastic.sbam.shared.util.AppConstants;
 
 /**
  * The server side implementation of the RPC service.
  */
 @SuppressWarnings("serial")
 public class SnapshotExcelServlet extends HttpServlet {
-
-	public void genearteExcel() throws IllegalArgumentException {
-		
-	}
 	
 	public void init(ServletConfig config) throws ServletException {
         super.init(config);  
@@ -49,10 +50,12 @@ public class SnapshotExcelServlet extends HttpServlet {
     	
 		int snapshotId = getSnapshotId(request);
 		
+		testSnapshot(snapshotId);
+		
         setResponseHeaders(response, snapshotId);
 
+        // This does the actual work of creating the spreadsheet
         SnapshotExcelWorkbookMaker wbMaker = new SnapshotExcelWorkbookMaker(snapshotId);
-              
         HSSFWorkbook wb = wbMaker.getWorkbook();
         
         // Write the output 
@@ -61,7 +64,54 @@ public class SnapshotExcelServlet extends HttpServlet {
         out.flush();
         out.close();
     }
+	
+    /**
+     * Verify that the snapshot exists, is ready to be accessed, and if necessary compile the snapshot.
+     * @param snapshotId
+     * @throws ServletException
+     */
+	protected void testSnapshot(int snapshotId) throws ServletException {
+		Snapshot dbSnapshot = null;
+		
+		HibernateUtil.openSession();
+		HibernateUtil.startTransaction();
+
+		try {
+			
+			//	Get existing
+			dbSnapshot = DbSnapshot.getById(snapshotId);
+			if (dbSnapshot == null)
+				throw new ServletException("Snapshot " + snapshotId + " not found.");
+			
+			if (dbSnapshot.getStatus() != AppConstants.STATUS_ACTIVE)
+				if (dbSnapshot.getStatus() == AppConstants.STATUS_COMPILING)	
+					throw new ServletException("INTERNAL SAFETY CHECK FAILED: Snapshot is currently already compiling.");
+				else	
+					throw new ServletException("INTERNAL SAFETY CHECK FAILED: Invalid snapshot status " + dbSnapshot.getStatus() + ".");
+			
+		} finally {
+			if (HibernateUtil.isTransactionInProgress())
+				HibernateUtil.endTransaction();
+			HibernateUtil.closeSession();
+		}
+		
+		if (dbSnapshot != null && dbSnapshot.getSnapshotTaken() == null)
+			compileSnapshot(snapshotId);
+	}
     
+	/**
+	 * Compile the snapshot.
+	 * @param snapshotId
+	 */
+    protected void compileSnapshot(int snapshotId) {
+    	new SnapshotMaker().makeSnapshot(snapshotId);
+    }
+    
+    /**
+     * Set the response headers for an Excel spreadsheet.
+     * @param response
+     * @param snapshotId
+     */
     protected void setResponseHeaders(HttpServletResponse response, int snapshotId) {
 		
 		String filename = "SBAMSnapshot" + snapshotId;
@@ -75,6 +125,12 @@ public class SnapshotExcelServlet extends HttpServlet {
         response.setHeader("Cache-Control", "private");
     }
     
+    /**
+     * Extract the requested snapshot ID from the request parameters.
+     * @param request
+     * @return
+     * @throws ServletException
+     */
     protected int getSnapshotId(HttpServletRequest request) throws ServletException {
     	 String snapshotIdStr = request.getParameter("snapshotId");
          if (snapshotIdStr == null)
@@ -112,6 +168,7 @@ public class SnapshotExcelServlet extends HttpServlet {
     public String getServletInfo() {
        return "Example to create a workbook in a servlet using HSSF";
     }
+    
 	/**
 	 * Verify that the user is authenticated for the requested task.
 	 * 
@@ -127,13 +184,5 @@ public class SnapshotExcelServlet extends HttpServlet {
 	 */
 	protected Authentication authenticate(String taskDesc, String roleName) throws IllegalArgumentException {
 		return SecurityEnforcer.authenticate(this, taskDesc, roleName);
-	}
-
-	protected Authentication authenticate(String taskDesc) throws ServletException {
-		return authenticate(taskDesc, null);
-	}
-
-	protected Authentication authenticate() throws ServletException {
-		return authenticate(getServletName(), null);
 	}
 }

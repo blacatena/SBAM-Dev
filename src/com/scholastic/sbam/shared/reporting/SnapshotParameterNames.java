@@ -41,7 +41,7 @@ public class SnapshotParameterNames {
 		return map;
 	}
 	
-	public static String getName(String parameter) {
+	public static String getLabel(String parameter) {
 		if (labels.containsKey(parameter))
 			return labels.get(parameter);
 		return parameter;

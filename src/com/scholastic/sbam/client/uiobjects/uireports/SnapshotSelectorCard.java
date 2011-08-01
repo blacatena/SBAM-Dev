@@ -1190,7 +1190,7 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
         		if (snapshot.getStatus() == AppConstants.STATUS_COMPILING) {
         			MessageBox.alert("Alert", "Snapshot is currently compiling.  Please wait until compilation is complete.", null);
         		} else {
-        			Window.open("sbam/getSnapshot.xls", "new", "");
+        			Window.open("sbam/getSnapshot.xls?snapshotId=" + snapshot.getSnapshotId(), "new", "");
         		}
         	}
         };

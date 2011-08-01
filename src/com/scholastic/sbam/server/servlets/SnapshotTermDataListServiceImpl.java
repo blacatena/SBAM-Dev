@@ -91,7 +91,8 @@ public class SnapshotTermDataListServiceImpl extends AuthenticatedServiceServlet
 		
 		Service service = DbService.getByCode(serviceCode);
 		if (service != null) {
-			return DbService.getInstance(service);
+			serviceMap.put(serviceCode, DbService.getInstance(service));
+			return serviceMap.get(serviceCode);
 		}
 		
 		return null;
@@ -106,7 +107,8 @@ public class SnapshotTermDataListServiceImpl extends AuthenticatedServiceServlet
 		
 		Product product = DbProduct.getByCode(productCode);
 		if (product != null) {
-			return DbProduct.getInstance(product);
+			productMap.put(productCode, DbProduct.getInstance(product));
+			return productMap.get(productCode);
 		}
 		
 		return null;
@@ -121,7 +123,8 @@ public class SnapshotTermDataListServiceImpl extends AuthenticatedServiceServlet
 		
 		CancelReason cancelReason = DbCancelReason.getByCode(cancelReasonCode);
 		if (cancelReason != null) {
-			return DbCancelReason.getInstance(cancelReason);
+			cancelReasonMap.put(cancelReasonCode, DbCancelReason.getInstance(cancelReason));
+			return cancelReasonMap.get(cancelReasonCode);
 		}
 		
 		return null;
@@ -136,7 +139,8 @@ public class SnapshotTermDataListServiceImpl extends AuthenticatedServiceServlet
 		
 		Institution institution = DbInstitution.getByCode(ucn);
 		if (institution != null) {
-			return DbInstitution.getInstance(institution);
+			institutionMap.put(ucn, DbInstitution.getInstance(institution));
+			return institutionMap.get(ucn);
 		}
 		
 		return null;
@@ -151,7 +155,8 @@ public class SnapshotTermDataListServiceImpl extends AuthenticatedServiceServlet
 		
 		TermType termType = DbTermType.getByCode(termTypeCode);
 		if (termType != null) {
-			return DbTermType.getInstance(termType);
+			termTypeMap.put(termTypeCode, DbTermType.getInstance(termType));
+			termTypeMap.get(termTypeCode);
 		}
 		
 		return null;

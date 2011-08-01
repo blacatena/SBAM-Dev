@@ -48,8 +48,8 @@ public class SnapshotMaker {
 	
 	public SnapshotInstance makeSnapshot(int snapshotId) {
 		nextRowId = 1;
-		Date snapshotTaken = new Date();
 		
+		Date snapshotTaken = new Date();
 		
 		//	Round the last 3 decimals off of the time, to get just seconds. because GWT or GXT is doing this some where on the UI side
 		long roundedTime = 1000 * ( (long) snapshotTaken.getTime() / 1000);
@@ -90,7 +90,7 @@ public class SnapshotMaker {
 				if (dbSnapshot.getStatus() == AppConstants.STATUS_COMPILING)	
 					throw new IllegalArgumentException("INTERNAL SAFETY CHECK FAILED: Snapshot is currently already compiling.");
 				else	
-					throw new IllegalArgumentException("INTERNAL SAFETY CHECK FAILED: Snapshot alrady taken.");
+					throw new IllegalArgumentException("INTERNAL SAFETY CHECK FAILED: Invalid snapshot status " + dbSnapshot.getStatus() + ".");
 			
 			savedStatus = dbSnapshot.getStatus();
 			

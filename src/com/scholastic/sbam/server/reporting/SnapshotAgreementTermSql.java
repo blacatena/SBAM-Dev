@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.scholastic.sbam.server.database.codegen.Snapshot;
 import com.scholastic.sbam.server.database.codegen.SnapshotProductService;
-import com.scholastic.sbam.server.util.SnapshotMappings;
 import com.scholastic.sbam.shared.objects.SnapshotInstance;
 import com.scholastic.sbam.shared.objects.SnapshotParameterSetInstance;
 import com.scholastic.sbam.shared.objects.SnapshotParameterValueObject;

@@ -1,4 +1,4 @@
-package com.scholastic.sbam.server.util;
+package com.scholastic.sbam.server.reporting;
 
 import java.util.HashMap;
 

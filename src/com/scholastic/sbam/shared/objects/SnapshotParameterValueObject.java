@@ -7,11 +7,11 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class SnapshotParameterValueObject implements IsSerializable, BeanModelTag {
 	
-	public static int	INTEGER = 0;
-	public static int	DOUBLE  = 1;
-	public static int	STRING  = 2;
-	public static int	DATE    = 3;
-	public static int	BOOLEAN = 4;
+	public static final int	INTEGER = 0;
+	public static final int	DOUBLE  = 1;
+	public static final int	STRING  = 2;
+	public static final int	DATE    = 3;
+	public static final int	BOOLEAN = 4;
 	
 	protected	int		valueType;
 	

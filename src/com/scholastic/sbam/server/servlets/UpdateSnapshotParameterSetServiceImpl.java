@@ -9,7 +9,7 @@ import com.scholastic.sbam.server.database.codegen.SnapshotParameterId;
 import com.scholastic.sbam.server.database.objects.DbSnapshot;
 import com.scholastic.sbam.server.database.objects.DbSnapshotParameter;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
-import com.scholastic.sbam.server.util.SnapshotMappings;
+import com.scholastic.sbam.server.reporting.SnapshotMappings;
 import com.scholastic.sbam.shared.objects.SnapshotInstance;
 import com.scholastic.sbam.shared.objects.SnapshotParameterSetInstance;
 import com.scholastic.sbam.shared.objects.SnapshotParameterValueObject;

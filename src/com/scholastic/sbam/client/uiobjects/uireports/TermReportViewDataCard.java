@@ -659,7 +659,7 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 				List<SnapshotParameterValueObject> values = snapshotParameterSet.getValues(parameterName);
 				if (values != null && values.size() > 0) {
 					sb.append("<tr><td class=\"sbam-report-parm\">");
-					sb.append(SnapshotParameterNames.getName(parameterName));
+					sb.append(SnapshotParameterNames.getLabel(parameterName));
 					sb.append("</td><td class=\"sbam-report-value\">");
 					int count = 0;
 					for (SnapshotParameterValueObject value : values) {
@@ -684,6 +684,8 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 			return snapshot.getProductServiceDescription();
 		} else if (name.equals(SnapshotParameterNames.TERM_TYPES)) {
 			return getCodeDescription(value, UiConstants.getTermTypes());
+		} else if (name.equals(SnapshotParameterNames.INSTITUTION_STATE)) {
+			return getCodeDescription(value, UiConstants.getInstitutionStates());
 		} else if (name.equals(SnapshotParameterNames.PROD_COMM_CODES)
 				|| name.equals(SnapshotParameterNames.AGREEMENT_COMM_CODES)
 				|| name.equals(SnapshotParameterNames.TERM_COMM_CODES)) {
