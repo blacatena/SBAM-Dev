@@ -1,6 +1,7 @@
 package com.scholastic.sbam.server.reporting;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
 
 import com.scholastic.sbam.server.database.codegen.Snapshot;
@@ -18,14 +19,24 @@ public class SnapshotAgreementTermSql {
 	
 	protected SnapshotParameterSetInstance	parameters;
 	
-	protected List<SnapshotProductService>	snapshotProductServices;
+	protected List<SnapshotProductService>	snapshotProducts;
+	
+	protected List<SnapshotProductService>	snapshotServices;
+	
+	protected HashMap<String, SnapshotProductServiceEntry>	productServiceMap;
 	
 	protected StringBuffer					sb;
 	
-	public SnapshotAgreementTermSql(Snapshot dbSnapshot, SnapshotParameterSetInstance parameters, List<SnapshotProductService> snapshotProductServices) {
+	public SnapshotAgreementTermSql(	Snapshot dbSnapshot, 
+										SnapshotParameterSetInstance parameters, 
+										List<SnapshotProductService> snapshotProducts, 
+										List<SnapshotProductService> snapshotServices, 
+										HashMap<String, SnapshotProductServiceEntry>	productServiceMap) {
 		this.dbSnapshot = dbSnapshot;
 		this.parameters = parameters;
-		this.snapshotProductServices = snapshotProductServices;
+		this.snapshotProducts = snapshotProducts;
+		this.snapshotServices = snapshotServices;
+		this.productServiceMap = productServiceMap;
 	}
 	
 	public String getSnapshotSql() {
@@ -43,7 +54,7 @@ public class SnapshotAgreementTermSql {
 	}
 	
 	protected void appendSelect() {
-		sb.append("select");
+		sb.append("select distinct ");
 		sb.append(" ");
 		sb.append(dbSnapshot.getSnapshotId());
 		sb.append(" as SNAPSHOT_ID");
@@ -182,21 +193,37 @@ public class SnapshotAgreementTermSql {
 				addMultipleValueCondition(columnName, values);
 		}
 	}
-		
+	
 	protected void appendProductServiceRestrictions() {
+		appendProductServiceRestrictions(SnapshotInstance.PRODUCT_TYPE, snapshotProducts);
+		appendProductServiceRestrictions(SnapshotInstance.SERVICE_TYPE, snapshotServices);
+	}
+		
+	protected void appendProductServiceRestrictions(char productServiceType, List<SnapshotProductService> snapshotProductServices) {
 		if (snapshotProductServices == null || snapshotProductServices.size() == 0)
 			return;
 		
 		sb.append(" ");
 		sb.append("AND");
 		sb.append(" ");
-		if (dbSnapshot.getProductServiceType() == SnapshotInstance.PRODUCT_TYPE) {
-			sb.append("PRODUCT.PRODUCT_CODE");
-		} else if (dbSnapshot.getProductServiceType() == SnapshotInstance.SERVICE_TYPE) {
-			sb.append("SERVICE.SERVICE_CODE");
-		} else
-			throw new IllegalArgumentException("INTERNAL ERROR: Invalid snapshot product/service type " + dbSnapshot.getProductServiceType() + ".");
 		
+		if (dbSnapshot.getProductServiceType() == productServiceType || productServiceType == SnapshotInstance.PRODUCT_TYPE) {
+			//	By product, or if both report and select by service, then just add an in clause
+			if (productServiceType == SnapshotInstance.PRODUCT_TYPE) {
+				sb.append("PRODUCT.PRODUCT_CODE");
+			} else if (productServiceType == SnapshotInstance.SERVICE_TYPE) {
+				sb.append("SERVICE.SERVICE_CODE");
+			} else
+				throw new IllegalArgumentException("INTERNAL ERROR: Invalid snapshot product/service type " + dbSnapshot.getProductServiceType() + ".");
+			appendProductServiceInClause(snapshotProductServices);
+		} else {
+			//	If reporting by product and constraining by service, build an in-clause of products based on service components
+			sb.append("PRODUCT.PRODUCT_CODE");
+			appendProductInClause(snapshotProductServices);
+		}
+	}
+	
+	protected void appendProductServiceInClause(List<SnapshotProductService> snapshotProductServices) {
 		sb.append(" ");
 		sb.append("IN (");
 		
@@ -206,6 +233,37 @@ public class SnapshotAgreementTermSql {
 				sb.append(", ");
 			sb.append("'");
 			sb.append(productService.getId().getProductServiceCode());
+			sb.append("'");
+			count++;
+		}
+		
+		sb.append(")");
+	}
+	
+	protected void appendProductInClause(List<SnapshotProductService> snapshotProductServices) {
+		sb.append(" ");
+		sb.append("IN (");
+		
+		int count = 0;
+		for (SnapshotProductServiceEntry productServiceEntry : productServiceMap.values()) {
+			
+			//	See if this product has any of the requested services
+			int serviceCount = 0;
+			for (SnapshotProductService snapshotProductService : snapshotProductServices) {
+				if (productServiceEntry.hasService(snapshotProductService.getId().getProductServiceCode())) {
+					serviceCount++;
+					break;	// No need to look for more... on eis enough
+				}
+			}
+			
+			//	No services, skip this product
+			if (serviceCount == 0)
+				continue;
+			
+			if (count > 0)
+				sb.append(", ");
+			sb.append("'");
+			sb.append(productServiceEntry.getProduct().getProductCode());
 			sb.append("'");
 			count++;
 		}

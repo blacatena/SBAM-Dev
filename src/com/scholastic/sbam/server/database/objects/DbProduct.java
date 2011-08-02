@@ -32,6 +32,8 @@ public class DbProduct extends HibernateAccessor {
 		instance.setShortName(dbInstance.getShortName());
 		instance.setDefaultTermType(dbInstance.getDefaultTermType());
 		instance.setDefaultCommissionCode(dbInstance.getDefaultCommissionCode());
+		instance.setOrgPath(dbInstance.getOrgPath());
+		instance.setSeq(dbInstance.getSeq());
 		instance.setStatus(dbInstance.getStatus());
 		instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
 		

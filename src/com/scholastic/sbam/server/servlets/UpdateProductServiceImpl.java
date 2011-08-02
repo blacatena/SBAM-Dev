@@ -64,8 +64,15 @@ public class UpdateProductServiceImpl extends AuthenticatedServiceServlet implem
 				dbInstance.setDefaultTermType(instance.getDefaultTermTypeInstance().getTermTypeCode());
 			if (instance.getDefaultCommTypeInstance() != null)
 				dbInstance.setDefaultCommissionCode(instance.getDefaultCommTypeInstance().getCommissionCode());
+			if (instance.getSeq() > 0)
+				dbInstance.setSeq(instance.getSeq());
+			if (instance.getOrgPath() != null)
+				dbInstance.setOrgPath(instance.getOrgPath());
 			if (instance.getStatus() != 0 && instance.getStatus() != dbInstance.getStatus())
 				dbInstance.setStatus(instance.getStatus());
+			
+			if (dbInstance.getOrgPath() == null)
+				dbInstance.setOrgPath("");
 			
 			//	Persist in database
 			DbProduct.persist(dbInstance);

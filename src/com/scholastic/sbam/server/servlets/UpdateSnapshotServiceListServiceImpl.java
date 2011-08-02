@@ -12,6 +12,7 @@ import com.scholastic.sbam.server.database.objects.DbSnapshotProductService;
 import com.scholastic.sbam.server.database.objects.DbService;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.objects.Authentication;
+import com.scholastic.sbam.shared.objects.SnapshotInstance;
 import com.scholastic.sbam.shared.objects.SnapshotServiceTreeInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
 import com.scholastic.sbam.shared.util.AppConstants;
@@ -95,6 +96,7 @@ public class UpdateSnapshotServiceListServiceImpl extends AuthenticatedServiceSe
 				SnapshotProductService dbInstance = new SnapshotProductService();
 				SnapshotProductServiceId dbId = new SnapshotProductServiceId();
 				dbId.setSnapshotId(snapshotId);
+				dbId.setProductServiceType(SnapshotInstance.SERVICE_TYPE);
 				dbId.setProductServiceCode(instance.getServiceCode());
 				dbInstance.setId(dbId);
 				DbSnapshotProductService.persist(dbInstance);

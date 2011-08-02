@@ -582,6 +582,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>snapshotProductListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.SnapshotProductListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>snapshotServiceListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.SnapshotServiceListServiceImpl</servlet-class>
   </servlet>
@@ -589,6 +594,11 @@
   <servlet>
     <servlet-name>snapshotTermDataListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.SnapshotTermDataListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updateSnapshotProductListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateSnapshotProductListServiceImpl</servlet-class>
   </servlet>
   
   <servlet>
@@ -1224,6 +1234,16 @@
   <servlet-mapping>
     <servlet-name>snapshotListServlet</servlet-name>
     <url-pattern>/sbam/getSnapshots</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>snapshotProductListServlet</servlet-name>
+    <url-pattern>/sbam/getSnapshotProducts</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateSnapshotProductListServlet</servlet-name>
+    <url-pattern>/sbam/updateSnapshotProductList</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

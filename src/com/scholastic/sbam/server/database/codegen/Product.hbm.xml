@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- Generated Jul 28, 2011 1:20:31 PM by Hibernate Tools 3.2.4.GA -->
+<!-- Generated Aug 1, 2011 6:30:58 PM by Hibernate Tools 3.2.4.GA -->
 <hibernate-mapping>
     <class name="com.scholastic.sbam.server.database.codegen.Product" table="product" catalog="sbam">
         <id name="productCode" type="string">
@@ -19,6 +19,12 @@
         </property>
         <property name="defaultCommissionCode" type="string">
             <column name="default_commission_code" length="32" not-null="true" />
+        </property>
+        <property name="orgPath" type="string">
+            <column name="org_path" length="1024" not-null="true" />
+        </property>
+        <property name="seq" type="int">
+            <column name="seq" not-null="true" />
         </property>
         <property name="createdDatetime" type="timestamp">
             <column name="created_datetime" length="19" not-null="true" />

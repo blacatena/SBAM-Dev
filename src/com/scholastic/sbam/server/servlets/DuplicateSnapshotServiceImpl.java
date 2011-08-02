@@ -144,7 +144,7 @@ public class DuplicateSnapshotServiceImpl extends AuthenticatedServiceServlet im
 	}
 	
 	public void copySnapshotProductServices(Snapshot dbInstance, Snapshot dbOriginal) {
-		List<SnapshotProductService> productServiceOriginals = DbSnapshotProductService.findFiltered(dbOriginal.getSnapshotId(), null);
+		List<SnapshotProductService> productServiceOriginals = DbSnapshotProductService.findFiltered(dbOriginal.getSnapshotId(), (char) 0, null);
 		
 		for (SnapshotProductService productServiceOriginal : productServiceOriginals) {
 			SnapshotProductService productServiceCopy = new SnapshotProductService();

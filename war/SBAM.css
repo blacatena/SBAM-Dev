@@ -770,6 +770,10 @@ background-image:url(resources/images/icons/colorful/info.png);
 	background-color: #FFE1B6;
 }
 
+.products-selector-button {
+	background-image:url(resources/images/icons/threestate/product.png);
+}
+
 .services-selector-button {
 	background-image:url(resources/images/icons/threestate/service.png);
 }

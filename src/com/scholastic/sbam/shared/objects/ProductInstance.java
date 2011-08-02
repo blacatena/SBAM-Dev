@@ -17,6 +17,8 @@ public class ProductInstance extends BetterRowEditInstance implements BeanModelT
 	private String shortName;
 	private String defaultTermType;
 	private String defaultCommissionCode;
+	private String orgPath;
+	private int    seq;
 	private char   status;
 	private boolean active;
 	private Date   createdDatetime;
@@ -114,6 +116,22 @@ public class ProductInstance extends BetterRowEditInstance implements BeanModelT
 
 	public void setDefaultCommissionCode(String defaultCommissionCode) {
 		this.defaultCommissionCode = defaultCommissionCode;
+	}
+
+	public String getOrgPath() {
+		return orgPath;
+	}
+
+	public void setOrgPath(String orgPath) {
+		this.orgPath = orgPath;
+	}
+
+	public int getSeq() {
+		return seq;
+	}
+
+	public void setSeq(int seq) {
+		this.seq = seq;
 	}
 
 	public TermTypeInstance getDefaultTermTypeInstance() {

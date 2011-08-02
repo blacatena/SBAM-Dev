@@ -11,6 +11,7 @@ import org.hibernate.criterion.Restrictions;
 import com.scholastic.sbam.server.database.codegen.SnapshotProductService;
 import com.scholastic.sbam.server.database.codegen.SnapshotProductServiceId;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
+import com.scholastic.sbam.shared.objects.SnapshotInstance;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 /**
@@ -23,9 +24,10 @@ public class DbSnapshotProductService extends HibernateAccessor {
 	
 	static String objectName = SnapshotProductService.class.getSimpleName();
 	
-	public static SnapshotProductService getById(int snapshotId, String productServiceCode) {
+	public static SnapshotProductService getById(int snapshotId, char productServiceType, String productServiceCode) {
 		SnapshotProductServiceId spsId = new SnapshotProductServiceId();
 		spsId.setSnapshotId(snapshotId);
+		spsId.setProductServiceType(productServiceType);
 		spsId.setProductServiceCode(productServiceCode);
 		
 		return getById(spsId);
@@ -66,12 +68,14 @@ public class DbSnapshotProductService extends HibernateAccessor {
 		return findFilteredProduct(snapshotId, null, excludeStatus);
 	}
 	
-	public static List<SnapshotProductService> findFiltered(int snapshotId, String productServiceCode) {
+	public static List<SnapshotProductService> findFiltered(int snapshotId, char productServiceType, String productServiceCode) {
         try
         {
             Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
             if (snapshotId > 0)
-            	crit.add(Restrictions.like("id.snapshotId", snapshotId));
+            	crit.add(Restrictions.eq("id.snapshotId", snapshotId));
+            if (productServiceType != 0)
+            	crit.add(Restrictions.eq("id.productServiceType", productServiceType));
             if (productServiceCode != null && productServiceCode.length() > 0)
             	crit.add(Restrictions.like("id.productServiceCode", productServiceCode));
             crit.addOrder(Order.asc("id.snapshotId"));
@@ -95,10 +99,11 @@ public class DbSnapshotProductService extends HibernateAccessor {
 	public static List<SnapshotProductService> findFilteredService(int snapshotId, String serviceCode, char status, char neStatus) {
         try
         {
-        	if (neStatus == 0)
-        		return findFiltered(snapshotId, serviceCode);
+        	if (neStatus == 0 && status == 0)
+        		return findFiltered(snapshotId, SnapshotInstance.SERVICE_TYPE, serviceCode);
         	
         	String sqlQuery = "SELECT snapshot_product_service.* FROM snapshot_product_service, service WHERE ";
+        	sqlQuery += " snapshot_product_service.product_service_type = '" + SnapshotInstance.SERVICE_TYPE + "' AND ";
             if (snapshotId  > 0)
             	sqlQuery += " snapshot_product_service.snapshot_id = '" + snapshotId + "' AND ";
             if (serviceCode != null && serviceCode.length() > 0)
@@ -130,16 +135,17 @@ public class DbSnapshotProductService extends HibernateAccessor {
 	}
 	
 	public static List<SnapshotProductService> findFilteredProduct(int snapshotId, String productCode, char neStatus) {
-		return findFilteredService(snapshotId, productCode, AppConstants.STATUS_ANY_NONE, neStatus);
+		return findFilteredProduct(snapshotId, productCode, AppConstants.STATUS_ANY_NONE, neStatus);
 	}
 	
 	public static List<SnapshotProductService> findFilteredProduct(int snapshotId, String productCode, char status, char neStatus) {
         try
         {
-        	if (neStatus == 0)
-        		return findFiltered(snapshotId, productCode);
+        	if (neStatus == 0 && status == 0)
+        		return findFiltered(snapshotId, SnapshotInstance.PRODUCT_TYPE, productCode);
         	
         	String sqlQuery = "SELECT snapshot_product_service.* FROM snapshot_product_service, product WHERE ";
+        	sqlQuery += " snapshot_product_service.product_service_type = '" + SnapshotInstance.PRODUCT_TYPE + "' AND ";
             if (snapshotId > 0)
             	sqlQuery += " snapshot_product_service.snapshot_id = '" + snapshotId + "' AND ";
             if (productCode != null && productCode.length() > 0)

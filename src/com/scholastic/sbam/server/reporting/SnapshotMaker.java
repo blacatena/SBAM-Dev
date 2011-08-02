@@ -181,13 +181,13 @@ public class SnapshotMaker {
 			
 			parameters = DbSnapshotParameter.getParameters( DbSnapshotParameter.findBySnapshot(dbSnapshot.getSnapshotId() ));
 			
-			List<SnapshotProductService> snapshotProductServices;
-			if (dbSnapshot.getProductServiceType() == SnapshotInstance.PRODUCT_TYPE)
-				snapshotProductServices = DbSnapshotProductService.findProductBySnapshot(dbSnapshot.getSnapshotId(), AppConstants.STATUS_DELETED);
-			else if (dbSnapshot.getProductServiceType() == SnapshotInstance.SERVICE_TYPE)
-				snapshotProductServices = DbSnapshotProductService.findServiceBySnapshot(dbSnapshot.getSnapshotId(), AppConstants.STATUS_DELETED); 
-			else
-				throw new IllegalArgumentException("INTERNAL ERROR: Invalid snapshot product/service type " + dbSnapshot.getProductServiceType() + ".");
+			List<SnapshotProductService> snapshotProducts = DbSnapshotProductService.findProductBySnapshot(dbSnapshot.getSnapshotId(), AppConstants.STATUS_DELETED);
+			List<SnapshotProductService> snapshotServices = DbSnapshotProductService.findServiceBySnapshot(dbSnapshot.getSnapshotId(), AppConstants.STATUS_DELETED); 
+			
+//			if (dbSnapshot.getProductServiceType() != SnapshotInstance.SERVICE_TYPE
+//			&&  snapshotServices != null
+//			&&  snapshotServices.size() > 0)
+//				throw new IllegalArgumentException("Cannot create a snapshot by product with selection by service.");
 			
 			//	Load all products and services
 			
@@ -195,12 +195,14 @@ public class SnapshotMaker {
 			
 			//	This does not do the customer piece...
 			
-			String productServiceSql = new SnapshotAgreementTermSql(dbSnapshot, parameters, snapshotProductServices).getSnapshotSql(); // getSnapshotSql(dbSnapshot, parameters, snapshotProductServices);
+			String agreementTermSql = new SnapshotAgreementTermSql(dbSnapshot, parameters, snapshotProducts, snapshotServices, productServiceMap).getSnapshotSql(); // getSnapshotSql(dbSnapshot, parameters, snapshotProductServices);
+			
+			System.out.println(agreementTermSql);
 			
 			// 	We use straight SQL, because normal Hibernate access wants to load the full dataset into memory, which uses just too much space.
 			Connection conn   = HibernateUtil.getConnection();
 			Statement sqlStmt = conn.createStatement();
-			ResultSet results = sqlStmt.executeQuery(productServiceSql);
+			ResultSet results = sqlStmt.executeQuery(agreementTermSql);
 			
 			while (results.next()) {
 				SnapshotTermDataInstance termData = DbSnapshotTermData.getInstance(results);
@@ -218,6 +220,7 @@ public class SnapshotMaker {
 			
 		} catch (IllegalArgumentException exc) {
 			silentRollback();
+			exc.printStackTrace();
 			throw exc;
 		} catch (Exception exc) {
 			silentRollback();

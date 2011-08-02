@@ -14,7 +14,7 @@ import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 /**
- * Utility class for server side snapshot compilation.  This class provides a consolidate map of all products and associated services.
+ * Utility class for server side snapshot compilation.  This class provides a consolidated map of all products and associated services.
  * 
  * @author Bob Lacatena
  *
@@ -53,8 +53,18 @@ public class SnapshotProductServiceEntry {
 	}
 	
 	public double getFraction(String serviceCode) {
+		//	If no services, or not asking for a particular service, return 1
+		if (services.size() == 0 || serviceCode == null || serviceCode.length() == 0)
+			return 1.0d;
+		//	If this service isn't in this product, it gets no share
+		if (!services.containsKey(serviceCode))
+			return 0.0d;
 		//	For now, this just allocates all services evenly (until database modifications are made to distribute by product service defined weight)
 		return 1.0d / services.size();
+	}
+	
+	public boolean hasService(String serviceCode) {
+		return services.containsKey(serviceCode);
 	}
 	
 	public String toString() {

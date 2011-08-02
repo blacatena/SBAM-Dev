@@ -1,5 +1,6 @@
 package com.scholastic.sbam.client.uiobjects.uireports;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -22,6 +23,7 @@ public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermIn
 
 	protected SnapshotSelectorCard			snapshotSelectorCard;
 	protected CustomerSelectionCard			customersCard;
+	protected ProductSelectionCard			productsCard;
 	protected ServiceSelectionCard			servicesCard;
 	protected TermCriteriaCard				criteriaCard;
 	protected TermReportViewDataCard		viewDataCard;
@@ -57,6 +59,10 @@ public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermIn
 		customersCard = new CustomerSelectionCard();
 		customersCard.setParentCardPanel(this);
 		outerContainer.add(customersCard);
+		
+		productsCard = new ProductSelectionCard();
+		productsCard.setParentCardPanel(this);
+		outerContainer.add(productsCard);
 		
 		servicesCard = new ServiceSelectionCard();
 		servicesCard.setParentCardPanel(this);
@@ -190,6 +196,12 @@ public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermIn
 		if (!haveSnapshot())
 			return;
 		
+		if (id == SnapshotParentCardPanel.PRODUCT_SELECTOR_PANEL) {
+			productsCard.setSnapshot(targetSnapshot);
+			cards.setActiveItem(productsCard);
+			return;
+		}
+		
 		if (id == SnapshotParentCardPanel.SERVICE_SELECTOR_PANEL) {
 			servicesCard.setSnapshot(targetSnapshot);
 			cards.setActiveItem(servicesCard);
@@ -239,8 +251,8 @@ public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermIn
 			switchLayout(SnapshotParentCardPanel.SNAPSHOT_SELECTOR_PANEL);
 		else if (container == servicesCard)
 			switchLayout(SnapshotParentCardPanel.SERVICE_SELECTOR_PANEL);
-//		else if (container == productsCard)
-//			switchLayout(SnapshotParentCardPanel.PRODUCT_SELECTOR_PANEL);
+		else if (container == productsCard)
+			switchLayout(SnapshotParentCardPanel.PRODUCT_SELECTOR_PANEL);
 		else if (container == customersCard)
 			switchLayout(SnapshotParentCardPanel.CUSTOMER_SELECTOR_PANEL);
 		else if (container == criteriaCard)
@@ -251,8 +263,16 @@ public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermIn
 
 	@Override
 	public List<LayoutContainer> getCards() {
-		// TODO Auto-generated method stub
-		return null;
+		List<LayoutContainer> list = new ArrayList<LayoutContainer>();
+		
+		list.add(snapshotSelectorCard);
+		list.add(productsCard);
+		list.add(servicesCard);
+		list.add(customersCard);
+		list.add(criteriaCard);
+		list.add(viewDataCard);
+		
+		return list;
 	}
 
 	@Override

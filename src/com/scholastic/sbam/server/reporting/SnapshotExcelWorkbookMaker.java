@@ -27,6 +27,7 @@ import com.scholastic.sbam.server.database.codegen.Product;
 import com.scholastic.sbam.server.database.codegen.Service;
 import com.scholastic.sbam.server.database.codegen.Snapshot;
 import com.scholastic.sbam.server.database.codegen.SnapshotParameter;
+import com.scholastic.sbam.server.database.codegen.SnapshotProductService;
 import com.scholastic.sbam.server.database.codegen.SnapshotTermData;
 import com.scholastic.sbam.server.database.codegen.TermType;
 import com.scholastic.sbam.server.database.codegen.User;
@@ -39,6 +40,7 @@ import com.scholastic.sbam.server.database.objects.DbProduct;
 import com.scholastic.sbam.server.database.objects.DbService;
 import com.scholastic.sbam.server.database.objects.DbSnapshot;
 import com.scholastic.sbam.server.database.objects.DbSnapshotParameter;
+import com.scholastic.sbam.server.database.objects.DbSnapshotProductService;
 import com.scholastic.sbam.server.database.objects.DbSnapshotTermData;
 import com.scholastic.sbam.server.database.objects.DbTermType;
 import com.scholastic.sbam.server.database.objects.DbUser;
@@ -87,6 +89,7 @@ public class SnapshotExcelWorkbookMaker {
 	protected static final short	DATE_TIME_FORMAT		=	HSSFDataFormat.getBuiltinFormat(EXCEL_DATE_TIME_FORMAT);
 	
 	protected int					snapshotId;
+	protected SnapshotInstance		snapshot;
 	
 	protected boolean				useLookups				=	true;
 	
@@ -100,15 +103,15 @@ public class SnapshotExcelWorkbookMaker {
 	
 	protected final HSSFFont		BOLD_FONT				=	createBoldFont();
 	
-	protected final HSSFCellStyle	TEXT_STYLE				=	createTextStyle();
+	protected final HSSFCellStyle	TEXT_STYLE				=	createTextCellStyle(TEXT_FORMAT);	//	createTextStyle();
 	protected final HSSFCellStyle	BOLD_STYLE				=	createBoldStyle();
 	protected final HSSFCellStyle	BOLD_RIGHT_STYLE		=	createBoldRightStyle();
-	protected final HSSFCellStyle	DATE_STYLE				=	createDateStyle();
-	protected final HSSFCellStyle	DATE_TIME_STYLE			=	createDateTimeStyle();
-	protected final HSSFCellStyle	FRACTION_STYLE			=	createFractionStyle();
-	protected final HSSFCellStyle	NUMBER_STYLE			=	createNumberStyle();
-	protected final HSSFCellStyle	INTEGER_STYLE			=	createIntegerStyle();
-	protected final HSSFCellStyle	CURRENCY_STYLE			=	createCurrencyStyle();
+	protected final HSSFCellStyle	DATE_STYLE				=	createCellStyle(DATE_FORMAT);		//	createDateStyle();
+	protected final HSSFCellStyle	DATE_TIME_STYLE			=	createCellStyle(DATE_TIME_FORMAT);	//	createDateTimeStyle();
+	protected final HSSFCellStyle	FRACTION_STYLE			=	createCellStyle(FRACTION_FORMAT);	//	createFractionStyle();
+	protected final HSSFCellStyle	NUMBER_STYLE			=	createCellStyle(NUMBER_FORMAT);		//	createNumberStyle();
+	protected final HSSFCellStyle	INTEGER_STYLE			=	createCellStyle(INTEGER_FORMAT);	//	createIntegerStyle();
+	protected final HSSFCellStyle	CURRENCY_STYLE			=	createCellStyle(CURRENCY_FORMAT);	//	createCurrencyStyle();
 	
 	protected int					rowNum					=	0;
 
@@ -170,6 +173,23 @@ public class SnapshotExcelWorkbookMaker {
 		return thisFont;
 	}
 	
+	protected HSSFCellStyle createTextCellStyle(short style) {
+		HSSFCellStyle thisStyle = wb.createCellStyle();
+		
+		thisStyle.setDataFormat(style);
+		thisStyle.setWrapText(true);
+		
+		return thisStyle;
+	}
+	
+	protected HSSFCellStyle createCellStyle(short style) {
+		HSSFCellStyle thisStyle = wb.createCellStyle();
+		
+		thisStyle.setDataFormat(style);
+		
+		return thisStyle;
+	}
+	
 	protected HSSFCellStyle createTextStyle() {
 		HSSFCellStyle thisStyle = wb.createCellStyle();
 		
@@ -179,59 +199,59 @@ public class SnapshotExcelWorkbookMaker {
 		return thisStyle;
 	}
 	
-	protected HSSFCellStyle createDateStyle() {
-		HSSFCellStyle thisStyle = wb.createCellStyle();
-		
-		thisStyle.setDataFormat(DATE_FORMAT);
-		thisStyle.setWrapText(true);
-		
-		return thisStyle;
-	}
-	
-	protected HSSFCellStyle createDateTimeStyle() {
-		HSSFCellStyle thisStyle = wb.createCellStyle();
-		
-		thisStyle.setDataFormat(DATE_TIME_FORMAT);
-		thisStyle.setWrapText(true);
-		
-		return thisStyle;
-	}
-	
-	protected HSSFCellStyle createNumberStyle() {
-		HSSFCellStyle thisStyle = wb.createCellStyle();
-		
-		thisStyle.setDataFormat(NUMBER_FORMAT);
-		thisStyle.setWrapText(true);
-		
-		return thisStyle;
-	}
-	
-	protected HSSFCellStyle createFractionStyle() {
-		HSSFCellStyle thisStyle = wb.createCellStyle();
-		
-		thisStyle.setDataFormat(FRACTION_FORMAT);
-		thisStyle.setWrapText(true);
-		
-		return thisStyle;
-	}
-	
-	protected HSSFCellStyle createIntegerStyle() {
-		HSSFCellStyle thisStyle = wb.createCellStyle();
-		
-		thisStyle.setDataFormat(INTEGER_FORMAT);
-		thisStyle.setWrapText(true);
-		
-		return thisStyle;
-	}
-	
-	protected HSSFCellStyle createCurrencyStyle() {
-		HSSFCellStyle thisStyle = wb.createCellStyle();
-		
-		thisStyle.setDataFormat(CURRENCY_FORMAT);
-		thisStyle.setWrapText(true);
-		
-		return thisStyle;
-	}
+//	protected HSSFCellStyle createDateStyle() {
+//		HSSFCellStyle thisStyle = wb.createCellStyle();
+//		
+//		thisStyle.setDataFormat(DATE_FORMAT);
+//		thisStyle.setWrapText(true);
+//		
+//		return thisStyle;
+//	}
+//	
+//	protected HSSFCellStyle createDateTimeStyle() {
+//		HSSFCellStyle thisStyle = wb.createCellStyle();
+//		
+//		thisStyle.setDataFormat(DATE_TIME_FORMAT);
+//		thisStyle.setWrapText(true);
+//		
+//		return thisStyle;
+//	}
+//	
+//	protected HSSFCellStyle createNumberStyle() {
+//		HSSFCellStyle thisStyle = wb.createCellStyle();
+//		
+//		thisStyle.setDataFormat(NUMBER_FORMAT);
+//		thisStyle.setWrapText(true);
+//		
+//		return thisStyle;
+//	}
+//	
+//	protected HSSFCellStyle createFractionStyle() {
+//		HSSFCellStyle thisStyle = wb.createCellStyle();
+//		
+//		thisStyle.setDataFormat(FRACTION_FORMAT);
+//		thisStyle.setWrapText(true);
+//		
+//		return thisStyle;
+//	}
+//	
+//	protected HSSFCellStyle createIntegerStyle() {
+//		HSSFCellStyle thisStyle = wb.createCellStyle();
+//		
+//		thisStyle.setDataFormat(INTEGER_FORMAT);
+//		thisStyle.setWrapText(true);
+//		
+//		return thisStyle;
+//	}
+//	
+//	protected HSSFCellStyle createCurrencyStyle() {
+//		HSSFCellStyle thisStyle = wb.createCellStyle();
+//		
+//		thisStyle.setDataFormat(CURRENCY_FORMAT);
+//		thisStyle.setWrapText(true);
+//		
+//		return thisStyle;
+//	}
 	
 	protected HSSFCellStyle createBoldStyle() {
 		HSSFCellStyle thisStyle = createTextStyle();
@@ -254,7 +274,7 @@ public class SnapshotExcelWorkbookMaker {
 		
 		setCoverSheetWidths();
 		
-		SnapshotInstance snapshot = getSnapshot(); 
+		snapshot = getSnapshot(); 
 		coverRow = addCoverCell(coverRow, "Snapshot ID", snapshotId + "  " + snapshot.getSnapshotName());
 		coverRow = addCoverCell(coverRow, "Compiled", snapshot.getSnapshotTaken() + "");
 		coverRow = addCoverCell(coverRow, "Rows Selected", snapshot.getSnapshotRows() + "");
@@ -348,75 +368,128 @@ public class SnapshotExcelWorkbookMaker {
 	}
 	
 	public int addParameters(SnapshotInstance snapshot, int coverRow) throws ServletException {
-		
-		HSSFRow row = null;
-		
-		int cellNum = 0;
 
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();
 		
 		try {
-			String lastParameterName = null;
+			coverRow = addOtherParameters(snapshot, coverRow);
+			coverRow = addProductParameters(snapshot, coverRow);
+			coverRow = addServiceParameters(snapshot, coverRow);
 			
-			List<SnapshotParameter> parameterValues = DbSnapshotParameter.findBySource(snapshotId, null);
-			for (SnapshotParameter parameterValue : parameterValues) {
-				if (lastParameterName == null || !lastParameterName.equalsIgnoreCase(parameterValue.getId().getParameterName())) {
-					row = coverSheet.createRow(coverRow++);
-					
-					cellNum = 0; 
-					
-					HSSFCell cell = row.createCell(cellNum++);
-					cell.setCellStyle(BOLD_RIGHT_STYLE);
-					cell.setCellValue(SnapshotParameterNames.getLabel(parameterValue.getId().getParameterName()));
-					
-					lastParameterName = parameterValue.getId().getParameterName();
-				}
-
-				if (parameterValue.getParameterType() == SnapshotParameterValueObject.INTEGER) {
-					if (parameterValue.getIntFromValue() == null)
-						throw new ServletException("Null value found for " + parameterValue.getId().getParameterName() + " for snapshot " + snapshotId + ".");
-					if (parameterValue.getIntToValue() != null && parameterValue.getIntToValue().intValue() > parameterValue.getIntFromValue().intValue())
-						addCell(row, cellNum++, parameterValue.getIntFromValue() + "<==>" + parameterValue.getIntToValue());
-					else
-						addCell(row, cellNum++, parameterValue.getIntFromValue());
-					
-				} else if (parameterValue.getParameterType() == SnapshotParameterValueObject.DOUBLE) {
-					if (parameterValue.getDblFromValue() == null)
-						throw new ServletException("Null value found for " + parameterValue.getId().getParameterName() + " for snapshot " + snapshotId + ".");
-					if (parameterValue.getDblToValue().doubleValue() > parameterValue.getDblFromValue().doubleValue())
-						addCell(row, cellNum++, parameterValue.getDblFromValue() + "<==>" + parameterValue.getDblToValue());
-					else
-						addCell(row, cellNum++, parameterValue.getDblFromValue());
-					
-				} else if (parameterValue.getParameterType() == SnapshotParameterValueObject.DATE) {
-					if (parameterValue.getDateFromValue() == null)
-						throw new ServletException("Null value found for " + parameterValue.getId().getParameterName() + " for snapshot " + snapshotId + ".");
-					if (parameterValue.getDateToValue() != null && parameterValue.getDateToValue().after(parameterValue.getDateFromValue()))
-						addCell(row, cellNum++, parameterValue.getDateFromValue() + "<==>" + parameterValue.getDateToValue());
-					else
-						addCell(row, cellNum++, parameterValue.getDateFromValue());
-					
-				} else if (parameterValue.getParameterType() == SnapshotParameterValueObject.STRING) {
-					if (parameterValue.getStrFromValue() == null)
-						throw new ServletException("Null value found for " + parameterValue.getId().getParameterName() + " for snapshot " + snapshotId + ".");
-					if (parameterValue.getStrToValue() != null && parameterValue.getStrToValue().compareTo(parameterValue.getStrFromValue()) > 0)
-						addCell(row, cellNum++, parameterValue.getStrFromValue() + "<==>" + parameterValue.getStrToValue());
-					else
-						addCell(row, cellNum++, getTranslatedValue(snapshot, parameterValue.getId().getParameterName(), parameterValue.getStrFromValue()));
-					
-				} else if (parameterValue.getParameterType() == SnapshotParameterValueObject.BOOLEAN) {
-					if (parameterValue.getIntFromValue() == null)
-						throw new IllegalArgumentException("Null value found for " + parameterValue.getId().getParameterName() + " for snapshot " + snapshotId + ".");
-					addCell(row, cellNum++, (parameterValue.getIntFromValue() > 0) ? "TRUE" : "FALSE");
-					
-				} else 
-					throw new ServletException("Unrecognized Parameter Type " + parameterValue.getParameterType() + " for " + parameterValue.getId().getParameterName() + " for snapshot " + snapshotId + ".");
-
-			}
+			return coverRow;
 		} finally {		
 			HibernateUtil.endTransaction();
 			HibernateUtil.closeSession();
+		}
+	}
+	
+	public int addOtherParameters(SnapshotInstance snapshot, int coverRow) throws ServletException {
+		
+		HSSFRow row = null;
+		
+		int cellNum = 0;
+		
+		String lastParameterName = null;
+		
+		List<SnapshotParameter> parameterValues = DbSnapshotParameter.findBySource(snapshotId, null);
+		for (SnapshotParameter parameterValue : parameterValues) {
+			
+			//	Skip these... they aren't handled the same way
+			if (parameterValue.getId().getParameterName().equals(SnapshotParameterNames.PRODUCT_CODE))
+				continue;
+			
+			if (parameterValue.getId().getParameterName().equals(SnapshotParameterNames.SERVICE_CODE))
+				continue;
+			
+			if (lastParameterName == null || !lastParameterName.equalsIgnoreCase(parameterValue.getId().getParameterName())) {
+				row = coverSheet.createRow(coverRow++);
+				
+				cellNum = 0; 
+				
+				HSSFCell cell = row.createCell(cellNum++);
+				cell.setCellStyle(BOLD_RIGHT_STYLE);
+				cell.setCellValue(SnapshotParameterNames.getLabel(parameterValue.getId().getParameterName()));
+				
+				lastParameterName = parameterValue.getId().getParameterName();
+			}
+
+			if (parameterValue.getParameterType() == SnapshotParameterValueObject.INTEGER) {
+				if (parameterValue.getIntFromValue() == null)
+					throw new ServletException("Null value found for " + parameterValue.getId().getParameterName() + " for snapshot " + snapshotId + ".");
+				if (parameterValue.getIntToValue() != null && parameterValue.getIntToValue().intValue() > parameterValue.getIntFromValue().intValue())
+					addCell(row, cellNum++, parameterValue.getIntFromValue() + "<==>" + parameterValue.getIntToValue());
+				else
+					addCell(row, cellNum++, parameterValue.getIntFromValue());
+				
+			} else if (parameterValue.getParameterType() == SnapshotParameterValueObject.DOUBLE) {
+				if (parameterValue.getDblFromValue() == null)
+					throw new ServletException("Null value found for " + parameterValue.getId().getParameterName() + " for snapshot " + snapshotId + ".");
+				if (parameterValue.getDblToValue().doubleValue() > parameterValue.getDblFromValue().doubleValue())
+					addCell(row, cellNum++, parameterValue.getDblFromValue() + "<==>" + parameterValue.getDblToValue());
+				else
+					addCell(row, cellNum++, parameterValue.getDblFromValue());
+				
+			} else if (parameterValue.getParameterType() == SnapshotParameterValueObject.DATE) {
+				if (parameterValue.getDateFromValue() == null)
+					throw new ServletException("Null value found for " + parameterValue.getId().getParameterName() + " for snapshot " + snapshotId + ".");
+				if (parameterValue.getDateToValue() != null && parameterValue.getDateToValue().after(parameterValue.getDateFromValue()))
+					addCell(row, cellNum++, parameterValue.getDateFromValue() + "<==>" + parameterValue.getDateToValue());
+				else
+					addCell(row, cellNum++, parameterValue.getDateFromValue());
+				
+			} else if (parameterValue.getParameterType() == SnapshotParameterValueObject.STRING) {
+				if (parameterValue.getStrFromValue() == null)
+					throw new ServletException("Null value found for " + parameterValue.getId().getParameterName() + " for snapshot " + snapshotId + ".");
+				if (parameterValue.getStrToValue() != null && parameterValue.getStrToValue().compareTo(parameterValue.getStrFromValue()) > 0)
+					addCell(row, cellNum++, parameterValue.getStrFromValue() + "<==>" + parameterValue.getStrToValue());
+				else
+					addCell(row, cellNum++, getTranslatedValue(snapshot, parameterValue.getId().getParameterName(), parameterValue.getStrFromValue()));
+				
+			} else if (parameterValue.getParameterType() == SnapshotParameterValueObject.BOOLEAN) {
+				if (parameterValue.getIntFromValue() == null)
+					throw new IllegalArgumentException("Null value found for " + parameterValue.getId().getParameterName() + " for snapshot " + snapshotId + ".");
+				addCell(row, cellNum++, (parameterValue.getIntFromValue() > 0) ? "TRUE" : "FALSE");
+				
+			} else 
+				throw new ServletException("Unrecognized Parameter Type " + parameterValue.getParameterType() + " for " + parameterValue.getId().getParameterName() + " for snapshot " + snapshotId + ".");
+
+		}
+		
+		return coverRow;
+	}
+	
+	public int addProductParameters(SnapshotInstance snapshot, int coverRow) throws ServletException {
+		List<SnapshotProductService> products = DbSnapshotProductService.findProductBySnapshot(snapshot.getSnapshotId(), (char) 0);
+		
+		addProductServiceParameters("Products", products, coverRow);
+		
+		return coverRow;
+	}
+	
+	public int addServiceParameters(SnapshotInstance snapshot, int coverRow) throws ServletException {
+		List<SnapshotProductService> services = DbSnapshotProductService.findServiceBySnapshot(snapshot.getSnapshotId(), (char) 0);
+		
+		addProductServiceParameters("Services", services, coverRow);
+		
+		return coverRow;
+	}
+	
+	public int addProductServiceParameters(String header, List<SnapshotProductService> productServices, int coverRow) throws ServletException {
+		if (productServices == null || productServices.size() == 0)
+			return coverRow;
+		
+		coverRow++;	// Blank line
+		
+		for (SnapshotProductService productService : productServices) {
+			String name;
+			if (productService.getId().getProductServiceType() == SnapshotInstance.PRODUCT_TYPE) {
+				name = getProduct(productService.getId().getProductServiceCode()).getDescription();
+			} else {
+				name = getService(productService.getId().getProductServiceCode()).getDescription();
+			}
+			addCoverCell(coverRow++, header, productService.getId().getProductServiceCode(), name);
+			header = "";
 		}
 		
 		return coverRow;
@@ -462,7 +535,9 @@ public class SnapshotExcelWorkbookMaker {
 		dataSheet.setColumnWidth(cellNum++, getDollarWidth());
 		dataSheet.setColumnWidth(cellNum++, getDollarWidth());
 		cellNum = addProductWidths(dataSheet, cellNum);
-		cellNum = addServiceWidths(dataSheet, cellNum);
+		if (snapshot.getProductServiceType() == SnapshotInstance.SERVICE_TYPE) {
+			cellNum = addServiceWidths(dataSheet, cellNum);
+		}
 		cellNum = addInstitutionWidths(dataSheet, cellNum);
 		
 		createHeaders();
@@ -501,7 +576,9 @@ public class SnapshotExcelWorkbookMaker {
 		addCell(row, cellNum++, "UCN Fraction");
 		addCell(row, cellNum++, "Dollar UCN Fraction");
 		cellNum = addProductHeadings(row, cellNum);
-		cellNum = addServiceHeadings(row, cellNum);
+		if (snapshot.getProductServiceType() == SnapshotInstance.SERVICE_TYPE) {
+			cellNum = addServiceHeadings(row, cellNum);
+		}
 		cellNum = addInstitutionHeadings(row, cellNum);
 		
 		rowNum++;
@@ -578,13 +655,17 @@ public class SnapshotExcelWorkbookMaker {
 		if (useLookups) {
 			for (int col = 2; col < 7; col++)
 				addFormulaCell(row, cellNum++, getLookupFunction(productSheet, "C", row.getRowNum(), productMap.size(), col), TEXT_STYLE);
-			for (int col = 2; col < 5; col++)
-				addFormulaCell(row, cellNum++, getLookupFunction(serviceSheet, "D", row.getRowNum(), serviceMap.size(), col), TEXT_STYLE);
+			if (snapshot.getProductServiceType() == SnapshotInstance.SERVICE_TYPE) {
+				for (int col = 2; col < 5; col++)
+					addFormulaCell(row, cellNum++, getLookupFunction(serviceSheet, "D", row.getRowNum(), serviceMap.size(), col), TEXT_STYLE);
+			}
 			for (int col = 2; col < 8; col++)
 				addFormulaCell(row, cellNum++, getLookupFunction(institutionSheet, "B", row.getRowNum(), institutionMap.size(), col), TEXT_STYLE);
 		} else {
 			cellNum = addProductCells(row, cellNum, instance.getProduct());
-			cellNum = addServiceCells(row, cellNum, instance.getService());
+			if (snapshot.getProductServiceType() == SnapshotInstance.SERVICE_TYPE) {
+				cellNum = addServiceCells(row, cellNum, instance.getService());
+			}
 			cellNum = addInstitutionCells(row, cellNum, instance.getInstitution());
 		}
 		
@@ -702,9 +783,9 @@ public class SnapshotExcelWorkbookMaker {
 	protected int addProductCells(HSSFRow row, int cellNum, ProductInstance product) {
 		addCell(row, cellNum++, product.getDescription());
 		addCell(row, cellNum++, product.getDefaultTermType());
-		addCell(row, cellNum++, product.getDefaultTermTypeInstance().getDescription());
+		addCell(row, cellNum++, (product.getDefaultTermTypeInstance() == null ? "" : product.getDefaultTermTypeInstance().getDescription()) );
 		addCell(row, cellNum++, product.getDefaultCommissionCode());
-		addCell(row, cellNum++, product.getDefaultCommTypeInstance().getDescription());
+		addCell(row, cellNum++, (product.getDefaultCommTypeInstance() == null ? "" : product.getDefaultCommTypeInstance().getDescription()));
 		return cellNum;
 	}
 	

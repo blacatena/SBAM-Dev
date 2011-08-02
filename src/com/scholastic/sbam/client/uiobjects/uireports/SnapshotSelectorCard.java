@@ -105,7 +105,8 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 	protected final UpdateSnapshotNoteServiceAsync 		updateSnapshotNoteService = GWT.create(UpdateSnapshotNoteService.class);
 	protected final UpdateSnapshotTreeServiceAsync		updateSnapshotTreeService = GWT.create(UpdateSnapshotTreeService.class);
 	protected final DuplicateSnapshotServiceAsync 		duplicateSnapshotService = GWT.create(DuplicateSnapshotService.class);
-	
+
+	protected final ToolTipConfig productsTip	=	getIconButtonToolTip("Use this button to restrict the products selected for this snapshot.");
 	protected final ToolTipConfig servicesTip	=	getIconButtonToolTip("Use this button to restrict the services selected for this snapshot.");
 	protected final ToolTipConfig customersTip	=	getIconButtonToolTip("Use this button to restrict the customers selected for this snapshot.");
 	protected final ToolTipConfig termsTip		=	getIconButtonToolTip("Use this button to restrict the terms selected for this snapshot.");
@@ -467,6 +468,9 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 	    ColumnConfig term = new ColumnConfig("termButton",					"",							30);
 	    term.setRenderer(getTermButtonRenderer());
 	    
+	    ColumnConfig prod = new ColumnConfig("productButton",				"",							30);
+	    prod.setRenderer(getProductButtonRenderer());
+	    
 	    ColumnConfig srvc = new ColumnConfig("serviceButton",				"",							30);
 	    srvc.setRenderer(getServiceButtonRenderer());
 	    
@@ -482,7 +486,7 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 	    ColumnConfig note = new ColumnConfig("notesButton",					"",							30);
 	    note.setRenderer(getNoteButtonRenderer());
 	    
-	    ColumnModel cm = new ColumnModel(Arrays.asList(id, name, date, rows, expi, user, stat, term, srvc, cust, data, excl, note));
+	    ColumnModel cm = new ColumnModel(Arrays.asList(id, name, date, rows, expi, user, stat, term, prod, srvc, cust, data, excl, note));
 	    
 	    return cm;
 	}
@@ -1088,6 +1092,18 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 	
 	protected ToolTipConfig getIconButtonToolTip(String tip) {
 		return new ToolTipConfig(tip);
+	}
+	
+	protected GridCellRenderer<ModelData> getProductButtonRenderer() {
+		GridCellRenderer<ModelData> buttonRenderer = new GridCellRenderer<ModelData>() {   
+	
+		      public Object render(final ModelData model, String property, ColumnData config, final int rowIndex, final int colIndex, ListStore<ModelData> store, Grid<ModelData> grid) {  
+		    	  return getLayoutSwitchButton("products-selector-button", SnapshotParentCardPanel.PRODUCT_SELECTOR_PANEL, model, productsTip) ;  
+		      }  
+	
+		};  
+		    
+		return buttonRenderer;
 	}
 	
 	protected GridCellRenderer<ModelData> getServiceButtonRenderer() {

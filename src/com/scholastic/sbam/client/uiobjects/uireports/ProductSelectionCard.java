@@ -1,19 +1,39 @@
 package com.scholastic.sbam.client.uiobjects.uireports;
 
-import com.extjs.gxt.ui.client.widget.Html;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.user.client.Element;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.scholastic.sbam.shared.objects.SnapshotInstance;
 
-public class ProductSelectionCard extends LayoutContainer {
+public class ProductSelectionCard extends SnapshotCardBase {
+	
+	protected	SnapshotProductSelectTree		productSelectTree = new SnapshotProductSelectTree();
+
+	public ProductSelectionCard() {
+		this.headingToolTip = "Use this panel to select products.";
+	}
+	
+	@Override
+	public void addPanelContent() {
+//		productSelectTree = new SnapshotProductSelectTree();
+		productSelectTree.setSnapshot(snapshot);
+		productSelectTree.setPanelHeading(getPanelTitle());
+		
+		add(productSelectTree);
+	}
+	
+	@Override
+	public void setSnapshot(SnapshotInstance snapshot) {
+		super.setSnapshot(snapshot);
+		if (productSelectTree != null)
+			productSelectTree.setSnapshot(snapshot);
+	}
 
 	@Override
-	public void onRender(Element element, int index) {
-		super.onRender(element, index);
-		
-		setLayout(new FitLayout());
-		addStyleName("sbam-report-body");
-		
-		add(new Html("Howdy hiiiiiii-dee ho."));
+	public ContentPanel getContentPanel() {
+		return productSelectTree.getPanel();
+	}
+
+	@Override
+	public String getPanelTitle() {
+		return "Snapshot Products Selector";
 	}
 }

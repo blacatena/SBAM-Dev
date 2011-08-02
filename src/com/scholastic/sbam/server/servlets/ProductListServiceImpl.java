@@ -49,13 +49,15 @@ public class ProductListServiceImpl extends AuthenticatedServiceServlet implemen
 			List<Product> products = DbProduct.findFiltered(null, null, null, null, (char) 0, 'X');
 
 			for (Product product : products) {
-				ProductInstance instance = new ProductInstance();
-				instance.setProductCode(product.getProductCode());
-				instance.setDescription(product.getDescription());
-				instance.setShortName(product.getShortName());
-				instance.setDefaultTermType(product.getDefaultTermType());
-				instance.setStatus(product.getStatus());
-				instance.setCreatedDatetime(product.getCreatedDatetime());
+				ProductInstance instance = DbProduct.getInstance(product);
+				
+//				ProductInstance instance = new ProductInstance();
+//				instance.setProductCode(product.getProductCode());
+//				instance.setDescription(product.getDescription());
+//				instance.setShortName(product.getShortName());
+//				instance.setDefaultTermType(product.getDefaultTermType());
+//				instance.setStatus(product.getStatus());
+//				instance.setCreatedDatetime(product.getCreatedDatetime());
 				
 				instance.setDefaultTermTypeInstance(null);
 				if (termTypes.containsKey(product.getDefaultTermType().toLowerCase())) {

@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Jul 28, 2011 1:20:31 PM by Hibernate Tools 3.2.4.GA
+// Generated Aug 1, 2011 6:30:58 PM by Hibernate Tools 3.2.4.GA
 
 import java.util.Date;
 
@@ -14,6 +14,8 @@ public class Product implements java.io.Serializable {
 	private String shortName;
 	private String defaultTermType;
 	private String defaultCommissionCode;
+	private String orgPath;
+	private int seq;
 	private Date createdDatetime;
 	private char status;
 
@@ -21,23 +23,28 @@ public class Product implements java.io.Serializable {
 	}
 
 	public Product(String productCode, String description, String shortName,
-			String defaultCommissionCode, Date createdDatetime, char status) {
+			String defaultCommissionCode, String orgPath, int seq,
+			Date createdDatetime, char status) {
 		this.productCode = productCode;
 		this.description = description;
 		this.shortName = shortName;
 		this.defaultCommissionCode = defaultCommissionCode;
+		this.orgPath = orgPath;
+		this.seq = seq;
 		this.createdDatetime = createdDatetime;
 		this.status = status;
 	}
 
 	public Product(String productCode, String description, String shortName,
 			String defaultTermType, String defaultCommissionCode,
-			Date createdDatetime, char status) {
+			String orgPath, int seq, Date createdDatetime, char status) {
 		this.productCode = productCode;
 		this.description = description;
 		this.shortName = shortName;
 		this.defaultTermType = defaultTermType;
 		this.defaultCommissionCode = defaultCommissionCode;
+		this.orgPath = orgPath;
+		this.seq = seq;
 		this.createdDatetime = createdDatetime;
 		this.status = status;
 	}
@@ -80,6 +87,22 @@ public class Product implements java.io.Serializable {
 
 	public void setDefaultCommissionCode(String defaultCommissionCode) {
 		this.defaultCommissionCode = defaultCommissionCode;
+	}
+
+	public String getOrgPath() {
+		return this.orgPath;
+	}
+
+	public void setOrgPath(String orgPath) {
+		this.orgPath = orgPath;
+	}
+
+	public int getSeq() {
+		return this.seq;
+	}
+
+	public void setSeq(int seq) {
+		this.seq = seq;
 	}
 
 	public Date getCreatedDatetime() {

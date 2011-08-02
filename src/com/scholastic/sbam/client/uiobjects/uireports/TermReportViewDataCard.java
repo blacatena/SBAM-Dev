@@ -638,6 +638,14 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 		
 	protected void formatToolTipNoWait() {
 		StringBuffer sb = new StringBuffer();
+		
+		buildParameterBuffer(sb);
+		
+		getContentPanel().getHeader().setToolTip(sb.toString());
+		getContentPanel().getHeader().getToolTip().getToolTipConfig().setCloseable(true);
+	}
+	
+	protected void buildParameterBuffer(StringBuffer sb) {
 		if (snapshot == null) {
 			sb.append("No snapshot.");
 			sb.append("<br />");
@@ -655,6 +663,14 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 			sb.append("No parameters.");
 		} else {
 			sb.append("<table class=\"sbam-report-parms\">");
+			
+			appendParameters(sb);
+			
+			sb.append("</table>");
+		}
+	}
+	
+	protected void appendParameters(StringBuffer sb) {
 			for (String parameterName : snapshotParameterSet.getValues().keySet()) {
 				List<SnapshotParameterValueObject> values = snapshotParameterSet.getValues(parameterName);
 				if (values != null && values.size() > 0) {
@@ -671,10 +687,6 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 				}
 				sb.append("</td></tr>");
 			}
-			sb.append("</table>");
-		}
-		getContentPanel().getHeader().setToolTip(sb.toString());
-		getContentPanel().getHeader().getToolTip().getToolTipConfig().setCloseable(true);
 	}
 	
 	protected String getTranslatedValue(String name, String value) {
@@ -686,6 +698,8 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 			return getCodeDescription(value, UiConstants.getTermTypes());
 		} else if (name.equals(SnapshotParameterNames.INSTITUTION_STATE)) {
 			return getCodeDescription(value, UiConstants.getInstitutionStates());
+		} else if (name.equals(SnapshotParameterNames.PRODUCT_CODE)) {
+			return getCodeDescription(value, UiConstants.getProducts());
 		} else if (name.equals(SnapshotParameterNames.PROD_COMM_CODES)
 				|| name.equals(SnapshotParameterNames.AGREEMENT_COMM_CODES)
 				|| name.equals(SnapshotParameterNames.TERM_COMM_CODES)) {
