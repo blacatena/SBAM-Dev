@@ -197,8 +197,6 @@ public class SnapshotMaker {
 			
 			String agreementTermSql = new SnapshotAgreementTermSql(dbSnapshot, parameters, snapshotProducts, snapshotServices, productServiceMap).getSnapshotSql(); // getSnapshotSql(dbSnapshot, parameters, snapshotProductServices);
 			
-			System.out.println(agreementTermSql);
-			
 			// 	We use straight SQL, because normal Hibernate access wants to load the full dataset into memory, which uses just too much space.
 			Connection conn   = HibernateUtil.getConnection();
 			Statement sqlStmt = conn.createStatement();

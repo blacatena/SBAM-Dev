@@ -69,7 +69,7 @@ public class TermCriteriaCard extends SnapshotCriteriaCardBase implements AppSle
 
 		Radio bySiteUcn = new Radio();
 		bySiteUcn.setName("bySiteUcn");
-		bySiteUcn.setBoxLabel("by Site To UCN");
+		bySiteUcn.setBoxLabel("by Site UCN");
 		bySiteUcn.setValueAttribute("s");
 		ucnTypeGroup.add(bySiteUcn);
 		

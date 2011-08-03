@@ -1,5 +1,6 @@
 package com.scholastic.sbam.server.reporting;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.TreeMap;
@@ -11,12 +12,15 @@ import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFPalette;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
+import org.hibernate.criterion.Order;
 
 import com.scholastic.sbam.server.database.codegen.CancelReason;
 import com.scholastic.sbam.server.database.codegen.CommissionType;
@@ -88,6 +92,12 @@ public class SnapshotExcelWorkbookMaker {
 	protected static final short	DATE_FORMAT				=	HSSFDataFormat.getBuiltinFormat(EXCEL_LONG_DATE_FORMAT);
 	protected static final short	DATE_TIME_FORMAT		=	HSSFDataFormat.getBuiltinFormat(EXCEL_DATE_TIME_FORMAT);
 	
+	protected static final String	CELL_CODES				=	"ABCDEFGHIJKLMNOPQRSTUVWXYZ";	
+	
+	protected static final short	BACKGROUND_1_COLOR		=	HSSFColor.GREY_25_PERCENT.index;
+	protected static final short	BACKGROUND_2_COLOR		=	HSSFColor.GREY_40_PERCENT.index;
+	protected static final short	HEADER_COLOR			=	HSSFColor.GREY_50_PERCENT.index;
+	
 	protected int					snapshotId;
 	protected SnapshotInstance		snapshot;
 	
@@ -105,7 +115,10 @@ public class SnapshotExcelWorkbookMaker {
 	
 	protected final HSSFCellStyle	TEXT_STYLE				=	createTextCellStyle(TEXT_FORMAT);	//	createTextStyle();
 	protected final HSSFCellStyle	BOLD_STYLE				=	createBoldStyle();
+	protected final HSSFCellStyle	HEADER_STYLE			=	createHeaderStyle();
 	protected final HSSFCellStyle	BOLD_RIGHT_STYLE		=	createBoldRightStyle();
+	protected final HSSFCellStyle	TEXT_FILL_1_STYLE		=	createTextFillStyle(BACKGROUND_1_COLOR);
+	protected final HSSFCellStyle	TEXT_FILL_2_STYLE		=	createTextFillStyle(BACKGROUND_2_COLOR);
 	protected final HSSFCellStyle	DATE_STYLE				=	createCellStyle(DATE_FORMAT);		//	createDateStyle();
 	protected final HSSFCellStyle	DATE_TIME_STYLE			=	createCellStyle(DATE_TIME_FORMAT);	//	createDateTimeStyle();
 	protected final HSSFCellStyle	FRACTION_STYLE			=	createCellStyle(FRACTION_FORMAT);	//	createFractionStyle();
@@ -115,6 +128,10 @@ public class SnapshotExcelWorkbookMaker {
 	
 	protected int					rowNum					=	0;
 
+	protected int					productCodeCell			=	0;
+	protected int					serviceCodeCell			=	0;
+	protected int					ucnCell					=	0;
+	
 	//	These maps are used so that we'll reuse all instances, to be sure to conserve space in serialization
 	
 	protected TreeMap<Integer, InstitutionInstance>			institutionMap		= new TreeMap<Integer, InstitutionInstance>();
@@ -160,9 +177,11 @@ public class SnapshotExcelWorkbookMaker {
 	}
 	
 	protected void createCustomPalette() {
-//		HSSFPalette palette = wb.getCustomPalette();
-//		
-//		palette.setColorAtIndex(RED_TEXT_COLOR, (byte) 229,	(byte) 233,	(byte) 252);
+		HSSFPalette palette = wb.getCustomPalette();
+
+		palette.setColorAtIndex(HEADER_COLOR, 		(byte) 210,	(byte) 210,	(byte) 210);
+		palette.setColorAtIndex(BACKGROUND_1_COLOR, (byte) 255,	(byte) 245,	(byte) 235);
+		palette.setColorAtIndex(BACKGROUND_2_COLOR, (byte) 230,	(byte) 220,	(byte) 210);
 	}
 	
 	protected HSSFFont createBoldFont() {
@@ -199,60 +218,6 @@ public class SnapshotExcelWorkbookMaker {
 		return thisStyle;
 	}
 	
-//	protected HSSFCellStyle createDateStyle() {
-//		HSSFCellStyle thisStyle = wb.createCellStyle();
-//		
-//		thisStyle.setDataFormat(DATE_FORMAT);
-//		thisStyle.setWrapText(true);
-//		
-//		return thisStyle;
-//	}
-//	
-//	protected HSSFCellStyle createDateTimeStyle() {
-//		HSSFCellStyle thisStyle = wb.createCellStyle();
-//		
-//		thisStyle.setDataFormat(DATE_TIME_FORMAT);
-//		thisStyle.setWrapText(true);
-//		
-//		return thisStyle;
-//	}
-//	
-//	protected HSSFCellStyle createNumberStyle() {
-//		HSSFCellStyle thisStyle = wb.createCellStyle();
-//		
-//		thisStyle.setDataFormat(NUMBER_FORMAT);
-//		thisStyle.setWrapText(true);
-//		
-//		return thisStyle;
-//	}
-//	
-//	protected HSSFCellStyle createFractionStyle() {
-//		HSSFCellStyle thisStyle = wb.createCellStyle();
-//		
-//		thisStyle.setDataFormat(FRACTION_FORMAT);
-//		thisStyle.setWrapText(true);
-//		
-//		return thisStyle;
-//	}
-//	
-//	protected HSSFCellStyle createIntegerStyle() {
-//		HSSFCellStyle thisStyle = wb.createCellStyle();
-//		
-//		thisStyle.setDataFormat(INTEGER_FORMAT);
-//		thisStyle.setWrapText(true);
-//		
-//		return thisStyle;
-//	}
-//	
-//	protected HSSFCellStyle createCurrencyStyle() {
-//		HSSFCellStyle thisStyle = wb.createCellStyle();
-//		
-//		thisStyle.setDataFormat(CURRENCY_FORMAT);
-//		thisStyle.setWrapText(true);
-//		
-//		return thisStyle;
-//	}
-	
 	protected HSSFCellStyle createBoldStyle() {
 		HSSFCellStyle thisStyle = createTextStyle();
 
@@ -261,10 +226,31 @@ public class SnapshotExcelWorkbookMaker {
 		return thisStyle;
 	}
 	
+	protected HSSFCellStyle createHeaderStyle() {
+		HSSFCellStyle thisStyle = createTextStyle();
+
+		thisStyle.setFont(BOLD_FONT);
+		thisStyle.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		thisStyle.setBorderBottom(HSSFCellStyle.BORDER_DOUBLE);
+		thisStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+		thisStyle.setFillForegroundColor(HEADER_COLOR);
+		
+		return thisStyle;
+	}
+	
 	protected HSSFCellStyle createBoldRightStyle() {
 		HSSFCellStyle thisStyle = createBoldStyle();
 		
 		thisStyle.setAlignment(CellStyle.ALIGN_RIGHT);
+		
+		return thisStyle;
+	}
+	
+	protected HSSFCellStyle createTextFillStyle(short color) {
+		HSSFCellStyle thisStyle = createTextStyle();
+
+		thisStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+		thisStyle.setFillForegroundColor(color);
 		
 		return thisStyle;
 	}
@@ -520,9 +506,12 @@ public class SnapshotExcelWorkbookMaker {
 		int cellNum = 0;
 		
 		dataSheet.setColumnWidth(cellNum++, getCharacterWidth(12));
+		dataSheet.setColumnWidth(cellNum++, getCharacterWidth(6));
 		dataSheet.setColumnWidth(cellNum++, getCharacterWidth(12));
 		dataSheet.setColumnWidth(cellNum++, getCharacterWidth(16));
-		dataSheet.setColumnWidth(cellNum++, getCharacterWidth(16));
+		if (snapshot.getProductServiceType() == SnapshotInstance.SERVICE_TYPE) {
+			dataSheet.setColumnWidth(cellNum++, getCharacterWidth(16));
+		}
 		dataSheet.setColumnWidth(cellNum++, getDollarWidth());
 		dataSheet.setColumnWidth(cellNum++, getCharacterWidth(16));
 		dataSheet.setColumnWidth(cellNum++, getCharacterWidth(CODE_WIDTH));
@@ -560,21 +549,31 @@ public class SnapshotExcelWorkbookMaker {
 		
 		int cellNum = 0;
 		
-		addCell(row, cellNum++, "Agreement #");
-		addCell(row, cellNum++, "UCN");
-		addCell(row, cellNum++, "Product Code");
-		addCell(row, cellNum++, "Service Code");
-		addCell(row, cellNum++, "Total Term Dollar Value");
-		addCell(row, cellNum++, "Term Type");
-		addCell(row, cellNum++, "Commission Type");
-		addCell(row, cellNum++, "Start Date");
-		addCell(row, cellNum++, "End Date");
-		addCell(row, cellNum++, "Terminate Date");
-		addCell(row, cellNum++, "Dollar Fraction");
-		addCell(row, cellNum++, "Service Fraction");
-		addCell(row, cellNum++, "Dollar Service Fraction");
-		addCell(row, cellNum++, "UCN Fraction");
-		addCell(row, cellNum++, "Dollar UCN Fraction");
+		addCell(row, cellNum++, "Agreement #",	HEADER_STYLE);
+		addCell(row, cellNum++, "Term #", 		HEADER_STYLE);
+		
+		ucnCell = cellNum;
+		addCell(row, cellNum++, "UCN", 			HEADER_STYLE);
+		
+		productCodeCell = cellNum;
+		addCell(row, cellNum++, "Product Code", HEADER_STYLE);
+		
+		if (snapshot.getProductServiceType() == SnapshotInstance.SERVICE_TYPE) {
+			serviceCodeCell = cellNum;
+			addCell(row, cellNum++, "Service Code", HEADER_STYLE);
+		}
+		
+		addCell(row, cellNum++, "Total Term Dollar Value",	HEADER_STYLE);
+		addCell(row, cellNum++, "Term Type",				HEADER_STYLE);
+		addCell(row, cellNum++, "Commission Type",			HEADER_STYLE);
+		addCell(row, cellNum++, "Start Date",				HEADER_STYLE);
+		addCell(row, cellNum++, "End Date",					HEADER_STYLE);
+		addCell(row, cellNum++, "Terminate Date",			HEADER_STYLE);
+		addCell(row, cellNum++, "Dollar Fraction",			HEADER_STYLE);
+		addCell(row, cellNum++, "Service Fraction",			HEADER_STYLE);
+		addCell(row, cellNum++, "Dollar Service Fraction",	HEADER_STYLE);
+		addCell(row, cellNum++, "UCN Fraction",				HEADER_STYLE);
+		addCell(row, cellNum++, "Dollar UCN Fraction",		HEADER_STYLE);
 		cellNum = addProductHeadings(row, cellNum);
 		if (snapshot.getProductServiceType() == SnapshotInstance.SERVICE_TYPE) {
 			cellNum = addServiceHeadings(row, cellNum);
@@ -590,8 +589,14 @@ public class SnapshotExcelWorkbookMaker {
 
 		try {
 			
+			List<Order> sorts = new ArrayList<Order>();
+			sorts.add(Order.asc("id.agreementId"));
+			sorts.add(Order.asc("startDate"));
+			sorts.add(Order.asc("endDate"));
+			sorts.add(Order.asc("id.serviceCode"));
+			
 			//	Find only undeleted cancel reasons
-			List<SnapshotTermData> snapshotTermDatas = DbSnapshotTermData.findFiltered(snapshotId, -1, -1, null, null, -1, -1, null);
+			List<SnapshotTermData> snapshotTermDatas = DbSnapshotTermData.findFiltered(snapshotId, -1, -1, null, null, -1, -1, sorts);
 
 			//	First pass, just load the ancillary tables if it's needed for the main data sheet, so we know how many we have for the look up formulas
 			
@@ -638,9 +643,12 @@ public class SnapshotExcelWorkbookMaker {
 		int cellNum = 0;
 		
 		addCell(row, cellNum++, instance.getAgreementId(), INTEGER_STYLE);
+		addCell(row, cellNum++, instance.getTermId(), INTEGER_STYLE);
 		addCell(row, cellNum++, instance.getUcn(), INTEGER_STYLE);
 		addCell(row, cellNum++, instance.getProductCode());
-		addCell(row, cellNum++, instance.getServiceCode());
+		if (snapshot.getProductServiceType() == SnapshotInstance.SERVICE_TYPE) {
+			addCell(row, cellNum++, instance.getServiceCode());
+		}
 		addCell(row, cellNum++, instance.getDollarValue());
 		addCell(row, cellNum++, instance.getTermType().getDescriptionAndCode());
 		addCell(row, cellNum++, instance.getCommissionCode());
@@ -654,13 +662,14 @@ public class SnapshotExcelWorkbookMaker {
 		addCell(row, cellNum++, instance.getDollarUcnFraction());
 		if (useLookups) {
 			for (int col = 2; col < 7; col++)
-				addFormulaCell(row, cellNum++, getLookupFunction(productSheet, "C", row.getRowNum(), productMap.size(), col), TEXT_STYLE);
+				addFormulaCell(row, cellNum++, getLookupFunction(productSheet, productCodeCell, row.getRowNum(), productMap.size(), col), TEXT_FILL_1_STYLE);
 			if (snapshot.getProductServiceType() == SnapshotInstance.SERVICE_TYPE) {
 				for (int col = 2; col < 5; col++)
-					addFormulaCell(row, cellNum++, getLookupFunction(serviceSheet, "D", row.getRowNum(), serviceMap.size(), col), TEXT_STYLE);
+					addFormulaCell(row, cellNum++, getLookupFunction(serviceSheet, serviceCodeCell, row.getRowNum(), serviceMap.size(), col), TEXT_FILL_2_STYLE);
 			}
+			HSSFCellStyle ucnStyle = (snapshot.getProductServiceType() == SnapshotInstance.SERVICE_TYPE) ? TEXT_FILL_1_STYLE : TEXT_FILL_2_STYLE;
 			for (int col = 2; col < 8; col++)
-				addFormulaCell(row, cellNum++, getLookupFunction(institutionSheet, "B", row.getRowNum(), institutionMap.size(), col), TEXT_STYLE);
+				addFormulaCell(row, cellNum++, getLookupFunction(institutionSheet, ucnCell, row.getRowNum(), institutionMap.size(), col), ucnStyle);
 		} else {
 			cellNum = addProductCells(row, cellNum, instance.getProduct());
 			if (snapshot.getProductServiceType() == SnapshotInstance.SERVICE_TYPE) {
@@ -672,7 +681,8 @@ public class SnapshotExcelWorkbookMaker {
 		rowNum++;
 	}
 	
-	protected String getLookupFunction(HSSFSheet sheet, String codeCol, int row, int size, int col) {
+	protected String getLookupFunction(HSSFSheet sheet, int codeCellNum, int row, int size, int col) {
+		String codeCol = CELL_CODES.substring(codeCellNum, codeCellNum + 1);
 		return "VLOOKUP(" + codeCol + (row + 1) + "," + sheet.getSheetName() + "!$A$2:$Z$" + (size + 1) + "," + col +")";
 	}
 	
@@ -693,7 +703,7 @@ public class SnapshotExcelWorkbookMaker {
 		
 		cellNum = 0;
 		
-		addCell(row, cellNum++, "UCN");
+		addCell(row, cellNum++, "UCN",			HEADER_STYLE);
 		cellNum = addInstitutionHeadings(row, cellNum);
 		
 		for (Integer ucn : institutionMap.keySet()) {
@@ -718,12 +728,12 @@ public class SnapshotExcelWorkbookMaker {
 	}
 	
 	protected int addInstitutionHeadings(HSSFRow row, int cellNum) {
-		addCell(row, cellNum++, "Name");
-		addCell(row, cellNum++, "Address 1");
-		addCell(row, cellNum++, "Address 2");
-		addCell(row, cellNum++, "City");
-		addCell(row, cellNum++, "State");
-		addCell(row, cellNum++, "Country");
+		addCell(row, cellNum++, "Name",			HEADER_STYLE);
+		addCell(row, cellNum++, "Address 1",	HEADER_STYLE);
+		addCell(row, cellNum++, "Address 2",	HEADER_STYLE);
+		addCell(row, cellNum++, "City",			HEADER_STYLE);
+		addCell(row, cellNum++, "State",		HEADER_STYLE);
+		addCell(row, cellNum++, "Country",		HEADER_STYLE);
 		return cellNum;
 	}
 	
@@ -748,7 +758,7 @@ public class SnapshotExcelWorkbookMaker {
 		
 		cellNum = 0;
 		
-		addCell(row, cellNum++, "Product Code");
+		addCell(row, cellNum++, "Product Code",			HEADER_STYLE);
 		cellNum = addProductHeadings(row, cellNum);
 		
 		for (String productCode : productMap.keySet()) {
@@ -764,19 +774,19 @@ public class SnapshotExcelWorkbookMaker {
 	
 	protected int addProductWidths(HSSFSheet sheet, int cellNum) {
 		sheet.setColumnWidth(cellNum++, getCharacterWidth(DESCRIPTION_WIDTH));
-		sheet.setColumnWidth(cellNum++, getCharacterWidth(CODE_WIDTH));
-		sheet.setColumnWidth(cellNum++, getCharacterWidth(DESCRIPTION_WIDTH));
+		sheet.setColumnWidth(cellNum++, getCharacterWidth(8));
+		sheet.setColumnWidth(cellNum++, getCharacterWidth(16));
 		sheet.setColumnWidth(cellNum++, getCharacterWidth(CODE_WIDTH));
 		sheet.setColumnWidth(cellNum++, getCharacterWidth(DESCRIPTION_WIDTH));
 		return cellNum;
 	}
 	
 	protected int addProductHeadings(HSSFRow row, int cellNum) {
-		addCell(row, cellNum++, "Product");
-		addCell(row, cellNum++, "Default Term Type Code");
-		addCell(row, cellNum++, "Default Term Type");
-		addCell(row, cellNum++, "Default Commission Type Code");
-		addCell(row, cellNum++, "Default Commission Type");
+		addCell(row, cellNum++, "Product",							HEADER_STYLE);
+		addCell(row, cellNum++, "Default Term Type Code",			HEADER_STYLE);
+		addCell(row, cellNum++, "Default Term Type",				HEADER_STYLE);
+		addCell(row, cellNum++, "Default Commission Type Code",		HEADER_STYLE);
+		addCell(row, cellNum++, "Default Commission Type",			HEADER_STYLE);
 		return cellNum;
 	}
 	
@@ -800,7 +810,7 @@ public class SnapshotExcelWorkbookMaker {
 		
 		cellNum = 0;
 		
-		addCell(row, cellNum++, "Service Code");
+		addCell(row, cellNum++, "Service Code",			HEADER_STYLE);
 		cellNum = addServiceHeadings(row, cellNum);
 		
 		for (String serviceCode : serviceMap.keySet()) {
@@ -816,15 +826,15 @@ public class SnapshotExcelWorkbookMaker {
 	
 	protected int addServiceWidths(HSSFSheet sheet, int cellNum) {
 		sheet.setColumnWidth(cellNum++, getCharacterWidth(DESCRIPTION_WIDTH));
-		sheet.setColumnWidth(cellNum++, getCharacterWidth(CODE_WIDTH));
-		sheet.setColumnWidth(cellNum++, getCharacterWidth(DESCRIPTION_WIDTH));
+		sheet.setColumnWidth(cellNum++, getCharacterWidth(8));
+		sheet.setColumnWidth(cellNum++, getCharacterWidth(16));
 		return cellNum;
 	}
 	
 	protected int addServiceHeadings(HSSFRow row, int cellNum) {
-		addCell(row, cellNum++, "Service");
-		addCell(row, cellNum++, "Service Type Code");
-		addCell(row, cellNum++, "Service Type");
+		addCell(row, cellNum++, "Service",				HEADER_STYLE);
+		addCell(row, cellNum++, "Service Type Code",	HEADER_STYLE);
+		addCell(row, cellNum++, "Service Type",			HEADER_STYLE);
 		return cellNum;
 	}
 	
@@ -865,6 +875,11 @@ public class SnapshotExcelWorkbookMaker {
 	
 	protected int addCell(HSSFRow row, int cellNum, String data) {
 		getCell(row, cellNum).setCellValue(data);
+		return ++cellNum;
+	}
+	
+	protected int addCell(HSSFRow row, int cellNum, String data, HSSFCellStyle style) {
+		getCell(row, cellNum, style).setCellValue(data);
 		return ++cellNum;
 	}
 	

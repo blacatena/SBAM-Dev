@@ -55,8 +55,8 @@ import com.scholastic.sbam.shared.objects.SnapshotServiceTreeInstance;
 public class SnapshotServiceSelectTree extends LayoutContainer implements AppSleeper {
 	
 	
-	//	Set this to true to allow users to reogranize the service tree presentation here (as well as in the Services maintenance panel in the Configurations tab)
-	boolean allowReorganize	= false;
+	//	Set this to true to allow users to reorganize the service tree presentation here (ti can also be done in the Services maintenance panel in the Configurations tab)
+	boolean allowReorganize	= true;
 	
 	/**
 	 * This is a simple utility class to simplify the creation of folder items.

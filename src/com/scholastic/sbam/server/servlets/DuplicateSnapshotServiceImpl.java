@@ -151,6 +151,7 @@ public class DuplicateSnapshotServiceImpl extends AuthenticatedServiceServlet im
 			
 			SnapshotProductServiceId productServiceCopyId = new SnapshotProductServiceId();
 			productServiceCopyId.setSnapshotId(dbInstance.getSnapshotId());
+			productServiceCopyId.setProductServiceType(productServiceOriginal.getId().getProductServiceType());
 			productServiceCopyId.setProductServiceCode(productServiceOriginal.getId().getProductServiceCode());
 			
 			productServiceCopy.setId(productServiceCopyId);

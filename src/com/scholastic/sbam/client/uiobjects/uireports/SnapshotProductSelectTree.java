@@ -55,7 +55,7 @@ import com.scholastic.sbam.shared.objects.SnapshotProductTreeInstance;
 public class SnapshotProductSelectTree extends LayoutContainer implements AppSleeper {
 	
 	
-	//	Set this to true to allow users to reogranize the product tree presentation here (as well as in the Products maintenance panel in the Configurations tab)
+	//	Set this to true to allow users to reorganize the product tree presentation here
 	boolean allowReorganize	= true;
 	
 	/**
