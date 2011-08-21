@@ -10,7 +10,7 @@ public interface SnapshotParentCardPanel extends ParentCardPanel {
 	public static int	CUSTOMER_SELECTOR_PANEL	=	4;
 	public static int	CRITERIA_PANEL			=	5;
 	public static int	VIEW_DATA_PANEL			=	6;
-	public static int	VIEW_GRAPHS_PANEL		=	7;
+	public static int	VIEW_CHART_PANEL		=	7;
 	
 
 	public void setTargetSnapshot(SnapshotInstance snapshot);

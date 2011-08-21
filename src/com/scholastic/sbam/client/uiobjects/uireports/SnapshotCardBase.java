@@ -14,6 +14,8 @@ public abstract class SnapshotCardBase extends LayoutContainer {
 	
 	protected	SnapshotParentCardPanel			parentCardPanel;
 	
+	protected	LayoutContainer					returnContainer;
+	
 	protected	String	headingToolTip			=	"Use this panel to select snapshot details. ";
 
 	@Override
@@ -66,7 +68,12 @@ public abstract class SnapshotCardBase extends LayoutContainer {
 		ToolButton returnTool = new ToolButton("x-tool-left") {
 				@Override
 				protected void onClick(ComponentEvent ce) {
-					if (parentCardPanel != null && okayToReturn()) parentCardPanel.switchLayout(SnapshotParentCardPanel.SNAPSHOT_SELECTOR_PANEL);
+					if (parentCardPanel != null && okayToReturn()) {
+						if (returnContainer != null)
+							parentCardPanel.switchLayout(returnContainer);
+						else
+							parentCardPanel.switchLayout(SnapshotParentCardPanel.SNAPSHOT_SELECTOR_PANEL);
+					}
 				}
 			};
 		returnTool.enable();
@@ -80,6 +87,14 @@ public abstract class SnapshotCardBase extends LayoutContainer {
 	 */
 	public boolean okayToReturn() {
 		return true;
+	}
+
+	public LayoutContainer getReturnContainer() {
+		return returnContainer;
+	}
+
+	public void setReturnContainer(LayoutContainer returnContainer) {
+		this.returnContainer = returnContainer;
 	}
 	
 }

@@ -111,6 +111,7 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 	protected final ToolTipConfig customersTip	=	getIconButtonToolTip("Use this button to restrict the customers selected for this snapshot.");
 	protected final ToolTipConfig termsTip		=	getIconButtonToolTip("Use this button to restrict the terms selected for this snapshot.");
 	protected final ToolTipConfig viewDataTip	=	getIconButtonToolTip("Use this button to view data for this snapshot.");
+	protected final ToolTipConfig viewChartTip	=	getIconButtonToolTip("Use this button to view charts for this snapshot.");
 	protected final ToolTipConfig excelTip		=	getIconButtonToolTip("Use this button to download the data for this snapshot as an excel spreadsheet.");
 	
 	/**
@@ -480,13 +481,16 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 	    ColumnConfig data = new ColumnConfig("viewDataButton",				"",							30);
 	    data.setRenderer(getViewDataButtonRenderer());
 	    
+	    ColumnConfig chrt = new ColumnConfig("viewChartButton",				"",							30);
+	    chrt.setRenderer(getViewChartButtonRenderer());
+	    
 	    ColumnConfig excl = new ColumnConfig("excelButton",					"",							30);
 	    excl.setRenderer(getExcelButtonRenderer());
 	    
 	    ColumnConfig note = new ColumnConfig("notesButton",					"",							30);
 	    note.setRenderer(getNoteButtonRenderer());
 	    
-	    ColumnModel cm = new ColumnModel(Arrays.asList(id, name, date, rows, expi, user, stat, term, prod, srvc, cust, data, excl, note));
+	    ColumnModel cm = new ColumnModel(Arrays.asList(id, name, date, rows, expi, user, stat, term, prod, srvc, cust, data, chrt, excl, note));
 	    
 	    return cm;
 	}
@@ -1147,6 +1151,18 @@ public class SnapshotSelectorCard extends LayoutContainer implements AppSleeper,
 	
 		      public Object render(final ModelData model, String property, ColumnData config, final int rowIndex, final int colIndex, ListStore<ModelData> store, Grid<ModelData> grid) {  
 		    	  return getLayoutSwitchButton("view-data-button", SnapshotParentCardPanel.VIEW_DATA_PANEL, model, viewDataTip) ;  
+		      }  
+	
+		};  
+		    
+		return buttonRenderer;
+	}
+	
+	protected GridCellRenderer<ModelData> getViewChartButtonRenderer() {
+		GridCellRenderer<ModelData> buttonRenderer = new GridCellRenderer<ModelData>() {   
+	
+		      public Object render(final ModelData model, String property, ColumnData config, final int rowIndex, final int colIndex, ListStore<ModelData> store, Grid<ModelData> grid) {  
+		    	  return getLayoutSwitchButton("view-chart-button", SnapshotParentCardPanel.VIEW_CHART_PANEL, model, viewChartTip) ;  
 		      }  
 	
 		};  

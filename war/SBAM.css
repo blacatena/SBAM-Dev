@@ -790,6 +790,10 @@ background-image:url(resources/images/icons/colorful/info.png);
 	background-image:url(resources/images/icons/threestate/viewdata.png);
 }
 
+.view-chart-button {
+	background-image:url(resources/images/icons/threestate/chart.png);
+}
+
 .excel-button {
 	background-image:url(resources/images/icons/threestate/excel.png);
 }

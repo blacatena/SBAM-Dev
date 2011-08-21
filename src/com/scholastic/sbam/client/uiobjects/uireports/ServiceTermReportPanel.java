@@ -27,12 +27,14 @@ public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermIn
 	protected ServiceSelectionCard			servicesCard;
 	protected TermCriteriaCard				criteriaCard;
 	protected TermReportViewDataCard		viewDataCard;
+	protected TermReportChartCard			viewChartCard;
 
 	protected ToggleButton					selectorButton;
 	protected ToggleButton					customersButton;
 	protected ToggleButton					servicesButton;
 	protected ToggleButton					criteriaButton;
 	protected ToggleButton					viewDataButton;
+	protected ToggleButton					chartButton;
 	
 	protected SnapshotInstance				targetSnapshot;
 
@@ -75,6 +77,10 @@ public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermIn
 		viewDataCard = new TermReportViewDataCard();
 		viewDataCard.setParentCardPanel(this);
 		outerContainer.add(viewDataCard);
+		
+		viewChartCard = new TermReportChartCard();
+		viewChartCard.setParentCardPanel(this);
+		outerContainer.add(viewChartCard);
 		
 		add(outerContainer);
 	}
@@ -186,6 +192,11 @@ public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermIn
 
 	@Override
 	public void switchLayout(int id) {
+		switchLayout(id, null);
+	}
+
+	@Override
+	public void switchLayout(int id, LayoutContainer returnContainer) {
 		
 		if (id == SnapshotParentCardPanel.SNAPSHOT_SELECTOR_PANEL) {
 			cards.setActiveItem(snapshotSelectorCard);
@@ -197,32 +208,44 @@ public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermIn
 			return;
 		
 		if (id == SnapshotParentCardPanel.PRODUCT_SELECTOR_PANEL) {
+			productsCard.setReturnContainer(returnContainer);
 			productsCard.setSnapshot(targetSnapshot);
 			cards.setActiveItem(productsCard);
 			return;
 		}
 		
 		if (id == SnapshotParentCardPanel.SERVICE_SELECTOR_PANEL) {
+			servicesCard.setReturnContainer(returnContainer);
 			servicesCard.setSnapshot(targetSnapshot);
 			cards.setActiveItem(servicesCard);
 			return;
 		}
 		
 		if (id == SnapshotParentCardPanel.CUSTOMER_SELECTOR_PANEL) {
+			customersCard.setReturnContainer(returnContainer);
 			customersCard.setSnapshot(targetSnapshot);
 			cards.setActiveItem(customersCard);
 			return;
 		}
 		
 		if (id == SnapshotParentCardPanel.CRITERIA_PANEL) {
+			criteriaCard.setReturnContainer(returnContainer);
 			criteriaCard.setSnapshot(targetSnapshot);
 			cards.setActiveItem(criteriaCard);
 			return;
 		}
 		
 		if (id == SnapshotParentCardPanel.VIEW_DATA_PANEL) {
+			viewDataCard.setReturnContainer(returnContainer);
 			viewDataCard.setSnapshot(targetSnapshot);
 			cards.setActiveItem(viewDataCard);
+			return;
+		}
+		
+		if (id == SnapshotParentCardPanel.VIEW_CHART_PANEL) {
+			viewChartCard.setReturnContainer(returnContainer);
+			viewChartCard.setSnapshot(targetSnapshot);
+			cards.setActiveItem(viewChartCard);
 			return;
 		}
 		
@@ -247,18 +270,25 @@ public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermIn
 
 	@Override
 	public void switchLayout(LayoutContainer container) {
+		switchLayout(container, null);
+	}
+
+	@Override
+	public void switchLayout(LayoutContainer container, LayoutContainer returnContainer) {
 		if (container == snapshotSelectorCard)
-			switchLayout(SnapshotParentCardPanel.SNAPSHOT_SELECTOR_PANEL);
+			switchLayout(SnapshotParentCardPanel.SNAPSHOT_SELECTOR_PANEL, returnContainer);
 		else if (container == servicesCard)
-			switchLayout(SnapshotParentCardPanel.SERVICE_SELECTOR_PANEL);
+			switchLayout(SnapshotParentCardPanel.SERVICE_SELECTOR_PANEL, returnContainer);
 		else if (container == productsCard)
-			switchLayout(SnapshotParentCardPanel.PRODUCT_SELECTOR_PANEL);
+			switchLayout(SnapshotParentCardPanel.PRODUCT_SELECTOR_PANEL, returnContainer);
 		else if (container == customersCard)
-			switchLayout(SnapshotParentCardPanel.CUSTOMER_SELECTOR_PANEL);
+			switchLayout(SnapshotParentCardPanel.CUSTOMER_SELECTOR_PANEL, returnContainer);
 		else if (container == criteriaCard)
-			switchLayout(SnapshotParentCardPanel.CRITERIA_PANEL);
+			switchLayout(SnapshotParentCardPanel.CRITERIA_PANEL, returnContainer);
 		else if (container == viewDataCard)
-			switchLayout(SnapshotParentCardPanel.VIEW_DATA_PANEL);
+			switchLayout(SnapshotParentCardPanel.VIEW_DATA_PANEL, returnContainer);
+		else if (container == viewChartCard)
+			switchLayout(SnapshotParentCardPanel.VIEW_CHART_PANEL, returnContainer);
 	}
 
 	@Override
@@ -271,8 +301,28 @@ public class ServiceTermReportPanel extends GridSupportContainer<AgreementTermIn
 		list.add(customersCard);
 		list.add(criteriaCard);
 		list.add(viewDataCard);
+		list.add(viewChartCard);
 		
 		return list;
+	}
+
+	@Override
+	public LayoutContainer getCard(int id) {
+		if (id == SNAPSHOT_SELECTOR_PANEL)
+			return snapshotSelectorCard;
+		else if (id == SnapshotParentCardPanel.SERVICE_SELECTOR_PANEL)
+			return servicesCard;
+		else if (id == SnapshotParentCardPanel.PRODUCT_SELECTOR_PANEL)
+			return productsCard;
+		else if (id == SnapshotParentCardPanel.CUSTOMER_SELECTOR_PANEL)
+			return customersCard;
+		else if (id == SnapshotParentCardPanel.CRITERIA_PANEL)
+			return criteriaCard;
+		else if (id == SnapshotParentCardPanel.VIEW_DATA_PANEL)
+			return viewDataCard;
+		else if (id == SnapshotParentCardPanel.VIEW_CHART_PANEL)
+			return viewChartCard;
+		return null;
 	}
 
 	@Override

@@ -54,6 +54,18 @@ public class IconSupplier {
 		return "report.png";
 	}
 	
+	public static String getPieChartIconName() {
+		return "chart_pie.png";
+	}
+	
+	public static String getBarChartIconName() {
+		return "chart_bar.png";
+	}
+	
+	public static String getChartIconName() {
+		return "chart.png";
+	}
+	
 	public static String getAdministrationIconName() {
 		return "administration.png";
 	}

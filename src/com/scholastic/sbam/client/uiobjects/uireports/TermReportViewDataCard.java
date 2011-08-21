@@ -15,10 +15,13 @@ import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.grid.AggregationRowConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
@@ -108,6 +111,8 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 	protected Grid<BeanModel>							grid;
 	protected GridFilters 								gridFilters;
 	
+	protected boolean									clearOnExit		=	true;
+	
 	protected final SnapshotTakeServiceAsync 			takeSnapshotService					= GWT.create(SnapshotTakeService.class);
 	protected final SnapshotTermDataListServiceAsync 	snapshotTermDataListService 		= GWT.create(SnapshotTermDataListService.class);
 	protected final SnapshotParameterSetGetServiceAsync	snapshotParameterSetGetService		= GWT.create(SnapshotParameterSetGetService.class);
@@ -126,11 +131,48 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 		
 		grid = getGrid(); 
 		contentPanel.add(grid);
+
+		contentPanel.getHeader().addTool(getParametersTool());
+		contentPanel.getHeader().addTool(getChartTool());
 		
 		add(contentPanel);
 		
 		if (snapshot != null)
 			gridStore.getLoader().load();
+	}
+	
+	public ToolButton getParametersTool() {
+		ToolButton parametersTool = new ToolButton("x-tool-help") {
+			@Override
+			protected void onClick(ComponentEvent ce) {
+				if (contentPanel.getHeader().getToolTip() != null)
+					contentPanel.getHeader().getToolTip().show();
+			}
+		};
+		parametersTool.enable();
+		return parametersTool; 
+	}
+	
+	public ToolButton getChartTool() {
+		final LayoutContainer thisCard = this;
+		ToolButton chartTool = new ToolButton("x-tool-right") {
+			@Override
+			protected void onClick(ComponentEvent ce) {
+
+				clearOnExit = false;
+				if (parentCardPanel != null && okayToReturn()) {
+					TermReportChartCard chartCard = (TermReportChartCard) parentCardPanel.getCard(SnapshotParentCardPanel.VIEW_CHART_PANEL);
+//					chartCard.setReturnContainer(thisCard);
+					chartCard.setSnapshot(snapshot);
+					chartCard.setChart(grid);
+					
+					parentCardPanel.switchLayout(chartCard, thisCard);
+				}
+				clearOnExit = true;
+			}
+		};
+		chartTool.enable();
+		return chartTool; 
 	}
 	
 	public ContentPanel getNewContentPanel() {
@@ -477,6 +519,13 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 	
 	@Override
 	public void setSnapshot(SnapshotInstance snapshot) {
+		//	Don't reload the same snapshot unless it's been retaken
+		if (snapshot == getSnapshot()) {
+			if (snapshot.getSnapshotTaken() != null)			
+				return;
+		}
+		
+		
 		super.setSnapshot(snapshot);
 		loadSnapshotParameters();
 		if (snapshot != null) {
@@ -643,6 +692,7 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 		
 		getContentPanel().getHeader().setToolTip(sb.toString());
 		getContentPanel().getHeader().getToolTip().getToolTipConfig().setCloseable(true);
+		getContentPanel().getHeader().getToolTip().getToolTipConfig().setShowDelay(60000);
 	}
 	
 	protected void buildParameterBuffer(StringBuffer sb) {
@@ -722,7 +772,7 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 	
 	@Override
 	public boolean okayToReturn() {
-		if (gridStore != null) {
+		if (gridStore != null && clearOnExit) {
 			gridStore.removeAll();
 		}
 		return true;
