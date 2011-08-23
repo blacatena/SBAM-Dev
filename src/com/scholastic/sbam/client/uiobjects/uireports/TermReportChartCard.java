@@ -1,8 +1,11 @@
 package com.scholastic.sbam.client.uiobjects.uireports;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import com.extjs.gxt.charts.client.Chart;
 import com.extjs.gxt.charts.client.model.BarDataProvider;
@@ -21,6 +24,7 @@ import com.extjs.gxt.charts.client.model.charts.PieChart.Slice;
 import com.extjs.gxt.charts.client.model.charts.PieChart;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.data.BaseFilterPagingLoadConfig;
+import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.data.BeanModelReader;
@@ -31,9 +35,12 @@ import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
@@ -42,6 +49,7 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.MarginData;
 import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Timer;
@@ -52,6 +60,8 @@ import com.scholastic.sbam.client.services.SnapshotTakeService;
 import com.scholastic.sbam.client.services.SnapshotTakeServiceAsync;
 import com.scholastic.sbam.client.services.SnapshotTermDataListService;
 import com.scholastic.sbam.client.services.SnapshotTermDataListServiceAsync;
+import com.scholastic.sbam.client.uiobjects.fields.EnhancedComboBox;
+import com.scholastic.sbam.client.uiobjects.foundation.FieldFactory;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
@@ -83,14 +93,24 @@ public class TermReportChartCard extends SnapshotCardBase {
 	
 	protected boolean									localStore;
 	protected ListStore<BeanModel>						store;
+	protected Grid<BeanModel>							sourceGrid;
+	protected ListStore<BeanModel>						sourceStore;
 	
-	protected String									valueLabel	=	"Dollar Values";
-	protected String									groupLabel	=	"Product";
+	protected HashMap<String, String>					groupLabelMap		=	getGroupLabelMap();
+	protected HashMap<String, String>					propertyHeaderMap	=	getPropertyHeaderMap();
 	
-	protected String									groupCol	=	"productCode";
-	protected String									labelCol	=	"product.description";
-	protected String									valueCol	=	"dollarValue";
-	protected String									textCol		=	"product.description";
+	protected String									valueLabel			=	"Dollar Values";
+	protected String									groupLabel			=	"Product";
+	
+	protected String									groupCol			=	"productCode";
+	protected String									labelCol			=	"product.description";
+	protected String									valueCol			=	"dollarValue";
+	protected String									textCol				=	"product.description";
+	
+	protected ToggleButton								pieButton;
+	protected ToggleButton								barButton;
+	protected EnhancedComboBox<ModelData>				valueCombo;
+	protected EnhancedComboBox<ModelData>				groupCombo;
 	
 	protected final SnapshotTakeServiceAsync 			takeSnapshotService					= GWT.create(SnapshotTakeService.class);
 	protected final SnapshotTermDataListServiceAsync 	snapshotTermDataListService 		= GWT.create(SnapshotTermDataListService.class);
@@ -191,7 +211,7 @@ public class TermReportChartCard extends SnapshotCardBase {
 	    	    }
 
 	    	    for (ModelData m : store.getModels()) {
-	    	      Number n = getValue(m);
+		    	     Number n = (valueCol == null || valueCol.equals("count")) ? 1 : getValue(m);
 	    	      String label = getLabel(m);
 	    	      String text  = getText(m);
 	    	      if (text == null || text.length() == 0)
@@ -258,7 +278,7 @@ public class TermReportChartCard extends SnapshotCardBase {
 	    	    TreeMap<String, String> textMap		= new TreeMap<String, String>();
 
 	    	    for (ModelData m : store.getModels()) {
-	    	      Number n = getValue(m);
+	    	      Number n = (valueCol == null || valueCol.equals("count")) ? 1 : getValue(m);
 	    	      String label = getLabel(m);
 	    	      String text  = getText(m);
 	    	      if (text == null || text.length() == 0)
@@ -284,6 +304,128 @@ public class TermReportChartCard extends SnapshotCardBase {
 		
 	}
 	
+	public ListStore<ModelData> getValueComboStore() {
+		ListStore<ModelData> valueStore = new ListStore<ModelData>();
+		
+		ModelData model;
+		
+		model = new BaseModelData();
+		model.set("value", "dollarValue");
+		model.set("description", "Dollar Values");
+		valueStore.add(model);
+		
+		model = new BaseModelData();
+		model.set("value", "count");
+		model.set("description", "Services");
+		valueStore.add(model);
+		
+		return valueStore;
+	}
+	
+	public ListStore<ModelData> getGroupComboStore(Grid<BeanModel> sourceGrid) {
+		
+		if (sourceGrid.getColumnModel().getColumnCount() > 0) {
+			ListStore<ModelData> groupStore = new ListStore<ModelData>();
+			ModelData model;
+			for (int i = 0; i < sourceGrid.getColumnModel().getColumnCount(); i++) {
+				model = new BaseModelData();
+				model.set("value", sourceGrid.getColumnModel().getColumn(i).getId());
+				model.set("description", sourceGrid.getColumnModel().getColumn(i).getHeader());
+				groupStore.add(model);
+			}
+			return groupStore;
+		} else
+			return getGroupComboStore();
+		
+	}
+	
+	public ListStore<ModelData> getGroupComboStore(ListStore<BeanModel> sourceStore) {
+
+		if (sourceGrid != null && groupCombo != null)
+			return groupCombo.getStore();
+		
+		if (sourceStore.getCount() > 0) {
+
+			ListStore<ModelData> groupStore = new ListStore<ModelData>();
+			ModelData model;
+			
+			SortedSet<String> properties = new TreeSet<String>();
+			for (String property : sourceStore.getAt(0).getPropertyNames())
+				properties.add(property);
+			
+			for (String property : properties) {
+				model = new BaseModelData();
+				model.set("value", property);
+				model.set("description", getPropertyHeader(property));
+				groupStore.add(model);
+			}
+			
+			return groupStore;
+			
+		} else
+			return getGroupComboStore();
+		
+	}
+	
+	public ListStore<ModelData> getGroupComboStore() {
+		
+		if (sourceGrid != null)
+			return getGroupComboStore(sourceGrid);
+		if (sourceStore != null)
+			return getGroupComboStore(sourceStore);
+		
+		ListStore<ModelData> groupStore = new ListStore<ModelData>();
+		
+		ModelData model;
+		
+		model = new BaseModelData();
+		model.set("value", "productCode");
+		model.set("description", "Product");
+		groupStore.add(model);
+		
+		model = new BaseModelData();
+		model.set("value", "serviceCode");
+		model.set("description", "Service");
+		groupStore.add(model);
+
+		
+		model = new BaseModelData();
+		model.set("value", "institution.institutionName");
+		model.set("description", "Institution");
+		groupStore.add(model);
+		
+		model = new BaseModelData();
+		model.set("value", "institution.state");
+		model.set("description", "State");
+		groupStore.add(model);
+		
+		return groupStore;
+	}
+	
+	public HashMap<String, String> getGroupLabelMap() {
+		HashMap<String, String> groupLabelMap = new HashMap<String, String>();
+		
+		groupLabelMap.put("productCode", "product.description");
+		groupLabelMap.put("ucn", "institution.institutionName");
+		
+		return groupLabelMap;
+	}
+	
+	public String getPropertyHeader(String property) {
+		if (propertyHeaderMap.containsKey(property))
+			return propertyHeaderMap.get(property);
+		return property;
+	}
+	
+	public HashMap<String, String> getPropertyHeaderMap() {
+		HashMap<String, String> propertyHeaderNap = new HashMap<String, String>();
+		
+		propertyHeaderNap.put("productCode", "Product");
+		propertyHeaderNap.put("institution.institutionName", "Institution");
+		
+		return propertyHeaderNap;
+	}
+	
 	/**
 	 * Set up and get a button bar with buttons to expand or collapse the tree.
 	 * @return
@@ -292,28 +434,26 @@ public class TermReportChartCard extends SnapshotCardBase {
 		ButtonBar toolbar = new ButtonBar();
 		toolbar.setAlignment(HorizontalAlignment.CENTER);
 		
-		ToggleButton pieButton = new ToggleButton("Pie Chart");
+		pieButton = new ToggleButton("Pie Chart");
 		pieButton.setToggleGroup("chartType");
 		IconSupplier.forceIcon(pieButton, IconSupplier.getPieChartIconName());
 		pieButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			   
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				System.out.println("Pie");
 				chartType = PIE_CHART;
 				redoChart();
 			}  
 		 
 		});
 		
-		ToggleButton barButton = new ToggleButton("Bar Graph");
+		barButton = new ToggleButton("Bar Graph");
 		barButton.setToggleGroup("chartType");
 		IconSupplier.forceIcon(barButton, IconSupplier.getBarChartIconName());
 		barButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			   
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				System.out.println("Bar");
 				chartType = BAR_CHART;
 				redoChart();
 			}  
@@ -325,8 +465,47 @@ public class TermReportChartCard extends SnapshotCardBase {
 		else
 			pieButton.toggle(true);
 		
+		valueCombo = FieldFactory.getModelDataComboField("valueBox", "", 100, "Select the value to chart.", getValueComboStore(), "value", "description");
+		valueCombo.enable();
+		setValueCombo();
+		valueCombo.addSelectionChangedListener(new SelectionChangedListener<ModelData>() {
+
+			@Override
+			public void selectionChanged(SelectionChangedEvent<ModelData> se) {
+				if (se.getSelectedItem() != null && se.getSelectedItem().get("value") != null) {
+					valueCol = se.getSelectedItem().get("value").toString();
+					valueLabel = se.getSelectedItem().get("description").toString();
+					redoChart();
+				}
+			}
+
+		});
+		
+		groupCombo = FieldFactory.getModelDataComboField("valueBox", "", 100, "Select the value to chart.", getGroupComboStore(), "value", "description");
+		groupCombo.enable();
+		setGroupCombo();
+		groupCombo.addSelectionChangedListener(new SelectionChangedListener<ModelData>() {
+
+			@Override
+			public void selectionChanged(SelectionChangedEvent<ModelData> se) {
+				if (se.getSelectedItem() != null && se.getSelectedItem().get("value") != null) {
+					groupCol = se.getSelectedItem().get("value").toString();
+					groupLabel = se.getSelectedItem().get("description").toString();
+					labelCol = groupCol;
+					textCol = groupCol;
+					redoChart();
+				}
+			}
+
+		});
+		
 		toolbar.add(pieButton);
 		toolbar.add(barButton);
+		toolbar.add(new SeparatorToolItem());
+		toolbar.add(new Html("Chart"));
+		toolbar.add(valueCombo);
+		toolbar.add(new Html("By"));
+		toolbar.add(groupCombo);
 		
 		return toolbar;
 	}
@@ -667,6 +846,7 @@ public class TermReportChartCard extends SnapshotCardBase {
 	public void setStore(ListStore<BeanModel> store) {
 		localStore = false;
 		this.store = store;
+		setSourceStore(store);
 	}
 
 	public String getValueLabel() {
@@ -689,16 +869,57 @@ public class TermReportChartCard extends SnapshotCardBase {
 		return groupCol;
 	}
 
+	public void setSourceStore(ListStore<BeanModel> store) {
+		sourceStore = store;
+		if (groupCombo != null) {
+			groupCombo.setStore(getGroupComboStore(store));
+			setGroupCombo();
+		}
+	}
+
+	public void setSourceGrid(Grid<BeanModel> grid) {
+		if(sourceGrid == null || sourceGrid != grid) {
+			sourceGrid = grid;
+			if (groupCombo != null)
+				groupCombo.setStore(getGroupComboStore(sourceGrid));
+			setGroupCombo();
+		}
+	}
+	
 	public void setGroupCol(String groupCol) {
 		this.groupCol = groupCol;
+		setLabelCol();
+		setGroupCombo();
 	}
 
 	public void setGroupCol(String groupCol, Grid<BeanModel> grid) {
+		setSourceGrid(grid);
+		
 		this.groupCol = groupCol;
 		if (grid.getColumnModel().getColumnById(groupCol) != null)
 			groupLabel = grid.getColumnModel().getColumnById(groupCol).getHeader();
 		else
 			groupLabel = groupCol;
+		setLabelCol();
+		setGroupCombo();
+	}
+	
+	public void setGroupCombo() {
+		if (groupCombo == null) {
+			return;
+		}
+		if (groupCol == null) {
+			groupCombo.select(null);
+			return;
+		}
+		for (int i = 0; i < groupCombo.getStore().getCount(); i++) {
+			if (groupCol.equals(groupCombo.getStore().getAt(i).get("value").toString())) {
+				groupCombo.select(i);
+				return;
+			}
+		}
+		
+		groupCombo.select(null);
 	}
 
 	public String getLabelCol() {
@@ -708,6 +929,15 @@ public class TermReportChartCard extends SnapshotCardBase {
 	public void setLabelCol(String labelCol) {
 		this.labelCol = labelCol;
 	}
+	
+	public void setLabelCol() {
+		if (groupCol == null)
+			setLabelCol("");
+		else if (groupLabelMap.containsKey(groupCol))
+			setLabelCol(groupLabelMap.get(groupCol));
+		else
+			setLabelCol(groupCol);
+	}
 
 	public String getValueCol() {
 		return valueCol;
@@ -715,14 +945,33 @@ public class TermReportChartCard extends SnapshotCardBase {
 
 	public void setValueCol(String valueCol) {
 		this.valueCol = valueCol;
+		setValueCombo();
 	}
 
 	public void setValueCol(String valueCol, Grid<BeanModel> grid) {
+		setSourceGrid(grid);
+		
 		this.valueCol = valueCol;
 		if (grid.getColumnModel().getColumnById(valueCol) != null)
 			valueLabel = grid.getColumnModel().getColumnById(valueCol).getHeader();
 		else
 			valueLabel = valueCol;
+		setValueCombo();
+	}
+	
+	public void setValueCombo() {
+		if (valueCombo == null)
+			return;
+		if (valueCol == null) {
+			valueCombo.select(null);
+		}
+		for (int i = 0; i < valueCombo.getStore().getCount(); i++) {
+			if (valueCol.equals(valueCombo.getStore().getAt(i).get("value").toString())) {
+				valueCombo.select(i);
+				return;
+			}
+		}
+		valueCombo.select(null);
 	}
 
 	public String getTextCol() {
@@ -739,6 +988,10 @@ public class TermReportChartCard extends SnapshotCardBase {
 
 	public void setChartType(int chartType) {
 		this.chartType = chartType;
+		if (chartType == PIE_CHART && pieButton != null)
+			pieButton.toggle(true);
+		if (chartType == BAR_CHART && barButton != null)
+			barButton.toggle(true);
 		if (chart != null)
 			redoChart();			//	 Only do this now if we already have a chart
 	}

@@ -133,7 +133,8 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 		contentPanel.add(grid);
 
 		contentPanel.getHeader().addTool(getParametersTool());
-		contentPanel.getHeader().addTool(getChartTool());
+		contentPanel.getHeader().addTool(getPieChartTool());
+		contentPanel.getHeader().addTool(getBarChartTool());
 		
 		add(contentPanel);
 		
@@ -153,9 +154,9 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 		return parametersTool; 
 	}
 	
-	public ToolButton getChartTool() {
+	public ToolButton getPieChartTool() {
 		final LayoutContainer thisCard = this;
-		ToolButton chartTool = new ToolButton("x-tool-right") {
+		ToolButton chartTool = new ToolButton("x-tool-piechart") {
 			@Override
 			protected void onClick(ComponentEvent ce) {
 
@@ -163,9 +164,33 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 				if (parentCardPanel != null && okayToReturn()) {
 					TermReportChartCard chartCard = (TermReportChartCard) parentCardPanel.getCard(SnapshotParentCardPanel.VIEW_CHART_PANEL);
 //					chartCard.setReturnContainer(thisCard);
+					chartCard.setChartType(TermReportChartCard.PIE_CHART);
 					chartCard.setSnapshot(snapshot);
 					chartCard.setChart(grid);
-					
+
+					parentCardPanel.switchLayout(chartCard, thisCard);
+				}
+				clearOnExit = true;
+			}
+		};
+		chartTool.enable();
+		return chartTool; 
+	}
+	
+	public ToolButton getBarChartTool() {
+		final LayoutContainer thisCard = this;
+		ToolButton chartTool = new ToolButton("x-tool-bargraph") {
+			@Override
+			protected void onClick(ComponentEvent ce) {
+
+				clearOnExit = false;
+				if (parentCardPanel != null && okayToReturn()) {
+					TermReportChartCard chartCard = (TermReportChartCard) parentCardPanel.getCard(SnapshotParentCardPanel.VIEW_CHART_PANEL);
+//					chartCard.setReturnContainer(thisCard);
+					chartCard.setChartType(TermReportChartCard.BAR_CHART);
+					chartCard.setSnapshot(snapshot);
+					chartCard.setChart(grid);
+
 					parentCardPanel.switchLayout(chartCard, thisCard);
 				}
 				clearOnExit = true;

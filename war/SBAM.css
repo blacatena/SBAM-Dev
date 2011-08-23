@@ -833,6 +833,33 @@ td.sbam-report-value {
 	font-style: italics;
 }
 
+.x-tool-piechart {
+    background-position:0 0;
+	background-image:url(resources/images/icons/toolbar/tool-sprites.gif);
+}
+.x-tool-piechart-over {
+    background-position:-15px 0;
+	background-image:url(resources/images/icons/toolbar/tool-sprites.gif);
+}
+
+.x-tool-bargraph {
+    background-position:0 -15px;
+	background-image:url(resources/images/icons/toolbar/tool-sprites.gif);
+}
+.x-tool-bargraph-over {
+    background-position:-15px -15px;
+	background-image:url(resources/images/icons/toolbar/tool-sprites.gif);
+}
+
+.x-tool-chart {
+    background-position:0 -15px;
+	background-image:url(resources/images/icons/toolbar/tool-sprites.gif);
+}
+.x-tool-chart-over {
+    background-position:-15px -15px;
+	background-image:url(resources/images/icons/toolbar/tool-sprites.gif);
+}
+
 /* These are necessary, because the theme doesn't "take" -- change these if the theme changes */
 /* Managed now by adding the style "x-panel" wherever needed
 .x-border {

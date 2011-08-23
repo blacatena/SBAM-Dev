@@ -1,6 +1,7 @@
 package com.scholastic.sbam.client.uiobjects.foundation;
 
 import com.extjs.gxt.ui.client.data.BeanModel;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Slider;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
@@ -23,6 +24,7 @@ import com.scholastic.sbam.client.uiobjects.fields.SizedTextArea;
 import com.scholastic.sbam.client.uiobjects.fields.SliderFieldWithDisable;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
+import com.scholastic.sbam.shared.objects.SimpleModelDataKeyProvider;
 
 /**
  * A base class which provides useful helper methods for any portlet that will be using fields.
@@ -236,6 +238,33 @@ public class FieldFactory {
 			listStore.setKeyProvider(new SimpleKeyProvider(valueField));
 		
 		final EnhancedComboBox<BeanModel> combo = new EnhancedComboBox<BeanModel>();
+		setStandard(combo, label);
+		combo.setForceSelection(true);
+		combo.disableTextSelection(false);
+		combo.setTriggerAction(TriggerAction.ALL);
+		combo.setDisplayField(displayField);
+		combo.setValueField(valueField);
+		combo.setTypeAhead(true);
+		combo.setTriggerStyle("trigger-square");
+		if (width > 0)
+			combo.setWidth(width);
+			
+		if (toolTip != null)
+			combo.setToolTip(toolTip);
+//		if (validator != null)
+//			combo.setValidator(validator);
+	//	combo.setEditable(false);
+		
+		combo.setStore(listStore);
+		
+		return combo;
+	}
+	
+	public static EnhancedComboBox<ModelData> getModelDataComboField(String name, String label, int width, String toolTip, ListStore<ModelData> listStore, String valueField, String displayField) {
+		if (listStore.getKeyProvider() == null)
+			listStore.setKeyProvider(new SimpleModelDataKeyProvider(valueField));
+		
+		final EnhancedComboBox<ModelData> combo = new EnhancedComboBox<ModelData>();
 		setStandard(combo, label);
 		combo.setForceSelection(true);
 		combo.disableTextSelection(false);
