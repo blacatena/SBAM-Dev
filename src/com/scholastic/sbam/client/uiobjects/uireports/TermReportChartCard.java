@@ -15,6 +15,7 @@ import com.extjs.gxt.charts.client.model.Legend.Position;
 import com.extjs.gxt.charts.client.model.PieDataProvider;
 import com.extjs.gxt.charts.client.model.ScaleProvider;
 import com.extjs.gxt.charts.client.model.Text;
+import com.extjs.gxt.charts.client.model.axis.Label;
 import com.extjs.gxt.charts.client.model.axis.XAxis;
 import com.extjs.gxt.charts.client.model.charts.BarChart;
 import com.extjs.gxt.charts.client.model.charts.BarChart.BarStyle;
@@ -234,7 +235,10 @@ public class TermReportChartCard extends SnapshotCardBase {
 	    	        maxYValue = Math.max(maxYValue, valueMap.get(label).doubleValue());
 	    	        
 					if (xAxis != null) {
-						xAxis.addLabels(textMap.get(label));
+		    	        Label l = new Label(textMap.get(label), 45);  
+		    	        l.setSize(10);  
+		    	        l.setColour("#000000");  
+		    	        xAxis.addLabels(l);
 					}
 	    	    	
 //	    	        chart.addBars(oneBar);
