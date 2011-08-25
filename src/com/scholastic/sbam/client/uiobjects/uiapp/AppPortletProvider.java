@@ -92,6 +92,10 @@ public class AppPortletProvider {
 			portlet = new SiteLocationPortlet();
 		else if (id == AppPortletIds.AGREEMENT_DISPLAY)
 			portlet = new AgreementPortlet();
+		else if (id == AppPortletIds.AGREEMENT_LINK_DISPLAY)
+			portlet = new AgreementLinkPortlet();
+		else if (id == AppPortletIds.AGREEMENT_LINK_SEARCH)
+			portlet = new AgreementLinkSearchPortlet();
 		else if (id == AppPortletIds.RECENT_AGREEMENTS_DISPLAY)
 			portlet = new RecentAgreementsPortlet();
 		else if (id == AppPortletIds.RECENT_INSTITUTIONS_DISPLAY)

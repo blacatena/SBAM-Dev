@@ -117,6 +117,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>agreementLinkGetServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.AgreementLinkGetServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>agreementLinkSearchServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.AgreementLinkSearchServiceImpl</servlet-class>
   </servlet>
@@ -774,6 +779,11 @@
   <servlet-mapping>
     <servlet-name>agreementContactSearchServlet</servlet-name>
     <url-pattern>/sbam/searchAgreementContacts</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>agreementLinkGetServlet</servlet-name>
+    <url-pattern>/sbam/getAgreementLink</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

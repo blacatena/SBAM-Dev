@@ -40,8 +40,8 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridView;
+import com.extjs.gxt.ui.client.widget.grid.HeaderGroupConfig;
 import com.extjs.gxt.ui.client.widget.grid.RowExpander;
-import com.extjs.gxt.ui.client.widget.grid.filters.DateFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
 import com.extjs.gxt.ui.client.widget.grid.filters.NumericFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
@@ -56,33 +56,29 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.scholastic.sbam.client.services.AgreementTermGetService;
-import com.scholastic.sbam.client.services.AgreementTermGetServiceAsync;
-import com.scholastic.sbam.client.services.AgreementTermSearchService;
-import com.scholastic.sbam.client.services.AgreementTermSearchServiceAsync;
-import com.scholastic.sbam.client.uiobjects.fields.BoundDateField;
-import com.scholastic.sbam.client.uiobjects.fields.DateRangeBinder;
-import com.scholastic.sbam.client.uiobjects.fields.EnhancedComboBox;
+import com.scholastic.sbam.client.services.AgreementLinkGetService;
+import com.scholastic.sbam.client.services.AgreementLinkGetServiceAsync;
+import com.scholastic.sbam.client.services.AgreementLinkSearchService;
+import com.scholastic.sbam.client.services.AgreementLinkSearchServiceAsync;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
-import com.scholastic.sbam.client.uiobjects.foundation.FieldFactory;
 import com.scholastic.sbam.client.uiobjects.foundation.GridSupportPortlet;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
-import com.scholastic.sbam.shared.objects.AgreementTermInstance;
-import com.scholastic.sbam.shared.objects.AgreementTermTuple;
-import com.scholastic.sbam.shared.objects.GenericCodeInstance;
+import com.scholastic.sbam.shared.objects.AgreementInstance;
+import com.scholastic.sbam.shared.objects.AgreementLinkInstance;
+import com.scholastic.sbam.shared.objects.AgreementLinkTuple;
 import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
 import com.scholastic.sbam.shared.util.AppConstants;
 
-public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTermTuple> implements AppSleeper, AppPortletRequester {
+public class AgreementLinkSearchPortlet extends GridSupportPortlet<AgreementLinkInstance> implements AppSleeper, AppPortletRequester {
 	
 	protected static final int LOAD_LIMIT			= AppConstants.STANDARD_LOAD_LIMIT;
 	protected static final int MIN_FILTER_LENGTH	= 0;
 	protected static final int FILTER_LISTEN_PERIOD = 500;	//	This is a little higher, because we're doing a database scan on the back end, so it's not very fast
 	
-	protected final AgreementTermSearchServiceAsync	agreementTermSearchService  = GWT.create(AgreementTermSearchService.class);
-	protected final AgreementTermGetServiceAsync    agreementTermGetService		= GWT.create(AgreementTermGetService.class);
+	protected final AgreementLinkSearchServiceAsync	agreementLinkSearchService  = GWT.create(AgreementLinkSearchService.class);
+	protected final AgreementLinkGetServiceAsync    agreementLinkGetService		= GWT.create(AgreementLinkGetService.class);
 //	protected final AgreementGetServiceAsync    	agreementGetService			= GWT.create(AgreementGetService.class);
 	
 	protected CardLayout						cards;
@@ -96,20 +92,12 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 	
 	protected ListStore<ModelData>				store;
 	protected TextField<String>					filterField;
-	protected EnhancedComboBox<BeanModel>		dateTypeField;
-	protected BoundDateField					fromDateField;
-	protected BoundDateField					toDateField;
-	protected DateRangeBinder					startEndRangeBinder;
 	protected Timer								filterListenTimer;
 	protected String							lastTestFilter;
 	protected String							filter = "";
-	protected Date								fromDate = new Date();
-	protected Date								toDate = new Date();
-	protected ListStore<BeanModel>				dateTypeStore;
-	protected GenericCodeInstance				dateType = new GenericCodeInstance("end", "End Date");
 	protected GridFilters						columnFilters;
 	
-	protected PagingLoader<PagingLoadResult<AgreementTermTuple>> agreementLoader;
+	protected PagingLoader<PagingLoadResult<AgreementLinkInstance>> agreementLoader;
 
 	protected LabelField						agreementIdField;
 	protected LabelField						agreementTypeField;
@@ -118,23 +106,23 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 	protected LabelField						addressField;
 	protected LabelField						customerTypeField;
 	protected LabelField						altIds;
-	protected ListStore<ModelData>				agreementTermsStore;
-	protected Grid<ModelData>					agreementTermsGrid;
+	protected ListStore<ModelData>				agreementLinksStore;
+	protected Grid<ModelData>					agreementsGrid;
 	protected FieldSet							agreementsFieldSet;
 	
 	protected AppPortletProvider				portletProvider;
 	
 	protected int								focusAgreementId;
-	protected int								focusAgreementTermId;
-	protected AgreementTermTuple				focusAgreementTerm;
+	protected int								focusAgreementLinkId;
+	protected AgreementLinkInstance				focusAgreementLink;
 	
 	protected long								searchSyncId = 0;
 	
-	public AgreementTermSearchPortlet() {
+	public AgreementLinkSearchPortlet() {
 		super();
 	}
 	
-	public AgreementTermSearchPortlet(String helpTextId) {
+	public AgreementLinkSearchPortlet(String helpTextId) {
 		super(helpTextId);
 	}
 
@@ -168,38 +156,33 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 		outerContainer.add(displayCard);
 		
 		if (focusAgreementId > 0)
-			loadAgreementTerm(focusAgreementId, focusAgreementTermId);
+			loadAgreementLink(focusAgreementId);
 		if (filter != null && filter.length() > 0)
-			loadFiltered(filter, dateType, fromDate, toDate);
+			loadFiltered(filter);
 	}
 	
 	public void setPortletRenderValues() {
-		setHeading("Agreement Term Search");
-		setToolTip(UiConstants.getQuickTip("Use this portlet to search for agreement terms by date and product."));
+		setHeading("Agreement Link Search");
+		setToolTip(UiConstants.getQuickTip("Use this portlet to search for agreement links by date and product."));
 	}
 	
 	@Override
 	public String getPresenterToolTip() {
-		if (focusAgreementTerm != null) {
-			return "ID " + AppConstants.appendCheckDigit(focusAgreementTerm.getAgreement().getId()) + "-" + focusAgreementTerm.getAgreementTerm().getTermId();
+		if (focusAgreementLink != null) {
+			return "ID " + AppConstants.appendCheckDigit(focusAgreementLink.getLinkId());
 		}
-		if (focusAgreementId != 0 && focusAgreementTermId != 0)
+		if (focusAgreementId != 0 && focusAgreementLinkId != 0)
 			if (filter != null && filter.length() > 0)
-				return "ID " + focusAgreementId + "-" + focusAgreementTermId + " found for '" + filter + "'";
+				return "ID " + focusAgreementId + "-" + focusAgreementLinkId + " found for '" + filter + "'";
 			else
-				return "ID " + focusAgreementId + "-" + focusAgreementTermId;
+				return "ID " + focusAgreementId + "-" + focusAgreementLinkId;
 		if (filter != null && filter.length() > 0)
 			return "Agreement Search for '" + filter + "'";
-		return "Search for agreement terms.";
+		return "Search for agreement links.";
 	}
 	
 	public void initializeFilter() {
 		filterField.setValue(filter);
-		if (dateType != null) dateTypeField.setValue(GenericCodeInstance.obtainModel(dateType));
-		startEndRangeBinder.setUnbound();
-		if (fromDate != null) fromDateField.setValue(fromDate);
-		if (toDate != null) toDateField.setValue(toDate);
-		startEndRangeBinder.setBound();
 	}
 	
 	private void createDisplayCard() {
@@ -219,9 +202,9 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 				@Override
 				protected void onClick(ComponentEvent ce) {
 					cards.setActiveItem(searchPanel);
-					focusAgreementTerm = null;
+					focusAgreementLink = null;
 					focusAgreementId = 0;
-					focusAgreementTermId = 0;
+					focusAgreementLinkId = 0;
 					updateUserPortlet();
 					updatePresenterLabel();
 				}
@@ -231,7 +214,7 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 		ToolBar displayBar = new ToolBar();
 		displayBar.add(returnTool);
 		displayBar.add(new SeparatorToolItem());
-		displayBar.add(new Html("<b>Selected Agreement</b>"));
+		displayBar.add(new Html("<b>Selected Agreement Link</b>"));
 		displayCard.setTopComponent(displayBar);
 
 		agreementIdField = new LabelField();
@@ -257,7 +240,7 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 		customerTypeField.setFieldLabel("Customer Type :");
 		displayCard.add(customerTypeField, formData);
 		
-		addAgreementTermsGrid(formData);
+		addAgreementsGrid(formData);
 		addButtons(formData);
 		
 //		Button returnButton = new Button("Return");
@@ -272,46 +255,42 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 	
 
 	
-	protected void addAgreementTermsGrid(FormData formData) {
+	protected void addAgreementsGrid(FormData formData) {
 		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
 		
-		columns.add(getDisplayColumn("productCode",			"Product Code",				100,
-					"This is the product code for this term."));
-		columns.add(getDisplayColumn("product.description",	"Product",					250,
-					"This is the product for this term."));
-		columns.add(getDisplayColumn("startDate",			"Start",					80,		true, UiConstants.APP_DATE_TIME_FORMAT,
-					"This is the start date for this term."));
-		columns.add(getDisplayColumn("endDate",				"End",						80,		true, UiConstants.APP_DATE_TIME_FORMAT,
-					"This is the end date for this term."));
-		columns.add(getDisplayColumn("terminateDate",		"Siteinate",				80,		true, UiConstants.APP_DATE_TIME_FORMAT,
-					"This is the terminate date for this term."));
-		columns.add(getDisplayColumn("dollarValue",			"Value",					80,		true, UiConstants.DOLLARS_FORMAT,
-					"This is the dollar value for this term."));
+		columns.add(getDisplayColumn("idCheckDigit",				"Agreement #",		100,
+					"This is the ID for this agreement."));
+		columns.add(getDisplayColumn("billUcn",						"Bill To UCN",		100,
+					"This is the UCN for this link."));
+		columns.add(getDisplayColumn("institution.institutionName",	"Bill Institution",	250,
+					"This is the insitution for this link."));
+		columns.add(getDisplayColumn("agreementTypeCode",			"Type",				100,
+					"This is the type of agreement."));
 		
 		ColumnModel cm = new ColumnModel(columns);  
 
-		agreementTermsStore = new ListStore<ModelData>();
+		agreementLinksStore = new ListStore<ModelData>();
 		
-		agreementTermsGrid = new Grid<ModelData>(agreementTermsStore, cm);  
-		agreementTermsGrid.setBorders(true);
-		agreementTermsGrid.setHeight(180);
-		agreementTermsGrid.setStripeRows(true);
-		agreementTermsGrid.setColumnLines(true);
-		agreementTermsGrid.setHideHeaders(false);
-		agreementTermsGrid.setWidth(cm.getTotalWidth() + 5);
+		agreementsGrid = new Grid<ModelData>(agreementLinksStore, cm);  
+		agreementsGrid.setBorders(true);
+		agreementsGrid.setHeight(180);
+		agreementsGrid.setStripeRows(true);
+		agreementsGrid.setColumnLines(true);
+		agreementsGrid.setHideHeaders(false);
+		agreementsGrid.setWidth(cm.getTotalWidth() + 5);
 		
 		//	Open a new portlet to display an agreement when a row is selected
-		agreementTermsGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); 
+		agreementsGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); 
 		final AppPortlet thisPortlet = this; 
-		agreementTermsGrid.getSelectionModel().addListener(Events.SelectionChange,  
+		agreementsGrid.getSelectionModel().addListener(Events.SelectionChange,  
 				new Listener<SelectionChangedEvent<ModelData>>() {  
 					public void handleEvent(SelectionChangedEvent<ModelData> be) {  
 						if (be.getSelection().size() > 0) {
 						//	System.out.println("Agreement " + ((BeanModel) be.getSelectedItem()).get("idCheckDigit"));
-							AgreementTermInstance agreementTerm = (AgreementTermInstance) ((BeanModel) be.getSelectedItem()).getBean();
+							AgreementInstance agreement = (AgreementInstance) ((BeanModel) be.getSelectedItem()).getBean();
 							AgreementPortlet portlet = (AgreementPortlet) portletProvider.getPortlet(AppPortletIds.AGREEMENT_DISPLAY);
-							portlet.setAgreementId(agreementTerm.getAgreementId());
-							if (focusAgreementTerm != null) {
+							portlet.setAgreementId(agreement.getId());
+							if (focusAgreementLink != null) {
 								String foundFor = constructFilterDescription();
 								portlet.setIdentificationTip("Found for " + foundFor + "");
 							}
@@ -320,17 +299,17 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 //							portletProvider.insertPortlet(portlet, portalRow, insertCol);
 //							New, more thorough way
 							portletProvider.insertPortlet(portlet, portalRow, thisPortlet.getInsertColumn());
-							agreementTermsGrid.getSelectionModel().deselectAll();
+							agreementsGrid.getSelectionModel().deselectAll();
 						} 
 					}
 			});
 	
 		agreementsFieldSet = new FieldSet();
 		agreementsFieldSet.setBorders(true);
-		agreementsFieldSet.setHeading("Current and Pending Terms");// 		displayCard.add(new LabelField("<br/><i>Existing Agreements</i>"));
+		agreementsFieldSet.setHeading("Agreements");// 		displayCard.add(new LabelField("<br/><i>Existing Agreements</i>"));
 		agreementsFieldSet.setCollapsible(true);
-		agreementsFieldSet.setToolTip(UiConstants.getQuickTip("These are the current or pending agreement terms for this agreement."));
-		agreementsFieldSet.add(agreementTermsGrid);	//, new FormData(cm.getTotalWidth() + 10, 200));
+		agreementsFieldSet.setToolTip(UiConstants.getQuickTip("These are agreements for this link."));
+		agreementsFieldSet.add(agreementsGrid);	//, new FormData(cm.getTotalWidth() + 10, 200));
 		
 	//	displayCard.add(new LabelField(""));	// Used as a spacer
 		displayCard.add(agreementsFieldSet, formData);	//	new FormData("95%")); // new FormData(cm.getTotalWidth() + 20, 200));
@@ -338,23 +317,23 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 	}
 	
 	public String constructFilterDescription() {
-		return filter;
+		return "Links for " + filter;
 	}
 	
 	protected void addButtons(FormData formData) {
 		
 		ToolBar toolBar = new ToolBar();
 		toolBar.setAlignment(HorizontalAlignment.CENTER);
-		toolBar.setToolTip(UiConstants.getQuickTip("Use these buttons to edit this agreement."));
+		toolBar.setToolTip(UiConstants.getQuickTip("Use these buttons to edit this agreement link."));
 		
-		Button newAgreementButton = new Button("Edit Agreement");
-		newAgreementButton.setToolTip(UiConstants.getQuickTip("Use this button to edit this agreement."));
+		Button newAgreementButton = new Button("Edit Agreement Link");
+		newAgreementButton.setToolTip(UiConstants.getQuickTip("Use this button to edit this agreement link."));
 		IconSupplier.forceIcon(newAgreementButton, IconSupplier.getNewIconName());
 		newAgreementButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
 				@Override
 				public void componentSelected(ButtonEvent ce) {
-					AgreementPortlet portlet = (AgreementPortlet) portletProvider.getPortlet(AppPortletIds.AGREEMENT_DISPLAY);
-					portlet.setAgreementId(focusAgreementId);
+					AgreementLinkPortlet portlet = (AgreementLinkPortlet) portletProvider.getPortlet(AppPortletIds.AGREEMENT_LINK_DISPLAY);
+					portlet.setAgreementLinkId(focusAgreementLinkId);
 					int insertCol = (portalColumn == 0) ? 1 : 0;
 					portletProvider.insertPortlet(portlet, portalRow, insertCol);
 				}  
@@ -363,50 +342,47 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 		
 		displayCard.add(toolBar);
 	}
-	
-	protected void showAgreement(BeanModel model) {
-		showAgreementTerm((AgreementTermTuple) model.getBean());
-		// If the agreement term came without a set of other terms, load it again (with the terms)...
-		if (focusAgreementTerm.getAgreement().getAgreementTerms() == null)
-			loadAgreementTerm(focusAgreementId, focusAgreementTermId);
+
+	protected void showAgreementLink(AgreementLinkInstance instance) {
+		loadAgreementLink(instance.getLinkId());
 	}
 	
-	protected void showAgreementTerm(AgreementTermTuple instance) {
-		focusAgreementTerm = instance;
+	
+	protected void showAgreementLink(AgreementLinkTuple instance) {
+		focusAgreementLink = instance.getAgreementLink();
 		
-		if (instance == null)
+		if (focusAgreementLink == null)
 			return;
 		
-		focusAgreementId = focusAgreementTerm.getAgreementTerm().getAgreementId();
-		focusAgreementTermId = focusAgreementTerm.getAgreementTerm().getTermId();
+		focusAgreementLinkId = focusAgreementLink.getLinkId();
 		
-		registerUserCache(focusAgreementTerm, "Found for " + filter);
+//		registerUserCache(focusAgreementLink, "Found for " + filter);
 		updateUserPortlet();
 
-		agreementIdField.setValue(focusAgreementTerm.getAgreement().getIdCheckDigit());
-		agreementTypeField.setValue(focusAgreementTerm.getAgreement().getAgreementType().getDescriptionAndCode());
-		ucnField.setValue(focusAgreementTerm.getAgreement().getBillUcn());
+		agreementIdField.setValue(focusAgreementLink.getLinkIdCheckDigit());
+		agreementTypeField.setValue(focusAgreementLink.getLinkTypeCode());
+		ucnField.setValue(focusAgreementLink.getUcn());
 		
-		if (focusAgreementTerm.getAgreement().getInstitution() == null) {
+		if (focusAgreementLink.getInstitution() == null) {
 			addressField.setValue("");
 			altIds.setValue("");
 			customerTypeField.setValue("");
 		} else {
-			addressField.setValue(focusAgreementTerm.getAgreement().getInstitution().getHtmlAddress());
-			if (focusAgreementTerm.getAgreement().getInstitution().getAlternateIds() == null 
-			||  focusAgreementTerm.getAgreement().getInstitution().getAlternateIds().length() == 0)
+			addressField.setValue(focusAgreementLink.getInstitution().getHtmlAddress());
+			if (focusAgreementLink.getInstitution().getAlternateIds() == null 
+			||  focusAgreementLink.getInstitution().getAlternateIds().length() == 0)
 				altIds.setValue("None");
 			else
-				altIds.setValue(focusAgreementTerm.getAgreement().getInstitution().getAlternateIds().replace(",", ", "));
-			customerTypeField.setValue(focusAgreementTerm.getAgreement().getInstitution().getPublicPrivateDescription() + " / " + 
-					focusAgreementTerm.getAgreement().getInstitution().getGroupDescription() + " &rArr; " + 
-					focusAgreementTerm.getAgreement().getInstitution().getTypeDescription());
+				altIds.setValue(focusAgreementLink.getInstitution().getAlternateIds().replace(",", ", "));
+			customerTypeField.setValue(focusAgreementLink.getInstitution().getPublicPrivateDescription() + " / " + 
+					focusAgreementLink.getInstitution().getGroupDescription() + " &rArr; " + 
+					focusAgreementLink.getInstitution().getTypeDescription());
 		}
 		
-		agreementTermsStore.removeAll();
-		if (focusAgreementTerm.getAgreement().getAgreementTerms() != null)
-			for (AgreementTermInstance term : focusAgreementTerm.getAgreement().getAgreementTerms())
-				agreementTermsStore.add(AgreementTermInstance.obtainModel(term));
+		agreementLinksStore.removeAll();
+		if (instance.getAgreements() != null)
+			for (AgreementInstance agreement : instance.getAgreements())
+				agreementLinksStore.add(AgreementInstance.obtainModel(agreement));
 		
 		cards.setActiveItem(displayCard);
 
@@ -416,7 +392,7 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 	}
 
 //	@Override
-//	protected BeanModel getModel(AgreementTermInstance instance) {
+//	protected BeanModel getModel(AgreementLinkInstance instance) {
 //		BeanModel model = super.getModel(instance);
 //		String display = "<b>" + instance.getId() + "</b> : " + instance.getLastStartDate() + " &ndash; " + instance.getEndDate();
 //		if (!instance.getFirstStartDate().equals(instance.getLastStartDate()))
@@ -424,12 +400,6 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 //		model.set("display", display);
 //		return model;
 //	}
-	
-	protected ListStore<BeanModel> getDateTypeStore() {
-		if (dateTypeStore != null)
-			return dateTypeStore;
-		return UiConstants.getGenericCodeStore(new String [] [] { {"start", "Start Date"}, {"end", "End Date"}, {"terminate", "Terminate"} });
-	}
 	
 	protected void setFilter() {
 		
@@ -441,36 +411,6 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 //		LiveToolItem item = new LiveToolItem();  
 //		item.bindGrid(grid); 
 //		toolBar.add(item); 
-		
-		dateTypeField = FieldFactory.getComboField("dateType", "Date", 80, getDateTypeStore(), "name");
-		dateTypeField.setWidth(80);
-		dateTypeField.enable();
-		dateTypeField.setAllowBlank(false);
-//		dateTypeField.setEditable(false);
-		dateTypeField.setForceSelection(true);
-		if (dateType != null)
-			dateTypeField.setValue(dateTypeField.getStore().findModel(dateType.getCode()));
-		else
-			dateTypeField.setValue(dateTypeField.getStore().getAt(0));
-		toolBar.add(new LabelToolItem("Type: "));
-		toolBar.add(dateTypeField);
-		
-		Date todayDate = getTodayDate();
-		
-		fromDateField = FieldFactory.getBoundDateField("From");
-		fromDateField.setValue(todayDate);
-		fromDateField.enable();
-		toolBar.add(new LabelToolItem("From: "));
-		toolBar.add(fromDateField);
-		
-		toDateField = FieldFactory.getBoundDateField("To");
-		toDateField.setValue(todayDate);
-		toDateField.enable();toolBar.add(new LabelToolItem("To: "));
-		toolBar.add(toDateField);
-		
-		startEndRangeBinder = new DateRangeBinder();
-		fromDateField.bindLow(startEndRangeBinder);
-		toDateField.bindHigh(startEndRangeBinder);
 		
 //		toolBar.add(new FillToolItem());  
 		
@@ -515,26 +455,18 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 			//	  System.out.println("Filter: " + filter);
 			//	  System.out.println(combo.getRawValue() +  " / " + combo.getValue() + " / " + combo.getOriginalValue());
 				  String value = (filterField.getRawValue() == null)?"":filterField.getRawValue().trim();
-				  GenericCodeInstance newDateType = dateTypeField.getValue().getBean();
-				  Date   newFromDate = fromDateField.getValue();
-				  Date	 newToDate = toDateField.getValue();
-				  if (dateType != null && fromDate != null && toDate != null) {
-					  if (!value.equals(filter.trim())
-					  ||  !newFromDate.equals(fromDate)
-					  ||  !newToDate.equals(toDate)
-					  ||  !newDateType.getCode().equals(dateType.getCode())) {
-				 		  if (value.trim().length() < MIN_FILTER_LENGTH) {
-				 			  //	Feedback here...
-				 			  grid.getStore().removeAll();
-				 			  gridView.setEmptyText("Enter at least " + MIN_FILTER_LENGTH + " characters with which to search.");
-				 		  } else {
-							  // This optimization makes sure the user has stopped (or at least paused) in typing... if the value is changing, wait until it doesn't
-							  if (value.equals(lastTestFilter))
-								  loadFiltered(filterField.getRawValue(), newDateType, newFromDate, newToDate);
-							  else
-								  lastTestFilter = value;
-						  }	  
-					  }
+				  if (!value.equals(filter.trim())) {
+			 		  if (value.trim().length() < MIN_FILTER_LENGTH) {
+			 			  //	Feedback here...
+			 			  grid.getStore().removeAll();
+			 			  gridView.setEmptyText("Enter at least " + MIN_FILTER_LENGTH + " characters with which to search.");
+			 		  } else {
+						  // This optimization makes sure the user has stopped (or at least paused) in typing... if the value is changing, wait until it doesn't
+						  if (value.equals(lastTestFilter))
+							  loadFiltered(filterField.getRawValue());
+						  else
+							  lastTestFilter = value;
+					  }	  
 				  }
 			  }
 			};
@@ -566,34 +498,30 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 //
 //		});
 		
-		columns.add(getDisplayColumn("agreement.idCheckDigit",					"Agreement #",		80));  
-		columns.add(getDisplayColumn("agreement.institution.institutionName",	"Institution",		150));   
-		columns.add(getDisplayColumn("agreementTerm.product.description",		"Product",			150));
-		columns.add(getDisplayColumn("agreementTerm.termType.description",		"Type",				80));
-		columns.add(getDisplayColumn("agreementTerm.dollarValue",				"Value",			50,		true, UiConstants.DOLLARS_FORMAT));
-		columns.add(getDisplayColumn("agreementTerm.startDate",					"Start",		 	70,		true, UiConstants.APP_DATE_TIME_FORMAT)); 
-		columns.add(getDisplayColumn("agreementTerm.endDate",					"End",			 	70,		true, UiConstants.APP_DATE_TIME_FORMAT)); 
-
-		//	Hidden agreement term columns
-		columns.add(getHiddenColumn("agreementTerm.terminateDate",				"Terminate",		 70,		true, UiConstants.APP_DATE_TIME_FORMAT)); 
-				//	Hidden institution columns
-		columns.add(getHiddenColumn("agreement.institution.state",						"State",			50));
-		columns.add(getHiddenColumn("agreement.institution.country",					"Country",			50));    
-		columns.add(getHiddenColumn("agreement.institution.typeCode",					"Cust Type Code", 	50));
-		columns.add(getHiddenColumn("agreement.institution.typeDescription",			"Cust Type", 		100,			false));    
-		columns.add(getHiddenColumn("agreement.institution.groupCode",					"Type Group Code", 	50));  
-		columns.add(getHiddenColumn("agreement.institution.groupDescription",			"Type Group", 		100,			false));    
-		columns.add(getHiddenColumn("agreement.institution.publicPrivateCode",			"Public/Private", 	50));  
-		columns.add(getHiddenColumn("agreement.institution.publicPrivateDescription",	"Public/Private Desc", 	100,	false));
+		columns.add(getDisplayColumn("linkIdCheckDigit",				"Link #",			80));  
+		columns.add(getDisplayColumn("institution.institutionName",		"Institution",		150));   
+		columns.add(getDisplayColumn("linkTypeCode",					"Code",				80));  
+		columns.add(getDisplayColumn("linkType.description",			"Description",		150));
 		
-		noteExpander = getNoteExpander("agreementTermNote");
+		//	Hidden institution columns
+		columns.add(getHiddenColumn("institution.state",						"State",			50));
+		columns.add(getHiddenColumn("institution.country",					"Country",			50));    
+		columns.add(getHiddenColumn("institution.typeCode",					"Cust Type Code", 	50));
+		columns.add(getHiddenColumn("institution.typeDescription",			"Cust Type", 		100,			false));    
+		columns.add(getHiddenColumn("institution.groupCode",				"Type Group Code", 	50));  
+		columns.add(getHiddenColumn("institution.groupDescription",			"Type Group", 		100,			false));    
+		columns.add(getHiddenColumn("institution.publicPrivateCode",		"Public/Private", 	50));  
+		columns.add(getHiddenColumn("institution.publicPrivateDescription",	"Public/Private Desc", 	100,	false));
+		
+		noteExpander = getNoteExpander("note");
 		columns.add(noteExpander);
 		
 		ColumnModel cm = new ColumnModel(columns);  
+		cm.addHeaderGroup(0, 3, new HeaderGroupConfig("Link Type", 1, 2));
 
 		grid = new Grid<ModelData>(store, cm);  
 		grid.setBorders(true);  
-		grid.setAutoExpandColumn("agreementTerm.product.description");  
+		grid.setAutoExpandColumn("institution.institutionName");  
 		grid.setLoadMask(true);
 		grid.setStripeRows(true);
 		grid.setColumnLines(true);
@@ -611,7 +539,7 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 //		grid.setView(liveView);
 		
 		gridView = new GridView();
-		gridView.setEmptyText("Enter filter criteria to search for agreements.");
+		gridView.setEmptyText("Enter filter criteria to search for agreement links.");
 		grid.setView(gridView);
 		grid.getAriaSupport().setLabelledBy(this.getHeader().getId() + "-label"); 
 		
@@ -626,13 +554,10 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 		columnFilters.setLocal(true);
 		columnFilters.setAutoReload(false);
 		
-		columnFilters.addFilter(new NumericFilter("agreement.idCheckDigit"));
-		columnFilters.addFilter(new NumericFilter("agreementTerm.dollarValue"));
-		columnFilters.addFilter(new DateFilter("agreementTerm.startDate"));
-		columnFilters.addFilter(new DateFilter("agreementTerm.endDate"));
-		columnFilters.addFilter(new StringFilter("agreement.institution.institutionName"));
-		columnFilters.addFilter(new StringFilter("agreementTerm.product.description"));
-		columnFilters.addFilter(new StringFilter("agreementTerm.termType.description"));
+		columnFilters.addFilter(new NumericFilter("linkIdCheckDigit"));
+		columnFilters.addFilter(new NumericFilter("linkTypeCode"));
+		columnFilters.addFilter(new StringFilter("institution.institutionName"));
+		columnFilters.addFilter(new StringFilter("linkType.description"));
 		
 		grid.addPlugin(columnFilters);
 	}
@@ -669,33 +594,24 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 	@Override
 	public void onRowSelected(BeanModel beanModel) {
 		if (beanModel != null)
-			showAgreement(beanModel);
+			showAgreementLink((AgreementLinkInstance) beanModel.getBean());
 	}
 	
 	protected void setThis() {
 		this.setLayout(new FitLayout());
 		this.setHeight(forceHeight);
-		IconSupplier.setIcon(this, IconSupplier.getAgreementTermIconName());
+		IconSupplier.setIcon(this, IconSupplier.getAgreementLinkIconName());
 	}
 	
 	/**
 	 * Instigate an asynchronous load with a filter value.
 	 * @param filter
 	 */
-	protected void loadFiltered(String filter, GenericCodeInstance dateType, Date fromDate, Date toDate) {
+	protected void loadFiltered(String filter) {
 		if (filter == null || filter.length() == 0 || filter.length() < MIN_FILTER_LENGTH)
-			return;
-		if (dateType == null)
-			return;
-		if (fromDate == null)
-			return;
-		if (toDate == null)
 			return;
 		
 		this.filter = filter;
-		this.dateType = dateType;
-		this.fromDate = fromDate;
-		this.toDate = toDate;
 		
 		updateUserPortlet();
 		
@@ -706,17 +622,17 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 	 * Construct and return a loader to handle returning a list of institutions.
 	 * @return
 	 */
-	protected PagingLoader<PagingLoadResult<AgreementTermTuple>> getAgreementLoader() {
+	protected PagingLoader<PagingLoadResult<AgreementLinkInstance>> getAgreementLoader() {
 		// proxy and reader  
-		RpcProxy<PagingLoadResult<AgreementTermTuple>> proxy = new RpcProxy<PagingLoadResult<AgreementTermTuple>>() {  
+		RpcProxy<PagingLoadResult<AgreementLinkInstance>> proxy = new RpcProxy<PagingLoadResult<AgreementLinkInstance>>() {  
 			@Override  
-			public void load(Object loadConfig, final AsyncCallback<PagingLoadResult<AgreementTermTuple>> callback) {
+			public void load(Object loadConfig, final AsyncCallback<PagingLoadResult<AgreementLinkInstance>> callback) {
 		    	
 				// This could be as simple as calling userListService.getUsers and passing the callback
 				// Instead, here the callback is overridden so that it can catch errors and alert the users.  Then the original callback is told of the failure.
 				// On success, the original callback is just passed the onSuccess message, and the response (the list).
 				
-				AsyncCallback<SynchronizedPagingLoadResult<AgreementTermTuple>> myCallback = new AsyncCallback<SynchronizedPagingLoadResult<AgreementTermTuple>>() {
+				AsyncCallback<SynchronizedPagingLoadResult<AgreementLinkInstance>> myCallback = new AsyncCallback<SynchronizedPagingLoadResult<AgreementLinkInstance>>() {
 					public void onFailure(Throwable caught) {
 						// Show the RPC error message to the user
 						if (caught instanceof IllegalArgumentException)
@@ -724,23 +640,23 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 						else if (caught instanceof ServiceNotReadyException)
 								MessageBox.alert("Alert", "The " + caught.getMessage() + " is not available at this time.  Please try again in a few minutes.", null);
 						else {
-							MessageBox.alert("Alert", "Agreement Terms search failed unexpectedly.", null);
+							MessageBox.alert("Alert", "Agreement Links search failed unexpectedly.", null);
 							System.out.println(caught.getClass().getName());
 							System.out.println(caught.getMessage());
 						}
 						callback.onFailure(caught);
 					}
 
-					public void onSuccess(SynchronizedPagingLoadResult<AgreementTermTuple> syncResult) {
+					public void onSuccess(SynchronizedPagingLoadResult<AgreementLinkInstance> syncResult) {
 						if(syncResult.getSyncId() != searchSyncId)
 							return;
 						
-						PagingLoadResult<AgreementTermTuple> result = syncResult.getResult();
+						PagingLoadResult<AgreementLinkInstance> result = syncResult.getResult();
 						if ( result.getData() == null || result.getData().size() == 0 ) {
 							if (result.getTotalLength() > 0)
-								gridView.setEmptyText(result.getTotalLength() + " agreement terms qualify (too many to display).<br/>Please enter filter criteria to narrow your search.");
+								gridView.setEmptyText(result.getTotalLength() + " agreement links qualify (too many to display).<br/>Please enter filter criteria to narrow your search.");
 							else if (filter.length() == 0)
-								gridView.setEmptyText("Enter filter criteria to search for agreements.");
+								gridView.setEmptyText("Enter filter criteria to search for agreement links.");
 							else
 								gridView.setEmptyText("Please enter filter criteria to narrow your search.");
 						}
@@ -759,7 +675,7 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 		BeanModelReader reader = new BeanModelReader();
 		
 		// loader and store  
-		PagingLoader<PagingLoadResult<AgreementTermTuple>> loader = new BasePagingLoader<PagingLoadResult<AgreementTermTuple>>(proxy, reader)
+		PagingLoader<PagingLoadResult<AgreementLinkInstance>> loader = new BasePagingLoader<PagingLoadResult<AgreementLinkInstance>>(proxy, reader)
 //			Use the below code if filtering will be done on the server site
 //			{  
 //		      @Override  
@@ -781,9 +697,6 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 //		if (fromDateField.getValue() == null || toDateField.getValue() == null || dateTypeField.getValue() == null)
 //			return false;
 		
-		loadConfig.set("dateType", dateType.getCode());	//	dateTypeField.getValue().get("code"));
-		loadConfig.set("fromDate", fromDate);	//	fromDateField.getValue());
-		loadConfig.set("toDate", toDate);	//	toDateField.getValue());
 		loadConfig.set("filter", filter);
 		loadConfig.set("limit", LOAD_LIMIT);
 //		loadConfig.set("id", filter);
@@ -791,27 +704,27 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 		return true;
 	}
  	
-	public void invokeSearchService(PagingLoadConfig loadConfig, long searchSyncId, AsyncCallback<SynchronizedPagingLoadResult<AgreementTermTuple>> myCallback) {
-		grid.mask("Searching for agreements terms...");
-		agreementTermSearchService.searchAgreementTerms((PagingLoadConfig) loadConfig, searchSyncId, myCallback);
+	public void invokeSearchService(PagingLoadConfig loadConfig, long searchSyncId, AsyncCallback<SynchronizedPagingLoadResult<AgreementLinkInstance>> myCallback) {
+		grid.mask("Searching for agreements links...");
+		agreementLinkSearchService.searchAgreementLinks((PagingLoadConfig) loadConfig, filter, searchSyncId, myCallback);
 	}
 
-	protected void loadAgreementTerm(final int agreementId, final int termId) {
-		agreementTermGetService.getAgreementTerm(agreementId, termId, true, false,
-				new AsyncCallback<AgreementTermTuple>() {
+	protected void loadAgreementLink(final int linkId) {
+		agreementLinkGetService.getAgreementLink(linkId, true, true,
+				new AsyncCallback<AgreementLinkTuple>() {
 					public void onFailure(Throwable caught) {
 						// Show the RPC error message to the user
 						if (caught instanceof IllegalArgumentException)
 							MessageBox.alert("Alert", caught.getMessage(), null);
 						else {
-							MessageBox.alert("Alert", "Agreement Term access failed unexpectedly.", null);
+							MessageBox.alert("Alert", "Agreement Link access failed unexpectedly.", null);
 							System.out.println(caught.getClass().getName());
 							System.out.println(caught.getMessage());
 						}
 					}
 
-					public void onSuccess(AgreementTermTuple agreement) {
-						showAgreementTerm(agreement);
+					public void onSuccess(AgreementLinkTuple agreementLinkTuple) {
+						showAgreementLink(agreementLinkTuple);
 					}
 			});
 	}
@@ -908,12 +821,12 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 		this.focusAgreementId = focusAgreementId;
 	}
 
-	public int getFocusAgreementTermId() {
-		return focusAgreementTermId;
+	public int getFocusAgreementLinkId() {
+		return focusAgreementLinkId;
 	}
 
-	public void setFocusAgreementTermId(int focusAgreementTermId) {
-		this.focusAgreementTermId = focusAgreementTermId;
+	public void setFocusAgreementLinkId(int focusAgreementLinkId) {
+		this.focusAgreementLinkId = focusAgreementLinkId;
 	}
 
 	public String getFilter() {
@@ -929,9 +842,6 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 		if (keyData == null)
 			return;
 		
-		String oldDateType		= null;
-		String oldFromDate		= null;
-		String oldToDate		= null;
 		String oldFilter		= null;
 		String oldAgreementId   = null;
 		String oldTermId		= null;
@@ -942,35 +852,16 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 		if (parts.length > 0)
 			oldAgreementId = parts [0].trim();
 		if (parts.length > 1)
-			oldTermId = parts [1].trim();
-		if (parts.length > 2)
-			oldDateType = parts [2].trim();
-		if (parts.length > 3)
-			oldFromDate = parts [3].trim();
-		if (parts.length > 4)
-			oldToDate = parts [4].trim();
-		if (parts.length > 5)
-			oldFilter = parts [5].trim().replace("''''", ":"); //	Restore any escaped :
+			oldFilter = parts [1].trim().replace("''''", ":"); //	Restore any escaped :
 		
 		if (oldFilter != null && oldFilter.length() > 0) {
 			filter = oldFilter;
 		}
 		
-		if (oldDateType != null) {
-			if (getDateTypeStore().findModel(oldDateType) != null)
-				dateType = getDateTypeStore().findModel(oldDateType).getBean();
-		}
-		
-		DateTimeFormat format = DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_MEDIUM);
-		if (oldFromDate != null)
-			fromDate = format.parse(oldFromDate);
-		if (oldToDate != null)
-			toDate = format.parse(oldToDate);
-		
 		if (oldAgreementId != null && oldAgreementId.length() > 0) {
 			try {
 				focusAgreementId = Integer.parseInt(oldAgreementId);
-				focusAgreementTermId = Integer.parseInt(oldTermId);
+				focusAgreementLinkId = Integer.parseInt(oldTermId);
 			} catch (NumberFormatException e) {
 			}
 		}
@@ -978,12 +869,10 @@ public class AgreementTermSearchPortlet extends GridSupportPortlet<AgreementTerm
 
 	@Override
 	public String getKeyData() {
-		DateTimeFormat format = DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_MEDIUM);
-		if (focusAgreementTerm == null)
-			return "::" + dateType.getCode() + ":" + format.format(fromDate) + ":" + format.format(toDate) + ":" + filter;
+		if (focusAgreementLink == null)
+			return "::" + filter;
 		else	//	Note that we escape any ":" value in the filter with \\:
-			return focusAgreementTerm.getAgreementTerm().getAgreementId() + ":" + focusAgreementTerm.getAgreementTerm().getTermId() + ":"
-			 			+ dateType.getCode() + ":" + format.format(fromDate) + ":" + format.format(toDate) + ":" + filter.replace(":", "\\:");
+			return focusAgreementLink.getLinkId() + ":" + filter.replace(":", "\\:");
 	}
 
 }

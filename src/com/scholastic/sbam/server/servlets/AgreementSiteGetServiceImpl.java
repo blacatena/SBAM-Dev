@@ -23,7 +23,7 @@ public class AgreementSiteGetServiceImpl extends AgreementGetServiceBase impleme
 	@Override
 	public AgreementSiteTuple getAgreementSite(int agreementId, int ucn, int ucnSuffix, String siteLocCode, boolean loadTerms, boolean allTerms) throws IllegalArgumentException {
 		
-		authenticate("get agreement term", SecurityManager.ROLE_QUERY);
+		authenticate("get agreement site", SecurityManager.ROLE_QUERY);
 		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();

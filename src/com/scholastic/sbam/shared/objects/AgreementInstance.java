@@ -3,6 +3,9 @@ package com.scholastic.sbam.shared.objects;
 import java.util.Date;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.data.BeanModel;
+import com.extjs.gxt.ui.client.data.BeanModelFactory;
+import com.extjs.gxt.ui.client.data.BeanModelLookup;
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
 import com.scholastic.sbam.shared.util.AppConstants;
@@ -12,6 +15,8 @@ public class AgreementInstance extends BetterRowEditInstance implements BeanMode
 	public static final int AGREEMENT_KEY_SET	=	0;
 	public static final int INSTITUTION_KEY_SET	=	1;
 	public static final int	CUSTOMER_KEY_SET	=	2;
+
+	private static BeanModelFactory beanModelfactory;
 
 	private int		id;
 	private int		idCheckDigit;
@@ -296,6 +301,13 @@ public class AgreementInstance extends BetterRowEditInstance implements BeanMode
 
 	public void setAgreementTerms(List<AgreementTermInstance> agreementTerms) {
 		this.agreementTerms = agreementTerms;
+	}
+
+	public static BeanModel obtainModel(AgreementInstance instance) {
+		if (beanModelfactory == null)
+			beanModelfactory  = BeanModelLookup.get().getFactory(AgreementInstance.class);
+		BeanModel model = beanModelfactory.createModel(instance);
+		return model;
 	}
 
 	public String toString() {

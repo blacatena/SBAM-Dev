@@ -47,6 +47,18 @@ public enum AppPortletIds {
 				"AgreementContactSearch",
 				AgreementContactSearchPortlet.class.getName()
 			),
+	AGREEMENT_LINK_DISPLAY					(
+					"Agreement Link Display",
+					IconSupplier.getAgreementLinkIconName(),
+					"AgreementLinkDisplay"	,
+					AgreementLinkPortlet.class.getName()
+				),
+	AGREEMENT_LINK_SEARCH					(
+			"Agreement Link Search",
+			IconSupplier.getAgreementLinkIconName(),
+			"AgreementLinkSearch"	,
+			AgreementLinkSearchPortlet.class.getName()
+		),
 	AGREEMENT_NOTES_SEARCH				(
 				"Agreement Notes Search",
 				IconSupplier.getNoteIconName(),

@@ -35,6 +35,23 @@ public class EnhancedComboBox<M extends ModelData> extends ComboBox<M> {
 	public boolean isTypeAheadOne() {
 		return typeAheadOne;
 	}
+	
+	public void selectByKey(String key) {
+		if (key == null) {
+			select(null);
+			return;
+		}
+		if (getStore().getKeyProvider() != null) {
+			for (int i = 0; i < getStore().getCount(); i++) {
+				if (key.equals(getStore().getKeyProvider().getKey(getStore().getAt(i)))) {
+					select(getStore().getAt(i));
+					return;
+				}
+			}
+		}
+		select(null);
+		return;
+	}
 
 	/**
 	 * True to apply type ahead if there is only one qualifying value in the list.
