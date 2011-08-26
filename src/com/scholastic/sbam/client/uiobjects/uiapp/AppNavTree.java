@@ -114,7 +114,7 @@ public class AppNavTree {
 	  Folder creates = new Folder("Create", IconSupplier.getNewIconName());
 	  creates.add(new SelectionTreeNode("New Agreement", 		IconSupplier.getAgreementIconName(), AppPortletIds.AGREEMENT_DISPLAY));
 	  creates.add(new SelectionTreeNode("New Site", 			AppPortletIds.SITE_LOCATION_DISPLAY));
-	  creates.add(new SelectionTreeNode("New Proxy", 			IconSupplier.getProxyIconName()));
+	  creates.add(new SelectionTreeNode("New Proxy", 			AppPortletIds.PROXY_DISPLAY));
 	  creates.add(new SelectionTreeNode("New Link", 			AppPortletIds.AGREEMENT_LINK_DISPLAY));
 		
 	  Folder searches = new Folder("Searches", IconSupplier.getSearchIconName());
@@ -133,7 +133,7 @@ public class AppNavTree {
 	  agreeSrch.add(new SelectionTreeNode("Remote Setup", 		AppPortletIds.AGREEMENT_REMOTE_SETUP_URL_SEARCH));
 	  agreeSrch.add(new SelectionTreeNode("Notes", 				AppPortletIds.AGREEMENT_NOTES_SEARCH));
 	  agreeSrch.add(new SelectionTreeNode("Contacts", 			AppPortletIds.AGREEMENT_CONTACT_SEARCH));
-	  agreeSrch.add(new SelectionTreeNode("Proxies", 			IconSupplier.getProxyIconName()));
+	  agreeSrch.add(new SelectionTreeNode("Proxies", 			AppPortletIds.PROXY_SEARCH));
 	  agreeSrch.add(new SelectionTreeNode("Links", 				AppPortletIds.AGREEMENT_LINK_SEARCH));
 	  
 	  Folder recentSrch = new Folder("Recent", IconSupplier.getRecentIconName());

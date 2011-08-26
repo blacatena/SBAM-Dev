@@ -83,6 +83,18 @@ public enum AppPortletIds {
 				"AgreementTermSearch",
 				AgreementTermSearchPortlet.class.getName()
 			),
+	PROXY_DISPLAY					(
+				"Proxy Display",
+				IconSupplier.getProxyIconName(),
+				"ProxyDisplay"	,
+				ProxyPortlet.class.getName()
+			),
+	PROXY_SEARCH					(
+				"Proxy Search",
+				IconSupplier.getProxyIconName(),
+				"ProxySearch"	,
+				ProxySearchPortlet.class.getName()
+			),
 	SITE_LOCATION_DISPLAY				(
 				"Site Location Display",
 				IconSupplier.getSiteIconName(),

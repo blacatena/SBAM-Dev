@@ -132,6 +132,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>updateAgreementLinkNoteServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateAgreementLinkNoteServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>updateAgreementNoteServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.UpdateAgreementNoteServiceImpl</servlet-class>
   </servlet>
@@ -482,6 +487,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>proxyGetServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.ProxyGetServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>proxySearchServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.ProxySearchServiceImpl</servlet-class>
   </servlet>
@@ -489,6 +499,11 @@
   <servlet>
     <servlet-name>updateProxyServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.UpdateProxyServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updateProxyNoteServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateProxyNoteServiceImpl</servlet-class>
   </servlet>
   
   <servlet>
@@ -872,6 +887,11 @@
   </servlet-mapping>
   
   <servlet-mapping>
+    <servlet-name>updateAgreementLinkNoteServlet</servlet-name>
+    <url-pattern>/sbam/updateAgreementLinkNote</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
     <servlet-name>updateAgreementNoteServlet</servlet-name>
     <url-pattern>/sbam/updateAgreementNote</url-pattern>
   </servlet-mapping>
@@ -1147,6 +1167,11 @@
   </servlet-mapping>
   
   <servlet-mapping>
+    <servlet-name>proxyGetServlet</servlet-name>
+    <url-pattern>/sbam/getProxy</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
     <servlet-name>proxySearchServlet</servlet-name>
     <url-pattern>/sbam/searchProxies</url-pattern>
   </servlet-mapping>
@@ -1154,6 +1179,11 @@
   <servlet-mapping>
     <servlet-name>updateProxyServlet</servlet-name>
     <url-pattern>/sbam/updateProxy</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateProxyNoteServlet</servlet-name>
+    <url-pattern>/sbam/updateProxyNote</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

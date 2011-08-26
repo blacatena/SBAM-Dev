@@ -153,14 +153,30 @@ public class ProxyIpInstance extends IpAddressInstance implements BeanModelTag, 
 			return;
 		setStatus(active?'A':'I');
 	}
+	
+	public String getIpRangeDisplay() {
+		return AuthMethodInstance.getBriefIpDisplay(ipLo, ipHi);
+	}
+	
+	public String getIpLoDisplay() {
+		if (ipLo == 0)
+			return getOctetForm(ipHi);
+		return getOctetForm(ipLo);
+	}
+	
+	public String getIpHiDisplay() {
+		if (ipHi== 0)
+			return getOctetForm(ipLo);
+		return getOctetForm(ipHi);
+	}
 
 	public String toString() {
 		return getProxyIdCheckDigit() + " : " + ipLo + " --> " + ipHi;
 	}
 
-	public static BeanModel obtainModel(ProxyInstance instance) {
+	public static BeanModel obtainModel(ProxyIpInstance instance) {
 		if (beanModelfactory == null)
-			beanModelfactory  = BeanModelLookup.get().getFactory(ProxyInstance.class);
+			beanModelfactory  = BeanModelLookup.get().getFactory(ProxyIpInstance.class);
 		BeanModel model = beanModelfactory.createModel(instance);
 		return model;
 	}
