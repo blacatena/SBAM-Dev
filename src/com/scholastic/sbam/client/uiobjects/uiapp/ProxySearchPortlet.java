@@ -77,7 +77,7 @@ public class ProxySearchPortlet extends GridSupportPortlet<ProxyInstance> implem
 	
 	protected final ProxySearchServiceAsync	proxySearchService  = GWT.create(ProxySearchService.class);
 	protected final ProxyGetServiceAsync    proxyGetService		= GWT.create(ProxyGetService.class);
-//	protected final AgreementGetServiceAsync    	agreementGetService			= GWT.create(AgreementGetService.class);
+//	protected final proxyGetServiceAsync    	agreementGetService			= GWT.create(proxyGetService.class);
 	
 	protected CardLayout						cards;
 	protected ContentPanel						searchPanel;
@@ -107,7 +107,7 @@ public class ProxySearchPortlet extends GridSupportPortlet<ProxyInstance> implem
 	
 	protected AppPortletProvider				portletProvider;
 	
-	protected int								focusAgreementId;
+	protected int								focusproxyId;
 	protected int								focusProxyId;
 	protected ProxyInstance						focusProxy;
 	
@@ -150,8 +150,8 @@ public class ProxySearchPortlet extends GridSupportPortlet<ProxyInstance> implem
 		createDisplayCard();
 		outerContainer.add(displayCard);
 		
-		if (focusAgreementId > 0)
-			loadProxy(focusAgreementId);
+		if (focusproxyId > 0)
+			loadProxy(focusproxyId);
 		if (filter != null && filter.length() > 0)
 			loadFiltered(filter);
 	}
@@ -166,13 +166,13 @@ public class ProxySearchPortlet extends GridSupportPortlet<ProxyInstance> implem
 		if (focusProxy != null) {
 			return "ID " + AppConstants.appendCheckDigit(focusProxy.getProxyId());
 		}
-		if (focusAgreementId != 0 && focusProxyId != 0)
+		if (focusproxyId != 0 && focusProxyId != 0)
 			if (filter != null && filter.length() > 0)
-				return "ID " + focusAgreementId + "-" + focusProxyId + " found for '" + filter + "'";
+				return "ID " + focusproxyId + "-" + focusProxyId + " found for '" + filter + "'";
 			else
-				return "ID " + focusAgreementId + "-" + focusProxyId;
+				return "ID " + focusproxyId + "-" + focusProxyId;
 		if (filter != null && filter.length() > 0)
-			return "Agreement Search for '" + filter + "'";
+			return "proxy Search for '" + filter + "'";
 		return "Search for proxies.";
 	}
 	
@@ -198,7 +198,7 @@ public class ProxySearchPortlet extends GridSupportPortlet<ProxyInstance> implem
 				protected void onClick(ComponentEvent ce) {
 					cards.setActiveItem(searchPanel);
 					focusProxy = null;
-					focusAgreementId = 0;
+					focusproxyId = 0;
 					focusProxyId = 0;
 					updateUserPortlet();
 					updatePresenterLabel();
@@ -224,7 +224,7 @@ public class ProxySearchPortlet extends GridSupportPortlet<ProxyInstance> implem
 		searchKeysField.setFieldLabel("Search Keys :");
 		displayCard.add(searchKeysField, formData);
 		
-		addAgreementsGrid(formData);
+		addproxysGrid(formData);
 		addButtons(formData);
 		
 //		Button returnButton = new Button("Return");
@@ -239,7 +239,7 @@ public class ProxySearchPortlet extends GridSupportPortlet<ProxyInstance> implem
 	
 
 	
-	protected void addAgreementsGrid(FormData formData) {
+	protected void addproxysGrid(FormData formData) {
 		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
 		
 		columns.add(getDisplayColumn("ipRangeDisplay",			"IP Address",		250, "This is an IP address associated with the proxy."));
@@ -281,10 +281,10 @@ public class ProxySearchPortlet extends GridSupportPortlet<ProxyInstance> implem
 		toolBar.setAlignment(HorizontalAlignment.CENTER);
 		toolBar.setToolTip(UiConstants.getQuickTip("Use these buttons to edit this proxy."));
 		
-		Button newAgreementButton = new Button("Edit Proxy");
-		newAgreementButton.setToolTip(UiConstants.getQuickTip("Use this button to edit this proxy."));
-		IconSupplier.forceIcon(newAgreementButton, IconSupplier.getNewIconName());
-		newAgreementButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+		Button newproxyButton = new Button("Edit Proxy");
+		newproxyButton.setToolTip(UiConstants.getQuickTip("Use this button to edit this proxy."));
+		IconSupplier.forceIcon(newproxyButton, IconSupplier.getNewIconName());
+		newproxyButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
 				@Override
 				public void componentSelected(ButtonEvent ce) {
 					ProxyPortlet portlet = (ProxyPortlet) portletProvider.getPortlet(AppPortletIds.PROXY_DISPLAY);
@@ -293,7 +293,7 @@ public class ProxySearchPortlet extends GridSupportPortlet<ProxyInstance> implem
 					portletProvider.insertPortlet(portlet, portalRow, insertCol);
 				}  
 			});
-		toolBar.add(newAgreementButton);
+		toolBar.add(newproxyButton);
 		
 		displayCard.add(toolBar);
 	}
@@ -413,7 +413,7 @@ public class ProxySearchPortlet extends GridSupportPortlet<ProxyInstance> implem
 	}
 	
 	protected void addGrid() {
-		proxyLoader = getAgreementLoader(); 
+		proxyLoader = getproxyLoader(); 
 
 		proxyLoader.setSortDir(SortDir.ASC);  
 		proxyLoader.setSortField("id");  
@@ -424,7 +424,7 @@ public class ProxySearchPortlet extends GridSupportPortlet<ProxyInstance> implem
  
 		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();  
 		     
-//		ColumnConfig name = new ColumnConfig("id", "Agreement #", 80);  
+//		ColumnConfig name = new ColumnConfig("id", "proxy #", 80);  
 //		name.setRenderer(new GridCellRenderer<ModelData>() {  
 //
 //		  public Object render(ModelData model, String property, ColumnData config, int rowIndex, int colIndex,  
@@ -547,7 +547,7 @@ public class ProxySearchPortlet extends GridSupportPortlet<ProxyInstance> implem
 	 * Construct and return a loader to handle returning a list of institutions.
 	 * @return
 	 */
-	protected PagingLoader<PagingLoadResult<ProxyInstance>> getAgreementLoader() {
+	protected PagingLoader<PagingLoadResult<ProxyInstance>> getproxyLoader() {
 		// proxy and reader  
 		RpcProxy<PagingLoadResult<ProxyInstance>> proxy = new RpcProxy<PagingLoadResult<ProxyInstance>>() {  
 			@Override  
@@ -693,19 +693,19 @@ public class ProxySearchPortlet extends GridSupportPortlet<ProxyInstance> implem
 	
 	@Override
 	public String getShortPortletName() {
-		if (focusAgreementId > 0)
-			return "Agreement " + focusAgreementId;
+		if (focusproxyId > 0)
+			return "proxy " + focusproxyId;
 		if (filter == null || filter.length() == 0)
-			return "Product Terms Search";
+			return "Proxy Search";
 		if (filter.length() > 10)
-			return "Agreements for " + filter.substring(0, 10);
-		return "Agreements for " + filter;
+			return "Proxies for " + filter.substring(0, 10);
+		return "Proxies for " + filter;
 	}
 	
 	@Override
 	public boolean allowDuplicatePortlets() {
 		//	Not allowed for a particular institution
-		if (focusAgreementId > 0)
+		if (focusproxyId > 0)
 			return false;
 		//	Allowed for any general search
 		return true;
@@ -713,17 +713,17 @@ public class ProxySearchPortlet extends GridSupportPortlet<ProxyInstance> implem
 	
 	@Override
 	public String getPortletIdentity() {
-		if (focusAgreementId <= 0)
+		if (focusproxyId <= 0)
 			return super.getPortletIdentity();
-		return this.getClass().getName() + ":" + focusAgreementId;
+		return this.getClass().getName() + ":" + focusproxyId;
 	}
 
-	public int getFocusAgreementId() {
-		return focusAgreementId;
+	public int getFocusproxyId() {
+		return focusproxyId;
 	}
 
-	public void setFocusAgreementId(int focusAgreementId) {
-		this.focusAgreementId = focusAgreementId;
+	public void setFocusproxyId(int focusproxyId) {
+		this.focusproxyId = focusproxyId;
 	}
 
 	public int getFocusProxyId() {
@@ -748,14 +748,14 @@ public class ProxySearchPortlet extends GridSupportPortlet<ProxyInstance> implem
 			return;
 		
 		String oldFilter		= null;
-		String oldAgreementId   = null;
+		String oldproxyId   = null;
 		String oldTermId		= null;
 		
 		keyData = keyData.replace("\\:", "''''");	//	Remove any escaped :
 		String [] parts = keyData.split(":");
 		
 		if (parts.length > 0)
-			oldAgreementId = parts [0].trim();
+			oldproxyId = parts [0].trim();
 		if (parts.length > 1)
 			oldFilter = parts [1].trim().replace("''''", ":"); //	Restore any escaped :
 		
@@ -763,9 +763,9 @@ public class ProxySearchPortlet extends GridSupportPortlet<ProxyInstance> implem
 			filter = oldFilter;
 		}
 		
-		if (oldAgreementId != null && oldAgreementId.length() > 0) {
+		if (oldproxyId != null && oldproxyId.length() > 0) {
 			try {
-				focusAgreementId = Integer.parseInt(oldAgreementId);
+				focusproxyId = Integer.parseInt(oldproxyId);
 				focusProxyId = Integer.parseInt(oldTermId);
 			} catch (NumberFormatException e) {
 			}

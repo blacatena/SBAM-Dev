@@ -34,6 +34,8 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.ProxyGetService;
 import com.scholastic.sbam.client.services.ProxyGetServiceAsync;
+import com.scholastic.sbam.client.services.UpdateProxyIpAddressNoteService;
+import com.scholastic.sbam.client.services.UpdateProxyIpAddressNoteServiceAsync;
 import com.scholastic.sbam.client.services.UpdateProxyIpAddressService;
 import com.scholastic.sbam.client.services.UpdateProxyIpAddressServiceAsync;
 import com.scholastic.sbam.client.services.UpdateProxyNoteService;
@@ -66,12 +68,12 @@ import com.scholastic.sbam.shared.util.AppConstants;
 public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements AppSleeper, AppPortletRequester {
 	
 	protected final int DIRTY_FORM_LISTEN_TIME	=	250;
-	protected final int DEFAULT_HEIGHT			=	270;
 	
-	protected final ProxyGetServiceAsync				proxyGetService			= GWT.create(ProxyGetService.class);
-	protected final UpdateProxyServiceAsync				updateProxyService		= GWT.create(UpdateProxyService.class);
-	protected final UpdateProxyNoteServiceAsync			updateProxyNoteService	= GWT.create(UpdateProxyNoteService.class);
-	protected final UpdateProxyIpAddressServiceAsync	updateProxyIpService	= GWT.create(UpdateProxyIpAddressService.class);
+	protected final ProxyGetServiceAsync					proxyGetService				= GWT.create(ProxyGetService.class);
+	protected final UpdateProxyServiceAsync					updateProxyService			= GWT.create(UpdateProxyService.class);
+	protected final UpdateProxyNoteServiceAsync				updateProxyNoteService		= GWT.create(UpdateProxyNoteService.class);
+	protected final UpdateProxyIpAddressServiceAsync		updateProxyIpService		= GWT.create(UpdateProxyIpAddressService.class);
+	protected final UpdateProxyIpAddressNoteServiceAsync	updateProxyIpNoteService	= GWT.create(UpdateProxyIpAddressNoteService.class);
 	
 	protected int							proxyId;
 	protected ProxyInstance					proxy;
@@ -97,7 +99,7 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 	
 	protected ToolTipConfig					notesToolTip		= new ToolTipConfig();
 
-	protected FieldSet						proxyIpsFieldSet;
+	protected FieldSet						ipAddressGridFieldSet;
 	
 	protected MultiField<String>			proxyIdNotesCombo	= new EnhancedMultiField<String>("Proxy Id:");
 	protected TextField<String>				proxyIdField		= getTextField("");
@@ -114,6 +116,7 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 	protected CheckBoxGroup					ipCheckGroup		= new CheckBoxGroup();
 	protected CheckBox						ipApprovedField		= FieldFactory.getCheckBoxField("IP Address is Approved");
 	protected CheckBox						ipStatusField		= FieldFactory.getCheckBoxField("IP Address is Active");
+	protected NotesIconButtonField<String>	ipNotesField		= getIpNotesButtonField();
 	
 	public ProxyPortlet() {
 		super(AppPortletIds.AGREEMENT_DISPLAY.getHelpTextId());
@@ -233,6 +236,8 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 		ipCheckGroup.add(ipStatusField);
 		ipStatusField.disable();
 		
+		ipCheckGroup.add(ipNotesField);
+		
 		ipFieldSet.add(ipCheckGroup, formData90);
 		
 		ipFieldSet.collapse();
@@ -298,17 +303,17 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 //					}
 //			});
 	
-		proxyIpsFieldSet = new FieldSet();
-		proxyIpsFieldSet.setBorders(true);
-		proxyIpsFieldSet.setHeading("IP Addresses");
-		proxyIpsFieldSet.setCollapsible(true);
-		proxyIpsFieldSet.setDeferHeight(true);
-		proxyIpsFieldSet.setToolTip(UiConstants.getQuickTip("These are the IP addresses associated with this proxy.  Click the grid to inspect or edit an address."));
-		proxyIpsFieldSet.setLayout(new FitLayout());
-		proxyIpsFieldSet.setHeight(300);
-		proxyIpsFieldSet.add(ipAddressGrid, new FormData("95%")); // new FormData(cm.getTotalWidth() + 25, 200));
+		ipAddressGridFieldSet = new FieldSet();
+		ipAddressGridFieldSet.setBorders(true);
+		ipAddressGridFieldSet.setHeading("IP Addresses");
+		ipAddressGridFieldSet.setCollapsible(true);
+		ipAddressGridFieldSet.setDeferHeight(true);
+		ipAddressGridFieldSet.setToolTip(UiConstants.getQuickTip("These are the IP addresses associated with this proxy.  Click the grid to inspect or edit an address."));
+		ipAddressGridFieldSet.setLayout(new FitLayout());
+		ipAddressGridFieldSet.setHeight(300);
+		ipAddressGridFieldSet.add(ipAddressGrid, new FormData("95%")); // new FormData(cm.getTotalWidth() + 25, 200));
 		
-		outerContainer.add(proxyIpsFieldSet, new FormData("100%")); // new FormData(cm.getTotalWidth() + 20, 200));
+		outerContainer.add(ipAddressGridFieldSet, new FormData("100%")); // new FormData(cm.getTotalWidth() + 20, 200));
 	}
 	
 	/**
@@ -323,6 +328,13 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 		ipAddressField.setValue(ip.getIpLo(), ip.getIpHi());
 		ipApprovedField.setValue(ip.isApproved());
 		ipStatusField.setValue(ip.isActive());
+		if (ip.getNote() != null && ip.getNote().length() > 0) {
+			ipNotesField.setEditMode();
+			ipNotesField.setNote(ip.getNote());
+		} else {
+			ipNotesField.setAddMode();
+			ipNotesField.setNote("");			
+		}
 		
 		beginIpEdit();
 	}
@@ -445,6 +457,17 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 			}
 		};
 		nibf.setEmptyNoteText("Click the note icon to add notes for this proxy.");
+		return nibf;
+	}
+	
+	protected NotesIconButtonField<String> getIpNotesButtonField() {
+		NotesIconButtonField<String> nibf = new NotesIconButtonField<String>(this) {
+			@Override
+			public void updateNote(String note) {
+				asyncUpdateIpAddressNote(note);
+			}
+		};
+		nibf.setEmptyNoteText("Click the note icon to add notes for this proxy IP.");
 		return nibf;
 	}
 	
@@ -700,6 +723,60 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 						}
 						
 						endEditTasks();
+				}
+			});
+	}
+
+	protected void asyncUpdateIpAddressNote(String note) {
+	
+		// Set field values from form fields
+		
+		//	Not editing the IP... can't be here
+		if (!editIpAddress)
+			return;
+		
+		//	No / New proxy ... that can't be
+		if (proxy == null || proxy.isNewRecord()) {
+			return;
+		}
+		
+		//	New Proxy IP... update later
+		if (proxyIpId <= 0)
+			return;
+		
+		final ProxyIpInstance proxyIp = new ProxyIpInstance();
+		
+		proxyIp.setProxyId(proxyId);
+		proxyIp.setIpId(proxyIpId);
+		proxyIp.setNote(note);
+	
+		//	Issue the asynchronous update request and plan on handling the response
+		updateProxyIpNoteService.updateProxyIpAddressNote(proxyIp,
+				new AsyncCallback<UpdateResponse<ProxyIpInstance>>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "Proxy IP note update failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+						ipNotesField.unlockNote();
+					}
+
+					public void onSuccess(UpdateResponse<ProxyIpInstance> updateResponse) {
+						ProxyIpInstance updatedProxyIp = (ProxyIpInstance) updateResponse.getInstance();
+						if (!ipNotesField.getNote().equals(updatedProxyIp.getNote())) {
+							ipNotesField.setNote(updatedProxyIp.getNote());
+						}
+						BeanModel model = ipAddressStore.findModel(updatedProxyIp.getUniqueKey());
+						if (model != null) {
+							ProxyIpInstance proxyIp = (ProxyIpInstance) model.getBean();
+							proxyIp.setNote(updatedProxyIp.getNote());
+							ipAddressStore.update(model);
+						}
+						ipNotesField.unlockNote();
 				}
 			});
 	}

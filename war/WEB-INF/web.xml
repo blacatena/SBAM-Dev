@@ -492,6 +492,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>updateProxyIpAddressNoteServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateProxyIpAddressNoteServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>proxyGetServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.ProxyGetServiceImpl</servlet-class>
   </servlet>
@@ -1174,6 +1179,11 @@
   <servlet-mapping>
     <servlet-name>updateProxyIpAddressServlet</servlet-name>
     <url-pattern>/sbam/updateProxyIpAddress</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateProxyIpAddressNoteServlet</servlet-name>
+    <url-pattern>/sbam/updateProxyIpAddressNote</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>
