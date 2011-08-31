@@ -102,6 +102,8 @@ public class AppPortletProvider {
 			portlet = new ProxySearchPortlet();
 		else if (id == AppPortletIds.RECENT_AGREEMENTS_DISPLAY)
 			portlet = new RecentAgreementsPortlet();
+		else if (id == AppPortletIds.RECENT_PROXIES_DISPLAY)
+			portlet = new RecentProxiesPortlet();
 		else if (id == AppPortletIds.RECENT_INSTITUTIONS_DISPLAY)
 			portlet = new RecentInstitutionsPortlet();
 		else if (id == AppPortletIds.RECENT_CUSTOMERS_DISPLAY)

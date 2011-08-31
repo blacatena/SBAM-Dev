@@ -55,7 +55,7 @@ public class AppAuthMethodValidator {
 
 		//	Patch the "for" UCN so that its either 0/0/"", or else >0 and >0 and a value
 		if (instance.getForUcn() > 0 && instance.getUcnSuffix() == 0)
-			instance.setForUcnSuffix(1);
+			instance.setForUcnSuffix(getDefaultUcnSuffix(instance.getAgreementId(), instance.getUcn()));
 		if (instance.getForUcn() == 0) {
 			instance.setForUcnSuffix(0);
 			instance.setForSiteLocCode("");
@@ -66,6 +66,15 @@ public class AppAuthMethodValidator {
 		
 		if (instance.getIpLo() > 0 && instance.getIpHi() == 0)
 			instance.setIpHi(instance.getIpLo());
+	}
+	
+	public int getDefaultUcnSuffix(int agreementId, int ucn) {
+		if (agreementId <= 0)
+			return 1;
+		List<AgreementSite> sites = DbAgreementSite.findByAgreementId(agreementId, AppConstants.STATUS_ANY_NONE, AppConstants.STATUS_DELETED);
+		if (sites != null && sites.size() > 0)
+			return sites.get(0).getId().getSiteUcnSuffix();
+		return 1;
 	}
 	
 	public List<String> validateAuthMethodId(AuthMethodInstance instance, boolean isNew) {
@@ -175,7 +184,7 @@ public class AppAuthMethodValidator {
 		if (authMethod == null) {
 			authMethod = DbAuthMethod.getById(original.getAgreementId(), original.getUcn(), original.getUcnSuffix(), original.getSiteLocCode(), original.getMethodType(), original.getMethodKey());
 			if (authMethod == null) {
-				addMessage("Unexpected Error: Original agreement site not found in the database.");
+				addMessage("Unexpected Error: Original authentication method not found in the database.");
 				return false;
 			}
 		}

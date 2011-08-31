@@ -7,17 +7,15 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -27,23 +25,29 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.RowExpander;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.scholastic.sbam.client.services.InstitutionGetService;
-import com.scholastic.sbam.client.services.InstitutionGetServiceAsync;
 import com.scholastic.sbam.client.services.ProxyGetService;
 import com.scholastic.sbam.client.services.ProxyGetServiceAsync;
+import com.scholastic.sbam.client.services.UpdateProxyIpAddressService;
+import com.scholastic.sbam.client.services.UpdateProxyIpAddressServiceAsync;
 import com.scholastic.sbam.client.services.UpdateProxyNoteService;
 import com.scholastic.sbam.client.services.UpdateProxyNoteServiceAsync;
 import com.scholastic.sbam.client.services.UpdateProxyService;
 import com.scholastic.sbam.client.services.UpdateProxyServiceAsync;
+import com.scholastic.sbam.client.stores.KeyModelComparer;
+import com.scholastic.sbam.client.uiobjects.events.AppEvent;
+import com.scholastic.sbam.client.uiobjects.events.AppEventBus;
+import com.scholastic.sbam.client.uiobjects.events.AppEvents;
 import com.scholastic.sbam.client.uiobjects.fields.EnhancedComboBox;
 import com.scholastic.sbam.client.uiobjects.fields.EnhancedMultiField;
 import com.scholastic.sbam.client.uiobjects.fields.InstitutionSearchField;
+import com.scholastic.sbam.client.uiobjects.fields.IpAddressRangeField;
 import com.scholastic.sbam.client.uiobjects.fields.LockableFieldSet;
 import com.scholastic.sbam.client.uiobjects.fields.NotesIconButtonField;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
@@ -53,10 +57,10 @@ import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.ProxyIpInstance;
 import com.scholastic.sbam.shared.objects.ProxyTuple;
-import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.ProxyInstance;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
+import com.scholastic.sbam.shared.objects.UserCacheTarget;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements AppSleeper, AppPortletRequester {
@@ -64,21 +68,19 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 	protected final int DIRTY_FORM_LISTEN_TIME	=	250;
 	protected final int DEFAULT_HEIGHT			=	270;
 	
-	protected final ProxyGetServiceAsync		proxyGetService			= GWT.create(ProxyGetService.class);
-	protected final UpdateProxyServiceAsync		updateProxyService		= GWT.create(UpdateProxyService.class);
-	protected final UpdateProxyNoteServiceAsync	updateProxyNoteService	= GWT.create(UpdateProxyNoteService.class);
-	protected final InstitutionGetServiceAsync			institutionGetService			= GWT.create(InstitutionGetService.class);
+	protected final ProxyGetServiceAsync				proxyGetService			= GWT.create(ProxyGetService.class);
+	protected final UpdateProxyServiceAsync				updateProxyService		= GWT.create(UpdateProxyService.class);
+	protected final UpdateProxyNoteServiceAsync			updateProxyNoteService	= GWT.create(UpdateProxyNoteService.class);
+	protected final UpdateProxyIpAddressServiceAsync	updateProxyIpService	= GWT.create(UpdateProxyIpAddressService.class);
 	
 	protected int							proxyId;
 	protected ProxyInstance					proxy;
-	protected InstitutionInstance			proxyInstitution;
-	protected InstitutionInstance			createForInstitution;
 	protected String						identificationTip	=	"";
 	
 	protected FormPanel						outerContainer;
 
-	protected ListStore<BeanModel>			agreementsStore;
-	protected Grid<BeanModel>				agreementsGrid;
+	protected ListStore<BeanModel>			ipAddressStore;
+	protected Grid<BeanModel>				ipAddressGrid;
 	
 	protected Timer							dirtyFormListener;
 	
@@ -86,27 +88,32 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 	protected Button						editButton;
 	protected Button						cancelButton;
 	protected Button						saveButton;
+	protected Button						newIpButton;
+	
+	protected boolean						editIpAddress		= false;
+	protected int							proxyIpId			= 0;
 	
 	protected AppPortletProvider			portletProvider;
 	
 	protected ToolTipConfig					notesToolTip		= new ToolTipConfig();
 
-	protected FieldSet						agreementsFieldSet;
+	protected FieldSet						proxyIpsFieldSet;
 	
-	protected MultiField<String>			linkIdNotesCombo	= new EnhancedMultiField<String>("Link Id:");
-	protected NumberField					linkIdField			= getIntegerField("");
+	protected MultiField<String>			proxyIdNotesCombo	= new EnhancedMultiField<String>("Proxy Id:");
+	protected TextField<String>				proxyIdField		= getTextField("");
 	protected TextField<String>				descriptionField	= getTextField("Description");
+	protected TextField<String>				searchKeysField		= getTextField("Search Keys");
 	protected NotesIconButtonField<String>	notesField			= getNotesButtonField();
-	protected LabelField					idTipField			= new LabelField();
-	protected InstitutionSearchField		institutionField	= getInstitutionField("ucn", "Institition", 0, "The institution for the agreement link.");
-	protected LabelField					addressDisplay		= new LabelField();
-	protected NumberField					ucnDisplay			= getIntegerField("UCN");
-	protected LabelField					customerTypeDisplay	= new LabelField();
-	protected LabelField					statusDisplay		= new LabelField();
-	protected CheckBox						statusField			= FieldFactory.getCheckBoxField("Link is Active");
-	protected EnhancedComboBox<BeanModel>	linkTypeField		= getComboField("linkType", 	"Link Type",	150,		
-																	"The link type assigned to this agreement link.",	
-																	UiConstants.getLinkTypes(), "linkTypeCode", "descriptionAndCode");
+//	protected LabelField					statusDisplay		= new LabelField();
+	protected CheckBox						statusField			= FieldFactory.getCheckBoxField("Proxy is Active");
+	
+	protected LockableFieldSet				ipFieldSet			= new LockableFieldSet();
+	
+	protected IpAddressRangeField			ipAddressField		= new IpAddressRangeField("Ip Address");
+//	protected LabelField					ipStatusDisplay		= new LabelField();
+	protected CheckBoxGroup					ipCheckGroup		= new CheckBoxGroup();
+	protected CheckBox						ipApprovedField		= FieldFactory.getCheckBoxField("IP Address is Approved");
+	protected CheckBox						ipStatusField		= FieldFactory.getCheckBoxField("IP Address is Active");
 	
 	public ProxyPortlet() {
 		super(AppPortletIds.AGREEMENT_DISPLAY.getHelpTextId());
@@ -127,23 +134,12 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 		this.identificationTip = identificationTip;
 	}
 
-	public InstitutionInstance getCreateForInstitution() {
-		return createForInstitution;
-	}
-
-	public void setCreateForInstitution(InstitutionInstance createForInstitution) {
-		this.createForInstitution = createForInstitution;
-	}
-
 	protected void setPortletHeading() {
 		String heading = "";
 		if (proxyId <= 0) {
 			heading = "Create New Proxy";
 		} else {
-			heading = "Proxy " + proxyId;
-		}
-		if (proxyInstitution != null) {
-			heading += " &nbsp;&nbsp;&nbsp; &mdash; <i>" + proxyInstitution.getInstitutionName() + "</i>";
+			heading = "Proxy " + AppConstants.appendCheckDigit(proxyId);
 		}
 		setHeading(heading);
 	}
@@ -152,12 +148,9 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 	public String getPresenterToolTip() {
 		String tooltip = "";
 		if (proxyId <= 0) {
-			tooltip = "Create new agreement link";
+			tooltip = "Create new proxy";
 		} else {
-			tooltip = "Proxy " + proxyId;
-		}
-		if (proxyInstitution != null) {
-			tooltip += " &ndash; <i>" + proxyInstitution.getInstitutionName() + "</i>";
+			tooltip = "Proxy " + AppConstants.appendCheckDigit(proxyId);
 		}
 		if (identificationTip != null && identificationTip.length() > 0) {
 			tooltip += "<br/><i>" + identificationTip + "</i>";
@@ -170,7 +163,7 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 		super.onRender(parent, index);
 		
 		if (proxyId <= 0) {
-			setToolTip(UiConstants.getQuickTip("Use this panel to create a new agreement link."));
+			setToolTip(UiConstants.getQuickTip("Use this panel to create a new proxy."));
 		}
 
 		setPortletHeading();
@@ -192,12 +185,10 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 		super.afterRender();
 		layout(true);
 
-		//	Handle "new link" automatically
+		//	Handle "new proxy" automatically
 		if (proxyId <= 0) {
 			statusField.setOriginalValue(true);
 			statusField.setValue(true);
-			if (createForInstitution != null)
-				set(createForInstitution);
 			beginEdit();
 		}
 	}
@@ -206,61 +197,81 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 		FormData formData90 = new FormData("-24"); 	//	new FormData("90%");
 
 		//	Required fields
-		institutionField.setAllowBlank(false);
-		linkTypeField.setAllowBlank(false);
+		descriptionField.setAllowBlank(false);
 
-		linkIdField.setReadOnly(true);
-		ucnDisplay.setReadOnly(true);
+		proxyIdField.setReadOnly(true);
 		
-		linkIdNotesCombo.setSpacing(20);
+		proxyIdNotesCombo.setSpacing(20);
 		
-		linkIdNotesCombo.add(linkIdField);
-		linkIdNotesCombo.add(notesField);
-		outerContainer.add(linkIdNotesCombo,    formData90);
-
-		outerContainer.add(idTipField, formData90);
-		outerContainer.add(institutionField, formData90);
+		proxyIdNotesCombo.add(proxyIdField);
+		proxyIdNotesCombo.add(notesField);
+		outerContainer.add(proxyIdNotesCombo,    formData90);
 		
-		outerContainer.add(addressDisplay, formData90); 
-		outerContainer.add(ucnDisplay, formData90);
-		outerContainer.add(customerTypeDisplay, formData90);
-		outerContainer.add(linkTypeField, formData90);
+		outerContainer.add(descriptionField, formData90); 
+		outerContainer.add(searchKeysField, formData90);
 			
-		statusDisplay.setFieldLabel("Status:");
+//		statusDisplay.setFieldLabel("Status:");
 		outerContainer.add(statusField, formData90);
 		
-		addAgreementTermsGrid(formData90);
+		ipFieldSet.setId("IPfs");
+		ipFieldSet.setBorders(true);
+		ipFieldSet.setHeading("IP Address");
+		ipFieldSet.setCollapsible(true);
+		FormLayout fLayout = new FormLayout();
+		fLayout.setLabelWidth(0);
+		ipFieldSet.setLayout(fLayout);
+		ipFieldSet.setToolTip(UiConstants.getQuickTip("Define proxy IP address."));
+		
+		ipFieldSet.add(ipAddressField, formData90);
+		ipAddressField.disable();
+
+		ipCheckGroup.setLabelSeparator("");
+		
+		ipCheckGroup.add(ipApprovedField);
+		ipApprovedField.disable();
+		
+		ipCheckGroup.add(ipStatusField);
+		ipStatusField.disable();
+		
+		ipFieldSet.add(ipCheckGroup, formData90);
+		
+		ipFieldSet.collapse();
+		
+		outerContainer.add(ipFieldSet);
+		
+		addIpAddressesGrid(formData90);
 		
 		addEditSaveButtons(outerContainer);
 	}
 	
-	protected void addAgreementTermsGrid(FormData formData90) {
+	protected void addIpAddressesGrid(FormData formData90) {
 		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
 		
-		columns.add(getDisplayColumn("idCheckDigit",						"Agreement #",				100,
-					"This is the agreement Id."));
-		columns.add(getDisplayColumn("billUcn",								"UCN",						100,
-					"This is the Bill To UCN."));
-		columns.add(getDisplayColumn("institution.institutionName",			"Institution",				150,
-					"This is the Bill To Institution."));
+		columns.add(getDisplayColumn("ipRangeDisplay",						"IP Address",				200,
+										"This is the agreement Id."));
+		columns.add(getDisplayColumn("ipLoDisplay",							"Low IP Address",			100));
+		columns.add(getDisplayColumn("ipHiDisplay",							"High IP Address",			100));
+		columns.add(getDisplayColumn("approvedDescription",					"Approved",					80));
+		columns.add(getDisplayColumn("statusDescription",					"Status",					80));
 
 		RowExpander expander = getNoteExpander();
 		columns.add(expander);
 		
 		ColumnModel cm = new ColumnModel(columns);  
 
-		agreementsStore = new ListStore<BeanModel>();
-		agreementsStore.setKeyProvider(new SimpleKeyProvider("id"));
+		ipAddressStore = new ListStore<BeanModel>();
+		ipAddressStore.setKeyProvider(new SimpleKeyProvider("uniqueKey"));
+		ipAddressStore.setModelComparer(new KeyModelComparer<BeanModel>(ipAddressStore));
 		
-		agreementsGrid = new Grid<BeanModel>(agreementsStore, cm); 
-		agreementsGrid.addPlugin(expander);
-		agreementsGrid.setBorders(true);  
-		agreementsGrid.setAutoExpandColumn("institution.institutionName"); 
-		agreementsGrid.setStripeRows(true);
-		agreementsGrid.setColumnLines(false);
-		agreementsGrid.setHideHeaders(false);
+		ipAddressGrid = new Grid<BeanModel>(ipAddressStore, cm); 
+		ipAddressGrid.addPlugin(expander);
+		ipAddressGrid.setBorders(true);  
+		ipAddressGrid.setAutoExpandColumn("ipRangeDisplay"); 
+		ipAddressGrid.setStripeRows(true);
+		ipAddressGrid.setColumnLines(false);
+		ipAddressGrid.setHideHeaders(false);
 		
-		addRowListener(agreementsGrid);
+		addRowListener(ipAddressGrid);
 		
 //		//	Open a new portlet to display an agreement when a row is selected
 //		agreementsGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); 
@@ -274,7 +285,7 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 //							AgreementPortlet portlet = (AgreementPortlet) portletProvider.getPortlet(AppPortletIds.AGREEMENT_DISPLAY);
 //							portlet.setAgreementId(agreement.getId());
 //							if (proxy != null) {
-//								String foundFor = "Link #" + proxy.getIdCheckDigit();
+//								String foundFor = "Proxy #" + proxy.getIdCheckDigit();
 //								portlet.setIdentificationTip("Opened for " + foundFor + "");
 //							}
 ////							Old, simple way
@@ -287,17 +298,17 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 //					}
 //			});
 	
-		agreementsFieldSet = new FieldSet();
-		agreementsFieldSet.setBorders(true);
-		agreementsFieldSet.setHeading("Agreements");
-		agreementsFieldSet.setCollapsible(true);
-		agreementsFieldSet.setDeferHeight(true);
-		agreementsFieldSet.setToolTip(UiConstants.getQuickTip("These are the agreements associated with this link.  Click the grid to inspect or edit an eagreement."));
-		agreementsFieldSet.setLayout(new FitLayout());
-		agreementsFieldSet.setHeight(300);
-		agreementsFieldSet.add(agreementsGrid, new FormData("95%")); // new FormData(cm.getTotalWidth() + 25, 200));
+		proxyIpsFieldSet = new FieldSet();
+		proxyIpsFieldSet.setBorders(true);
+		proxyIpsFieldSet.setHeading("IP Addresses");
+		proxyIpsFieldSet.setCollapsible(true);
+		proxyIpsFieldSet.setDeferHeight(true);
+		proxyIpsFieldSet.setToolTip(UiConstants.getQuickTip("These are the IP addresses associated with this proxy.  Click the grid to inspect or edit an address."));
+		proxyIpsFieldSet.setLayout(new FitLayout());
+		proxyIpsFieldSet.setHeight(300);
+		proxyIpsFieldSet.add(ipAddressGrid, new FormData("95%")); // new FormData(cm.getTotalWidth() + 25, 200));
 		
-		outerContainer.add(agreementsFieldSet, new FormData("100%")); // new FormData(cm.getTotalWidth() + 20, 200));
+		outerContainer.add(proxyIpsFieldSet, new FormData("100%")); // new FormData(cm.getTotalWidth() + 20, 200));
 	}
 	
 	/**
@@ -305,42 +316,15 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 	 */
 	@Override
 	protected void onRowSelected(BeanModel data) {
-		System.out.println("Open the agreement portlet for " + data.get("id"));
-	}
-	
-	protected InstitutionSearchField getInstitutionField(String name, String label, int width, String toolTip) {
-        InstitutionSearchField instCombo = new InstitutionSearchField();
-		FieldFactory.setStandard(instCombo, label);
+		ProxyIpInstance ip = (ProxyIpInstance) data.getBean();
 		
-		if (toolTip != null)
-			instCombo.setToolTip(toolTip);
-		if (width > 0)
-			instCombo.setWidth(width);
-		instCombo.setDisplayField("institutionName");
+		proxyIpId = ip.getIpId();
 		
-		instCombo.addSelectionChangedListener(new SelectionChangedListener<BeanModel>() {
-
-			@Override
-			public void selectionChanged(SelectionChangedEvent<BeanModel> se) {
-				selectInstitution(se.getSelectedItem());
-			}
-			
-		});
+		ipAddressField.setValue(ip.getIpLo(), ip.getIpHi());
+		ipApprovedField.setValue(ip.isApproved());
+		ipStatusField.setValue(ip.isActive());
 		
-		return instCombo;
-	}
-	
-	protected void selectInstitution(BeanModel model) {
-		if (model == null) {	// No value selected means leave it as is
-			if (institutionField.getSelectedValue() != null)
-				matchToInstitution( (InstitutionInstance) institutionField.getSelectedValue().getBean() );
-			else
-				if (institutionField.getOriginalValue() != null)
-					matchToInstitution( (InstitutionInstance) institutionField.getOriginalValue().getBean());
-				else
-					matchToInstitution( proxyInstitution );
-		} else
-			matchToInstitution( (InstitutionInstance) model.getBean() );
+		beginIpEdit();
 	}
 	
 
@@ -385,6 +369,17 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 		});
 		editSaveToolBar.add(saveButton);
 		
+		newIpButton = new Button("New IP Address");
+		IconSupplier.forceIcon(newIpButton, IconSupplier.getNewIconName());
+		newIpButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				proxyIpId = -1;
+				beginIpEdit();
+			}  
+		});
+		editSaveToolBar.add(newIpButton);
+		
 		targetPanel.setBottomComponent(editSaveToolBar);
 		
 		addDirtyFormListener();
@@ -419,17 +414,6 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 	protected void handleDirtyForm() {
 		boolean ready = outerContainer.isValid();
 		
-		if (institutionField.getSelectedValue() == null) { 
-			institutionField.markInvalid("Select an instituion.");
-			ready = false;
-		} else
-			institutionField.clearInvalid();
-//		if (commissionTypeField.getSelectedValue() == null) {
-//			commissionTypeField.markInvalid("Select a commission code.");
-//			ready = false;
-//		} else
-//			commissionTypeField.clearInvalid();
-		
 		if (ready)
 			saveButton.enable();
 		else
@@ -460,7 +444,7 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 				asyncUpdateNote(note);
 			}
 		};
-		nibf.setEmptyNoteText("Click the note icon to add notes for this agreement.");
+		nibf.setEmptyNoteText("Click the note icon to add notes for this proxy.");
 		return nibf;
 	}
 	
@@ -483,22 +467,23 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 		}
 		
 		//	For existing records, set fields that cannot be changed to read only
-//		boolean isNew = proxy == null || proxy.isNewRecord() || proxy.isAddNew() || proxy.getLinkId() == 0;
+//		boolean isNew = proxy == null || proxy.isNewRecord() || proxy.isAddNew() || proxy.getProxyId() == 0;
 //		institutionField.setReadOnly(!isNew);
 		
-//		if (proxy != null)
-//			registerUserCache(proxy, identificationTip);
+		if (proxy != null)
+			registerUserCache(proxy, identificationTip);
 		setPortletHeading();
 
 		if (proxy == null) {
-			MessageBox.alert("Link not found.", "The requested agreement link was not found.", null);
+			MessageBox.alert("Proxy not found.", "The requested proxy was not found.", null);
 			clearFormValues();
 			statusField.setOriginalValue(true);
 			statusField.setValue(true);
 		} else {
 			
-			linkIdField.setValue(proxy.getProxyIdCheckDigit());
-			idTipField.setValue(identificationTip);	
+			proxyIdField.setValue(proxy.getProxyIdCheckDigit() + "");
+			descriptionField.setValue(proxy.getDescription());
+			searchKeysField.setValue(proxy.getSearchKeys());
 
 			if (proxy.getNote() != null && proxy.getNote().length() > 0) {
 				notesField.setEditMode();
@@ -508,12 +493,7 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 				notesField.setNote("");			
 			}
 			
-			addressDisplay.setValue("<i>Loading...</i>");
-			customerTypeDisplay.setValue("");
-			
-			linkTypeField.selectByKey(proxy.getDescription());
-			
-			statusDisplay.setValue(AppConstants.getStatusDescription(proxy.getStatus()));
+//			statusDisplay.setValue(AppConstants.getStatusDescription(proxy.getStatus()));
 			statusField.setValue(AppConstants.STATUS_ACTIVE == proxy.getStatus());
 			
 		}
@@ -527,51 +507,15 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 //		endEdit(false);
 	}
 	
-	/**
-	 * Set an institution on the form
-	 * @param instance
-	 */
-	protected void set(InstitutionInstance instance) {
-		if (proxyInstitution == instance)
-			return;
-		
-		proxyInstitution = instance;
-		
-		if (proxyInstitution == null) {
-			MessageBox.alert("Institution Not Found", "The Institution for the agreement link was not found.", null);
-			proxyInstitution = InstitutionInstance.getEmptyInstance(); 
-		}
-
-		if (institutionField.getSelectedValue() == null || !proxyInstitution.equals(institutionField.getSelectedValue().getBean())) {
-			institutionField.setValue(InstitutionInstance.obtainModel(proxyInstitution));
-		}
-
-		if (proxyInstitution != null)
-			registerUserCache(proxyInstitution, identificationTip);
-		
-		setPortletHeading();
-		matchToInstitution(proxyInstitution);
-	}
-	
-	protected void matchToInstitution(InstitutionInstance instance) {
-//		institutionBinding.bind(InstitutionInstance.obtainModel(billToInstitution));
-		
-		if (instance == null) {
-			ucnDisplay.setValue(0);
-			addressDisplay.setValue("");
-			customerTypeDisplay.setValue("");
-			return;
-		}
-		
-		ucnDisplay.setValue(instance.getUcn());
-		addressDisplay.setValue(instance.getHtmlAddress());
-		customerTypeDisplay.setValue(instance.getPublicPrivateDescription() + " / " + instance.getGroupDescription() + " &rArr; " + instance.getTypeDescription());
-	}
-	
 	public void beginEdit() {
 		editButton.disable();
 		cancelButton.enable();
 		enableFields();
+	}
+	
+	public void beginIpEdit() {
+		editIpAddress = true;
+		beginEdit();
 	}
 	
 	public void endEdit(boolean save) {
@@ -580,11 +524,20 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 		disableFields();
 		if (save) {
 			editButton.disable();	//	Disable this ...let the update enable it when the response arrives
-			asyncUpdate();
+			if (editIpAddress)
+				asyncUpdateIpAddress();
+			else
+				asyncUpdateProxy();
 		} else {
-			resetFormValues();
-			editButton.enable();
+			endEditTasks();
 		}
+	}
+	
+	public void endEditTasks() {
+		ipFieldSet.collapse();
+		ipFieldSet.disable();
+		resetFormValues();
+		editButton.enable();
 	}
 	
 	public void clearFormValues() {
@@ -615,19 +568,35 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 	}
 	
 	public void enableFields() {
-		for (Field<?> field : outerContainer.getFields()) {
-			if (field.getParent() != null && field.getParent() instanceof LockableFieldSet) {
-				LockableFieldSet lfs = (LockableFieldSet) field.getParent();
-				lfs.enableFields(true);
-			} else 
-				field.enable();
+		if (editIpAddress) {
+			ipAddressField.enable();
+			ipApprovedField.enable();
+			ipStatusField.enable();
+			ipFieldSet.setExpanded(true);
+			ipFieldSet.enableFields(false);
+			ipFieldSet.setEnabled(true);
+		} else {
+			descriptionField.enable();
+			searchKeysField.enable();
+			statusField.enable();
+			ipFieldSet.setExpanded(false);
+			ipFieldSet.enableFields(false);
+			ipFieldSet.setEnabled(false);
 		}
+		
+//		for (Field<?> field : outerContainer.getFields()) {
+//			if (field.getParent() != null && field.getParent() instanceof LockableFieldSet) {
+//				LockableFieldSet lfs = (LockableFieldSet) field.getParent();
+//				lfs.enableFields(true);
+//			} else 
+//				field.enable();
+//		}
 	}
 	
 	public void disableFields() {
 		for (Field<?> field : outerContainer.getFields()) {
-			if (field == linkIdNotesCombo)
-				linkIdField.disable();
+			if (field == proxyIdNotesCombo)
+				proxyIdField.disable();
 			else
 				field.disable();
 		}
@@ -638,7 +607,7 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 	 * @param id
 	 */
 	protected void loadProxy(final int proxyId) {
-		proxyGetService.getProxy(proxyId, true,	// Include linked agreements
+		proxyGetService.getProxy(proxyId, true,	// Include IP addresses
 				new AsyncCallback<ProxyTuple>() {
 					public void onFailure(Throwable caught) {
 						// Show the RPC error message to the user
@@ -654,36 +623,12 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 					public void onSuccess(ProxyTuple proxyTuple) {
 						set(proxyTuple.getProxy());
 						
-						agreementsStore.removeAll();
+						ipAddressStore.removeAll();
 						if (proxyTuple.getProxyIps() != null) {
 							for (ProxyIpInstance agreement : proxyTuple.getProxyIps()) {
-								agreementsStore.add(ProxyIpInstance.obtainModel(agreement));
+								ipAddressStore.add(ProxyIpInstance.obtainModel(agreement));
 							}
 						}
-					}
-			});
-	}
-
-	/**
-	 * Load the institution for the agreement
-	 * @param ucn
-	 */
-	protected void loadInstitution(final int ucn) {
-		institutionGetService.getInstitution(ucn, false,
-				new AsyncCallback<InstitutionInstance>() {
-					public void onFailure(Throwable caught) {
-						// Show the RPC error message to the user
-						if (caught instanceof IllegalArgumentException)
-							MessageBox.alert("Alert", caught.getMessage(), null);
-						else {
-							MessageBox.alert("Alert", "Institution access failed unexpectedly.", null);
-							System.out.println(caught.getClass().getName());
-							System.out.println(caught.getMessage());
-						}
-					}
-
-					public void onSuccess(InstitutionInstance institution) {
-						set(institution);
 					}
 			});
 	}
@@ -695,16 +640,71 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 			return field.getValue().intValue();
 	}
 	
-//	@Override
-//	public void fireUserCacheUpdateEvents(UserCacheTarget target) {
-//		//	Fire an event so any listening portlets can update themselves
-//		AppEvent appEvent = new AppEvent(AppEvents.SiteAccess);
-//		if (target instanceof ProxyInstance)
-//			appEvent.set( (ProxyInstance) target);
-//		AppEventBus.getSingleton().fireEvent(AppEvents.SiteAccess, appEvent);
-//	}
+	@Override
+	public void fireUserCacheUpdateEvents(UserCacheTarget target) {
+		//	Fire an event so any listening portlets can update themselves
+		AppEvent appEvent = new AppEvent(AppEvents.ProxyAccess);
+		if (target instanceof ProxyInstance) {
+			appEvent.set( (ProxyInstance) target);
+		} else if (target instanceof ProxyIpInstance) {
+			appEvent.set( (ProxyIpInstance) target);
+		}
+ 		AppEventBus.getSingleton().fireEvent(AppEvents.ProxyAccess, appEvent);
+	}
 
-	protected void asyncUpdate() {
+	protected void asyncUpdateIpAddress() {
+		
+		if (proxy == null || proxy.getProxyId() <= 0) {
+			MessageBox.alert("No Proxy!", "Cannot create a proxy IP with no proxy!", null);
+			return;
+		}
+		
+		ProxyIpInstance proxyIp = new ProxyIpInstance();
+		
+		proxyIp.setNewRecord(proxyIpId <= 0);
+		
+		proxyIp.setProxyId(proxy.getProxyId());
+		proxyIp.setIpId(proxyIpId);
+		proxyIp.setIpLo(ipAddressField.getLowValue());
+		proxyIp.setIpHi(ipAddressField.getHighValue());
+		proxyIp.setApproved(ipApprovedField.getValue() ? AppConstants.ANSWER_YES : AppConstants.ANSWER_NO);
+		proxyIp.setStatus(ipStatusField.getValue() ? AppConstants.STATUS_ACTIVE : AppConstants.STATUS_INACTIVE);
+	
+		//	Issue the asynchronous update request and plan on handling the response
+		updateProxyIpService.updateProxyIpAddress(proxyIp,
+				new AsyncCallback<UpdateResponse<ProxyIpInstance>>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "Proxy update failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+						editButton.enable();
+					}
+
+					public void onSuccess(UpdateResponse<ProxyIpInstance> updateResponse) {
+						ProxyIpInstance updatedProxyIp = (ProxyIpInstance) updateResponse.getInstance();
+
+						//	This puts the grid in synch
+						BeanModel gridModel = ProxyIpInstance.obtainModel(updatedProxyIp); // ipAddressGrid.getStore().findModel(updatedProxyIp.getUniqueKey());
+						if (gridModel != null) {
+							ProxyIpInstance matchInstance = gridModel.getBean();
+							matchInstance.setNote(updatedProxyIp.getNote());
+							if (ipAddressStore.findModel(gridModel) != null)
+								ipAddressGrid.getStore().update(gridModel);
+							else
+								ipAddressStore.add(gridModel);
+						}
+						
+						endEditTasks();
+				}
+			});
+	}
+
+	protected void asyncUpdateProxy() {
 	
 		// Set field values from form fields
 		
@@ -715,7 +715,7 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 		}
 		
 		proxy.setDescription( descriptionField.getValue() );
-//		proxy.setLinkTypeCode( ((LinkTypeInstance) linkTypeField.getValue().getBean()).getLinkTypeCode()) ;
+		proxy.setSearchKeys( searchKeysField.getValue() );
 		proxy.setStatus(statusField.getValue() ? AppConstants.STATUS_ACTIVE : AppConstants.STATUS_INACTIVE);
 		
 		if (proxy.isNewRecord())
@@ -739,13 +739,13 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 					}
 
 					public void onSuccess(UpdateResponse<ProxyInstance> updateResponse) {
-						ProxyInstance updatedLink = (ProxyInstance) updateResponse.getInstance();
-						if (updatedLink.isNewRecord()) {
-							updatedLink.setNewRecord(false);
+						ProxyInstance updatedProxy = (ProxyInstance) updateResponse.getInstance();
+						if (updatedProxy.isNewRecord()) {
+							updatedProxy.setNewRecord(false);
 							identificationTip = "Proxy created " + new Date();
 						}
 						proxy.setNewRecord(false);
-						set(updatedLink);
+						set(updatedProxy);
 				//		enableAgreementButtons(true);
 				}
 			});
@@ -815,13 +815,13 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 	@Override
 	public String getShortPortletName() {
 		if (proxyId > 0)
-			return "Link " + proxyId;
+			return "Proxy " + proxyId;
 		return "Create Proxy";
 	}
 	
 	@Override
 	public boolean allowDuplicatePortlets() {
-		//	Not allowed for a particular agreement link
+		//	Not allowed for a particular proxy
 		if (proxyId > 0)
 			return false;
 		//	Allowed for "create new"

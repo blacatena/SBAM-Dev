@@ -143,7 +143,7 @@ public class AgreementLinkPortlet extends GridSupportPortlet<AgreementLinkInstan
 		if (agreementLinkId <= 0) {
 			heading = "Create New Agreement Link";
 		} else {
-			heading = "Agreement Link " + agreementLinkId;
+			heading = "Agreement Link " + AppConstants.appendCheckDigit(agreementLinkId);
 		}
 		if (agreementLinkInstitution != null) {
 			heading += " &nbsp;&nbsp;&nbsp; &mdash; <i>" + agreementLinkInstitution.getInstitutionName() + "</i>";
@@ -278,7 +278,7 @@ public class AgreementLinkPortlet extends GridSupportPortlet<AgreementLinkInstan
 							portlet.setAgreementId(agreement.getId());
 							if (agreementLink != null) {
 								String foundFor = "Link #" + agreementLink.getLinkIdCheckDigit();
-								portlet.setIdentificationTip("Opened for " + foundFor + "");
+								portlet.setIdentificationTip(foundFor);
 							}
 //							Old, simple way
 //							int insertCol = (portalColumn == 0) ? 1 : 0;
@@ -303,13 +303,14 @@ public class AgreementLinkPortlet extends GridSupportPortlet<AgreementLinkInstan
 		outerContainer.add(agreementsFieldSet, new FormData("100%")); // new FormData(cm.getTotalWidth() + 20, 200));
 	}
 	
-	/**
-	 * What to do when a row is selected.
-	 */
-	@Override
-	protected void onRowSelected(BeanModel data) {
-		System.out.println("Open the agreement portlet for " + data.get("id"));
-	}
+//	This is not used, because a specific listener is added instead
+//	/**
+//	 * What to do when a row is selected.
+//	 */
+//	@Override
+//	protected void onRowSelected(BeanModel data) {
+//		System.out.println("Open the agreement portlet for " + data.get("id"));
+//	}
 	
 	protected InstitutionSearchField getInstitutionField(String name, String label, int width, String toolTip) {
         InstitutionSearchField instCombo = new InstitutionSearchField();
@@ -463,7 +464,7 @@ public class AgreementLinkPortlet extends GridSupportPortlet<AgreementLinkInstan
 				asyncUpdateNote(note);
 			}
 		};
-		nibf.setEmptyNoteText("Click the note icon to add notes for this agreement.");
+		nibf.setEmptyNoteText("Click the note icon to add notes for this agreement link.");
 		return nibf;
 	}
 	

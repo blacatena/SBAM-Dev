@@ -141,7 +141,7 @@ public class AppNavTree {
 	  recentSrch.add(new SelectionTreeNode("Institutions",		AppPortletIds.RECENT_INSTITUTIONS_DISPLAY));
 	  recentSrch.add(new SelectionTreeNode("Customers",			AppPortletIds.RECENT_CUSTOMERS_DISPLAY));
 	  recentSrch.add(new SelectionTreeNode("Sites",				AppPortletIds.RECENT_SITES_DISPLAY));
-	  recentSrch.add(new SelectionTreeNode("Proxies",			IconSupplier.getProxyIconName()));
+	  recentSrch.add(new SelectionTreeNode("Proxies",			AppPortletIds.RECENT_PROXIES_DISPLAY));
 	  
 	  searches.add(custSrch);
 	  searches.add(agreeSrch);
@@ -158,7 +158,7 @@ public class AppNavTree {
 	  Folder root = new Folder("root");
 	  root.add(creates);
 	  root.add(searches);
-	  root.add(new SelectionTreeNode("Portlet Manager", IconSupplier.getPortletsIconName()));
+//	  root.add(new SelectionTreeNode("Portlet Manager", IconSupplier.getPortletsIconName()));
 	  root.add(new SelectionTreeNode("Help", IconSupplier.getHelpIconName()));
 //	  root.add(agreements);
 

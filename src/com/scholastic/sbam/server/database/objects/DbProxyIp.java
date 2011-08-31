@@ -66,9 +66,48 @@ public class DbProxyIp extends HibernateAccessor {
 				reasons.add((ProxyIp) results.get(i));
 		return reasons;
 	}
+
+	public static int getNextIpId(int proxyId) {
+        Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
+        crit.add(Restrictions.eq("id.proxyId", proxyId));
+        crit.setMaxResults(1);
+        crit.addOrder(Order.desc("id.ipId"));
+        @SuppressWarnings("unchecked")
+		List<ProxyIp> objects = crit.list();
+        if (objects == null || objects.size() == 0)
+        	return 1;
+        return objects.get(0).getId().getIpId() + 1;
+	}
 	
 	public static List<ProxyIp> findByProxyId(int proxyId, char status) {
 		return findInRange(proxyId, 0, 0, status, AppConstants.STATUS_ANY_NONE, null, null);
+	}
+	
+	public static ProxyIp findInRange(int proxyId, long loIp, long hiIp) {
+        try
+        {
+            Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
+      
+            crit.add(Restrictions.eq("id.proxyId", proxyId));
+            crit.add(Restrictions.eq("ipLo", loIp));
+            crit.add(Restrictions.eq("ipHi", hiIp));
+            
+            crit.add(Restrictions.ne("status", AppConstants.STATUS_DELETED));
+            
+           	crit.addOrder(Order.asc("id.proxyId"));
+           	crit.addOrder(Order.asc("ipLo"));
+            
+            @SuppressWarnings("unchecked")
+			List<ProxyIp> objects = crit.list();
+            if (objects != null && objects.size() > 0)
+            	return objects.get(0);
+        }
+        catch(Exception e)
+        {
+        	e.printStackTrace();
+            System.out.println(e.getMessage());
+        }
+        return null;
 	}
 	
 	public static List<ProxyIp> findInRange(int proxyId, long loIp, long hiIp, char status, char neStatus, String sortCol, SortDir sortDirection) {

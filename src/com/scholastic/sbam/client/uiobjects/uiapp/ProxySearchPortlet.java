@@ -242,7 +242,7 @@ public class ProxySearchPortlet extends GridSupportPortlet<ProxyInstance> implem
 	protected void addAgreementsGrid(FormData formData) {
 		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
 		
-		columns.add(getDisplayColumn("ipRangeDisplay",			"IP Address",		140, "This is an IP address associated with the proxy."));
+		columns.add(getDisplayColumn("ipRangeDisplay",			"IP Address",		250, "This is an IP address associated with the proxy."));
 		
 		ColumnModel cm = new ColumnModel(columns);  
 
@@ -255,6 +255,7 @@ public class ProxySearchPortlet extends GridSupportPortlet<ProxyInstance> implem
 		proxyIpsGrid.setColumnLines(true);
 		proxyIpsGrid.setHideHeaders(false);
 		proxyIpsGrid.setWidth(cm.getTotalWidth() + 5);
+		proxyIpsGrid.setAutoExpandColumn("ipRangeDisplay");
 		
 		//	Open a new portlet to display an agreement when a row is selected
 	

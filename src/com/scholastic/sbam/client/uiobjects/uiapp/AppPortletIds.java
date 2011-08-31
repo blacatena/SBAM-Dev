@@ -107,6 +107,12 @@ public enum AppPortletIds {
 				"RecentAgreements"	,
 				RecentAgreementsPortlet.class.getName()
 			),
+	RECENT_PROXIES_DISPLAY				(
+				"Recent Proxies",
+				IconSupplier.getProxyIconName(),
+				"RecentProxies"	,
+				RecentProxiesPortlet.class.getName()
+			),
 	RECENT_INSTITUTIONS_DISPLAY			(
 				"Recent Institutions",
 				IconSupplier.getInstitutionIconName(),

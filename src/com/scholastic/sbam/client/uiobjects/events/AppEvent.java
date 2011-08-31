@@ -6,11 +6,15 @@ import com.scholastic.sbam.shared.objects.AgreementInstance;
 import com.scholastic.sbam.shared.objects.AgreementSiteInstance;
 import com.scholastic.sbam.shared.objects.AgreementTermInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
+import com.scholastic.sbam.shared.objects.ProxyInstance;
+import com.scholastic.sbam.shared.objects.ProxyIpInstance;
 import com.scholastic.sbam.shared.objects.SiteInstance;
 
 public class AppEvent extends BaseEvent {
 	
 	int	agreementId;
+	int proxyId;
+	int ipId;
 	int ucn;
 	int ucnSuffix;
 	String siteLocCode;
@@ -51,6 +55,22 @@ public class AppEvent extends BaseEvent {
 		this.siteLocCode = siteLocCode;
 	}
 
+	public int getProxyId() {
+		return proxyId;
+	}
+
+	public void setProxyId(int proxyId) {
+		this.proxyId = proxyId;
+	}
+
+	public int getIpId() {
+		return ipId;
+	}
+
+	public void setIpId(int ipId) {
+		this.ipId = ipId;
+	}
+
 	public void set(SiteInstance site) {
 		setUcn(site.getUcn());
 		setUcnSuffix(site.getUcnSuffix());
@@ -75,5 +95,14 @@ public class AppEvent extends BaseEvent {
 
 	public void set(AgreementTermInstance agreement) {
 		setAgreementId(agreement.getAgreementId());
+	}
+	
+	public void set(ProxyInstance proxy) {
+		setProxyId(proxy.getProxyId());
+	}
+	
+	public void set(ProxyIpInstance proxyIp) {
+		setProxyId(proxyIp.getProxyId());
+		setIpId(proxyIp.getIpId());
 	}
 }

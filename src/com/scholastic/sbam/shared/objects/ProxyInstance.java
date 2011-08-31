@@ -9,8 +9,10 @@ import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
 import com.scholastic.sbam.shared.util.AppConstants;
 
-public class ProxyInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
+public class ProxyInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable, UserCacheTarget {
 
+	public static final int PROXY_KEY_SET	= 0;
+	
 	private static BeanModelFactory beanModelfactory;
 
 	private int			proxyId;
@@ -176,5 +178,29 @@ public class ProxyInstance extends BetterRowEditInstance implements BeanModelTag
 		if (proxyId == 0)
 			return description;
 		return description + " [ " + getProxyIdCheckDigit() + " ]";
+	}
+	
+	public static String getUserCacheCategory() {
+		return "Proxy";
+	}
+
+	@Override
+	public String userCacheCategory(int keySet) {
+		return getUserCacheCategory();
+	}
+
+	@Override
+	public String userCacheStringKey(int keySet) {
+		return "";
+	}
+
+	@Override
+	public int userCacheIntegerKey(int keySet) {
+		return proxyId;
+	}
+	
+	@Override
+	public int userCacheKeyCount() {
+		return 1;
 	}
 }

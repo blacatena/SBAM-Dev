@@ -41,11 +41,13 @@ public class AppEvents {
 	public static final int			CHANGE_AGREEMENT	=	2 + APP_EVENT_BASE;
 	public static final int			NEW_SITE			=	3 + APP_EVENT_BASE;
 	public static final int			NEW_CUSTOMER		=	4 + APP_EVENT_BASE;
+	public static final int			NEW_PROXY			=	5 + APP_EVENT_BASE;
 
 	
 	public static final EventType GenericAppEvent		= new EventType(GENERIC_APP_EVENT);
-	public static final EventType AgreementAccess			= new EventType(NEW_AGREEMENT);
+	public static final EventType AgreementAccess		= new EventType(NEW_AGREEMENT);
 	public static final EventType ChangeAgreementTerms	= new EventType(CHANGE_AGREEMENT);
-	public static final EventType SiteAccess				= new EventType(NEW_SITE);
+	public static final EventType SiteAccess			= new EventType(NEW_SITE);
 	public static final EventType NewCustomer			= new EventType(NEW_CUSTOMER);
+	public static final EventType ProxyAccess			= new EventType(NEW_PROXY);
 }

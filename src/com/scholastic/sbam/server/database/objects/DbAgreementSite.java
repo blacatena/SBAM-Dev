@@ -93,11 +93,21 @@ public class DbAgreementSite extends HibernateAccessor {
 	}
 	
 	public static List<AgreementSite> findByAgreementId(int agreementId, char status, char neStatus, List<Order> orders) {
+		return findByAgreementId(agreementId, -1, status, neStatus, orders);
+	}
+	
+	public static List<AgreementSite> findByAgreementId(int agreementId, int ucn, char status, char neStatus) {
+		return findByAgreementId(agreementId, ucn, status, neStatus, getAscending("id.siteUcn", "id.siteUcnSuffix", "id.siteLocCode"));
+	}
+	
+	public static List<AgreementSite> findByAgreementId(int agreementId, int ucn, char status, char neStatus, List<Order> orders) {
         try
         {
             Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
             if (agreementId > 0)
             	crit.add(Restrictions.eq("id.agreementId", agreementId));
+            if (ucn > 0)
+            	crit.add(Restrictions.eq("siteUcn", ucn));
             if (status != 0)
             	crit.add(Restrictions.like("status", status));
             if (neStatus != 0)

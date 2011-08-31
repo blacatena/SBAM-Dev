@@ -114,6 +114,10 @@ public class ProxyIpInstance extends IpAddressInstance implements BeanModelTag, 
 	public void setIpRangeCode(String ipRangeCode) {
 		this.ipRangeCode = ipRangeCode;
 	}
+	
+	public void assignIpRangeCode() {
+		ipRangeCode = getCommonIpRangeCode(ipLo, ipHi);
+	}
 
 	public char getApproved() {
 		return approved;
@@ -125,6 +129,14 @@ public class ProxyIpInstance extends IpAddressInstance implements BeanModelTag, 
 
 	public boolean isApproved() {
 		return approved == 'y' || approved == 'Y';
+	}
+	
+	public String getApprovedDescription() {
+		return isApproved() ? "Approved" : "Not Approved";
+	}
+	
+	public String getStatusDescription() {
+		return AppConstants.getStatusDescription(status);
 	}
 	
 	public char getStatus() {
@@ -169,9 +181,13 @@ public class ProxyIpInstance extends IpAddressInstance implements BeanModelTag, 
 			return getOctetForm(ipLo);
 		return getOctetForm(ipHi);
 	}
+	
+	public String getUniqueKey() {
+		return proxyId + ":" + ipId;
+	}
 
 	public String toString() {
-		return getProxyIdCheckDigit() + " : " + ipLo + " --> " + ipHi;
+		return getUniqueKey();	//	return getProxyIdCheckDigit() + " : " + ipLo + " --> " + ipHi;
 	}
 
 	public static BeanModel obtainModel(ProxyIpInstance instance) {
@@ -179,6 +195,19 @@ public class ProxyIpInstance extends IpAddressInstance implements BeanModelTag, 
 			beanModelfactory  = BeanModelLookup.get().getFactory(ProxyIpInstance.class);
 		BeanModel model = beanModelfactory.createModel(instance);
 		return model;
+	}
+	
+	public void setFrom(ProxyIpInstance instance) {
+		this.proxyId			=	instance.proxyId;
+		this.ipId				=	instance.ipId;
+		this.ipLo				=	instance.ipLo;
+		this.ipHi				=	instance.ipHi;
+		this.ipRangeCode		=	instance.ipRangeCode;
+		this.note				=	instance.note;
+		this.approved			=	instance.approved;
+		this.status				=	instance.status;
+		this.active				=	instance.active;
+		this.createdDatetime	=	instance.createdDatetime;
 	}
 	
 	public MethodIdInstance obtainMethodId() {
