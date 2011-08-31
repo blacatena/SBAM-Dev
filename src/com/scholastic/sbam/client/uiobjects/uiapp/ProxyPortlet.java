@@ -892,7 +892,7 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 	@Override
 	public String getShortPortletName() {
 		if (proxyId > 0)
-			return "Proxy " + proxyId;
+			return "Proxy " + AppConstants.appendCheckDigit(proxyId);
 		return "Create Proxy";
 	}
 	
