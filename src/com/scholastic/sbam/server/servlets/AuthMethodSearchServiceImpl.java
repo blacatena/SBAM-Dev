@@ -14,6 +14,9 @@ import com.scholastic.sbam.server.database.objects.DbInstitution;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.server.fastSearch.InstitutionCache;
 import com.scholastic.sbam.server.fastSearch.InstitutionCache.InstitutionCacheConflict;
+import com.scholastic.sbam.server.validation.AppIpConflictDetector;
+import com.scholastic.sbam.server.validation.AppUidConflictDetector;
+import com.scholastic.sbam.server.validation.AppUrlConflictDetector;
 import com.scholastic.sbam.shared.objects.AgreementInstance;
 import com.scholastic.sbam.shared.objects.AuthMethodInstance;
 import com.scholastic.sbam.shared.objects.AuthMethodTuple;
@@ -36,6 +39,8 @@ public class AuthMethodSearchServiceImpl extends AuthenticatedServiceServlet imp
 		List<String>		  messages = null;
 
 		String filter	= config.get("filter")   != null ? config.get("filter").toString() : null;
+		
+		boolean includeConflicts = config.get("conflicts") != null && config.get("conflicts").toString().equalsIgnoreCase("y") ? true : false;
 
 		if (filter				== null)
 			return new SynchronizedPagingLoadResult<AuthMethodTuple>(list, 0, 0, syncId); 
@@ -68,8 +73,12 @@ public class AuthMethodSearchServiceImpl extends AuthenticatedServiceServlet imp
 					
 				AuthMethodTuple tuple = new AuthMethodTuple(agreement, authMethod);
 				
-				if (filterQualified(tuple, typedTerms))
+				if (filterQualified(tuple, typedTerms)) {
+					if (includeConflicts) {
+						includeConflicts(tuple);
+					}
 					list.add(tuple);
+				}
 			}
 
 		} catch (Exception exc) {
@@ -155,5 +164,32 @@ public class AuthMethodSearchServiceImpl extends AuthenticatedServiceServlet imp
 		if (tuple.getAgreement() != null && (tuple.getAgreement().getId() + "").contains(term))
 			return true;
 		return filterQualified(tuple, term);
+	}
+	
+	protected void includeConflicts(AuthMethodTuple tuple) {
+		AuthMethodInstance method = tuple.getAuthMethod();
+		
+		if (method.methodIsIpAddress()) {
+			AppIpConflictDetector detector = new AppIpConflictDetector(method.getIpLo(), method.getIpHi(), method.obtainMethodId());
+			detector.doValidation();
+			tuple.setConflicts(detector.getResponse());
+			return;
+		}
+		
+		if (method.methodIsUserId()) {
+			AppUidConflictDetector detector = new AppUidConflictDetector(method.getUserId(), method.getPassword(), method.getUserType(), method.getProxyId(), method.obtainMethodId());
+			detector.doValidation();
+			tuple.setConflicts(detector.getResponse());
+			return;
+		}
+		
+		if (method.methodIsUrl()) {
+			AppUrlConflictDetector detector = new AppUrlConflictDetector(method.getUrl(), method.obtainMethodId());
+			detector.doValidation();
+			tuple.setConflicts(detector.getResponse());
+			return;
+		}
+		
+		throw new IllegalArgumentException("Invalid Authentication Method type " + method.getMethodType() + " for " + method.getUniqueKey() + ".");
 	}
 }

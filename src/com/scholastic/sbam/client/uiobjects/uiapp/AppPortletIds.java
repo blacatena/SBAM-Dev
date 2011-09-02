@@ -41,6 +41,12 @@ public enum AppPortletIds {
 				"AgreementMethodSearch",
 				AgreementAuthMethodSearchPortlet.class.getName()
 			),
+	AGREEMENT_AUTH_METHOD_CONFLICT		(
+			"Access Method Conflict Resolver",
+			IconSupplier.getMethodConflictIconName(),
+			"AgreementConflictResolver",
+			AgreementConflictResolverPortlet.class.getName()
+		),
 	AGREEMENT_CONTACT_SEARCH			(
 				"Agreement Contact Search",
 				IconSupplier.getContactsIconName(),

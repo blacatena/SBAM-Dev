@@ -3,6 +3,7 @@ package com.scholastic.sbam.shared.objects;
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
 import com.scholastic.sbam.shared.util.AppConstants;
+import com.scholastic.sbam.shared.validation.AsyncValidationResponse;
 
 /**
  * A tuple of an agreement term with its parent agreement.
@@ -18,6 +19,7 @@ public class AuthMethodTuple implements BeanModelTag, IsSerializable, UserCacheT
 	AgreementInstance		agreement;
 	AuthMethodInstance		authMethod;
 	SiteInstance			owningSite;
+	AsyncValidationResponse	conflicts;
 
 	public AuthMethodTuple() {
 	}
@@ -64,6 +66,13 @@ public class AuthMethodTuple implements BeanModelTag, IsSerializable, UserCacheT
 			return "";
 		return owningSite.getNote();
 	}
+	public AsyncValidationResponse getConflicts() {
+		return conflicts;
+	}
+	public void setConflicts(AsyncValidationResponse conflicts) {
+		this.conflicts = conflicts;
+	}
+
 	/**
 	 * Returns the key string for the owning entity, without identifying it's type
 	 * @return

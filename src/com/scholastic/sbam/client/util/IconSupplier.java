@@ -42,6 +42,10 @@ public class IconSupplier {
 		return "access.png";
 	}
 	
+	public static String getMethodConflictIconName() {
+		return "conflict.png";
+	}
+	
 	public static String getConfigurationIconName() {
 		return "configuration.png";
 	}

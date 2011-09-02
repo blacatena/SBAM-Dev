@@ -487,6 +487,18 @@ public class AuthMethodInstance extends IpAddressInstance implements BeanModelTa
 		return "an unknown type";
 	}
 	
+	public boolean methodIsIpAddress() {
+		return AM_IP.equals(methodType);
+	}
+	
+	public boolean methodIsUserId() {
+		return AM_UID.equals(methodType);
+	}
+	
+	public boolean methodIsUrl() {
+		return AM_URL.equals(methodType);
+	}
+	
 	public void setValuesFrom(AuthMethodInstance fromInstance) {
 		this.agreementId				=	fromInstance.agreementId;
 		this.ucn						=	fromInstance.ucn;

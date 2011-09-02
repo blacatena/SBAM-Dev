@@ -135,6 +135,7 @@ public class AppNavTree {
 	  agreeSrch.add(new SelectionTreeNode("Contacts", 			AppPortletIds.AGREEMENT_CONTACT_SEARCH));
 	  agreeSrch.add(new SelectionTreeNode("Proxies", 			AppPortletIds.PROXY_SEARCH));
 	  agreeSrch.add(new SelectionTreeNode("Links", 				AppPortletIds.AGREEMENT_LINK_SEARCH));
+	  agreeSrch.add(new SelectionTreeNode("Conflict Resolver", 	AppPortletIds.AGREEMENT_AUTH_METHOD_CONFLICT));
 	  
 	  Folder recentSrch = new Folder("Recent", IconSupplier.getRecentIconName());
 	  recentSrch.add(new SelectionTreeNode("Agreements",		AppPortletIds.RECENT_AGREEMENTS_DISPLAY));
