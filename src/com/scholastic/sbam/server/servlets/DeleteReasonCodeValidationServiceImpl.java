@@ -16,7 +16,7 @@ public class DeleteReasonCodeValidationServiceImpl extends FieldValidationServic
 	protected void doValidation(String value, BetterRowEditInstance original, AsyncValidationResponse response) {
 		AppDeleteReasonValidator validator = new AppDeleteReasonValidator();
 		validator.setOriginal((DeleteReasonInstance) original);
-		response.addMessages(validator.validateDeleteReasonCode(value, original.isNewRecord()));
+		response.addErrorMessages(validator.validateDeleteReasonCode(value, original.isNewRecord()));
 	}
 	
 	@Override

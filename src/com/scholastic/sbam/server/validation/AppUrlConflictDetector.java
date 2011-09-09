@@ -207,7 +207,7 @@ public class AppUrlConflictDetector {
 		msg.append(".");
 		
 		if (isError)
-			response.getMessages().add(msg.toString());
+			response.getErrorMessages().add(msg.toString());
 		else if (isInfo)
 			response.getInfoMessages().add(msg.toString());
 		else

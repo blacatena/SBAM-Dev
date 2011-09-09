@@ -397,6 +397,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>ipRangeConflictServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.IpRangeConflictServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>ipRangeValidationServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.IpRangeValidationServiceImpl</servlet-class>
   </servlet>
@@ -687,8 +692,18 @@
   </servlet>
   
   <servlet>
+    <servlet-name>uidConflictServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UidConflictServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>uidValidationServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.UidValidationServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>urlConflictServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UrlConflictServiceImpl</servlet-class>
   </servlet>
   
   <servlet>
@@ -1087,6 +1102,11 @@
   </servlet-mapping>
   
   <servlet-mapping>
+    <servlet-name>ipRangeConflictServlet</servlet-name>
+    <url-pattern>/sbam/getIpRangeConflicts</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
     <servlet-name>ipRangeValidationServlet</servlet-name>
     <url-pattern>/sbam/validateIpRange</url-pattern>
   </servlet-mapping>
@@ -1377,8 +1397,18 @@
   </servlet-mapping>
   
   <servlet-mapping>
+    <servlet-name>uidConflictServlet</servlet-name>
+    <url-pattern>/sbam/getUidConflicts</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
     <servlet-name>uidValidationServlet</servlet-name>
     <url-pattern>/sbam/validateUid</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>urlConflictServlet</servlet-name>
+    <url-pattern>/sbam/getUrlConflicts</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

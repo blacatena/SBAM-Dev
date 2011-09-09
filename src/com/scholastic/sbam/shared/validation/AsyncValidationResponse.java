@@ -6,10 +6,10 @@ import java.util.List;
 import com.google.gwt.user.client.rpc.IsSerializable;
 
 public class AsyncValidationResponse implements IsSerializable {
-	private int validationCounter;
-	private List<String> messages		= new ArrayList<String>();
-	private List<String> alertMessages;
-	private List<String> infoMessages;
+	protected int validationCounter;
+	protected List<String> errorMessages		= new ArrayList<String>();
+	protected List<String> alertMessages;
+	protected List<String> infoMessages;
 	
 	public AsyncValidationResponse() {
 	}
@@ -20,31 +20,31 @@ public class AsyncValidationResponse implements IsSerializable {
 	
 	public AsyncValidationResponse(int validationCounter, String message) {
 		setValidationCounter(validationCounter);
-		addMessage(message);
+		addErrorMessage(message);
 	}
 	
-	public void addMessage(String message) {
+	public void addErrorMessage(String message) {
 		if (message != null && message.length() > 0)
-			messages.add(message);
+			errorMessages.add(message);
 	}
 	
-	public void addMessages(List<String> messages) {
+	public void addErrorMessages(List<String> messages) {
 		if (messages != null && messages.size() > 0)
 			for (String message: messages)
-				addMessage(message);
+				addErrorMessage(message);
 	}
 	
-	public void addWarning(String message) {
+	public void addAlertMessage(String message) {
 		if (message != null && message.length() > 0) {
 			if (alertMessages == null) alertMessages = new ArrayList<String>();
 			alertMessages.add(message);
 		}
 	}
 	
-	public void addWarnings(List<String> messages) {
+	public void addAlertMessages(List<String> messages) {
 		if (messages != null && messages.size() > 0)
 			for (String message: messages)
-				addWarning(message);
+				addAlertMessage(message);
 	}
 	
 	public void addInfoMessage(String message) {
@@ -68,12 +68,12 @@ public class AsyncValidationResponse implements IsSerializable {
 		this.validationCounter = validationCounter;
 	}
 	
-	public List<String> getMessages() {
-		return messages;
+	public List<String> getErrorMessages() {
+		return errorMessages;
 	}
 	
-	public void setMessages(List<String> messages) {
-		this.messages = messages;
+	public void setErrorMessages(List<String> messages) {
+		this.errorMessages = messages;
 	}
 
 	public List<String> getAlertMessages() {

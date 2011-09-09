@@ -16,7 +16,7 @@ public class AgreementTypeCodeValidationServiceImpl extends FieldValidationServi
 	protected void doValidation(String value, BetterRowEditInstance original, AsyncValidationResponse response) {
 		AppAgreementTypeValidator validator = new AppAgreementTypeValidator();
 		validator.setOriginal((AgreementTypeInstance) original);
-		response.addMessages(validator.validateAgreementTypeCode(value, original.isNewRecord()));
+		response.addErrorMessages(validator.validateAgreementTypeCode(value, original.isNewRecord()));
 	}
 	
 	@Override

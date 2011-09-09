@@ -9,5 +9,5 @@ import com.scholastic.sbam.shared.objects.AuthMethodTuple;
  */
 @RemoteServiceRelativePath("getAuthMethod")
 public interface AuthMethodGetService extends RemoteService {
-	AuthMethodTuple getAuthMethod(int agreementId, int ucn, int ucnSuffix, String siteLocCode, String methodType, int methodKey, boolean loadTerms, boolean allTerms) throws IllegalArgumentException;
+	AuthMethodTuple getAuthMethod(int agreementId, int ucn, int ucnSuffix, String siteLocCode, String methodType, int methodKey, boolean loadTerms, boolean allTerms, boolean conflicts) throws IllegalArgumentException;
 }

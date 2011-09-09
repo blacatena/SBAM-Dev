@@ -11,7 +11,7 @@ import com.scholastic.sbam.shared.util.AppConstants;
 
 public class RemoteSetupUrlInstance extends IpAddressInstance implements BeanModelTag, IsSerializable {
 	
-	public static final String REMOTE_SETUP_URL = "rsurl";
+	public static final String REMOTE_SETUP_URL = MethodIdInstance.AM_RSURL;
 	
 	private static BeanModelFactory beanModelfactory;
 	private int		agreementId;

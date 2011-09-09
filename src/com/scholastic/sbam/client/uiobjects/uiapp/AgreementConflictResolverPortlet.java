@@ -61,15 +61,22 @@ import com.scholastic.sbam.client.services.AuthMethodGetService;
 import com.scholastic.sbam.client.services.AuthMethodGetServiceAsync;
 import com.scholastic.sbam.client.services.AuthMethodSearchService;
 import com.scholastic.sbam.client.services.AuthMethodSearchServiceAsync;
+import com.scholastic.sbam.client.services.IpRangeConflictService;
+import com.scholastic.sbam.client.services.IpRangeConflictServiceAsync;
 import com.scholastic.sbam.client.services.SiteInstitutionWordService;
 import com.scholastic.sbam.client.services.SiteInstitutionWordServiceAsync;
+import com.scholastic.sbam.client.services.UidConflictService;
+import com.scholastic.sbam.client.services.UidConflictServiceAsync;
+import com.scholastic.sbam.client.services.UrlConflictService;
+import com.scholastic.sbam.client.services.UrlConflictServiceAsync;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
 import com.scholastic.sbam.client.uiobjects.foundation.GridSupportPortlet;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
+import com.scholastic.sbam.shared.objects.AuthMethodInstance;
 import com.scholastic.sbam.shared.objects.AuthMethodTuple;
-import com.scholastic.sbam.shared.objects.AgreementTermInstance;
+import com.scholastic.sbam.shared.objects.MethodConflictInstance;
 import com.scholastic.sbam.shared.objects.SnapshotTreeInstance;
 import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
 import com.scholastic.sbam.shared.util.AppConstants;
@@ -81,10 +88,12 @@ public class AgreementConflictResolverPortlet extends GridSupportPortlet<AuthMet
 	protected static final int LOAD_LIMIT			= AppConstants.STANDARD_LOAD_LIMIT;
 	protected static final int FILTER_LISTEN_PERIOD = 500;	//	This is a little higher, because we're doing a database scan on the back end, so it's not very fast
 	
-	protected final AuthMethodSearchServiceAsync		authMethodSearchService	= GWT.create(AuthMethodSearchService.class);
-	protected final AuthMethodGetServiceAsync    		authMethodGetService			= GWT.create(AuthMethodGetService.class);
-//	protected final AgreementGetServiceAsync    		agreementGetService				= GWT.create(AgreementGetService.class);
-	protected final SiteInstitutionWordServiceAsync  	siteInstitutionWordService   = GWT.create(SiteInstitutionWordService.class);
+	protected final AuthMethodSearchServiceAsync		authMethodSearchService		= GWT.create(AuthMethodSearchService.class);
+	protected final AuthMethodGetServiceAsync    		authMethodGetService		= GWT.create(AuthMethodGetService.class);
+	protected final IpRangeConflictServiceAsync    		ipConflictListService		= GWT.create(IpRangeConflictService.class);
+	protected final UidConflictServiceAsync    			uidConflictListService		= GWT.create(UidConflictService.class);
+	protected final UrlConflictServiceAsync    			urlConflictListService		= GWT.create(UrlConflictService.class);
+	protected final SiteInstitutionWordServiceAsync  	siteInstitutionWordService  = GWT.create(SiteInstitutionWordService.class);
 	
 	protected CardLayout						cards;
 	protected ContentPanel						searchPanel;
@@ -95,6 +104,8 @@ public class AgreementConflictResolverPortlet extends GridSupportPortlet<AuthMet
 	
 	protected RowExpander						noteExpander;
 	
+	protected ToolBar							displayToolBar = new ToolBar();
+	
 	protected ListStore<ModelData>				store;
 	protected TextField<String>					filterField;
 	protected Timer								filterListenTimer;
@@ -102,8 +113,11 @@ public class AgreementConflictResolverPortlet extends GridSupportPortlet<AuthMet
 	protected String							filter = "";
 	protected GridFilters						columnFilters;
 	
-	protected PagingLoader<PagingLoadResult<AuthMethodTuple>> agreementLoader;
+	protected PagingLoader<PagingLoadResult<AuthMethodTuple>> authMethodLoader;
+	
+	protected LabelField						methodValueField;
 
+	protected FieldSet							agreementFieldSet;
 	protected LabelField						agreementIdField;
 	protected LabelField						agreementTypeField;
 	protected LabelField						linkIdField;
@@ -111,12 +125,12 @@ public class AgreementConflictResolverPortlet extends GridSupportPortlet<AuthMet
 	protected LabelField						addressField;
 	protected LabelField						customerTypeField;
 	protected LabelField						altIds;
-	protected ListStore<ModelData>				agreementTermsStore;
-	protected Grid<ModelData>					agreementTermsGrid;
-	protected FieldSet							agreementsFieldSet;
+	protected ListStore<ModelData>				conflictsStore;
+	protected Grid<ModelData>					conflictsGrid;
 	
 	protected AppPortletProvider				portletProvider;
-	
+
+	protected String							focusMethodValue;	// Note that this is a user ID, URL or IP Range Code
 	protected int								focusAgreementId;
 	protected String							focusMethodType;
 	protected int								focusMethodKey;
@@ -221,31 +235,56 @@ public class AgreementConflictResolverPortlet extends GridSupportPortlet<AuthMet
 		ToolBar displayBar = new ToolBar();
 		displayBar.add(returnTool);
 		displayBar.add(new SeparatorToolItem());
-		displayBar.add(new Html("<b>Selected Agreement</b>"));
+		displayBar.add(new Html("<b>Selected Access Method</b>"));
 		displayCard.setTopComponent(displayBar);
 
+		methodValueField = new LabelField();
+		methodValueField.setFieldLabel("Method");
+		displayCard.add(methodValueField, formData);
+
+		agreementFieldSet  = new FieldSet() {
+			@Override
+			public void onExpand() {
+				super.onExpand();
+				adjustGridPanelHeight();
+			}
+			@Override
+			public void onCollapse() {
+				super.onCollapse();
+				adjustGridPanelHeight();
+			}
+		};
+		agreementFieldSet.setCollapsible(true);
+		agreementFieldSet.setHeading("Agreement Info");
+		agreementFieldSet.collapse();
+		agreementFieldSet.setBorders(true);
+		agreementFieldSet.setToolTip(UiConstants.getQuickTip("This is the agreement information for the selected method."));
+		
 		agreementIdField = new LabelField();
 		agreementIdField.setFieldLabel("ID");
-		displayCard.add(agreementIdField, formData);
+		agreementFieldSet.add(agreementIdField, formData);
 
 		agreementTypeField = new LabelField();
 		agreementTypeField.setFieldLabel("Type");
-		displayCard.add(agreementTypeField, formData);
+		agreementFieldSet.add(agreementTypeField, formData);
 		
 		ucnField = new LabelField();  
 		ucnField.setFieldLabel("UCN :");
-		displayCard.add(ucnField, formData);
+		agreementFieldSet.add(ucnField, formData);
 		
 		addressField = new LabelField(); 
-		displayCard.add(addressField, formData); 
+		agreementFieldSet.add(addressField, formData); 
 		
 		altIds = new LabelField(); 
 		altIds.setFieldLabel("Alternate IDs :");
-		displayCard.add(altIds, formData); 
+		agreementFieldSet.add(altIds, formData); 
 		
 		customerTypeField = new LabelField(); 
 		customerTypeField.setFieldLabel("Customer Type :");
-		displayCard.add(customerTypeField, formData);
+		agreementFieldSet.add(customerTypeField, formData);
+		
+		displayCard.add(agreementFieldSet, formData);
+//		agreementFieldSet.collapse();
 		
 		addAuthMethodsGrid(formData);
 		addButtons(formData);
@@ -259,72 +298,132 @@ public class AgreementConflictResolverPortlet extends GridSupportPortlet<AuthMet
 //			});
 //		displayCard.addButton(returnButton);
 	}
+
+	@Override
+	public void onResize(int width, int height) {
+		super.onResize(width, height);
+		adjustGridPanelHeight();
+	}
 	
+	@Override
+	public void afterRender() {
+		super.afterRender();
+		adjustGridPanelHeight();
+	}
+	
+	public void adjustGridPanelHeight() {
+		if (conflictsGrid == null)
+			return;
+		
+		int other = 65;
+		if (agreementFieldSet != null && agreementFieldSet.isRendered()) {
+			other += agreementFieldSet.getHeight();
+		} else
+			other += 25;
+		
+		if (displayToolBar != null && displayToolBar.isRendered()) {
+			other += displayToolBar.getHeight();
+		} else
+			other += 27;
+		
+		if (methodValueField != null && methodValueField.isRendered()) {
+			other += methodValueField.getHeight();
+		} else
+			other += 21;
+		
+		if (displayCard.isRendered() && displayCard.isRendered()) {
+			other += displayCard.getHeader().getOffsetHeight();
+		} else
+			other += 0;
+
+		if (other < 138)
+			other = 138;
+		
+		if (displayCard.isRendered()) {
+			conflictsGrid.setHeight(displayCard.getHeight(true)  - other);
+		} else if (this.isRendered()) {
+			conflictsGrid.setHeight(this.getHeight(true) - other);
+		} else {
+			conflictsGrid.setHeight(330);
+		}
+		
+//		if (conflictsGrid.isRendered())
+//			System.out.println("conflictsGrid " + conflictsGrid.getHeight());
+		
+	}
 
 	
 	protected void addAuthMethodsGrid(FormData formData) {
 		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
-		
-		columns.add(getDisplayColumn("productCode",			"Product Code",				100,
-					"This is the product code for this term."));
-		columns.add(getDisplayColumn("product.description",	"Product",					250,
-					"This is the product for this term."));
-		columns.add(getDisplayColumn("startDate",			"Start",					80,		true, UiConstants.APP_DATE_TIME_FORMAT,
-					"This is the start date for this term."));
-		columns.add(getDisplayColumn("endDate",				"End",						80,		true, UiConstants.APP_DATE_TIME_FORMAT,
-					"This is the end date for this term."));
-		columns.add(getDisplayColumn("terminateDate",		"Siteinate",				80,		true, UiConstants.APP_DATE_TIME_FORMAT,
-					"This is the terminate date for this term."));
-		columns.add(getDisplayColumn("dollarValue",			"Value",					80,		true, UiConstants.DOLLARS_FORMAT,
-					"This is the dollar value for this term."));
+
+		columns.add(getDisplayColumn("ownerValue",							"Attached To",				120,
+					"This is the entity that is attached to this method."));
+		columns.add(getDisplayColumn("methodValue",							"Value",					100,
+					"This is the value that identifies this method."));
+		columns.add(getDisplayColumn("methodTypeValue",						"Type",						80,
+					"This is the value that identifies this method type."));
+		columns.add(getDisplayColumn("forSite.institution.institutionName",	"For Site",					180,
+					"The institution to which this method applies."));
+		columns.add(getDisplayColumn("forSite.description",					"Location",					80,
+					"The location(s) to which this method applies."));
+		columns.add(getDisplayColumn("approvedDescription",					"Approved",					40,
+					"Whether or not this method is approved and therefore may be activated."));
+		columns.add(getDisplayColumn("statusDescription",					"Status",					40,
+					"The status of this method."));
 		
 		ColumnModel cm = new ColumnModel(columns);  
 
-		agreementTermsStore = new ListStore<ModelData>();
+		conflictsStore = new ListStore<ModelData>();
 		
-		agreementTermsGrid = new Grid<ModelData>(agreementTermsStore, cm);  
-		agreementTermsGrid.setBorders(true);
-		agreementTermsGrid.setHeight(180);
-		agreementTermsGrid.setStripeRows(true);
-		agreementTermsGrid.setColumnLines(true);
-		agreementTermsGrid.setHideHeaders(false);
-		agreementTermsGrid.setWidth(cm.getTotalWidth() + 5);
+		conflictsGrid = new Grid<ModelData>(conflictsStore, cm);  
+		conflictsGrid.setBorders(true);
+		conflictsGrid.setHeight(250);
+		conflictsGrid.setStripeRows(true);
+		conflictsGrid.setColumnLines(true);
+		conflictsGrid.setHideHeaders(false);
+		conflictsGrid.setWidth(cm.getTotalWidth() + 5);
+		conflictsGrid.setAutoExpandColumn("methodValue");
 		
 		//	Open a new portlet to display an agreement when a row is selected
-		agreementTermsGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); 
+		conflictsGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); 
 		final AppPortlet thisPortlet = this; 
-		agreementTermsGrid.getSelectionModel().addListener(Events.SelectionChange,  
+		conflictsGrid.getSelectionModel().addListener(Events.SelectionChange,  
 				new Listener<SelectionChangedEvent<ModelData>>() {  
 					public void handleEvent(SelectionChangedEvent<ModelData> be) {  
 						if (be.getSelection().size() > 0) {
-						//	System.out.println("Agreement " + ((BeanModel) be.getSelectedItem()).get("idCheckDigit"));
-							AgreementTermInstance AgreementTerm = (AgreementTermInstance) ((BeanModel) be.getSelectedItem()).getBean();
-							AgreementPortlet portlet = (AgreementPortlet) portletProvider.getPortlet(AppPortletIds.AGREEMENT_DISPLAY);
-							portlet.setAgreementId(AgreementTerm.getAgreementId());
-							if (focusAuthMethod != null) {
-								String foundFor = constructFilterDescription();
-								portlet.setIdentificationTip("Found for " + foundFor + "");
+							MethodConflictInstance methodConflict = (MethodConflictInstance) ((BeanModel) be.getSelectedItem()).getBean();
+							if (methodConflict.getAgreement() != null) {
+								AgreementPortlet portlet = (AgreementPortlet) portletProvider.getPortlet(AppPortletIds.AGREEMENT_DISPLAY);
+								portlet.setAgreementId(methodConflict.getAgreement().getId());
+								portlet.setIdentificationTip("Found for " + methodConflict.getMethodValue() + "");
+								portletProvider.insertPortlet(portlet, portalRow, thisPortlet.getInsertColumn());
+							} else if (methodConflict.getProxy() != null) {
+								ProxyPortlet portlet = (ProxyPortlet) portletProvider.getPortlet(AppPortletIds.PROXY_DISPLAY);
+								portlet.setProxyId(methodConflict.getProxy().getProxyId());
+								portlet.setIdentificationTip("Found for " + methodConflict.getMethodValue() + "");
+								portletProvider.insertPortlet(portlet, portalRow, thisPortlet.getInsertColumn());
+							} else if (methodConflict.getOwningSite() != null) {
+								SiteLocationPortlet portlet = (SiteLocationPortlet) portletProvider.getPortlet(AppPortletIds.SITE_LOCATION_DISPLAY);
+								portlet.set(methodConflict.getOwningSite());
+								portlet.setIdentificationTip("Found for " + methodConflict.getMethodValue() + "");
+								portletProvider.insertPortlet(portlet, portalRow, thisPortlet.getInsertColumn());
 							}
-//							Old, simple way
-//							int insertCol = (portalColumn == 0) ? 1 : 0;
-//							portletProvider.insertPortlet(portlet, portalRow, insertCol);
-//							New, more thorough way
-							portletProvider.insertPortlet(portlet, portalRow, thisPortlet.getInsertColumn());
-							agreementTermsGrid.getSelectionModel().deselectAll();
+							conflictsGrid.getSelectionModel().deselectAll();
 						} 
 					}
 			});
-	
-		agreementsFieldSet = new FieldSet();
-		agreementsFieldSet.setBorders(true);
-		agreementsFieldSet.setHeading("Current and Pending Sites");// 		displayCard.add(new LabelField("<br/><i>Existing Agreements</i>"));
-		agreementsFieldSet.setCollapsible(true);
-		agreementsFieldSet.setToolTip(UiConstants.getQuickTip("These are the current or pending agreement terms for this agreement."));
-		agreementsFieldSet.add(agreementTermsGrid);//, new FormData("-24"));	//new FormData(cm.getTotalWidth() + 10, 200));
+/*
+		conflictsFieldSet = new FieldSet();
+		conflictsFieldSet.setBorders(true);
+		conflictsFieldSet.setHeading("Conflicting Methods");// 		displayCard.add(new LabelField("<br/><i>Existing Agreements</i>"));
+		conflictsFieldSet.setCollapsible(true);
+		conflictsFieldSet.setToolTip(UiConstants.getQuickTip("These are the possible conflicting entries for this method."));
+		conflictsFieldSet.add(conflictsGrid);//, new FormData("-24"));	//new FormData(cm.getTotalWidth() + 10, 200));
 		
 	//	displayCard.add(new LabelField(""));	// Used as a spacer
-		displayCard.add(agreementsFieldSet, formData);	//	new FormData("95%")); // new FormData(cm.getTotalWidth() + 20, 200));
-		
+		displayCard.add(conflictsFieldSet, formData);	//	new FormData("95%")); // new FormData(cm.getTotalWidth() + 20, 200));
+*/
+		displayCard.add(conflictsGrid, formData);
 	}
 	
 	public String constructFilterDescription() {
@@ -333,9 +432,9 @@ public class AgreementConflictResolverPortlet extends GridSupportPortlet<AuthMet
 	
 	protected void addButtons(FormData formData) {
 		
-		ToolBar toolBar = new ToolBar();
-		toolBar.setAlignment(HorizontalAlignment.CENTER);
-		toolBar.setToolTip(UiConstants.getQuickTip("Use these buttons to edit this agreement."));
+//		ToolBar toolBar = new ToolBar();
+		displayToolBar.setAlignment(HorizontalAlignment.CENTER);
+		displayToolBar.setToolTip(UiConstants.getQuickTip("Use these buttons to edit this agreement."));
 		
 		Button newAgreementButton = new Button("Edit Agreement");
 		newAgreementButton.setToolTip(UiConstants.getQuickTip("Use this button to edit this agreement."));
@@ -349,15 +448,15 @@ public class AgreementConflictResolverPortlet extends GridSupportPortlet<AuthMet
 					portletProvider.insertPortlet(portlet, portalRow, insertCol);
 				}  
 			});
-		toolBar.add(newAgreementButton);
+		displayToolBar.add(newAgreementButton);
 		
-		displayCard.add(toolBar);
+		displayCard.add(displayToolBar);
 	}
 	
-	protected void showAgreement(BeanModel model) {
+	protected void showAuthMethod(BeanModel model) {
 		showAuthMethod((AuthMethodTuple) model.getBean());
-		// If the agreement term came without a set of other terms, load it again (with the terms)...
-		if (focusAuthMethod.getAgreement().getAgreementTerms() == null) {
+		// If the authMethod came without a list of conflicts, load it again (with the conflicts)...
+		if (focusAuthMethod.getConflicts() == null) {
 			loadAuthMethod(focusAgreementId, focusMethodType, focusMethodKey);
 		}
 	}
@@ -368,13 +467,28 @@ public class AgreementConflictResolverPortlet extends GridSupportPortlet<AuthMet
 		if (instance == null)
 			return;
 		
-		focusAgreementId			= focusAuthMethod.getAuthMethod().getAgreementId();
+		if (instance.getAuthMethod() == null)
+			return;
+		
+		AuthMethodInstance method = instance.getAuthMethod();
+		
+		if (method.methodIsIpAddress()) {
+			focusMethodValue = "IP " + method.getIpRangeDisplay();
+		} else if (method.methodIsUrl()) {
+			focusMethodValue = "URL " + method.getUrl();
+		} else if (method.methodIsUserId()) {
+			focusMethodValue = "User ID " + method.getUserId() + " / " + method.getPassword();
+		} else
+			focusMethodValue = "Unknown method value!!!!";
+		
+		focusAgreementId	= focusAuthMethod.getAuthMethod().getAgreementId();
 		focusMethodKey		= focusAuthMethod.getAuthMethod().getMethodKey();
 		focusMethodDisplay	= focusAuthMethod.getAuthMethod().getMethodDisplay();
 		
 		registerUserCache(focusAuthMethod, "Found for " + filter);
 		updateUserPortlet();
 
+		methodValueField.setValue(focusMethodValue);
 		agreementIdField.setValue(focusAuthMethod.getAgreement().getIdCheckDigit());
 		agreementTypeField.setValue(focusAuthMethod.getAgreement().getAgreementType().getDescriptionAndCode());
 		ucnField.setValue(focusAuthMethod.getAgreement().getBillUcn());
@@ -394,11 +508,10 @@ public class AgreementConflictResolverPortlet extends GridSupportPortlet<AuthMet
 					focusAuthMethod.getAgreement().getInstitution().getGroupDescription() + " &rArr; " + 
 					focusAuthMethod.getAgreement().getInstitution().getTypeDescription());
 		}
-		
-		agreementTermsStore.removeAll();
-		if (focusAuthMethod.getAgreement().getAgreementTerms() != null)
-			for (AgreementTermInstance term : focusAuthMethod.getAgreement().getAgreementTerms())
-				agreementTermsStore.add(AgreementTermInstance.obtainModel(term));
+
+		conflictsGrid.mask("Loading conflicts...");
+		conflictsStore.removeAll();
+		loadMethodConflicts(focusAuthMethod.getAuthMethod());
 		
 		cards.setActiveItem(displayCard);
 
@@ -480,14 +593,14 @@ public class AgreementConflictResolverPortlet extends GridSupportPortlet<AuthMet
 	}
 	
 	protected void addGrid() {
-		agreementLoader = getAgreementLoader(); 
+		authMethodLoader = getAuthMethodLoader(); 
 
-		agreementLoader.setSortDir(SortDir.ASC);  
-		agreementLoader.setSortField("id");  
+		authMethodLoader.setSortDir(SortDir.ASC);  
+		authMethodLoader.setSortField("id");  
 
-		agreementLoader.setRemoteSort(false);
+		authMethodLoader.setRemoteSort(false);
 
-		store = new ListStore<ModelData>(agreementLoader); 
+		store = new ListStore<ModelData>(authMethodLoader); 
  
 		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();  
 		     
@@ -584,13 +697,16 @@ public class AgreementConflictResolverPortlet extends GridSupportPortlet<AuthMet
     	if (model.get("type") != null && SnapshotTreeInstance.FOLDER.equals(model.get("type").toString()))	// For folders
     		return new Html("");
     	
+    	final AgreementConflictResolverPortlet thisPortlet = this;
+    	
         AuthMethodTuple tuple = ((BeanModel) model).getBean();
 		IconButton b = new IconButton("three-state-button") {
         	@Override
         	public void onClick(ComponentEvent ce) {
-        		
+        		thisPortlet.onRowSelected((BeanModel) model);
         	}
-        };
+        }
+		;
         b.setSize(16, 16);
         if (tuple.getConflicts() != null)
         	setConflictTip(b, tuple.getConflicts());
@@ -728,7 +844,7 @@ public class AgreementConflictResolverPortlet extends GridSupportPortlet<AuthMet
 	@Override
 	public void onRowSelected(BeanModel beanModel) {
 		if (beanModel != null)
-			showAgreement(beanModel);
+			showAuthMethod(beanModel);
 	}
 	
 	protected void setThis() {
@@ -749,14 +865,14 @@ public class AgreementConflictResolverPortlet extends GridSupportPortlet<AuthMet
 		
 		updateUserPortlet();
 		
-		agreementLoader.load();
+		authMethodLoader.load();
 	}
 	
 	/**
 	 * Construct and return a loader to handle returning a list of institutions.
 	 * @return
 	 */
-	protected PagingLoader<PagingLoadResult<AuthMethodTuple>> getAgreementLoader() {
+	protected PagingLoader<PagingLoadResult<AuthMethodTuple>> getAuthMethodLoader() {
 		// proxy and reader  
 		RpcProxy<PagingLoadResult<AuthMethodTuple>> proxy = new RpcProxy<PagingLoadResult<AuthMethodTuple>>() {  
 			@Override  
@@ -860,7 +976,7 @@ public class AgreementConflictResolverPortlet extends GridSupportPortlet<AuthMet
 	}
 
 	protected void loadAuthMethod(final int agreementId, final String methodType, final int methodKey) {
-		authMethodGetService.getAuthMethod(agreementId, 0, 0, "", methodType, methodKey, true, false,
+		authMethodGetService.getAuthMethod(agreementId, 0, 0, "", methodType, methodKey, false, false, false,
 				new AsyncCallback<AuthMethodTuple>() {
 					public void onFailure(Throwable caught) {
 						// Show the RPC error message to the user
@@ -873,13 +989,94 @@ public class AgreementConflictResolverPortlet extends GridSupportPortlet<AuthMet
 						}
 					}
 
-					public void onSuccess(AuthMethodTuple agreement) {
-						showAuthMethod(agreement);
+					public void onSuccess(AuthMethodTuple authMethod) {
+						showAuthMethod(authMethod);
 					}
 			});
 	}
+	
+	protected void loadMethodConflicts(final AuthMethodInstance authMethod) {
+		if (authMethod.methodIsIpAddress())
+			loadIpConflicts(authMethod.getIpLo(), authMethod.getIpHi());
+		else if (authMethod.methodIsUserId())
+			loadUidConflicts(authMethod.getUserId());
+		else if (authMethod.methodIsUrl())
+			loadUrlConflicts(authMethod.getUrl());
+	}
+	
+	protected void loadIpConflicts(long ipLo, long ipHi) {
+		ipConflictListService.getIpRangeConflicts(ipLo, ipHi,
+				new AsyncCallback<List<MethodConflictInstance>>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "IP Conflict access failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+					}
 
-//	protected void loadAgreement(final int agreementId) {
+					public void onSuccess(List<MethodConflictInstance> list) {
+						reloadConflictStore(list);
+						conflictsGrid.unmask();
+					}
+			});
+	}
+	
+	protected void loadUidConflicts(String uid) {
+		uidConflictListService.getUidConflicts(uid,
+				new AsyncCallback<List<MethodConflictInstance>>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "UID Conflict access failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+					}
+
+					public void onSuccess(List<MethodConflictInstance> list) {
+						reloadConflictStore(list);
+						conflictsGrid.unmask();
+					}
+			});
+		
+	}
+	
+	protected void loadUrlConflicts(String url) {
+		urlConflictListService.getUrlConflicts(url,
+				new AsyncCallback<List<MethodConflictInstance>>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "URL Conflict access failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+					}
+
+					public void onSuccess(List<MethodConflictInstance> list) {
+						reloadConflictStore(list);
+						conflictsGrid.unmask();
+					}
+			});
+		
+	}
+	
+	protected void reloadConflictStore(List<MethodConflictInstance> list) {
+		conflictsStore.removeAll();
+		if (list != null)
+			for (MethodConflictInstance methodConflict : list)
+				conflictsStore.add(MethodConflictInstance.obtainModel(methodConflict));
+	}
+
+//	protected void loadAuthMethodConflicts(final int agreementId) {
 //		agreementGetService.getAgreement(agreementId, true,
 //				new AsyncCallback<AgreementInstance>() {
 //					public void onFailure(Throwable caught) {
@@ -894,7 +1091,7 @@ public class AgreementConflictResolverPortlet extends GridSupportPortlet<AuthMet
 //					}
 //
 //					public void onSuccess(AgreementInstance agreement) {
-//						showAgreement(agreement);
+//						showAuthMethod(agreement);
 //					}
 //			});
 //	}

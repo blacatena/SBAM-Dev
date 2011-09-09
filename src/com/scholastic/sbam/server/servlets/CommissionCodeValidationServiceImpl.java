@@ -16,7 +16,7 @@ public class CommissionCodeValidationServiceImpl extends FieldValidationServiceI
 	protected void doValidation(String value, BetterRowEditInstance original, AsyncValidationResponse response) {
 		AppCommissionTypeValidator validator = new AppCommissionTypeValidator();
 		validator.setOriginal((CommissionTypeInstance) original);
-		response.addMessages(validator.validateCommissionCode(value, original.isNewRecord()));
+		response.addErrorMessages(validator.validateCommissionCode(value, original.isNewRecord()));
 	}
 	
 	@Override

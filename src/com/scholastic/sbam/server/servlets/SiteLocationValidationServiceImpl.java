@@ -39,7 +39,7 @@ public class SiteLocationValidationServiceImpl extends AuthenticatedServiceServl
 	
 	protected void doValidation(int ucn, int ucnSuffix, String siteLocCode, AsyncValidationResponse response) {
 		AppSiteValidator validator = new AppSiteValidator();
-		response.addMessages(validator.validateSiteId(ucn, ucnSuffix, siteLocCode, true));
+		response.addErrorMessages(validator.validateSiteId(ucn, ucnSuffix, siteLocCode, true));
 	}
 
 	protected String getAuthRole() {

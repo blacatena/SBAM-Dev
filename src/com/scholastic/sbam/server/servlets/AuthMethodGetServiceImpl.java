@@ -11,6 +11,9 @@ import com.scholastic.sbam.server.database.objects.DbInstitution;
 import com.scholastic.sbam.server.database.objects.DbSite;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.server.fastSearch.InstitutionCache;
+import com.scholastic.sbam.server.validation.AppIpConflictDetector;
+import com.scholastic.sbam.server.validation.AppUidConflictDetector;
+import com.scholastic.sbam.server.validation.AppUrlConflictDetector;
 import com.scholastic.sbam.shared.objects.AgreementInstance;
 import com.scholastic.sbam.shared.objects.AuthMethodInstance;
 import com.scholastic.sbam.shared.objects.AuthMethodTuple;
@@ -24,7 +27,7 @@ import com.scholastic.sbam.shared.security.SecurityManager;
 public class AuthMethodGetServiceImpl extends AgreementGetServiceBase implements AuthMethodGetService {
 
 	@Override
-	public AuthMethodTuple getAuthMethod(int agreementId, int ucn, int ucnSuffix, String siteLocCode, String methodType, int methodKey, boolean loadTerms, boolean allTerms) throws IllegalArgumentException {
+	public AuthMethodTuple getAuthMethod(int agreementId, int ucn, int ucnSuffix, String siteLocCode, String methodType, int methodKey, boolean loadTerms, boolean allTerms, boolean conflicts) throws IllegalArgumentException {
 		
 		authenticate("get authentication method", SecurityManager.ROLE_QUERY);
 		
@@ -65,6 +68,8 @@ public class AuthMethodGetServiceImpl extends AgreementGetServiceBase implements
 					
 					if (loadTerms)
 						loadAgreementTerms(agreement, allTerms);
+					if (conflicts)
+						includeConflicts(authMethodTuple);
 				} else if (ucn > 0) {
 					Site	dbSite = DbSite.getById(ucn, ucnSuffix, siteLocCode);
 					if (dbSite != null) {
@@ -92,5 +97,32 @@ public class AuthMethodGetServiceImpl extends AgreementGetServiceBase implements
 	
 	public void setDescriptions(SiteInstance site) {
 		DbSite.setDescriptions(site);
+	}
+	
+	protected void includeConflicts(AuthMethodTuple tuple) {
+		AuthMethodInstance method = tuple.getAuthMethod();
+		
+		if (method.methodIsIpAddress()) {
+			AppIpConflictDetector detector = new AppIpConflictDetector(method.getIpLo(), method.getIpHi(), method.obtainMethodId());
+			detector.doValidation();
+			tuple.setConflicts(detector.getResponse());
+			return;
+		}
+		
+		if (method.methodIsUserId()) {
+			AppUidConflictDetector detector = new AppUidConflictDetector(method.getUserId(), method.getPassword(), method.getUserType(), method.getProxyId(), method.obtainMethodId());
+			detector.doValidation();
+			tuple.setConflicts(detector.getResponse());
+			return;
+		}
+		
+		if (method.methodIsUrl()) {
+			AppUrlConflictDetector detector = new AppUrlConflictDetector(method.getUrl(), method.obtainMethodId());
+			detector.doValidation();
+			tuple.setConflicts(detector.getResponse());
+			return;
+		}
+		
+		throw new IllegalArgumentException("Invalid Authentication Method type " + method.getMethodType() + " for " + method.getUniqueKey() + ".");
 	}
 }

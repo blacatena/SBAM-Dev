@@ -739,7 +739,7 @@ public class AgreementAuthMethodSearchPortlet extends GridSupportPortlet<AuthMet
 	}
 
 	protected void loadAuthMethod(final int agreementId, final String methodType, final int methodKey) {
-		authMethodGetService.getAuthMethod(agreementId, 0, 0, "", methodType, methodKey, true, false,
+		authMethodGetService.getAuthMethod(agreementId, 0, 0, "", methodType, methodKey, true, false, false,
 				new AsyncCallback<AuthMethodTuple>() {
 					public void onFailure(Throwable caught) {
 						// Show the RPC error message to the user

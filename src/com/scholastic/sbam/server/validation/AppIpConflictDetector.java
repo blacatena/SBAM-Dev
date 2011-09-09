@@ -209,7 +209,7 @@ public class AppIpConflictDetector {
 				msg.append(" already exists on this ");
 				msg.append(sourceType);
 			} else if (rangeComparison == ENCOMPASSED) {
-				msg.append(" encompasses this IP  on this ");
+				msg.append(" encompasses this IP on this ");
 				msg.append(sourceType);
 			} else {
 				msg.append(" overlaps with this IP on this ");
@@ -261,7 +261,7 @@ public class AppIpConflictDetector {
 		}
 		
 		if (isError)
-			response.getMessages().add(msg.toString());
+			response.getErrorMessages().add(msg.toString());
 		else if (isInfo)
 			response.getInfoMessages().add(msg.toString());
 		else

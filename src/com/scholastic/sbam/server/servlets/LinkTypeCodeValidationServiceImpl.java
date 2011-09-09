@@ -16,7 +16,7 @@ public class LinkTypeCodeValidationServiceImpl extends FieldValidationServiceImp
 	protected void doValidation(String value, BetterRowEditInstance original, AsyncValidationResponse response) {
 		AppLinkTypeValidator validator = new AppLinkTypeValidator();
 		validator.setOriginal((LinkTypeInstance) original);
-		response.addMessages(validator.validateLinkTypeCode(value, original.isNewRecord()));
+		response.addErrorMessages(validator.validateLinkTypeCode(value, original.isNewRecord()));
 	}
 	
 	@Override

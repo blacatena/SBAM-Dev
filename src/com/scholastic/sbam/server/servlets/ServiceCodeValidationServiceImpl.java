@@ -16,7 +16,7 @@ public class ServiceCodeValidationServiceImpl extends FieldValidationServiceImpl
 	protected void doValidation(String value, BetterRowEditInstance original, AsyncValidationResponse response) {
 		AppServiceValidator validator = new AppServiceValidator();
 		validator.setOriginal((ServiceInstance) original);
-		response.addMessages(validator.validateServiceCode(value, original.isNewRecord()));
+		response.addErrorMessages(validator.validateServiceCode(value, original.isNewRecord()));
 	}
 	
 	@Override

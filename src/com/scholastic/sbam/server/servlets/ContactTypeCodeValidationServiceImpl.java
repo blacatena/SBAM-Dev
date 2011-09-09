@@ -16,7 +16,7 @@ public class ContactTypeCodeValidationServiceImpl extends FieldValidationService
 	protected void doValidation(String value, BetterRowEditInstance original, AsyncValidationResponse response) {
 		AppContactTypeValidator validator = new AppContactTypeValidator();
 		validator.setOriginal((ContactTypeInstance) original);
-		response.addMessages(validator.validateContactTypeCode(value, original.isNewRecord()));
+		response.addErrorMessages(validator.validateContactTypeCode(value, original.isNewRecord()));
 	}
 	
 	@Override

@@ -19,6 +19,7 @@ public class MethodIdInstance implements BeanModelTag, IsSerializable {
 	public static final String AM_IP 	= "ip";
 	public static final String AM_URL	= "url";
 	public static final String AM_UID	= "uid";
+	public static final String AM_RSURL	= "rsurl";
 
 	private int		agreementId;
 	private int		ucn;
@@ -141,6 +142,10 @@ public class MethodIdInstance implements BeanModelTag, IsSerializable {
 	
 	public boolean isProxyIp() {
 		return proxyId > 0;
+	}
+	
+	public boolean isRemoteSetupUrl() {
+		return AM_RSURL.equals(methodType);
 	}
 	
 	public boolean isAgreementUserId() {

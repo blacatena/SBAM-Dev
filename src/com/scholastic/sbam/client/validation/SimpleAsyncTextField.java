@@ -138,8 +138,8 @@ public abstract class SimpleAsyncTextField<D> extends TextField<D> {
 					public void onSuccess(AsyncValidationResponse response) {
 						//	Mark invalid if an error occurred, and if the response matches the current field validation count setting
 						if (response.getValidationCounter() == validationCounter) {
-							if (response.getMessages() != null && response.getMessages().size() > 0) {					
-								asyncMessages = response.getMessages();
+							if (response.getErrorMessages() != null && response.getErrorMessages().size() > 0) {					
+								asyncMessages = response.getErrorMessages();
 								markInvalid(asyncMessages);
 							} else {
 								asyncMessages = null;

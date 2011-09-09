@@ -31,10 +31,10 @@ public class ProxyIpListServiceImpl extends AuthenticatedServiceServlet implemen
 
 		List<ProxyIpInstance> list = new ArrayList<ProxyIpInstance>();
 		try {
-			//	Find only undeleted term types
-			List<ProxyIp> termInstances = DbProxyIp.findInRange(proxyIp, loIp, hiIp, AppConstants.STATUS_ANY_NONE, neStatus, null, null);	//	loadConfig.getSortField(), loadConfig.getSortDir());
+			//	Find only undeleted proxy IPs
+			List<ProxyIp> ipInstances = DbProxyIp.findInRange(proxyIp, loIp, hiIp, AppConstants.STATUS_ANY_NONE, neStatus, null, null);	//	loadConfig.getSortField(), loadConfig.getSortDir());
 			
-			for (ProxyIp termInstance : termInstances) {
+			for (ProxyIp termInstance : ipInstances) {
 				list.add(DbProxyIp.getInstance(termInstance));
 			}
 

@@ -16,7 +16,7 @@ public class CancelReasonCodeValidationServiceImpl extends FieldValidationServic
 	protected void doValidation(String value, BetterRowEditInstance original, AsyncValidationResponse response) {
 		AppCancelReasonValidator validator = new AppCancelReasonValidator();
 		validator.setOriginal((CancelReasonInstance) original);
-		response.addMessages(validator.validateCancelReasonCode(value, original.isNewRecord()));
+		response.addErrorMessages(validator.validateCancelReasonCode(value, original.isNewRecord()));
 	}
 	
 	@Override

@@ -16,7 +16,7 @@ public class UserNameValidationServiceImpl extends FieldValidationServiceImpl im
 	protected void doValidation(String value, BetterRowEditInstance original, AsyncValidationResponse response) {
 		AppUserValidator validator = new AppUserValidator();
 		validator.setOriginal((UserInstance) original);
-		response.addMessages(validator.validateUserName(value, original.isNewRecord()));
+		response.addErrorMessages(validator.validateUserName(value, original.isNewRecord()));
 	}
 	
 	@Override
