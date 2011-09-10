@@ -1012,4 +1012,29 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		targetPanel.setTopComponent(viewToolBar);
 	}
 	
+	@Override
+	public void setFocusInstance(AuthMethodInstance instance) {
+		super.setFocusInstance(instance);
+		openFocusFieldSet();
+	}
+	
+	@Override
+	public void afterRender() {
+		super.afterRender();
+		//	We need to do this for a focus instance, because the portlet may not have been rendered before
+		openFocusFieldSet();
+	}
+	
+	public void openFocusFieldSet() {
+		if (focusInstance == null)
+			return;
+
+		if (focusInstance.methodIsIpAddress() && ipFieldSet != null) {
+			ipFieldSet.expand();
+		} else if (focusInstance.methodIsUserId() && uidFieldSet != null) {
+			uidFieldSet.expand();
+		} else if (focusInstance.methodIsUrl() && urlFieldSet != null) {
+			urlFieldSet.expand();
+		}
+	}
 }

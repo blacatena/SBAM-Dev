@@ -79,6 +79,8 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 	protected ProxyInstance					proxy;
 	protected String						identificationTip	=	"";
 	
+	protected ProxyIpInstance				jumpToProxyIp;
+	
 	protected FormPanel						outerContainer;
 
 	protected ListStore<BeanModel>			ipAddressStore;
@@ -111,7 +113,7 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 	
 	protected LockableFieldSet				ipFieldSet			= new LockableFieldSet();
 	
-	protected IpAddressRangeField			ipAddressField		= new IpAddressRangeField("Ip Address");
+	protected IpAddressRangeField			ipAddressField		= new IpAddressRangeField("Ip Address:", false, 65);
 //	protected LabelField					ipStatusDisplay		= new LabelField();
 	protected CheckBoxGroup					ipCheckGroup		= new CheckBoxGroup();
 	protected CheckBox						ipApprovedField		= FieldFactory.getCheckBoxField("IP Address is Approved");
@@ -528,6 +530,8 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 		updateUserPortlet();	// This is mostly for a "create" so the portlet knows the agreement ID has been set
 		setOriginalValues();
 //		endEdit(false);
+		
+		jumpTo();	//	To jump to any specific Proxy IP set by another entity
 	}
 	
 	public void beginEdit() {
@@ -651,6 +655,7 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 							for (ProxyIpInstance agreement : proxyTuple.getProxyIps()) {
 								ipAddressStore.add(ProxyIpInstance.obtainModel(agreement));
 							}
+							jumpTo();
 						}
 					}
 			});
@@ -960,4 +965,37 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 			return proxyId + ":" + identificationTip;
 	}
 
+	public ProxyIpInstance getJumpToProxyIp() {
+		return jumpToProxyIp;
+	}
+
+	public void setJumpToProxyIp(ProxyIpInstance jumpToProxyIp) {
+		this.jumpToProxyIp = jumpToProxyIp;
+		jumpTo();
+	}
+
+	public void jumpTo() {
+		if (jumpToProxyIp != null && proxy != null && proxy.getProxyId() == jumpToProxyIp.getProxyId()) {
+			if (focusSelection(jumpToProxyIp))
+				jumpToProxyIp = null;	/// Once we've done this, don't do it any more
+		}
+	}
+
+	public boolean focusSelection(ProxyIpInstance proxyIp) {
+		if (proxyIp == null || ipAddressGrid == null || ipAddressStore == null)
+			return false;
+		
+		BeanModel model = ipAddressStore.findModel(ProxyIpInstance.obtainModel(proxyIp));
+		if (model != null) {
+			int rowIndex = ipAddressStore.indexOf(model);
+			ipAddressGrid.getView().focusRow(rowIndex);
+			ipAddressGrid.getSelectionModel().select(rowIndex, false);
+			
+			onRowSelected(model);
+			
+			return true;
+		}
+		
+		return false;
+	}
 }

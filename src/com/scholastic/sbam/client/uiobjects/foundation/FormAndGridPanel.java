@@ -7,6 +7,7 @@ import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -33,10 +34,12 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.scholastic.sbam.client.stores.KeyModelComparer;
 import com.scholastic.sbam.client.uiobjects.fields.EnhancedComboBox;
 import com.scholastic.sbam.client.uiobjects.fields.InstitutionSearchField;
 import com.scholastic.sbam.client.uiobjects.fields.LockableFieldSet;
 import com.scholastic.sbam.client.util.IconSupplier;
+import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 
 public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContainer<ModelInstance> {
 	
@@ -301,6 +304,8 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		if (formPanel != null) {
 			formPanel.expand();
 		}
+		
+		focusSelection();
 	}
 	
 	public void clearFocusInstance() {
@@ -561,6 +566,8 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		ColumnModel cm = new ColumnModel(columns);  
 
 		gridStore = getNewGridStore();
+		gridStore.setKeyProvider(getGridStoreKeyProvider());
+		gridStore.setModelComparer(new KeyModelComparer<BeanModel>(gridStore));
 		
 		grid = new Grid<BeanModel>(gridStore, cm); 
 //		grid.addPlugin(expander);
@@ -590,6 +597,10 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	
 	public ListStore<BeanModel> getNewGridStore() {
 		return new ListStore<BeanModel>();
+	}
+	
+	public ModelKeyProvider<BeanModel> getGridStoreKeyProvider() {
+		return new SimpleKeyProvider("uniqueKey");
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -634,9 +645,19 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 						if (gridStore.getCount() == 0  && focusInstance == null) {
 							formPanel.expand();
 							beginEdit();
+						} else if (focusInstance != null) {
+							focusSelection();
 						}
-					}
+ 					}
 			};
+	}
+	
+	public void focusSelection() {
+		if (focusInstance == null || grid == null || gridStore == null)
+			return;
+		int rowIndex = gridStore.indexOf(gridStore.findModel(getModel(focusInstance)));
+		grid.getView().focusRow(rowIndex);
+		grid.getSelectionModel().select(rowIndex, false);
 	}
 
 	public void loadGrid(final int id) {

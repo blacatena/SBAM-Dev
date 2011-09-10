@@ -37,6 +37,14 @@ public class AppPortletProvider {
 		presenter.add(portlet, column);
 	}
 	
+	public AppPortlet getByIdentity(AppPortlet portlet) {
+		return getByIdentity(portlet.getPortletIdentity());
+	}
+	
+	public AppPortlet getByIdentity(String identity) {
+		return (AppPortlet) presenter.getByIdentity(identity);
+	}
+	
 	public boolean insertPortlet(ModelData model, int index, int column) { 
 		if (presenter != null && model.get("portlet") != null) {
 			insertPortlet(getPortlet((AppPortletIds) model.get("portlet")), index, column);

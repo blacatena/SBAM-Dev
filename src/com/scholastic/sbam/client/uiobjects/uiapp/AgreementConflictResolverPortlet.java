@@ -394,14 +394,21 @@ public class AgreementConflictResolverPortlet extends GridSupportPortlet<AuthMet
 							MethodConflictInstance methodConflict = (MethodConflictInstance) ((BeanModel) be.getSelectedItem()).getBean();
 							if (methodConflict.getAgreement() != null) {
 								AgreementPortlet portlet = (AgreementPortlet) portletProvider.getPortlet(AppPortletIds.AGREEMENT_DISPLAY);
+//								portlet.setJumpToMethod(methodConflict.getAuthMethod());
 								portlet.setAgreementId(methodConflict.getAgreement().getId());
 								portlet.setIdentificationTip("Found for " + methodConflict.getMethodValue() + "");
 								portletProvider.insertPortlet(portlet, portalRow, thisPortlet.getInsertColumn());
+								portlet = (AgreementPortlet) portletProvider.getByIdentity(portlet);
+								if (portlet != null)
+									portlet.setJumpToMethod(methodConflict.getAuthMethod());
 							} else if (methodConflict.getProxy() != null) {
 								ProxyPortlet portlet = (ProxyPortlet) portletProvider.getPortlet(AppPortletIds.PROXY_DISPLAY);
 								portlet.setProxyId(methodConflict.getProxy().getProxyId());
 								portlet.setIdentificationTip("Found for " + methodConflict.getMethodValue() + "");
 								portletProvider.insertPortlet(portlet, portalRow, thisPortlet.getInsertColumn());
+								portlet = (ProxyPortlet) portletProvider.getByIdentity(portlet);
+								if (portlet != null)
+									portlet.setJumpToProxyIp(methodConflict.getProxyIp());
 							} else if (methodConflict.getOwningSite() != null) {
 								SiteLocationPortlet portlet = (SiteLocationPortlet) portletProvider.getPortlet(AppPortletIds.SITE_LOCATION_DISPLAY);
 								portlet.set(methodConflict.getOwningSite());

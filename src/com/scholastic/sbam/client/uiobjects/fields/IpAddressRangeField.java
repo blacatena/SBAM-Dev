@@ -29,6 +29,8 @@ import com.scholastic.sbam.shared.validation.AsyncValidationResponse;
 public class IpAddressRangeField extends MultiField<Long []> {
 	public final String HIGH_IP_LABEL	= "&nbsp;&nbsp;&nbsp;&nbsp;&hArr;&nbsp;&nbsp;&nbsp;&nbsp;";	//"&nbsp;&nbsp;To:&nbsp;";
 
+	protected boolean			iconPositionLeft	= true;
+	
 	protected String			label = "IP";
 	protected int				labelWidth = 20;
 	protected LabelAlign		labelAlign	=	LabelAlign.RIGHT;
@@ -63,7 +65,15 @@ public class IpAddressRangeField extends MultiField<Long []> {
 	}
 	
 	public IpAddressRangeField(String label) {
-		super(label);
+		this(label, true, 20);
+	}
+	
+	public IpAddressRangeField(String label, boolean iconPositionLeft, int labelWidth) {
+		super("");
+		this.setLabelSeparator("");
+		this.label = label;
+		this.labelWidth = labelWidth;
+		this.iconPositionLeft = iconPositionLeft;
 		createFields();
 	}
 	
@@ -90,11 +100,14 @@ public class IpAddressRangeField extends MultiField<Long []> {
 		hiIpField.setAllowWildcards(false);
 		hiIpField.setTiedIpField(loIpField);
 		
-		add(iconPositionField);
+		if (iconPositionLeft)
+			add(iconPositionField);
 		add(labelField);
 		add(loIpField);
 		add(hiIpLabelField);
 		add(hiIpField);
+		if (!iconPositionLeft)
+			add(iconPositionField);
 	}
 	
 	public String getLabel() {

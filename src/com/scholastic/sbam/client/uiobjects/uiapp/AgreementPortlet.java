@@ -69,6 +69,7 @@ import com.scholastic.sbam.shared.objects.AgreementInstance;
 import com.scholastic.sbam.shared.objects.AgreementLinkInstance;
 import com.scholastic.sbam.shared.objects.AgreementTermInstance;
 import com.scholastic.sbam.shared.objects.AgreementTypeInstance;
+import com.scholastic.sbam.shared.objects.AuthMethodInstance;
 import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
 import com.scholastic.sbam.shared.objects.DeleteReasonInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
@@ -98,6 +99,8 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected AgreementLinkInstance	agreementLink;
 	protected InstitutionInstance	createForInstitution;
 	protected String				identificationTip	=	"";
+	
+	protected AuthMethodInstance	jumpToMethod;
 	
 	protected ContentPanel			outerContainer;
 	protected CardLayout			cards;
@@ -905,6 +908,8 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		updateUserPortlet();	// This is mostly for a "create" so the portlet knows the agreement ID has been set
 		setOriginalValues();
 //		endEdit(false);
+		
+		jumpTo();
 	}
 	
 	/**
@@ -1291,4 +1296,23 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 			return agreementId + ":" + identificationTip;
 	}
 
+	public AuthMethodInstance getJumpToMethod() {
+		return jumpToMethod;
+	}
+
+	public void setJumpToMethod(AuthMethodInstance jumpToMethod) {
+		this.jumpToMethod = jumpToMethod;
+		jumpTo();	//	This only does something if the agreement is already loaded
+	}
+
+	public void jumpTo() {
+		if (jumpToMethod != null && agreement != null && agreement.getId() == jumpToMethod.getAgreementId()) {
+			methodsCard.setAgreement(agreement);
+			methodsCard.setFocusInstance(jumpToMethod);
+			cards.setActiveItem(methodsCard);
+			methodsButton.toggle(true);
+			
+			jumpToMethod = null;	/// Once we've done this, don't do it any more
+		}
+	}
 }
