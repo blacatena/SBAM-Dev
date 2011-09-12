@@ -414,6 +414,15 @@ public class AgreementConflictResolverPortlet extends GridSupportPortlet<AuthMet
 								portlet.set(methodConflict.getOwningSite());
 								portlet.setIdentificationTip("Found for " + methodConflict.getMethodValue() + "");
 								portletProvider.insertPortlet(portlet, portalRow, thisPortlet.getInsertColumn());
+							} else if (methodConflict.getRemoteSetupUrl() != null) {
+								AgreementPortlet portlet = (AgreementPortlet) portletProvider.getPortlet(AppPortletIds.AGREEMENT_DISPLAY);
+//								portlet.setJumpToMethod(methodConflict.getAuthMethod());
+								portlet.setAgreementId(methodConflict.getAgreement().getId());
+								portlet.setIdentificationTip("Found for " + methodConflict.getMethodValue() + "");
+								portletProvider.insertPortlet(portlet, portalRow, thisPortlet.getInsertColumn());
+								portlet = (AgreementPortlet) portletProvider.getByIdentity(portlet);
+								if (portlet != null)
+									portlet.setJumpToRemoteSetupUrl(methodConflict.getRemoteSetupUrl());
 							}
 							conflictsGrid.getSelectionModel().deselectAll();
 						} 

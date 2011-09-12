@@ -42,17 +42,17 @@ public class SiteLocationGetServiceImpl extends AuthenticatedServiceServlet impl
 			if (dbInstance != null) {
 				result = DbSite.getInstance(dbInstance);
 				DbSite.setDescriptions(result);
-			}
-			
-			if (includePreferences) {
-				result.setSelectedPreferences(new HashMap<String, String>());
-				List<SitePreference> preferences = DbSitePreference.findBySite(ucn, ucnSuffix, siteLocCode, AppConstants.STATUS_ACTIVE, AppConstants.STATUS_DELETED);
-				for (SitePreference preference : preferences)
-					result.getSelectedPreferences().put(preference.getId().getPrefCatCode(), preference.getPrefSelCode());
-			}
-			
-			if (includePreferenceList) {
-				result.setAllPreferenceCategories(DbPreferenceCategory.findAllCatsAndCodes());
+				
+				if (includePreferences) {
+					result.setSelectedPreferences(new HashMap<String, String>());
+					List<SitePreference> preferences = DbSitePreference.findBySite(ucn, ucnSuffix, siteLocCode, AppConstants.STATUS_ACTIVE, AppConstants.STATUS_DELETED);
+					for (SitePreference preference : preferences)
+						result.getSelectedPreferences().put(preference.getId().getPrefCatCode(), preference.getPrefSelCode());
+				}
+				
+				if (includePreferenceList) {
+					result.setAllPreferenceCategories(DbPreferenceCategory.findAllCatsAndCodes());
+				}
 			}
 			
 		} catch (Exception exc) {

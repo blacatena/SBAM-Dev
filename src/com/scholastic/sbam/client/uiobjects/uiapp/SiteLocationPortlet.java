@@ -473,7 +473,7 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 	protected void set(SiteInstance site) {
 		this.site = site;
 		if (site == null) {
-			this.siteUcn = -1;
+//			this.siteUcn = -1;
 			enableEditButton(false);
 		} else {
 			this.siteUcn = site.getUcn();
@@ -497,8 +497,18 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 		if (site == null) {
 			MessageBox.alert("Site not found.", "The requested site was not found.", null);
 			clearFormValues();
+			notesField.setAddMode();
+			notesField.setNote("");
 			statusField.setOriginalValue(true);
 			statusField.setValue(true);
+			if (siteUcn > 0 && siteLocCode != null) {
+				siteLocCodeField.setValue(siteLocCode);
+				if (siteLocCode != null && siteLocCode.equals("main"))
+					descriptionField.setValue("Main location");
+				loadInstitution(siteUcn);
+				loadPreferenceCategories();
+				beginEdit();
+			}
 		} else {
 			
 //			siteLocationIdField.setValue(siteUcn + "-" + siteUcnSuffix + " : " + siteLocCode);

@@ -73,6 +73,7 @@ import com.scholastic.sbam.shared.objects.AuthMethodInstance;
 import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
 import com.scholastic.sbam.shared.objects.DeleteReasonInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
+import com.scholastic.sbam.shared.objects.RemoteSetupUrlInstance;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.objects.UserCacheTarget;
@@ -100,7 +101,8 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	protected InstitutionInstance	createForInstitution;
 	protected String				identificationTip	=	"";
 	
-	protected AuthMethodInstance	jumpToMethod;
+	protected AuthMethodInstance		jumpToMethod;
+	protected RemoteSetupUrlInstance	jumpToRemoteSetupUrl;
 	
 	protected ContentPanel			outerContainer;
 	protected CardLayout			cards;
@@ -1305,12 +1307,27 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		jumpTo();	//	This only does something if the agreement is already loaded
 	}
 
+	public RemoteSetupUrlInstance getJumpToRemoteSetupUrl() {
+		return jumpToRemoteSetupUrl;
+	}
+
+	public void setJumpToRemoteSetupUrl(RemoteSetupUrlInstance jumpToRemoteSetupUrl) {
+		this.jumpToRemoteSetupUrl = jumpToRemoteSetupUrl;
+	}
+
 	public void jumpTo() {
 		if (jumpToMethod != null && agreement != null && agreement.getId() == jumpToMethod.getAgreementId()) {
 			methodsCard.setAgreement(agreement);
 			methodsCard.setFocusInstance(jumpToMethod);
 			cards.setActiveItem(methodsCard);
 			methodsButton.toggle(true);
+			
+			jumpToMethod = null;	/// Once we've done this, don't do it any more
+		} else if (jumpToRemoteSetupUrl != null && agreement != null && agreement.getId() == jumpToRemoteSetupUrl.getAgreementId()) {
+			remoteSetupCard.setAgreement(agreement);
+			remoteSetupCard.setFocusInstance(jumpToRemoteSetupUrl);
+			cards.setActiveItem(remoteSetupCard);
+			remoteSetupButton.toggle(true);
 			
 			jumpToMethod = null;	/// Once we've done this, don't do it any more
 		}

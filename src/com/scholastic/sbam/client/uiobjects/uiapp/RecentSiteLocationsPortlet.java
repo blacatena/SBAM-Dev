@@ -52,8 +52,8 @@ public class RecentSiteLocationsPortlet extends GridSupportPortlet<InstitutionIn
 
 	protected final UserCacheListServiceAsync userCacheListService = GWT.create(UserCacheListService.class);
 	
-	protected ListStore<ModelData>	institutionsStore;
-	protected Grid<ModelData>		institutionsGrid;
+	protected ListStore<ModelData>	siteLocationsStore;
+	protected Grid<ModelData>		siteLocationsGrid;
 //	protected LiveGridView			liveView;
 	
 	protected PagingLoader<PagingLoadResult<UserCacheInstance>> userCacheLoader;
@@ -169,33 +169,34 @@ public class RecentSiteLocationsPortlet extends GridSupportPortlet<InstitutionIn
 		
 		ColumnModel cm = new ColumnModel(columns);  
 
-		institutionsStore = new ListStore<ModelData>(userCacheLoader);
+		siteLocationsStore = new ListStore<ModelData>(userCacheLoader);
 		
-		institutionsGrid = new Grid<ModelData>(institutionsStore, cm);  
-		institutionsGrid.setBorders(false);  
-		institutionsGrid.setAutoExpandColumn("hint");  
+		siteLocationsGrid = new Grid<ModelData>(siteLocationsStore, cm);  
+		siteLocationsGrid.setBorders(false);  
+		siteLocationsGrid.setAutoExpandColumn("hint");  
 //		institutionsGrid.setLoadMask(true);
 //		institutionsGrid.setHeight(200);
-		institutionsGrid.setStripeRows(true);
-		institutionsGrid.setColumnLines(true);
-		institutionsGrid.setHideHeaders(false);
-		institutionsGrid.setWidth(cm.getTotalWidth() + 20);
+		siteLocationsGrid.setStripeRows(true);
+		siteLocationsGrid.setColumnLines(true);
+		siteLocationsGrid.setHideHeaders(false);
+		siteLocationsGrid.setWidth(cm.getTotalWidth() + 20);
 		
 		//	Switch to the display card when a row is selected
-		institutionsGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); 
+		siteLocationsGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); 
 		final AppPortlet thisPortlet = this;  
-		institutionsGrid.getSelectionModel().addListener(Events.SelectionChange,  
+		siteLocationsGrid.getSelectionModel().addListener(Events.SelectionChange,  
 				new Listener<SelectionChangedEvent<ModelData>>() {  
 					public void handleEvent(SelectionChangedEvent<ModelData> be) {  
 						if (be.getSelection().size() > 0) {
 							UserCacheInstance cacheInstance = (UserCacheInstance) ((BeanModel) be.getSelectedItem()).getBean();
-							InstitutionSearchPortlet portlet = (InstitutionSearchPortlet) portletProvider.getPortlet(AppPortletIds.FULL_INSTITUTION_SEARCH);
-							portlet.setFocusUcn(cacheInstance.getIntKey());
-						//	portlet.setFilter(cacheInstance.getHint());
-						//	portletProvider.addPortlet(portlet, 1);
+							SiteLocationPortlet portlet = (SiteLocationPortlet) portletProvider.getPortlet(AppPortletIds.SITE_LOCATION_DISPLAY);
+							portlet.setFromKeyData(cacheInstance.getStrKey());
+							if (portlet.getSiteLocCode() == null || portlet.getSiteLocCode().length() == 0) {
+								portlet.setSiteLocCode("main");
+							}
 							portletProvider.insertPortlet(portlet, portalRow, thisPortlet.getInsertColumn());
-							institutionsGrid.getSelectionModel().deselectAll();
-						} 
+							siteLocationsGrid.getSelectionModel().deselectAll();
+						}
 					}  
 			});
 
@@ -205,9 +206,9 @@ public class RecentSiteLocationsPortlet extends GridSupportPortlet<InstitutionIn
 //		liveView.setRowHeight(32);
 //		institutionsGrid.setView(liveView);
 //		grid.setHeight(550);
-		institutionsGrid.getAriaSupport().setLabelledBy(this.getHeader().getId() + "-label"); 
+		siteLocationsGrid.getAriaSupport().setLabelledBy(this.getHeader().getId() + "-label"); 
 		
-		add(institutionsGrid);
+		add(siteLocationsGrid);
 	}
 	
 	protected void addFilters() {
@@ -218,7 +219,7 @@ public class RecentSiteLocationsPortlet extends GridSupportPortlet<InstitutionIn
 		filters.addFilter(new DateFilter("accessDatetime"));
 		filters.addFilter(new StringFilter("hint"));
 		
-		institutionsGrid.addPlugin(filters);
+		siteLocationsGrid.addPlugin(filters);
 	}
 	
 	/**
