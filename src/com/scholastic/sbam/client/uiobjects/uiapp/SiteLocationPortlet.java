@@ -16,8 +16,10 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -26,6 +28,7 @@ import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
@@ -58,6 +61,7 @@ import com.scholastic.sbam.client.uiobjects.foundation.FieldFactory;
 import com.scholastic.sbam.client.uiobjects.foundation.GridSupportPortlet;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
+import com.scholastic.sbam.shared.objects.AuthMethodInstance;
 import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.PreferenceCategoryInstance;
@@ -87,7 +91,12 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 	protected InstitutionInstance	createForInstitution;
 	protected String				identificationTip	=	"";
 	
-	protected FormPanel				outerContainer;
+	protected AuthMethodInstance	jumpToMethod;
+	
+	protected ContentPanel				outerContainer;
+	protected CardLayout				cards;
+	protected FormPanel					siteCard;
+	protected SiteLocationMethodsCard	methodsCard;
 	
 	protected Timer					dirtyFormListener;
 	
@@ -95,6 +104,10 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 	protected Button				editButton;
 	protected Button				cancelButton;
 	protected Button				saveButton;
+
+	protected ToggleButton			siteButton;
+	protected ToggleButton			methodsButton;
+	protected ToggleButton			contactsButton;
 	
 	protected ToolTipConfig					notesToolTip		= new ToolTipConfig();
 	
@@ -121,6 +134,17 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 	public SiteLocationPortlet() {
 		super(AppPortletIds.AGREEMENT_DISPLAY.getHelpTextId());
 	}
+	
+//	public void setSiteLocation(SiteInstance site) {
+//		this.site = site;
+//		if (site != null)
+//			setSiteLocation(site.getUcn(), site.getUcnSuffix(), site.getSiteLocCode());
+//		if (site == null) {
+//			enableSiteButtons(false);
+//		} else {
+//			enableSiteButtons(true);
+//		}
+//	}
 
 	public void setSiteLocation(int siteUcn, int siteUcnSuffix, String siteLocCode) {
 		this.siteUcn		= siteUcn;
@@ -188,9 +212,20 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 		
 		setThis();
 		
-		outerContainer = getNewOuterFormPanel();
+		outerContainer = new ContentPanel();
+		outerContainer.setBorders(false);
+		outerContainer.setHeaderVisible(false);
+		addPanelSwitchTools();
 		
-		createDisplay();
+		cards = new CardLayout();
+		outerContainer.setLayout(cards);
+
+		siteCard = getNewOuterFormPanel();
+		createDisplayCard();
+		outerContainer.add(siteCard);
+		
+		methodsCard = new SiteLocationMethodsCard();
+		outerContainer.add(methodsCard);
 		
 		add(outerContainer);
 		
@@ -233,7 +268,7 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 		}
 	}
 	
-	private void createDisplay() {
+	private void createDisplayCard() {
 		FormData formData90 = new FormData("-24"); 	//	new FormData("90%");
 
 		//	Required fields
@@ -246,28 +281,28 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 		
 		codeNotesCombo.setSpacing(20);
 		
-//		outerContainer.add(siteLocationIdField, formData90);
+//		siteCard.add(siteLocationIdField, formData90);
 		
 		codeNotesCombo.add(siteLocCodeField);
 		codeNotesCombo.add(notesField);
-		outerContainer.add(codeNotesCombo,    formData90);
-		outerContainer.add(descriptionField, formData90);
+		siteCard.add(codeNotesCombo,    formData90);
+		siteCard.add(descriptionField, formData90);
 
-		outerContainer.add(idTipField, formData90);
-		outerContainer.add(institutionField, formData90);
+		siteCard.add(idTipField, formData90);
+		siteCard.add(institutionField, formData90);
 		
-		outerContainer.add(addressDisplay, formData90); 
-		outerContainer.add(ucnDisplay, formData90);
-		outerContainer.add(customerTypeDisplay, formData90); 
+		siteCard.add(addressDisplay, formData90); 
+		siteCard.add(ucnDisplay, formData90);
+		siteCard.add(customerTypeDisplay, formData90); 
 			
-		outerContainer.add(commissionTypeField, formData90); 
+		siteCard.add(commissionTypeField, formData90); 
 			
 		statusDisplay.setFieldLabel("Status:");
-		outerContainer.add(statusField, formData90);
+		siteCard.add(statusField, formData90);
 		
-		addPreferencesFieldSet(outerContainer, formData90);
+		addPreferencesFieldSet(siteCard, formData90);
 		
-		addEditSaveButtons(outerContainer);
+		addEditSaveButtons(siteCard);
 	}
 	
 	protected void addPreferencesFieldSet(FormPanel formPanel, FormData formData) {
@@ -411,11 +446,11 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 	}
 
 	protected boolean isDirtyForm() {
-		return site == null || outerContainer.isDirty();	//	formColumn1.isDirty() || formColumn2.isDirty();
+		return site == null || siteCard.isDirty();	//	formColumn1.isDirty() || formColumn2.isDirty();
 	}
 	
 	protected void handleDirtyForm() {
-		boolean ready = outerContainer.isValid();
+		boolean ready = siteCard.isValid();
 		
 		if (institutionField.getSelectedValue() == null) { 
 			institutionField.markInvalid("Select an instituion.");
@@ -451,6 +486,92 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 //		this.setSize(grid.getWidth() + 50, 400);  
 	}
 	
+	/**
+	 * Add the toolbar buttons
+	 */
+	protected void addPanelSwitchTools() {
+		
+		final int MIN_BUTTON_WIDTH = 80;
+		String toggleGroup = "site" + System.currentTimeMillis();
+		
+		ToolBar toolBar = new ToolBar();
+		toolBar.setAlignment(HorizontalAlignment.CENTER);
+		toolBar.setBorders(false);
+		toolBar.setSpacing(20);
+		toolBar.setToolTip(UiConstants.getQuickTip("Use these buttons to access detailed information for this site."));
+		
+		siteButton = new ToggleButton("Site and Preferences");
+		siteButton.setMinWidth(MIN_BUTTON_WIDTH);
+		siteButton.setToolTip(UiConstants.getQuickTip("Define and edit the site and its preferences."));
+		IconSupplier.forceIcon(siteButton, IconSupplier.getAgreementIconName());
+		siteButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+				@Override
+				public void componentSelected(ButtonEvent ce) {
+					cards.setActiveItem(siteCard);
+					siteButton.toggle(true);
+				}  
+			});
+		siteButton.setToggleGroup(toggleGroup);
+		toolBar.add(siteButton);
+		
+		methodsButton = new ToggleButton("Methods");
+		methodsButton.setMinWidth(MIN_BUTTON_WIDTH);
+		methodsButton.setToolTip(UiConstants.getQuickTip("Define and edit access methods for this agreement."));
+		IconSupplier.forceIcon(methodsButton, IconSupplier.getAccessMethodIconName());
+		methodsButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+				@Override
+				public void componentSelected(ButtonEvent ce) {
+				//	methodsCard.setAgreementId(agreementId);
+					methodsCard.setSiteLocation(site);
+					cards.setActiveItem(methodsCard);
+					methodsButton.toggle(true);
+				}
+			});
+		methodsButton.setToggleGroup(toggleGroup);
+		toolBar.add(methodsButton);
+		
+//		remoteButton = new ToggleButton("Remote Setup");
+//		remoteButton.setMinWidth(MIN_BUTTON_WIDTH);
+//		remoteButton.setToolTip(UiConstants.getQuickTip("Define and edit any remote setup for this agreement."));
+//		IconSupplier.forceIcon(remoteButton, IconSupplier.getRemoteIconName());
+//		remoteButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+//				@Override
+//				public void componentSelected(ButtonEvent ce) {
+//					remoteButton.toggle(true);
+//				}
+//			});
+//		remoteButton.setToggleGroup(toggleGroup);
+//		toolBar.add(remoteButton);
+		
+		contactsButton = new ToggleButton("Contacts");
+		contactsButton.setMinWidth(MIN_BUTTON_WIDTH);
+		contactsButton.setToolTip(UiConstants.getQuickTip("View, define and edit the contacts for this agreement."));
+		IconSupplier.forceIcon(contactsButton, IconSupplier.getContactsIconName());
+		contactsButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+				@Override
+				public void componentSelected(ButtonEvent ce) {
+//					contactsCard.setAgreementId(agreementId);
+//					contactsCard.setAgreement(agreement);
+//					contactsCard.setBillToInstitution(billToInstitution);
+//					cards.setActiveItem(contactsCard);
+					contactsButton.toggle(true);
+				}
+			});
+		contactsButton.setToggleGroup(toggleGroup);
+		toolBar.add(contactsButton);
+
+		siteButton.toggle(true);
+		enableSiteButtons(site != null);
+		
+		outerContainer.setBottomComponent(toolBar);
+	}
+	
+	protected void enableSiteButtons(boolean enabled) {
+		if (editButton != null) editButton.setEnabled(enabled);
+		if (methodsButton != null) methodsButton.setEnabled(enabled);
+		if (contactsButton != null) contactsButton.setEnabled(enabled);
+	}
+	
 	protected NotesIconButtonField<String> getNotesButtonField() {
 		NotesIconButtonField<String> nibf = new NotesIconButtonField<String>(this) {
 			@Override
@@ -471,15 +592,18 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 	 * @param agreement
 	 */
 	protected void set(SiteInstance site) {
+		
 		this.site = site;
 		if (site == null) {
 //			this.siteUcn = -1;
 			enableEditButton(false);
+			enableSiteButtons(false);
 		} else {
 			this.siteUcn = site.getUcn();
 			this.siteUcnSuffix = site.getUcnSuffix();
 			this.siteLocCode = site.getSiteLocCode();
 			enableEditButton(true);
+			enableSiteButtons(true);
 		}
 		
 		//	Clear all fields from the preferencesFieldSet
@@ -529,7 +653,10 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 			
 			statusDisplay.setValue(AppConstants.getStatusDescription(site.getStatus()));
 			statusField.setValue(AppConstants.STATUS_ACTIVE == site.getStatus());
-			commissionTypeField.setValue(CommissionTypeInstance.obtainModel(site.getCommissionType()));
+			if (site.getCommissionType() == null || site.getCommissionType().getCommissionCode().length() == 0)
+				commissionTypeField.setValue(CommissionTypeInstance.obtainModel(CommissionTypeInstance.getEmptyInstance()));
+			else
+				commissionTypeField.setValue(CommissionTypeInstance.obtainModel(site.getCommissionType()));
 			
 			setPreferenceFields(site);
 			
@@ -552,6 +679,8 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 		updateUserPortlet();	// This is mostly for a "create" so the portlet knows the agreement ID has been set
 		setOriginalValues();
 //		endEdit(false);
+		
+		jumpTo();
 	}
 	
 	protected void setPreferenceFields(SiteInstance site) {
@@ -692,15 +821,16 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 	}
 	
 	public void clearFormValues() {
-		outerContainer.clear();
+		siteCard.clear();
 	}
 	
 	public void resetFormValues() {
-		outerContainer.reset();
+		siteCard.reset();
 	}
 	
 	public void setOriginalValues() {
-		setOriginalValues(outerContainer);
+		if (siteCard != null)
+			setOriginalValues(siteCard);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -719,7 +849,7 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 	}
 	
 	public void enableFields() {
-		for (Field<?> field : outerContainer.getFields()) {
+		for (Field<?> field : siteCard.getFields()) {
 			if (field.getParent() != null && field.getParent() instanceof LockableFieldSet) {
 				LockableFieldSet lfs = (LockableFieldSet) field.getParent();
 				lfs.enableFields(true);
@@ -729,7 +859,7 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 	}
 	
 	public void disableFields() {
-		for (Field<?> field : outerContainer.getFields()) {
+		for (Field<?> field : siteCard.getFields()) {
 //			if (field == codeNotesCombo)
 //				siteLocCodeField.disable();
 //			else
@@ -1048,6 +1178,26 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 			return siteUcn + ":" + siteUcnSuffix + ":" + siteLocCode == null ? "" : siteLocCode;
 		else
 			return siteUcn + ":" + siteUcnSuffix + ":" + (siteLocCode == null ? "" : siteLocCode) + ":" + identificationTip;
+	}
+
+	public AuthMethodInstance getJumpToMethod() {
+		return jumpToMethod;
+	}
+
+	public void setJumpToMethod(AuthMethodInstance jumpToMethod) {
+		this.jumpToMethod = jumpToMethod;
+		jumpTo();
+	}
+
+	public void jumpTo() {
+		if (jumpToMethod != null && site != null && site.getUcn() == jumpToMethod.getUcn()) {
+			methodsCard.setSiteLocation(site);
+			methodsCard.setFocusInstance(jumpToMethod);
+			cards.setActiveItem(methodsCard);
+			methodsButton.toggle(true);
+			
+			jumpToMethod = null;	/// Once we've done this, don't do it any more
+		}
 	}
 
 }

@@ -19,7 +19,6 @@ import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
-import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.RowExpander;
@@ -36,7 +35,6 @@ import com.scholastic.sbam.client.services.UpdateAuthMethodNoteService;
 import com.scholastic.sbam.client.services.UpdateAuthMethodNoteServiceAsync;
 import com.scholastic.sbam.client.services.UpdateAuthMethodService;
 import com.scholastic.sbam.client.services.UpdateAuthMethodServiceAsync;
-import com.scholastic.sbam.client.uiobjects.fields.AgreementSiteInstitutionSearchField;
 import com.scholastic.sbam.client.uiobjects.fields.IpAddressRangeField;
 import com.scholastic.sbam.client.uiobjects.fields.LockableFieldSet;
 import com.scholastic.sbam.client.uiobjects.fields.NotesIconButtonField;
@@ -49,19 +47,18 @@ import com.scholastic.sbam.client.uiobjects.foundation.FormAndGridPanel;
 import com.scholastic.sbam.client.uiobjects.foundation.FormInnerPanel;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
-import com.scholastic.sbam.shared.objects.AgreementInstance;
 import com.scholastic.sbam.shared.objects.AuthMethodInstance;
+import com.scholastic.sbam.shared.objects.GenericCodeInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.MethodIdInstance;
 import com.scholastic.sbam.shared.objects.ProxyInstance;
-import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.SiteInstance;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 public class SiteLocationMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	
-	private static final int DEFAULT_FIELD_WIDTH	=	0;	//250;
+	public static final int DEFAULT_FIELD_WIDTH	=	0;	//250;
 	
 //	private static final String MSG_SITE_REQUIRED = "Select a site location.";
 	
@@ -79,19 +76,16 @@ public class SiteLocationMethodsCard extends FormAndGridPanel<AuthMethodInstance
 	ToggleButton uidButton;
 	ToggleButton urlButton;
 	
-	protected AgreementInstance		agreement;
+	protected SiteInstance			site;
 	protected InstitutionInstance	siteInstitution;
 	protected SiteInstance			saveSiteLocation;
 	protected MethodIdInstance		methodId			=	MethodIdInstance.getEmptyInstance();
 	
 	protected RowExpander			noteExpander;
 
-	protected MultiField<String>			idNotesCombo		= new MultiField<String>("Agreement #");
-	protected LabelField					agreementIdField	= getLabelField();
+	protected MultiField<String>			idNotesCombo		= new MultiField<String>("Site");
+	protected LabelField					siteDisplayField	= getLabelField();
 	protected NotesIconButtonField<String>	notesField			= getNotesButtonField();
-	protected AgreementSiteInstitutionSearchField		institutionField	= getInstitutionField("ucn", "Site", DEFAULT_FIELD_WIDTH, "The institution that will receive the product services through this authentication method.");
-	protected SiteLocationSearchField		siteLocationField	= getSiteLocationField("uniqueKey", "Site Location", DEFAULT_FIELD_WIDTH, "The specific location at the customer site targeted by this authentication method.");
-	protected TextField<String>				ucnDisplay			= getTextField("UCN+");
 	protected CheckBox						approvedCheck		= getCheckBoxField("Approved");
 	protected CheckBox						validatedCheck		= getCheckBoxField("Validated");
 	protected CheckBox						remoteCheck			= getCheckBoxField("Remote");
@@ -138,27 +132,27 @@ public class SiteLocationMethodsCard extends FormAndGridPanel<AuthMethodInstance
 //			"The reason for canceling (deactivating) for this site.",
 //			UiConstants.getCancelReasons(), "cancelReasonCode", "descriptionAndCode");
 	
-	public int getAgreementId() {
+	public int getUcn() {
 		return getFocusId();
 	}
 	
-	public void setAgreementId(int agreementId) {
-		setFocusId(agreementId);
-		if (siteLocationField != null)
-			siteLocationField.setAgreementId(agreementId);
+	public void setUcn(int ucn) {
+		setFocusId(ucn);
 	}
 	
-	public AgreementInstance getAgreement() {
-		return agreement;
+	public SiteInstance getSiteLocation() {
+		return site;
 	}
 
-	public void setAgreement(AgreementInstance agreement) {
-		this.agreement = agreement;
-		setAgreementId(agreement.getId());
+	public void setSiteLocation(SiteInstance site) {
+		this.site = site;
+		setUcn(site.getUcn());
 	}
 
 	public void setAuthMethod(AuthMethodInstance instance) {
 		setFocusInstance(instance);
+		if (instance.getSite() != null)
+			setSiteLocation(instance.getSite());
 	}
 
 	@Override
@@ -191,14 +185,12 @@ public class SiteLocationMethodsCard extends FormAndGridPanel<AuthMethodInstance
 	@Override
 	public void setGridAttributes(Grid<BeanModel> grid) {
 		grid.setAutoExpandColumn("methodDisplay"); 
-		gridStore.setKeyProvider(new SimpleKeyProvider("uniqueKey")); 	
+//		gridStore.setKeyProvider(new SimpleKeyProvider("uniqueKey")); 	
 	}
 
 	@Override
 	public void addGridColumns(List<ColumnConfig> columns) {
 
-//		columns.add(getDisplayColumn("displayUcn",							"UCN+",						100,		false,
-//					"This is the UCN+ for the site."));
 		columns.add(getDisplayColumn("methodDisplay",						"Method",					180));
 		columns.add(getHiddenColumn("ipLoDisplay",							"Low IP",					90));
 		columns.add(getHiddenColumn("ipHiDisplay",							"High IP",					90));
@@ -206,12 +198,6 @@ public class SiteLocationMethodsCard extends FormAndGridPanel<AuthMethodInstance
 		columns.add(getHiddenColumn("password",								"Password",					75));
 		columns.add(getHiddenColumn("userType",								"",							30));
 		columns.add(getHiddenColumn("url",									"URL",						180));
-		columns.add(getDisplayColumn("site.institution.institutionName",	"Institution",				180,
-					"This is the institution name."));
-		columns.add(getDisplayColumn("site.description",					"Location",					100,
-					"This is the description of the location at the site."));
-		columns.add(getHiddenColumn("site.siteLocCode",						"Code",						40,
-					"This is the code for the location at the site."));
 //		columns.add(getDisplayColumn("methodType",							"Type",						40,
 //				"The type of authentication."));
 		columns.add(getDisplayColumn("methodTypeInstance",					"Type",						40,
@@ -233,21 +219,10 @@ public class SiteLocationMethodsCard extends FormAndGridPanel<AuthMethodInstance
 		else
 			if (instance.getDeactivatedDatetime() != null)
 				displayStatus += ", Deactivated " + UiConstants.formatDate(instance.getDeactivatedDatetime());
-		agreementIdField.setValue(AppConstants.appendCheckDigit(instance.getAgreementId()) + " &nbsp;&nbsp;&nbsp;<i>" + displayStatus + "</i>");
-		
-		if (instance.getForUcnSuffix() <= 1)
-			ucnDisplay.setValue(instance.getForUcn() + "");
+		if (instance.getUcnSuffix() <= 1)
+			siteDisplayField.setValue(instance.getUcn() + " " + instance.getSiteLocCode() + " &nbsp;&nbsp;&nbsp;<i>" + displayStatus + "</i>");
 		else
-			ucnDisplay.setValue(instance.getForUcn() + " - " + instance.getForUcnSuffix());
-		
-		institutionField.setAgreementId(getAgreementId());
-		
-		set(instance.getSite().getInstitution());
-//		institutionField.setReadOnly(!instance.isNewRecord());
-		
-		siteLocationField.setFor(instance);
-		siteLocationField.setValue(SiteInstance.obtainModel(instance.getSite()));
-//		siteLocationField.setReadOnly(!instance.isNewRecord());
+			siteDisplayField.setValue(instance.getUcn() + " - " + instance.getUcnSuffix() + " " + instance.getSiteLocCode() + " &nbsp;&nbsp;&nbsp;<i>" + displayStatus + "</i>");
 		
 		validatedCheck.setValue(instance.isValidated());
 		approvedCheck.setValue(instance.isApproved());
@@ -342,14 +317,21 @@ public class SiteLocationMethodsCard extends FormAndGridPanel<AuthMethodInstance
 		
 		//	This is for/shared by the ip, uid and url fields that do async validation based on the method ID
 		methodId.setFrom(MethodIdInstance.getEmptyInstance());
-		methodId.setAgreementId(getAgreementId());
-		methodId.setMethodKey(-1);
 		
-		institutionField.setAgreementId(getAgreementId());
-		agreementIdField.setValue(AppConstants.appendCheckDigit(agreement.getId()) + " &nbsp;&nbsp;&nbsp;<i>New Method</i>");
-		//	Originally, these couldn't be changed on a method because they were part of the key, but now they can
-//		institutionField.setReadOnly(false);
-//		siteLocationField.setReadOnly(false);
+		methodId.setUcn(site.getUcn());
+		methodId.setUcnSuffix(site.getUcnSuffix());
+		methodId.setSiteLocCode(site.getSiteLocCode());
+		methodId.setForUcn(site.getUcn());
+		methodId.setUcnSuffix(site.getUcnSuffix());
+		methodId.setForSiteLocCode(site.getSiteLocCode());
+		
+		methodId.setMethodKey(-1);
+		if (site.getUcnSuffix() <= 1)
+			siteDisplayField.setValue(site.getUcn() + " " + site.getSiteLocCode() + " &nbsp;&nbsp;&nbsp;<i>New Method</i>");
+		else
+			siteDisplayField.setValue(site.getUcn() + " - " + site.getUcnSuffix() + " " + site.getSiteLocCode() + " &nbsp;&nbsp;&nbsp;<i>New Method</i>");
+		
+
 		if (uidButton != null && uidButton.isPressed())
 			uidFieldSet.expand();
 		else if (urlButton != null && urlButton.isPressed())
@@ -369,7 +351,7 @@ public class SiteLocationMethodsCard extends FormAndGridPanel<AuthMethodInstance
 	@Override
 	protected void executeLoader(int id,
 			AsyncCallback<List<AuthMethodInstance>> callback) {
-		authMethodListService.getAuthMethods(id, 0, 0, null, null, AppConstants.STATUS_DELETED,callback);
+		authMethodListService.getAuthMethods(0, site.getUcn(), site.getUcnSuffix(), site.getSiteLocCode(), null, AppConstants.STATUS_DELETED,callback);
 	}
 	
 	@Override
@@ -377,7 +359,7 @@ public class SiteLocationMethodsCard extends FormAndGridPanel<AuthMethodInstance
 	//	super.adjustFormPanelSize(width, height);
 		
 		if (formRow1.isRendered()) {
-			agreementIdField.setWidth( (formRow1.getWidth(true) - formRow1.getLabelWidth()) - 64);
+			siteDisplayField.setWidth( (formRow1.getWidth(true) - formRow1.getLabelWidth()) - 64);
 		}
 		
 		if (formPanel != null && formPanel.isRendered())
@@ -410,17 +392,11 @@ public class SiteLocationMethodsCard extends FormAndGridPanel<AuthMethodInstance
 		formRow2.setPadding(0);
 		formColumn1.setPadding(0);
 		formColumn2.setPadding(0);
-		
-		ucnDisplay.setToolTip(UiConstants.getQuickTip("The ucn for the site."));
 
-		agreementIdField.setReadOnly(true);
-		agreementIdField.setWidth(200);
+		siteDisplayField.setReadOnly(true);
+		siteDisplayField.setWidth(200);
 		idNotesCombo.setSpacing(20);
-		ucnDisplay.setReadOnly(true);
 		urlField.setAllowBlank(false);
-		
-		if (agreement != null)
-			siteLocationField.setAgreementId(agreement.getId());
 		
 		FieldFactory.setStandard(ipRangeField, "");
 		FieldFactory.setStandard(uidPasswordField, "");
@@ -430,12 +406,9 @@ public class SiteLocationMethodsCard extends FormAndGridPanel<AuthMethodInstance
 		idNotesCombo.setWidth(0);
 		
 		notesField.setWidth(0);
-		institutionField.setWidth(0);
-		ucnDisplay.setWidth(0);
-		siteLocationField.setWidth(0);
 		proxyField.setWidth(0);
 		
-		idNotesCombo.add(agreementIdField);	
+		idNotesCombo.add(siteDisplayField);	
 		idNotesCombo.add(notesField);
 		
 		ipFieldSet.setId("IPfs");
@@ -443,7 +416,11 @@ public class SiteLocationMethodsCard extends FormAndGridPanel<AuthMethodInstance
 		uidFieldSet.setId("UIDfs");
 		
 		if (methodId == null) methodId = MethodIdInstance.getEmptyInstance();
-		methodId.setAgreementId(getAgreementId());
+		if (site != null) {
+			methodId.setUcn(site.getUcn());
+			methodId.setUcnSuffix(site.getUcnSuffix());
+			methodId.setSiteLocCode(site.getSiteLocCode());
+		}
 		
 		ipRangeField.setMethodId(methodId);
 		urlField.setMethodId(methodId);
@@ -459,7 +436,7 @@ public class SiteLocationMethodsCard extends FormAndGridPanel<AuthMethodInstance
 		ipFieldSet.setToolTip(UiConstants.getQuickTip("Define authentication by IP address."));
 		
 		ipFieldSet.add(ipRangeField);
-		ipFieldSet.collapse();
+//		ipFieldSet.collapse();
 
 		uidFieldSet.setBorders(true);
 		uidFieldSet.setHeading("User ID and Password");
@@ -490,11 +467,7 @@ public class SiteLocationMethodsCard extends FormAndGridPanel<AuthMethodInstance
 		urlFieldSet.collapse();
 		
 		formRow1.add(idNotesCombo);
-		
-		formColumn1.add(institutionField, formData);
-		formColumn1.add(ucnDisplay, formData);
-		
-		formColumn2.add(siteLocationField, formData);
+
 		formColumn2.add(statusGroup, formData);
 		
 		formRow2.add(ipFieldSet);
@@ -616,98 +589,6 @@ public class SiteLocationMethodsCard extends FormAndGridPanel<AuthMethodInstance
 		
 		return proxyCombo;
 	}
-
-	
-	protected AgreementSiteInstitutionSearchField getInstitutionField(String name, String label, int width, String toolTip) {
-		AgreementSiteInstitutionSearchField instCombo = new AgreementSiteInstitutionSearchField();
-		FieldFactory.setStandard(instCombo, label);
-		instCombo.setAllowBlank(true);
-		instCombo.setAgreementId(getAgreementId());
-		
-		if (toolTip != null)
-			instCombo.setToolTip(toolTip);
-		if (width > 0)
-			instCombo.setWidth(width);
-		instCombo.setDisplayField("institutionName");
-		
-		instCombo.addSelectionChangedListener(new SelectionChangedListener<BeanModel>() {
-
-			@Override
-			public void selectionChanged(SelectionChangedEvent<BeanModel> se) {
-				selectInstitution(se.getSelectedItem());
-			}
-			
-		});
-		
-		return instCombo;
-	}
-	
-	protected void selectInstitution(BeanModel model) {
-		if (model == null) {	// No value selected means leave it as is
-			if (institutionField.getSelectedValue() != null)
-				matchToInstitution( (InstitutionInstance) institutionField.getSelectedValue().getBean() );
-			else
-				if (institutionField.getOriginalValue() != null)
-					matchToInstitution( (InstitutionInstance) institutionField.getOriginalValue().getBean());
-				else
-					matchToInstitution( siteInstitution );
-		} else {
-			InstitutionInstance instance = (InstitutionInstance) model.getBean();
-			matchToInstitution( instance );
-		}
-	}
-	
-	/**
-	 * Set an institution on the form
-	 * @param instance
-	 */
-	protected void set(InstitutionInstance instance) {
-		if (siteInstitution == instance)
-			return;
-		
-		siteInstitution = instance;
-		
-		if (siteInstitution == null) {
-			MessageBox.alert("Institution Not Found", "The Institution for the site was not found.", null);
-			siteInstitution = InstitutionInstance.getEmptyInstance(); 
-		}
-
-		if (institutionField.getSelectedValue() == null || !siteInstitution.equals(institutionField.getSelectedValue().getBean())) {
-			institutionField.setValue(InstitutionInstance.obtainModel(siteInstitution));
-		}
-
-		matchToInstitution(siteInstitution);
-	}
-	
-	/**
-	 * Match the form field values to reflect a selected institution.
-	 * @param institution
-	 */
-	protected void matchToInstitution(InstitutionInstance institution) {
-		
-		if (institution == null || institution.getUcn() == 0) {
-			ucnDisplay.setValue("");
-			siteLocationField.setFor(0, 0, "");
-			setMethodIdFor(0, 0, "");
-			return;
-		}
-		
-		if (focusInstance != null && focusInstance.getForUcn() == institution.getUcn()) {
-			// Same institution as instance, so use the instance UCN
-			siteLocationField.setFor(focusInstance, institution.getInstitutionName());
-			siteLocationField.setValue(SiteInstance.obtainModel(focusInstance.getSite()));
-			setMethodIdFor(focusInstance.getSite().getUcn(), focusInstance.getSite().getUcnSuffix(), focusInstance.getSite().getSiteLocCode());
-		} else {
-			// Different UCN, default to suffix 1
-			siteLocationField.setFor(institution.getUcn(), 1, institution.getInstitutionName());
-			SiteInstance newMain = SiteInstance.getMainInstance(institution.getUcn(), 1);
-			siteLocationField.setValue(SiteInstance.obtainModel(newMain));
-			setMethodIdFor(newMain.getUcn(), newMain.getUcnSuffix(), newMain.getSiteLocCode());
-		}
-		
-		ucnDisplay.setValue(institution.getUcn() + "");
-		
-	}
 	
 	protected void setMethodIdFor(int forUcn, int forUcnSuffix, String forSiteLocCode) {
 		// Since the IP/uid/url fields all share the same method ID instance, this only has to be done for one of them
@@ -727,29 +608,14 @@ public class SiteLocationMethodsCard extends FormAndGridPanel<AuthMethodInstance
 		if (focusInstance == null) {
 			focusInstance = new AuthMethodInstance();
 			focusInstance.setNewRecord(true);
-			focusInstance.setAgreementId(getAgreementId());
-			focusInstance.setUcn(0);
-			focusInstance.setUcnSuffix(0);
-			focusInstance.setSiteLocCode("");
+			focusInstance.setUcn(site.getUcn());
+			focusInstance.setUcnSuffix(site.getUcnSuffix());
+			focusInstance.setSiteLocCode(site.getSiteLocCode());
 		}
-		
-		InstitutionInstance institution = (institutionField.getSelectedValue() == null) ? null : (InstitutionInstance) institutionField.getSelectedValue().getBean();
-		if (institution == null) {
-			focusInstance.setForUcn(0);
-			focusInstance.setForUcnSuffix(0);
-			focusInstance.setForSiteLocCode("");
-		} else {
-			if (focusInstance.getForUcn() != institution.getUcn()) {
-				focusInstance.setForUcn(institution.getUcn());
-				focusInstance.setForUcnSuffix(1);
-			}
-			SiteInstance site = (siteLocationField.getSelectedValue() == null) ? null : (SiteInstance) siteLocationField.getSelectedValue().getBean();
-			if (site == null) {
-				MessageBox.alert("Unexpected Error", "No site location is selected for this authentication method.", null);
-				return;
-			}
-			focusInstance.setForSiteLocCode(site.getSiteLocCode());
-		}
+
+		focusInstance.setForUcn(focusInstance.getUcn());
+		focusInstance.setForUcnSuffix(focusInstance.getUcnSuffix());
+		focusInstance.setForSiteLocCode(focusInstance.getSiteLocCode());
 		
 		if (focusInstance.isNewRecord()) {
 			if (ipFieldSet.isExpanded()) {
@@ -801,7 +667,7 @@ public class SiteLocationMethodsCard extends FormAndGridPanel<AuthMethodInstance
 						if (caught instanceof IllegalArgumentException)
 							MessageBox.alert("Alert", caught.getMessage(), null);
 						else {
-							MessageBox.alert("Alert", "Agreement authentication method update failed unexpectedly.", null);
+							MessageBox.alert("Alert", "Site authentication method update failed unexpectedly.", null);
 							System.out.println(caught.getClass().getName());
 							System.out.println(caught.getMessage());
 						}
@@ -810,23 +676,28 @@ public class SiteLocationMethodsCard extends FormAndGridPanel<AuthMethodInstance
 					}
 
 					public void onSuccess(UpdateResponse<AuthMethodInstance> updateResponse) {
-						AuthMethodInstance updatedAuthMethod = (AuthMethodInstance) updateResponse.getInstance();
-						if (updatedAuthMethod.isNewRecord()) {
-							updatedAuthMethod.setNewRecord(false);
-							grid.getStore().insert(AuthMethodInstance.obtainModel(updatedAuthMethod), 0);
-						}
 						
-						focusInstance.setNewRecord(false);
+						AuthMethodInstance updatedAuthMethod = (AuthMethodInstance) updateResponse.getInstance();
+						if (updatedAuthMethod.getMethodTypeInstance() == null) {
+							updatedAuthMethod.setMethodTypeInstance((GenericCodeInstance) UiConstants.getAuthMethodTypes().findModel(updatedAuthMethod.getMethodType()).getBean());
+						}
 						focusInstance.setValuesFrom(updatedAuthMethod);
 						setFormFromInstance(updatedAuthMethod);	//	setFormFieldValues(updatedAuthMethod);
 						
-						//	This puts the grid in synch
-						BeanModel gridModel = grid.getStore().findModel(focusInstance.getUniqueKey());
-						if (gridModel != null) {
-							AuthMethodInstance matchInstance = gridModel.getBean();
-							matchInstance.setValuesFrom(focusInstance);
-							grid.getStore().update(gridModel);
+						if (updatedAuthMethod.isNewRecord()) {
+							updatedAuthMethod.setNewRecord(false);
+							grid.getStore().insert(AuthMethodInstance.obtainModel(updatedAuthMethod), 0);
+						} else {
+							//	This puts the grid in synch
+							BeanModel gridModel = grid.getStore().findModel(focusInstance.getUniqueKey());
+							if (gridModel != null) {
+								AuthMethodInstance matchInstance = gridModel.getBean();
+								matchInstance.setValuesFrom(focusInstance);
+								grid.getStore().update(gridModel);
+							}			
 						}
+						
+						focusInstance.setNewRecord(false);	
 						
 						editButton.enable();
 						newButton.enable();
@@ -852,7 +723,7 @@ public class SiteLocationMethodsCard extends FormAndGridPanel<AuthMethodInstance
 						if (caught instanceof IllegalArgumentException)
 							MessageBox.alert("Alert", caught.getMessage(), null);
 						else {
-							MessageBox.alert("Alert", "Agreement athentication method note update failed unexpectedly.", null);
+							MessageBox.alert("Alert", "Site athentication method note update failed unexpectedly.", null);
 							System.out.println(caught.getClass().getName());
 							System.out.println(caught.getMessage());
 						}
@@ -1035,6 +906,8 @@ public class SiteLocationMethodsCard extends FormAndGridPanel<AuthMethodInstance
 			uidFieldSet.expand();
 		} else if (focusInstance.methodIsUrl() && urlFieldSet != null) {
 			urlFieldSet.expand();
+		} else if (ipFieldSet != null){
+			ipFieldSet.expand();
 		}
 	}
 }

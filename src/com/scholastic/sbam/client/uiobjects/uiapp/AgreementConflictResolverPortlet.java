@@ -414,6 +414,8 @@ public class AgreementConflictResolverPortlet extends GridSupportPortlet<AuthMet
 								portlet.set(methodConflict.getOwningSite());
 								portlet.setIdentificationTip("Found for " + methodConflict.getMethodValue() + "");
 								portletProvider.insertPortlet(portlet, portalRow, thisPortlet.getInsertColumn());
+								if (portlet != null)
+									portlet.setJumpToMethod(methodConflict.getAuthMethod());
 							} else if (methodConflict.getRemoteSetupUrl() != null) {
 								AgreementPortlet portlet = (AgreementPortlet) portletProvider.getPortlet(AppPortletIds.AGREEMENT_DISPLAY);
 //								portlet.setJumpToMethod(methodConflict.getAuthMethod());

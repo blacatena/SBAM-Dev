@@ -474,7 +474,7 @@ public class AgreementLinkPortlet extends GridSupportPortlet<AgreementLinkInstan
 	
 	/**
 	 * Set an agreement on the form, and load its institution
-	 * @param agreement
+	 * @param site
 	 */
 	protected void set(AgreementLinkInstance agreementLink) {
 		this.agreementLink = agreementLink;

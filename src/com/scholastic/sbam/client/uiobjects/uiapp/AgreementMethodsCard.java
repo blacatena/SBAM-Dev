@@ -51,6 +51,7 @@ import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.AgreementInstance;
 import com.scholastic.sbam.shared.objects.AuthMethodInstance;
+import com.scholastic.sbam.shared.objects.GenericCodeInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.MethodIdInstance;
 import com.scholastic.sbam.shared.objects.ProxyInstance;
@@ -810,7 +811,12 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 					}
 
 					public void onSuccess(UpdateResponse<AuthMethodInstance> updateResponse) {
+						
 						AuthMethodInstance updatedAuthMethod = (AuthMethodInstance) updateResponse.getInstance();
+						if (updatedAuthMethod.getMethodTypeInstance() == null) {
+							updatedAuthMethod.setMethodTypeInstance((GenericCodeInstance) UiConstants.getAuthMethodTypes().findModel(updatedAuthMethod.getMethodType()).getBean());
+						}
+						
 						if (updatedAuthMethod.isNewRecord()) {
 							updatedAuthMethod.setNewRecord(false);
 							grid.getStore().insert(AuthMethodInstance.obtainModel(updatedAuthMethod), 0);

@@ -1313,6 +1313,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 
 	public void setJumpToRemoteSetupUrl(RemoteSetupUrlInstance jumpToRemoteSetupUrl) {
 		this.jumpToRemoteSetupUrl = jumpToRemoteSetupUrl;
+		jumpTo();
 	}
 
 	public void jumpTo() {

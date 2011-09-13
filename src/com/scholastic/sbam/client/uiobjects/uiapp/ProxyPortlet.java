@@ -479,7 +479,7 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 	
 	/**
 	 * Set an agreement on the form, and load its institution
-	 * @param agreement
+	 * @param site
 	 */
 	protected void set(ProxyInstance proxy) {
 		this.proxy = proxy;
