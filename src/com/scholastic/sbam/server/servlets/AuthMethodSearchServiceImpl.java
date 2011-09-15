@@ -8,9 +8,11 @@ import com.scholastic.sbam.client.services.AuthMethodSearchService;
 import com.scholastic.sbam.server.database.codegen.Agreement;
 import com.scholastic.sbam.server.database.codegen.AuthMethod;
 import com.scholastic.sbam.server.database.codegen.Institution;
+import com.scholastic.sbam.server.database.codegen.Site;
 import com.scholastic.sbam.server.database.objects.DbAgreement;
 import com.scholastic.sbam.server.database.objects.DbAuthMethod;
 import com.scholastic.sbam.server.database.objects.DbInstitution;
+import com.scholastic.sbam.server.database.objects.DbSite;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.server.fastSearch.InstitutionCache;
 import com.scholastic.sbam.server.fastSearch.InstitutionCache.InstitutionCacheConflict;
@@ -20,6 +22,7 @@ import com.scholastic.sbam.server.validation.AppUrlConflictDetector;
 import com.scholastic.sbam.shared.objects.AgreementInstance;
 import com.scholastic.sbam.shared.objects.AuthMethodInstance;
 import com.scholastic.sbam.shared.objects.AuthMethodTuple;
+import com.scholastic.sbam.shared.objects.SiteInstance;
 import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
 import com.scholastic.sbam.shared.security.SecurityManager;
 import com.scholastic.sbam.shared.util.AppConstants;
@@ -40,7 +43,7 @@ public class AuthMethodSearchServiceImpl extends AuthenticatedServiceServlet imp
 
 		String filter	= config.get("filter")   != null ? config.get("filter").toString() : null;
 		
-		boolean includeConflicts = config.get("conflicts") != null && config.get("conflicts").toString().equalsIgnoreCase("y") ? true : false;
+		boolean includeConflicts = (config.get("conflicts") != null && config.get("conflicts").toString().equalsIgnoreCase("y")) ? true : false;
 
 		if (filter				== null)
 			return new SynchronizedPagingLoadResult<AuthMethodTuple>(list, 0, 0, syncId); 
@@ -52,7 +55,11 @@ public class AuthMethodSearchServiceImpl extends AuthenticatedServiceServlet imp
 			AppConstants.TypedTerms typedTerms = AppConstants.parseTypedFilterTerms(filter, true);
 			messages = typedTerms.getMessages();
 			
-			List<Object []> tuples = DbAuthMethod.findFiltered(typedTerms, AppConstants.STATUS_DELETED);
+			List<Object []> tuples;
+			if (includeConflicts)	
+				tuples = DbAuthMethod.findFilteredAll(typedTerms, AppConstants.STATUS_DELETED);
+			else
+				tuples = DbAuthMethod.findFiltered(typedTerms, AppConstants.STATUS_DELETED);
 			
 			int loadLimit = AppConstants.STANDARD_LOAD_LIMIT;
 			if (config.get("limit") != null && config.get("limit") instanceof Integer)
@@ -64,16 +71,33 @@ public class AuthMethodSearchServiceImpl extends AuthenticatedServiceServlet imp
 			
 			for (Object [] objects : tuples) {
 
-				AgreementInstance 	agreement	= DbAgreement    .getInstance((Agreement) objects [0]);
+				AgreementInstance 	agreement	= null;
+				SiteInstance		site		= null;
+				
+				if(objects [0] != null) 
+					agreement	= DbAgreement    .getInstance((Agreement) objects [0]);
 				AuthMethodInstance	authMethod	= DbAuthMethod.getInstance((AuthMethod) objects [1]);
+				if(objects.length > 2 && objects [2] != null) 
+					site		= DbSite	    .getInstance((Site) objects [2]);
 				
 				setDescriptions(authMethod);
-				setDescriptions(agreement);
-				setInstitution(agreement);
+				if (agreement != null) {
+					setDescriptions(agreement);
+					setInstitution(agreement);
+				}
+				if (site != null) {
+					setDescriptions(site);
+				}
 					
-				AuthMethodTuple tuple = new AuthMethodTuple(agreement, authMethod);
+				AuthMethodTuple tuple	= null;
+				if (agreement != null)
+					tuple = new AuthMethodTuple(agreement, authMethod);
+				else if (site != null)
+					tuple = new AuthMethodTuple(site, authMethod);
+				else
+					tuple = new AuthMethodTuple(authMethod);
 				
-				if (filterQualified(tuple, typedTerms)) {
+				if ( tuple != null && filterQualified(tuple, typedTerms)) {
 					if (includeConflicts) {
 						includeConflicts(tuple);
 					}
@@ -89,6 +113,10 @@ public class AuthMethodSearchServiceImpl extends AuthenticatedServiceServlet imp
 		HibernateUtil.closeSession();
 		
 		return new SynchronizedPagingLoadResult<AuthMethodTuple>(list, 0, list.size(), syncId, messages);
+	}
+
+	private void setDescriptions(SiteInstance site) {
+		DbSite.setDescriptions(site);
 	}
 
 	private void setDescriptions(AgreementInstance agreement) {
@@ -112,6 +140,8 @@ public class AuthMethodSearchServiceImpl extends AuthenticatedServiceServlet imp
 	}
 	
 	protected boolean filterQualified(AuthMethodTuple tuple, AppConstants.TypedTerms typedTerms) {
+		if (tuple == null)
+			return false;
 		//	Test for search terms
 		
 		//	Have to find each word somewhere
@@ -149,7 +179,15 @@ public class AuthMethodSearchServiceImpl extends AuthenticatedServiceServlet imp
 			if (tuple.getAuthMethod().getPassword().toLowerCase().contains(term))
 				return true;
 		}
-		if (tuple.getAgreement().getInstitution() != null) {
+		if (tuple.getAgreement() != null && tuple.getAgreement().getInstitution() != null) {
+			if (tuple.getAgreement().getInstitution().getInstitutionName().toLowerCase().contains(term))
+				return true;
+			if (tuple.getAgreement().getInstitution().getCity().toLowerCase().contains(term))
+				return true;
+			if (tuple.getAgreement().getInstitution().getZip().toLowerCase().contains(term))
+				return true;
+		}
+		if (tuple.getOwningSite() != null && tuple.getOwningSite().getInstitution() != null) {
 			if (tuple.getAgreement().getInstitution().getInstitutionName().toLowerCase().contains(term))
 				return true;
 			if (tuple.getAgreement().getInstitution().getCity().toLowerCase().contains(term))

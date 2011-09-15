@@ -507,24 +507,52 @@ public class AgreementConflictResolverPortlet extends GridSupportPortlet<AuthMet
 		updateUserPortlet();
 
 		methodValueField.setValue(focusMethodValue);
-		agreementIdField.setValue(focusAuthMethod.getAgreement().getIdCheckDigit());
-		agreementTypeField.setValue(focusAuthMethod.getAgreement().getAgreementType().getDescriptionAndCode());
-		ucnField.setValue(focusAuthMethod.getAgreement().getBillUcn());
+		if (focusAuthMethod.getAgreement() == null) {
+			agreementIdField.setValue("Site Method");
+			agreementTypeField.setValue("");
+			ucnField.setValue(focusAuthMethod.getAuthMethod().getUcn());
+		} else {
+			agreementIdField.setValue(focusAuthMethod.getAgreement().getIdCheckDigit());
+			agreementTypeField.setValue(focusAuthMethod.getAgreement().getAgreementType().getDescriptionAndCode());
+			ucnField.setValue(focusAuthMethod.getAgreement().getBillUcn());
+		}
 		
-		if (focusAuthMethod.getAgreement().getInstitution() == null) {
+		if (focusAuthMethod.getAgreement() != null) {
+			if (focusAuthMethod.getAgreement().getInstitution() == null) {
+				addressField.setValue("");
+				altIds.setValue("");
+				customerTypeField.setValue("");
+			} else {
+				addressField.setValue(focusAuthMethod.getAgreement().getInstitution().getHtmlAddress());
+				if (focusAuthMethod.getAgreement().getInstitution().getAlternateIds() == null 
+				||  focusAuthMethod.getAgreement().getInstitution().getAlternateIds().length() == 0)
+					altIds.setValue("None");
+				else
+					altIds.setValue(focusAuthMethod.getAgreement().getInstitution().getAlternateIds().replace(",", ", "));
+				customerTypeField.setValue(focusAuthMethod.getAgreement().getInstitution().getPublicPrivateDescription() + " / " + 
+						focusAuthMethod.getAgreement().getInstitution().getGroupDescription() + " &rArr; " + 
+						focusAuthMethod.getAgreement().getInstitution().getTypeDescription());
+			}
+		} else if (focusAuthMethod.getOwningSite() != null) {
+			if (focusAuthMethod.getOwningSite().getInstitution() == null) {
+				addressField.setValue("");
+				altIds.setValue("");
+				customerTypeField.setValue("");
+			} else {
+				addressField.setValue(focusAuthMethod.getOwningSite().getInstitution().getHtmlAddress());
+				if (focusAuthMethod.getOwningSite().getInstitution().getAlternateIds() == null 
+				||  focusAuthMethod.getOwningSite().getInstitution().getAlternateIds().length() == 0)
+					altIds.setValue("None");
+				else
+					altIds.setValue(focusAuthMethod.getOwningSite().getInstitution().getAlternateIds().replace(",", ", "));
+				customerTypeField.setValue(focusAuthMethod.getOwningSite().getInstitution().getPublicPrivateDescription() + " / " + 
+						focusAuthMethod.getOwningSite().getInstitution().getGroupDescription() + " &rArr; " + 
+						focusAuthMethod.getOwningSite().getInstitution().getTypeDescription());
+			}
+		} else {
 			addressField.setValue("");
 			altIds.setValue("");
 			customerTypeField.setValue("");
-		} else {
-			addressField.setValue(focusAuthMethod.getAgreement().getInstitution().getHtmlAddress());
-			if (focusAuthMethod.getAgreement().getInstitution().getAlternateIds() == null 
-			||  focusAuthMethod.getAgreement().getInstitution().getAlternateIds().length() == 0)
-				altIds.setValue("None");
-			else
-				altIds.setValue(focusAuthMethod.getAgreement().getInstitution().getAlternateIds().replace(",", ", "));
-			customerTypeField.setValue(focusAuthMethod.getAgreement().getInstitution().getPublicPrivateDescription() + " / " + 
-					focusAuthMethod.getAgreement().getInstitution().getGroupDescription() + " &rArr; " + 
-					focusAuthMethod.getAgreement().getInstitution().getTypeDescription());
 		}
 
 		conflictsGrid.mask("Loading conflicts...");

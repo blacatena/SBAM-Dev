@@ -402,6 +402,154 @@ public class DbAuthMethod extends HibernateAccessor {
 		return objects;
 	}
 	
+    public static List<Object []> findFilteredAll(AppConstants.TypedTerms typedTerms, char neStatus) {
+    	return findFilteredAll(typedTerms, true, neStatus);
+    }
+	
+    public static List<Object []> findFilteredAll(AppConstants.TypedTerms typedTerms, boolean doBoolean, char neStatus) {
+    	
+    	String sqlQuery = "SELECT {agreement.*}, {auth_method.*}, {site.*} FROM auth_method" +
+    	
+    	" LEFT JOIN site ON auth_method.ucn = site.ucn AND auth_method.ucn_suffix = site.ucn_suffix AND " +
+    	" (auth_method.site_loc_code = null or auth_method.site_loc_code = '' or auth_method.site_loc_code = site.site_loc_code)" +
+    	
+    	" LEFT JOIN agreement ON auth_method.agreement_id > 0 AND agreement.id = auth_method.agreement_id " + 
+		
+		" WHERE auth_method.status <> '" + neStatus + "' " +
+		" AND (agreement.`status` is null or agreement.`status` <> 'X') " +
+		" AND (site.`status` is null or site.`status` <> 'X') ";
+
+    	sqlQuery += " AND ( /* 1 */ ";	//	-->1
+    	if (typedTerms.getIps().size() > 0) {
+    		sqlQuery += " ( /* 2a */ ";	// -->2
+    		
+    		/* Anything that qualifies by IP any range */
+    		int ipCount = 0;
+    		for (Long [] ipRange : typedTerms.getIps()) {
+    			String ipRangeCode = IpAddressInstance.getCommonIpRangeCode(ipRange [0], ipRange [1]);
+    			if (ipCount > 0)
+    				sqlQuery += " OR ";
+    			
+    			sqlQuery += " ( /* 3a */ "; // -->3
+    			sqlQuery += "(auth_method.ip_range_code in ("; // -->4
+    			
+    			if (ipRangeCode.length() > 1) {
+	    			for (int i = 1; i < ipRangeCode.length(); i++) {
+	    				if (i > 1)
+	    					sqlQuery += ",";
+	    				sqlQuery += "'" + ipRangeCode.substring(0,i) + "'";
+	    			}
+	    			
+	    			sqlQuery += ") OR ";
+    			}
+    			sqlQuery += " auth_method.ip_range_code like '";
+    			sqlQuery += ipRangeCode;
+    			sqlQuery += "%' ) AND ip_lo <= "; // <--4
+    			sqlQuery += ipRange [1];
+    			sqlQuery += " AND ip_hi >= ";
+    			sqlQuery += ipRange [0];
+    			sqlQuery += ") /* 3a */ ";	// <--3
+    			
+    			ipCount++;
+    		}
+//    		sqlQuery += " ) /* 2a */ "; // <--2
+    		
+//    		if (typedTerms.getNumbers().size() > 0) {
+//    			sqlQuery += " AND ( /* 3b */ ";	// -->3
+//    			
+//    			int termCount = 0;
+//    			for (String number : typedTerms.getNumbers()) {
+//        			if (termCount > 0)
+//        				sqlQuery += " OR ";
+//        			sqlQuery += "agreement.id like '";
+//        			sqlQuery += number;
+//        			sqlQuery += "%'";
+//        			termCount++;
+//    			}
+//    			
+//    			sqlQuery += ") /* 3b */ ";	//	<--3
+//    		}
+    		
+    		sqlQuery += " ) /* 2a */ ";	// <--2
+    	}
+    	
+    	if (typedTerms.getWords().size() > 0 || typedTerms.getNumbers().size() > 0) {
+    		
+    		StringBuffer fullTextMatch = new StringBuffer();
+    		int termCount = 0;
+    		if (typedTerms.getIps().size() > 0)
+    			sqlQuery += " OR ";
+    		
+    		/* Anything with either the word in the url, or the user ID starting with the word */
+    		sqlQuery += " ( /* 2b */ ";	// -->2
+    		for (String word : typedTerms.getWords()) {
+    			if (termCount > 0)
+    				sqlQuery += " OR ";
+    			word = word.replace("'", "''");
+    			if (doBoolean && !word.startsWith("+"))
+    				fullTextMatch.append("+");
+    			fullTextMatch.append(word);
+    			if (doBoolean && !word.endsWith("*"))
+    				fullTextMatch.append("*");
+    			fullTextMatch.append(" ");
+    			sqlQuery += " ( url > ' ' AND ";
+    			sqlQuery += " url like '%";
+    			sqlQuery += word;
+    			sqlQuery += "%') OR (user_id like '";
+    			sqlQuery += word;
+    			sqlQuery += "%') ";
+    			termCount++;
+    		}
+    		
+    		/* Anything with a number in the URL or the user ID starting with the number */
+    		for (String number : typedTerms.getNumbers()) {
+    			if (termCount > 0)
+    				sqlQuery += " OR ";
+    			if (doBoolean && !number.startsWith("+"))
+    				fullTextMatch.append("+");
+    			fullTextMatch.append(number);
+    			if (doBoolean && !number.endsWith("*"))
+    				fullTextMatch.append("*");
+    			fullTextMatch.append(" ");
+    			sqlQuery += " ( url > ' ' AND ";
+    			sqlQuery += " url like '%";
+    			sqlQuery += number;
+    			sqlQuery += "%') OR (user_id like '";
+    			sqlQuery += number;
+    			sqlQuery += "%') ";
+    			termCount++;
+    		}
+    		
+    		/* Anything with all of the words and numbers in the note */
+    		if (fullTextMatch.length() > 0) {
+    			if (termCount > 0)
+        			sqlQuery += " OR ";
+        		if (doBoolean)
+	    			sqlQuery += "MATCH (auth_method.note) AGAINST ('" + fullTextMatch + "' IN BOOLEAN MODE ) ";
+	    		else
+	        		sqlQuery += "MATCH (auth_method.note) AGAINST ('" + fullTextMatch + "') ";
+    		}
+	    		
+    		sqlQuery += ") /* 2b */";	// <--2
+    	}
+    	
+    	sqlQuery += ") /* 1 */ ";	// <--1
+    	
+ //   	System.out.println(sqlQuery);
+    	        	
+		sqlQuery += " order by auth_method.agreement_id, auth_method.ucn, auth_method.ip_lo, auth_method.ip_hi, auth_method.user_id, auth_method.password, auth_method.url";
+		
+		SQLQuery query = sessionFactory.getCurrentSession().createSQLQuery(sqlQuery);
+		
+		query.addEntity("agreement",	getObjectReference("Agreement"));
+		query.addEntity("auth_method",	getObjectReference("AuthMethod"));
+		query.addEntity("site",			getObjectReference("Site"));
+		
+		@SuppressWarnings("unchecked")
+		List<Object []> objects = query.list();
+		return objects;
+	}
+	
 	public static List<Object []> findByNote(String filter, boolean doBoolean, char status, char neStatus, String sortField, SortDir sortDirection) {
         try
         {

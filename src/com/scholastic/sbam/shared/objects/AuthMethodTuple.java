@@ -23,6 +23,16 @@ public class AuthMethodTuple implements BeanModelTag, IsSerializable, UserCacheT
 
 	public AuthMethodTuple() {
 	}
+	public AuthMethodTuple(AuthMethodInstance authMethod) {
+		this.agreement	= null;
+		this.authMethod	= authMethod;
+		this.owningSite = null;
+	}
+	public AuthMethodTuple(SiteInstance owningSite, AuthMethodInstance authMethod) {
+		this.agreement	= null;
+		this.authMethod	= authMethod;
+		this.owningSite = owningSite;
+	}
 	public AuthMethodTuple(AgreementInstance agreement, AuthMethodInstance authMethod) {
 		this.agreement	= agreement;
 		this.authMethod	= authMethod;
