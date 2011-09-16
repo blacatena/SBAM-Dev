@@ -106,6 +106,8 @@ public class AppPortletProvider {
 			portlet = new AgreementLinkPortlet();
 		else if (id == AppPortletIds.AGREEMENT_LINK_SEARCH)
 			portlet = new AgreementLinkSearchPortlet();
+		else if (id == AppPortletIds.HELP_VIEWER)
+			portlet = new HelpPortlet();
 		else if (id == AppPortletIds.PROXY_DISPLAY)
 			portlet = new ProxyPortlet();
 		else if (id == AppPortletIds.PROXY_SEARCH)

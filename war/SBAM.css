@@ -165,6 +165,10 @@ a.pdocImgLink {
 	background: transparent !important;
 }
 
+ .help-portlet {
+	background-color: #FBEBDB  !important;
+ }
+
 /* Special style to replace forms with white backgrounds with something more subtle */
 .x-portlet .x-panel-body .subtle-form {
 	background-color: #FBEBDB  !important;

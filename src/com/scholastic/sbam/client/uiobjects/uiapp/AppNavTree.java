@@ -160,7 +160,7 @@ public class AppNavTree {
 	  root.add(creates);
 	  root.add(searches);
 //	  root.add(new SelectionTreeNode("Portlet Manager", IconSupplier.getPortletsIconName()));
-	  root.add(new SelectionTreeNode("Help", IconSupplier.getHelpIconName()));
+	  root.add(new SelectionTreeNode("Help", AppPortletIds.HELP_VIEWER));
 //	  root.add(agreements);
 
 	  return root;

@@ -89,6 +89,12 @@ public enum AppPortletIds {
 				"AgreementTermSearch",
 				AgreementTermSearchPortlet.class.getName()
 			),
+	HELP_VIEWER				(
+				"Help",
+				IconSupplier.getHelpIconName(),
+				"HelpViewer"	,
+				HelpPortlet.class.getName()
+			),
 	PROXY_DISPLAY					(
 				"Proxy Display",
 				IconSupplier.getProxyIconName(),
