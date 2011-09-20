@@ -17,6 +17,9 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
  */
 public class IconSupplier {
 	
+	public static String FULL_COLOR_PATH = "resources/images/icons/colorful/";
+	public static String MONOCHROME_PATH = "resources/images/icons/monochrome/";
+	
 	public static boolean BUTTON_ICONS = false;
 	public static boolean HEADER_ICONS = true;
 	public static boolean TAB_ICONS    = true;
@@ -450,11 +453,19 @@ public class IconSupplier {
 	}
 	
 	public static String getColorfulIconPath(String iconName) {
-		return "resources/images/icons/colorful/" + iconName;
+		if (iconName.startsWith(FULL_COLOR_PATH))
+			return iconName;
+		if (iconName.startsWith(MONOCHROME_PATH))
+			iconName = iconName.substring(MONOCHROME_PATH.length());
+		return FULL_COLOR_PATH + iconName;
 	}
 	
 	public static String getMonochromeIconPath(String iconName) {
-		return "resources/images/icons/monochrome/" + iconName;
+		if (iconName.startsWith(MONOCHROME_PATH))
+			return iconName;
+		if (iconName.startsWith(FULL_COLOR_PATH))
+			iconName = iconName.substring(FULL_COLOR_PATH.length());
+		return MONOCHROME_PATH + iconName;
 	}
 	
 	public static AbstractImagePrototype getHeaderIcon(String iconName) {

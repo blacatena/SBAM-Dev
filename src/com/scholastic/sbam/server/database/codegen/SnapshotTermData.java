@@ -1,6 +1,6 @@
 package com.scholastic.sbam.server.database.codegen;
 
-// Generated Aug 1, 2011 6:30:58 PM by Hibernate Tools 3.2.4.GA
+// Generated Sep 20, 2011 2:35:37 PM by Hibernate Tools 3.2.4.GA
 
 import java.math.BigDecimal;
 import java.util.Date;

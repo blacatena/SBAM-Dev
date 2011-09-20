@@ -12,6 +12,16 @@ public class HelpPortlet extends AppPortlet {
 	public HelpPortlet() {
 		super(AppPortletIds.HELP_VIEWER.getHelpTextId());
 	}
+
+	@Override
+	public String getPresenterToolTip() {
+		return "Use this functionality to browse the online help text.";
+	}
+	
+	@Override
+	public String getShortPortletName() {
+		return "Help";
+	}
 	
 	@Override
 	protected void onRender(Element parent, int index) {
@@ -19,6 +29,7 @@ public class HelpPortlet extends AppPortlet {
 		
 		setHeight(550);
 		setLayout(new FitLayout());
+		setHeading("Help");
 		
 		helpDialog = new HelpTextDialog(currentPage);
 		helpDialog.setFrame(false);

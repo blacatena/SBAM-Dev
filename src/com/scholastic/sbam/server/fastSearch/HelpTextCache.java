@@ -143,7 +143,7 @@ public class HelpTextCache implements Runnable {
 			// We don't need the stop words map anymore
 			stopWords = null;
 
-			System.out.println("Loaded.");
+			System.out.println("Loaded " + index.size() + " help pages.");
 			Runtime.getRuntime().gc();
 			System.out.println("Cleaned.");
 			
