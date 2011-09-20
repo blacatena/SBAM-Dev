@@ -1,9 +1,6 @@
 package com.scholastic.sbam.client.uiobjects.uiprofile;
 
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
@@ -13,6 +10,7 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.UpdateUserPasswordService;
 import com.scholastic.sbam.client.services.UpdateUserPasswordServiceAsync;
@@ -27,6 +25,8 @@ public class ProfilePanel extends LayoutContainer implements AppSleeper {
 	protected TextField<String>		oldPasswordField;
 	protected TextField<String>		passwordField;
 	protected TextField<String>		passwordConfirm;
+	
+	Timer		dirtyListenTimer;
 	
 	@Override
 	public void onRender(Element element, int index) {
@@ -43,7 +43,6 @@ public class ProfilePanel extends LayoutContainer implements AppSleeper {
 			@Override
 			public void onClick(ComponentEvent ce) {
 				changePassword();
-				changeButton.disable();
 			}
 		};
 		changeButton.disable();
@@ -56,15 +55,7 @@ public class ProfilePanel extends LayoutContainer implements AppSleeper {
 		oldPasswordLabel.setStyleAttribute("padding-right", "10px");
 		
 		oldPasswordField = new TextField<String>();
-//		oldPasswordField.setMinLength(6);
-		oldPasswordField.addListener(Events.OnChange, new Listener<BaseEvent>() {
-
-			@Override
-			public void handleEvent(BaseEvent be) {
-				validatePasswordFields();
-			}
-			
-		});
+		oldPasswordField.setPassword(true);
 		
 
 		LabelField passwordLabel = new LabelField("New Password:");
@@ -73,15 +64,7 @@ public class ProfilePanel extends LayoutContainer implements AppSleeper {
 		passwordLabel.setStyleAttribute("padding-right", "10px");
 		
 		passwordField = new TextField<String>();
-//		passwordField.setMinLength(6);
-		passwordField.addListener(Events.OnChange, new Listener<BaseEvent>() {
-
-			@Override
-			public void handleEvent(BaseEvent be) {
-				validatePasswordFields();
-			}
-			
-		});
+		passwordField.setPassword(true);
 		
 
 		LabelField confirmLabel = new LabelField("Confirm:");
@@ -90,16 +73,9 @@ public class ProfilePanel extends LayoutContainer implements AppSleeper {
 		confirmLabel.setStyleAttribute("padding-right", "10px");
 		
 		passwordConfirm = new TextField<String>();
-//		passwordConfirm.setMinLength(6);
-		passwordConfirm.addListener(Events.OnChange, new Listener<BaseEvent>() {
-
-			@Override
-			public void handleEvent(BaseEvent be) {
-				validatePasswordFields();
-			}
-			
-		});
+		passwordConfirm.setPassword(true);
 		
+		createDirtyListenTimer();
 		
 		add(oldPasswordLabel);
 		add(oldPasswordField);
@@ -110,15 +86,24 @@ public class ProfilePanel extends LayoutContainer implements AppSleeper {
 		add(confirmLabel);
 		add(passwordConfirm);
 		
-//		TableData tableData = new TableData();
-//		tableData.setColspan(2);
-//		tableData.setWidth("100%");
-		
 		add(new Html(""));
 		add(changeButton);
 	}
 	
+	protected void createDirtyListenTimer() {
+
+		dirtyListenTimer = new Timer() {
+			  @Override
+			  public void run() {
+			    	validatePasswordFields();
+			  }
+			};
+
+		dirtyListenTimer.scheduleRepeating(200);
+	}
+	
 	protected void changePassword() {
+		mask("Changing password...");
 
 		updateUserPasswordService.updateUserPassword(
 					"",
@@ -127,21 +112,24 @@ public class ProfilePanel extends LayoutContainer implements AppSleeper {
 					new AsyncCallback<String>() {
 					
 						public void onFailure(Throwable caught) {
-						// Show the RPC error message to the user
-						if (caught instanceof IllegalArgumentException)
-							MessageBox.alert("Alert", caught.getMessage(), null);
-						else {
-							MessageBox.alert("Alert", "Export initiation failed unexpectedly.", null);
-							System.out.println(caught.getClass().getName());
-							System.out.println(caught.getMessage());
-						}
+							unmask();
+							// Show the RPC error message to the user
+							if (caught instanceof IllegalArgumentException)
+								MessageBox.alert("Alert", caught.getMessage(), null);
+							else {
+								MessageBox.alert("Alert", "Export initiation failed unexpectedly.", null);
+								System.out.println(caught.getClass().getName());
+								System.out.println(caught.getMessage());
+							}
 					}
 
-					public void onSuccess(String exportProcessReport) {
+					public void onSuccess(String message) {
 						oldPasswordField.clear();
 						passwordField.clear();
 						passwordConfirm.clear();
 						changeButton.disable();
+						unmask();
+						MessageBox.alert("Attention", message, null);
 					}
 			});
 	}
@@ -157,7 +145,7 @@ public class ProfilePanel extends LayoutContainer implements AppSleeper {
 			passwordConfirm.clearInvalid();
 		} else {
 			valid = true;
-			if (passwordField.getValue().length() < 6) {
+			if (passwordField.getValue() == null || passwordField.getValue().length() < 6) {
 				passwordField.forceInvalid("A password must be at least 6 characters long.");
 				valid=false;
 			} else {
@@ -183,12 +171,17 @@ public class ProfilePanel extends LayoutContainer implements AppSleeper {
 		
 		changeButton.setEnabled(valid);
 	}
-
+	
 	@Override
 	public void awaken() {
+		if (dirtyListenTimer != null)
+			dirtyListenTimer.scheduleRepeating(250);
 	}
 
 	@Override
 	public void sleep() {
+		if (dirtyListenTimer != null) {
+			dirtyListenTimer.cancel();
+		}
 	}
 }

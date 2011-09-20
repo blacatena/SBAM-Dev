@@ -63,7 +63,7 @@ public class UpdateUserPasswordServiceImpl extends AuthenticatedServiceServlet i
 		
 		sendEmail(dbInstance, "Scholastic SBAM Password Change", "passwordChange.txt");
 		
-		return "";
+		return "Your password has been changed.";
 	}
 	
 	protected void silentRollback() {
