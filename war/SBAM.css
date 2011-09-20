@@ -170,6 +170,11 @@ a.pdocImgLink {
  }
 
 /* Special style to replace forms with white backgrounds with something more subtle */
+.x-panel .subtle-form {
+	background-color: #FBEBDB  !important;
+}
+
+/* Special style to replace forms with white backgrounds with something more subtle */
 .x-portlet .x-panel-body .subtle-form {
 	background-color: #FBEBDB  !important;
 }

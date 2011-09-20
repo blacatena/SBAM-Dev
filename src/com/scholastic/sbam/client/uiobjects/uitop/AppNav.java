@@ -18,18 +18,19 @@ import com.scholastic.sbam.shared.objects.Authentication;
 import com.scholastic.sbam.shared.security.SecurityManager;
 
 public class AppNav extends Composite implements AppSecurityManager {
-	private TabPanel tabPanel;
-	private TabItem tbtmAdministration;
-	private TabItem tbtmWelcome;
-	private TabItem tbtmConfiguration;
-	private TabItem tbtmReports;
-	private TabItem tbtmAgreements;
-	private TabItem tbtmProfile;
-	private AdminUi adminUi;
-	private ReportsUi reportsUi;
-	private ConfigUi configUi;
-	private WelcomeDisplay welcomeDisplay;
-	private AppWorkSpace appPortal;
+	protected TabPanel			tabPanel;
+	protected TabItem			tbtmAdministration;
+	protected TabItem			tbtmWelcome;
+	protected TabItem			tbtmConfiguration;
+	protected TabItem			tbtmReports;
+	protected TabItem			tbtmAgreements;
+	protected TabItem			tbtmProfile;
+	protected AdminUi			adminUi;
+	protected ReportsUi			reportsUi;
+	protected ConfigUi			configUi;
+	protected ProfileUi			profileUi;
+	protected WelcomeDisplay	welcomeDisplay;
+	protected AppWorkSpace		appPortal;
 
 	public AppNav() {
 		
@@ -100,6 +101,9 @@ public class AppNav extends Composite implements AppSecurityManager {
 		IconSupplier.setIcon(tbtmProfile, IconSupplier.getProfileIconName());
 		tbtmProfile.getHeader().setToolTip(UiConstants.getQuickTip("Use the Profile tab to modify your personal profile."));
 		tbtmProfile.setLayout(new FitLayout());
+
+		profileUi = new ProfileUi();
+		tbtmProfile.add(profileUi);
 		
 		tabPanel.add(tbtmProfile);
 		

@@ -67,6 +67,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>updateUserPasswordServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateUserPasswordServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>updateUserCacheServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.UpdateUserCacheServiceImpl</servlet-class>
   </servlet>
@@ -769,6 +774,11 @@
   <servlet-mapping>
     <servlet-name>updateUserServlet</servlet-name>
     <url-pattern>/sbam/updateUser</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateUserPasswordServlet</servlet-name>
+    <url-pattern>/sbam/updateUserPassword</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>
