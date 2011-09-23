@@ -3,6 +3,9 @@ package com.scholastic.sbam.shared.objects;
 import java.util.Date;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.data.BeanModel;
+import com.extjs.gxt.ui.client.data.BeanModelFactory;
+import com.extjs.gxt.ui.client.data.BeanModelLookup;
 import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
 import com.scholastic.sbam.shared.util.AppConstants;
@@ -16,6 +19,9 @@ import com.scholastic.sbam.shared.util.AppConstants;
  *
  */
 public class AgreementSummaryInstance implements BeanModelTag, IsSerializable {
+
+	private static BeanModelFactory beanModelfactory;
+	
 	private int		id;
 	private int		idCheckDigit;
 	private Date	createdDate;
@@ -233,5 +239,12 @@ public class AgreementSummaryInstance implements BeanModelTag, IsSerializable {
 		if (terminateDate != null)
 			return terminateDate;
 		return endDate;
+	}
+
+	public static BeanModel obtainModel(AgreementSummaryInstance instance) {
+		if (beanModelfactory == null)
+			beanModelfactory  = BeanModelLookup.get().getFactory(AgreementSummaryInstance.class);
+		BeanModel model = beanModelfactory.createModel(instance);
+		return model;
 	}
 }

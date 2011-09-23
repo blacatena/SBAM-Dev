@@ -9,7 +9,7 @@ import com.extjs.gxt.ui.client.data.BeanModelTag;
 import com.google.gwt.user.client.rpc.IsSerializable;
 import com.scholastic.sbam.shared.util.AppConstants;
 
-public class SiteContactInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
+public class InstitutionContactInstance extends BetterRowEditInstance implements BeanModelTag, IsSerializable {
 
 	protected static BeanModelFactory beanModelfactory;
 
@@ -99,23 +99,23 @@ public class SiteContactInstance extends BetterRowEditInstance implements BeanMo
 		this.contact = contact;
 	}
 
-	public static SiteContactInstance getEmptyInstance() {
-		SiteContactInstance instance = new SiteContactInstance();
+	public static InstitutionContactInstance getEmptyInstance() {
+		InstitutionContactInstance instance = new InstitutionContactInstance();
 		instance.ucn = 0;
 		instance.contactId = 0;
 		return instance;
 	}
 	
-	public static SiteContactInstance getUnknownInstance(int ucn, int contactId) {
-		SiteContactInstance instance = new SiteContactInstance();
+	public static InstitutionContactInstance getUnknownInstance(int ucn, int contactId) {
+		InstitutionContactInstance instance = new InstitutionContactInstance();
 		instance.ucn = ucn;
 		instance.contactId = contactId;
 		return instance;
 	}
 
-	public static BeanModel obtainModel(SiteContactInstance instance) {
+	public static BeanModel obtainModel(InstitutionContactInstance instance) {
 		if (beanModelfactory == null)
-			beanModelfactory  = BeanModelLookup.get().getFactory(SiteContactInstance.class);
+			beanModelfactory  = BeanModelLookup.get().getFactory(InstitutionContactInstance.class);
 		BeanModel model = beanModelfactory.createModel(instance);
 		return model;
 	}

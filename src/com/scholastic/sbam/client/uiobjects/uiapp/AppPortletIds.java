@@ -23,6 +23,12 @@ public enum AppPortletIds {
 				"SiteIntitutionSearch",
 				SiteInstitutionSearchPortlet.class.getName()
 			),
+	INSTITUTION_CONTACT_SEARCH				(
+					"Institution Contact Search", 		
+					IconSupplier.getContactsIconName(),		
+					"InstitutionContactSearch"	, 				
+					InstitutionContactSearchPortlet.class.getName()
+				),
 	AGREEMENT_SEARCH					(
 				"Agreement Search",
 				IconSupplier.getAgreementIconName(),

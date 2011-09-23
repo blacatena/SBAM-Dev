@@ -377,6 +377,26 @@
   </servlet>
   
   <servlet>
+    <servlet-name>institutionContactGetServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.InstitutionContactGetServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>institutionContactListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.InstitutionContactListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>institutionContactSearchServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.InstitutionContactSearchServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updateInstitutionContactServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateInstitutionContactServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>institutionCountryListServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.InstitutionCountryListServiceImpl</servlet-class>
   </servlet>
@@ -1087,6 +1107,21 @@
   </servlet-mapping>
   
   <servlet-mapping>
+    <servlet-name>institutionContactGetServlet</servlet-name>
+    <url-pattern>/sbam/getInstitutionContact</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>institutionContactListServlet</servlet-name>
+    <url-pattern>/sbam/getInstitutionContacts</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>institutionContactSearchServlet</servlet-name>
+    <url-pattern>/sbam/searchInstitutionContacts</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
     <servlet-name>institutionCountryListServlet</servlet-name>
     <url-pattern>/sbam/getInstitutionCountries</url-pattern>
   </servlet-mapping>
@@ -1109,6 +1144,11 @@
   <servlet-mapping>
     <servlet-name>institutionWordServlet</servlet-name>
     <url-pattern>/sbam/getInstitutionWords</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateInstitutionContactServlet</servlet-name>
+    <url-pattern>/sbam/updateInstitutionContact</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

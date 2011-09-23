@@ -7,9 +7,11 @@ import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
+import com.scholastic.sbam.server.database.codegen.Contact;
 import com.scholastic.sbam.server.database.codegen.SiteContact;
 import com.scholastic.sbam.server.database.codegen.SiteContactId;
 import com.scholastic.sbam.server.database.util.HibernateAccessor;
+import com.scholastic.sbam.shared.objects.ContactInstance;
 import com.scholastic.sbam.shared.objects.SiteContactInstance;
 
 /**
@@ -101,5 +103,20 @@ public class DbSiteContact extends HibernateAccessor {
             System.out.println(e.getMessage());
         }
         return new ArrayList<SiteContact>();
+	}
+
+	public static void setDescriptions(SiteContactInstance instance) {
+		if (instance.getContact() == null) {
+			if (instance.getContactId() > 0) {
+				Contact contact = DbContact.getByCode(instance.getContactId());
+				if (contact != null) {
+					instance.setContact(DbContact.getInstance(contact));
+					DbContact.setDescriptions(instance.getContact());
+				} else
+					instance.setContact(ContactInstance.getUnknownInstance(instance.getContactId()));
+			} else {
+				instance.setContact(ContactInstance.getEmptyInstance());
+			}
+		}
 	}
 }

@@ -82,6 +82,8 @@ public class AppPortletProvider {
 			portlet = new CustomerSearchPortlet();
 		else if (id == AppPortletIds.SITE_INSTITUTION_SEARCH)
 			portlet = new SiteInstitutionSearchPortlet();
+		else if (id == AppPortletIds.INSTITUTION_CONTACT_SEARCH)
+			portlet = new InstitutionContactSearchPortlet();
 		else if (id == AppPortletIds.AGREEMENT_SEARCH)
 			portlet = new AgreementSearchPortlet();
 		else if (id == AppPortletIds.AGREEMENT_AUTH_METHOD_SEARCH)
