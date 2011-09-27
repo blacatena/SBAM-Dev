@@ -64,6 +64,7 @@ import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.AgreementSummaryInstance;
+import com.scholastic.sbam.shared.objects.ContactInstance;
 import com.scholastic.sbam.shared.objects.InstitutionContactTuple;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
@@ -99,6 +100,9 @@ public class InstitutionContactSearchPortlet extends GridSupportPortlet<Institut
 	protected PagingLoader<PagingLoadResult<InstitutionContactTuple>> institutionContactLoader;
 
 
+	protected LabelField						fullName;
+	protected LabelField						phoneNumber;
+	protected LabelField						email;
 	protected LabelField						ucn;
 	protected LabelField						address;
 	protected LabelField						type;
@@ -208,8 +212,18 @@ public class InstitutionContactSearchPortlet extends GridSupportPortlet<Institut
 		ToolBar displayBar = new ToolBar();
 		displayBar.add(returnTool);
 		displayBar.add(new SeparatorToolItem());
-		displayBar.add(new Html("<b>Selected Institution</b>"));
+		displayBar.add(new Html("<b>Selected Institution Contact</b>"));
 		displayCard.setTopComponent(displayBar);
+		
+		fullName = new LabelField();
+		fullName.setFieldLabel("Contact :");
+		displayCard.add(fullName, formData); 
+		
+		phoneNumber = new LabelField(); 
+		displayCard.add(phoneNumber, formData); 
+		
+		email = new LabelField(); 
+		displayCard.add(email, formData); 
 
 		ucn = new LabelField();  
 		ucn.setFieldLabel("UCN :");
@@ -356,13 +370,27 @@ public class InstitutionContactSearchPortlet extends GridSupportPortlet<Institut
 		if (instance == null)
 			return;
 		
+		ContactInstance		focusContact	 = focusInstitutionContact.getContact();
 		InstitutionInstance focusInstitution = focusInstitutionContact.getInstitution();
 		
 		focusUcn = focusInstitution.getUcn();
 		
 		registerUserCache(focusInstitution, focusInstitution.getInstitutionName());
 		updateUserPortlet();
-
+		
+		if (focusContact != null) {
+			if (focusContact.getTitle() != null && focusContact.getTitle().length()> 0)
+				fullName.setValue(focusContact.getFullName() + " [ " + focusContact.getTitle() + " ]");
+			else
+				fullName.setValue(focusContact.getFullName());
+			phoneNumber.setValue(focusContact.getPhone());
+			email.setValue(focusContact.geteMail());
+		} else {
+			fullName.setValue("");
+			phoneNumber.setValue("");
+			email.setValue("");
+		}
+		
 		ucn.setValue(focusInstitution.getUcn());
 		address.setValue("<b>" + focusInstitution.getInstitutionName() + "</b><br/>" +
 				focusInstitution.getAddress1() + brIfNotEmpty(focusInstitution.getAddress2()) + brIfNotEmpty(focusInstitution.getAddress3()) + "<br/>" +
@@ -756,11 +784,11 @@ public class InstitutionContactSearchPortlet extends GridSupportPortlet<Institut
  	
 	public void invokeSearchService(PagingLoadConfig loadConfig, long searchSyncId, AsyncCallback<SynchronizedPagingLoadResult<InstitutionContactTuple>> myCallback) {
 		grid.mask("Searching for institution contacts...");
-		institutionContactSearchService.searchInstitutionContacts((PagingLoadConfig) loadConfig, searchSyncId, myCallback);
+		institutionContactSearchService.searchInstitutionContacts((PagingLoadConfig) loadConfig, true, searchSyncId, myCallback);
 	}
 
 	protected void loadInstitutionContact(final int agreementId, final int contactId) {
-		institutionContactGetService.getInstitutionContact(agreementId, contactId, //	true, false,
+		institutionContactGetService.getInstitutionContact(agreementId, contactId,	true,
 				new AsyncCallback<InstitutionContactTuple>() {
 					public void onFailure(Throwable caught) {
 						// Show the RPC error message to the user
@@ -773,8 +801,8 @@ public class InstitutionContactSearchPortlet extends GridSupportPortlet<Institut
 						}
 					}
 
-					public void onSuccess(InstitutionContactTuple agreement) {
-						showInstitutionContact(agreement);
+					public void onSuccess(InstitutionContactTuple institutionContact) {
+						showInstitutionContact(institutionContact);
 					}
 			});
 	}

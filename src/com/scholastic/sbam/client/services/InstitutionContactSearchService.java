@@ -11,5 +11,5 @@ import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
  */
 @RemoteServiceRelativePath("searchInstitutionContacts")
 public interface InstitutionContactSearchService extends RemoteService {
-	SynchronizedPagingLoadResult<InstitutionContactTuple> searchInstitutionContacts(LoadConfig config, long syncId) throws IllegalArgumentException;
+	SynchronizedPagingLoadResult<InstitutionContactTuple> searchInstitutionContacts(LoadConfig config, boolean includeAgreementSummaries, long syncId) throws IllegalArgumentException;
 }

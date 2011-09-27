@@ -10,6 +10,7 @@ import com.scholastic.sbam.client.services.InstitutionContactSearchService;
 import com.scholastic.sbam.server.database.codegen.Institution;
 import com.scholastic.sbam.server.database.codegen.InstitutionContact;
 import com.scholastic.sbam.server.database.codegen.Contact;
+import com.scholastic.sbam.server.database.objects.DbAgreement;
 import com.scholastic.sbam.server.database.objects.DbInstitution;
 import com.scholastic.sbam.server.database.objects.DbInstitutionContact;
 import com.scholastic.sbam.server.database.objects.DbContact;
@@ -32,7 +33,7 @@ import com.scholastic.sbam.shared.util.SearchUtilities;
 public class InstitutionContactSearchServiceImpl extends AuthenticatedServiceServlet implements InstitutionContactSearchService {
 
 	@Override
-	public SynchronizedPagingLoadResult<InstitutionContactTuple> searchInstitutionContacts(LoadConfig loadConfig, long syncId) throws IllegalArgumentException {
+	public SynchronizedPagingLoadResult<InstitutionContactTuple> searchInstitutionContacts(LoadConfig loadConfig, boolean includeAgreementSummaries, long syncId) throws IllegalArgumentException {
 	
 		authenticate("search institution contacts", SecurityManager.ROLE_QUERY);
 		
@@ -78,6 +79,10 @@ public class InstitutionContactSearchServiceImpl extends AuthenticatedServiceSer
 				setDescriptions(institution);
 					
 				InstitutionContactTuple tuple = new InstitutionContactTuple(institution, institutionContact);
+				
+				if (includeAgreementSummaries)
+					tuple.getInstitution().setAgreementSummaryList(DbAgreement.findAllAgreementSummaries(tuple.getInstitution().getUcn(), false, (char) 0, AppConstants.STATUS_DELETED));
+				
 				list.add(tuple);
 			}
 

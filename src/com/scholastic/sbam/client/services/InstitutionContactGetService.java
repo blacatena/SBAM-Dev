@@ -9,5 +9,5 @@ import com.scholastic.sbam.shared.objects.InstitutionContactTuple;
  */
 @RemoteServiceRelativePath("getInstitutionContact")
 public interface InstitutionContactGetService extends RemoteService {
-	InstitutionContactTuple getInstitutionContact(int ucn, int contactId) throws IllegalArgumentException;
+	InstitutionContactTuple getInstitutionContact(int ucn, int contactId, boolean includeAgreementSummaries) throws IllegalArgumentException;
 }

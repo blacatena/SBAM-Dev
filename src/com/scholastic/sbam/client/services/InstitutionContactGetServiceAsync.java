@@ -5,6 +5,6 @@ import com.scholastic.sbam.shared.objects.InstitutionContactTuple;
 
 public interface InstitutionContactGetServiceAsync {
 
-	void getInstitutionContact(int ucn, int contactId, AsyncCallback<InstitutionContactTuple> callback);
+	void getInstitutionContact(int ucn, int contactId, boolean includeAgreementSummaries, AsyncCallback<InstitutionContactTuple> callback);
 
 }

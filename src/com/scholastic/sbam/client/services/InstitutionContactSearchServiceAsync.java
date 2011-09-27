@@ -7,6 +7,6 @@ import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
 
 public interface InstitutionContactSearchServiceAsync {
 
-	void searchInstitutionContacts(LoadConfig config, long syncId, AsyncCallback<SynchronizedPagingLoadResult<InstitutionContactTuple>> callback);
+	void searchInstitutionContacts(LoadConfig config, boolean includeAgreementSummaries, long syncId, AsyncCallback<SynchronizedPagingLoadResult<InstitutionContactTuple>> callback);
 
 }
