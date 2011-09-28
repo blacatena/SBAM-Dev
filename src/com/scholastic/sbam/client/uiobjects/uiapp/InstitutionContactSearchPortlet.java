@@ -84,6 +84,7 @@ public class InstitutionContactSearchPortlet extends GridSupportPortlet<Institut
 	protected CardLayout						cards;
 	protected ContentPanel						searchPanel;
 	protected FormPanel							displayCard;
+	protected InstitutionContactsCard			contactsCard;
 	protected Grid<ModelData>					grid;
 //	protected LiveGridView						liveView;		LiveView removed because local filters don't work with it
 	protected GridView							gridView;
@@ -156,6 +157,9 @@ public class InstitutionContactSearchPortlet extends GridSupportPortlet<Institut
 		createDisplayCard();
 		outerContainer.add(displayCard);
 		
+		createContactsCard();
+		outerContainer.add(contactsCard);
+		
 		if (focusUcn > 0)
 			loadInstitutionContact(focusUcn, focusInstitutionContactId);
 		if (filter != null && filter.length() > 0)
@@ -184,6 +188,22 @@ public class InstitutionContactSearchPortlet extends GridSupportPortlet<Institut
 	
 	public void initializeFilter() {
 		filterField.setValue(filter);
+	}
+	
+	protected void createContactsCard() {
+		
+		contactsCard = new InstitutionContactsCard();
+		
+		ToolButton returnTool = new ToolButton("x-tool-left") {
+				@Override
+				protected void onClick(ComponentEvent ce) {
+					cards.setActiveItem(displayCard);
+					updatePresenterLabel();
+				}
+			};
+		returnTool.enable();
+		
+		contactsCard.addToolItem(returnTool);
 	}
 
 	
@@ -353,6 +373,8 @@ public class InstitutionContactSearchPortlet extends GridSupportPortlet<Institut
 		contactsButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
 				@Override
 				public void componentSelected(ButtonEvent ce) {
+					contactsCard.setInstitution(focusInstitutionContact.getInstitution());
+					cards.setActiveItem(contactsCard);
 				}  
 			});
 		toolBar.add(contactsButton);
@@ -787,8 +809,8 @@ public class InstitutionContactSearchPortlet extends GridSupportPortlet<Institut
 		institutionContactSearchService.searchInstitutionContacts((PagingLoadConfig) loadConfig, true, searchSyncId, myCallback);
 	}
 
-	protected void loadInstitutionContact(final int agreementId, final int contactId) {
-		institutionContactGetService.getInstitutionContact(agreementId, contactId,	true,
+	protected void loadInstitutionContact(final int ucn, final int contactId) {
+		institutionContactGetService.getInstitutionContact(ucn, contactId,	true,
 				new AsyncCallback<InstitutionContactTuple>() {
 					public void onFailure(Throwable caught) {
 						// Show the RPC error message to the user
@@ -921,7 +943,7 @@ public class InstitutionContactSearchPortlet extends GridSupportPortlet<Institut
 			return;
 		
 		String oldFilter		= null;
-		String oldUcn   = null;
+		String oldUcn   		= null;
 		String oldContactId		= null;
 		
 		keyData = keyData.replace("\\:", "''''");	//	Remove any escaped :

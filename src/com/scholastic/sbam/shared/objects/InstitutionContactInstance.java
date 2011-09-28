@@ -98,6 +98,20 @@ public class InstitutionContactInstance extends BetterRowEditInstance implements
 	public void setContact(ContactInstance contact) {
 		this.contact = contact;
 	}
+	
+	public String getUniqueKey() {
+		return ucn + ":" + contactId;
+	}
+	
+	public void setValuesFrom(InstitutionContactInstance fromContact) {
+		this.ucn				=	fromContact.ucn;
+		this.contactId			=	fromContact.contactId;
+		this.status				=	fromContact.status;
+		this.active				=	fromContact.active;
+		this.createdDatetime	=	fromContact.createdDatetime;
+		
+		this.contact			=	fromContact.contact;
+	}
 
 	public static InstitutionContactInstance getEmptyInstance() {
 		InstitutionContactInstance instance = new InstitutionContactInstance();

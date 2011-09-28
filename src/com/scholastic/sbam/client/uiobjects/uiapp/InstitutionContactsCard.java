@@ -1,13 +1,13 @@
 package com.scholastic.sbam.client.uiobjects.uiapp;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.form.CheckBox;
-import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
+import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
@@ -20,53 +20,51 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.scholastic.sbam.client.services.AgreementContactListService;
-import com.scholastic.sbam.client.services.AgreementContactListServiceAsync;
-import com.scholastic.sbam.client.services.UpdateAgreementContactService;
-import com.scholastic.sbam.client.services.UpdateAgreementContactServiceAsync;
+import com.scholastic.sbam.client.services.InstitutionContactListService;
+import com.scholastic.sbam.client.services.InstitutionContactListServiceAsync;
+import com.scholastic.sbam.client.services.UpdateInstitutionContactService;
+import com.scholastic.sbam.client.services.UpdateInstitutionContactServiceAsync;
 import com.scholastic.sbam.client.services.UpdateContactNoteService;
 import com.scholastic.sbam.client.services.UpdateContactNoteServiceAsync;
 import com.scholastic.sbam.client.uiobjects.fields.ContactSearchField;
 import com.scholastic.sbam.client.uiobjects.fields.EnhancedComboBox;
-import com.scholastic.sbam.client.uiobjects.fields.InstitutionSearchField;
 import com.scholastic.sbam.client.uiobjects.fields.NotesIconButtonField;
 import com.scholastic.sbam.client.uiobjects.foundation.FieldFactory;
 import com.scholastic.sbam.client.uiobjects.foundation.FormAndGridPanel;
 import com.scholastic.sbam.client.uiobjects.foundation.FormInnerPanel;
 import com.scholastic.sbam.client.util.UiConstants;
-import com.scholastic.sbam.shared.objects.AgreementContactInstance;
-import com.scholastic.sbam.shared.objects.AgreementInstance;
+import com.scholastic.sbam.shared.objects.InstitutionContactInstance;
+import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.ContactInstance;
 import com.scholastic.sbam.shared.objects.ContactSearchResultInstance;
 import com.scholastic.sbam.shared.objects.ContactTypeInstance;
-import com.scholastic.sbam.shared.objects.InstitutionInstance;
+import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.util.AppConstants;
 
-public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInstance> {
+public class InstitutionContactsCard extends FormAndGridPanel<InstitutionContactInstance> {
 	
-	protected final AgreementContactListServiceAsync 	agreementContactListService 	= GWT.create(AgreementContactListService.class);
-	protected final UpdateAgreementContactServiceAsync	updateAgreementContactService	= GWT.create(UpdateAgreementContactService.class);
-	protected final UpdateContactNoteServiceAsync		updateContactNoteService		= GWT.create(UpdateContactNoteService.class);
+	protected final InstitutionContactListServiceAsync 		institutionContactListService 	= GWT.create(InstitutionContactListService.class);
+	protected final UpdateInstitutionContactServiceAsync	updateInstitutionContactService	= GWT.create(UpdateInstitutionContactService.class);
+	protected final UpdateContactNoteServiceAsync			updateContactNoteService		= GWT.create(UpdateContactNoteService.class);
 	
 	protected FormInnerPanel				formColumn1;
 	protected FormInnerPanel				formColumn2;
 	protected FormInnerPanel				formRow2;
 	
-	protected RowExpander			noteExpander;
+	protected RowExpander					noteExpander;
 
-	protected MultiField<String>			idNotesCombo		= new MultiField<String>("Agreement #");
-	protected LabelField					agreementIdField	= getLabelField();
+	protected MultiField<String>			idNotesCombo		= new MultiField<String>("UCN");
+	protected LabelField					ucnField			= getLabelField();
 	protected NotesIconButtonField<String>	notesField			= getNotesButtonField();
-	protected InstitutionSearchField		institutionField	= getInstitutionField("ucn", "Institution", 250, "The parent institution for this contact.");
-	protected ContactSearchField			contactField		= getContactField("contact", "Contact", 250, "Find or create a contact to attach to this agreement");
+	protected LabelField					institutionField	= getLabelField();
+	protected ContactSearchField			contactField		= getContactField("contact", "Contact", 250, "Find or create a contact to attach to this institution");
 	protected EnhancedComboBox<BeanModel>	contactTypeField	= getComboField("contactType", 		"Contact Type",	250,		
 																		"The type for this contact.",	
 																		UiConstants.getContactTypes(), "contactTypeCode", "description");
 	protected TextField<String>				fullNameDisplay		= getTextField("Name");
-	protected CheckBoxGroup					renewalContactGroup = new CheckBoxGroup();
-	protected CheckBox						renewalContactCheck	= getCheckBoxField("Renewal Contact");
 	protected TextArea						addressDisplay		= getMultiLineField("Address", 3);
 	protected TextField<String>				cityDisplay			= getTextField("City");
 	protected MultiField<String>			stateZipCountryCombo= new MultiField<String>("State/Zip/Country");
@@ -82,27 +80,25 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 	
 	protected ContactInstance				selectedContact;
 
-	protected AgreementInstance				agreement;
-	protected InstitutionInstance			billToInstitution;
+	protected InstitutionInstance			institution;
 	
-	public int getAgreementId() {
+	protected List<ToolButton>				toolButtons			= new ArrayList<ToolButton>();
+	
+	public int getUcn() {
 		return getFocusId();
 	}
 	
-	public void setAgreementId(int agreementId) {
-		setFocusId(agreementId);
+	public void setUcn(int ucn) {
+		setFocusId(ucn);
 	}
 	
-	public void setAgreementContact(AgreementContactInstance instance) {
+	public void setInstitutionContact(InstitutionContactInstance instance) {
 		setFocusInstance(instance);
 	}
 
-	public void setAgreement(AgreementInstance agreement) {
-		this.agreement = agreement;
-	}
-
-	public void setBillToInstitution(InstitutionInstance billToInstitution) {
-		this.billToInstitution = billToInstitution;
+	public void setInstitution(InstitutionInstance institution) {
+		this.institution = institution;
+		setUcn(institution.getUcn());
 	}
 
 	@Override
@@ -114,7 +110,22 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 	}
 	
 	public String getFormHeading() {
-		return "Agreement Contacts";
+		return "Institution Contacts";
+	}
+	
+	public void addToolItem(ToolButton toolButton) {
+		toolButtons.add(toolButton);
+	}
+	
+	@Override
+	public void onRender(Element parent, int index) {
+		super.onRender(parent, index);
+		
+		if (toolButtons.size() > 0) {
+			this.formPanel.setHeaderVisible(true);
+			for (ToolButton toolButton : toolButtons)
+				this.formPanel.getHeader().addTool(toolButton);
+		}
 	}
 	
 	@Override
@@ -123,12 +134,13 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 	}
 	
 	/**
-	 * Override to set any further grid atrributes, such as the autoExpandColumn.
+	 * Override to set any further grid attributes, such as the autoExpandColumn.
 	 * @param grid
 	 */
 	@Override
 	public void setGridAttributes(Grid<BeanModel> grid) {
-		grid.setAutoExpandColumn("contact.fullName");  	
+		grid.setAutoExpandColumn("contact.fullName"); 
+		gridStore.setKeyProvider(new SimpleKeyProvider("uniqueKey")); 
 	}
 
 	@Override
@@ -153,17 +165,16 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 	}
 
 	@Override
-	public void setFormFieldValues(AgreementContactInstance instance) {
+	public void setFormFieldValues(InstitutionContactInstance instance) {
 		selectedContact = instance.getContact();
 		
-		agreementIdField.setValue(AppConstants.appendCheckDigit(getAgreementId()) + " &nbsp;&nbsp;&nbsp;<i>Contact " + AppConstants.getStatusDescription(instance.getStatus()) + "</i>");
+//		ucnField.setValue(getUcn() + " &nbsp;&nbsp;&nbsp;<i>Contact " + AppConstants.getStatusDescription(instance.getStatus()) + "</i>");
 		
 		contactField.setValue(ContactSearchResultInstance.obtainModel(new ContactSearchResultInstance(instance.getContact())));
-		
-		renewalContactCheck.setValue(instance.isRenewalContact());
 			
 		if (selectedContact != null) {
-			institutionField.setValue(InstitutionInstance.obtainModel(selectedContact.getInstitution()));
+			ucnField.setValue(selectedContact.getInstitution().getUcn() + " &nbsp;&nbsp;&nbsp;<i>Contact " + AppConstants.getStatusDescription(instance.getStatus()) + "</i>");
+			institutionField.setValue(selectedContact.getInstitution().getInstitutionName());
 			contactTypeField.setValue(ContactTypeInstance.obtainModel(selectedContact.getContactType()));
 			fullNameDisplay.setValue(selectedContact.getFullName());
 			titleDisplay.setValue(selectedContact.getTitle());
@@ -181,15 +192,16 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 			setNotesField(selectedContact.getNote());
 			
 		} else {
-			if (billToInstitution != null)
-				institutionField.setValue(InstitutionInstance.obtainModel(billToInstitution));
-			else if (agreement != null && agreement.getInstitution() != null)
-				institutionField.setValue(InstitutionInstance.obtainModel(agreement.getInstitution()));
-			else
+			if (institution != null ) {
+				ucnField.setValue(selectedContact.getInstitution().getUcn() + " &nbsp;&nbsp;&nbsp;<i>Contact " + AppConstants.getStatusDescription(instance.getStatus()) + "</i>");
+				institutionField.setValue(institution.getInstitutionName());
+			} else {
+				ucnField.clear();
 				institutionField.clear();
+			}
 			contactTypeField.clear();
 			fullNameDisplay.clear();
-			titleDisplay.clear();
+			titleDisplay.clear(); 
 			phoneDisplay.clear();
 			phone2Display.clear();
 			faxDisplay.clear();
@@ -230,8 +242,8 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 
 	@Override
 	protected void executeLoader(int id,
-			AsyncCallback<List<AgreementContactInstance>> callback) {
-		agreementContactListService.getAgreementContacts(id, AppConstants.STATUS_DELETED,callback);
+			AsyncCallback<List<InstitutionContactInstance>> callback) {
+		institutionContactListService.getInstitutionContacts(id, AppConstants.STATUS_DELETED,callback);
 	}
 
 	@Override
@@ -255,8 +267,8 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 		
 		fullNameDisplay.setMinLength(1);
 
-		agreementIdField.setReadOnly(true);
-		agreementIdField.setWidth(200);
+		ucnField.setReadOnly(true);
+		ucnField.setWidth(200);
 		idNotesCombo.setSpacing(20);
 		
 		stateZipCountryCombo.setSpacing(20);
@@ -266,8 +278,6 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 		
 //		addressDisplay.setHeight(72);
 		
-		renewalContactGroup.setLabelSeparator("");
-		
 //		contactTypeField.setWidth(200);
 //		fullNameDisplay.setWidth(250);
 //		titleDisplay.setWidth(250);
@@ -275,14 +285,12 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 //		emailDisplay.setWidth(200);
 //		addressDisplay.setWidth(200);
 
-		idNotesCombo.add(agreementIdField);	
+		idNotesCombo.add(ucnField);	
 		idNotesCombo.add(notesField);
 		
 		stateZipCountryCombo.add(stateDisplay);
 		stateZipCountryCombo.add(zipDisplay);
 		stateZipCountryCombo.add(countryDisplay);
-		
-		renewalContactGroup.add(renewalContactCheck);
 		
 		formColumn1.add(idNotesCombo,    formData);
 		formColumn1.add(institutionField, formData);
@@ -292,7 +300,6 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 		formColumn1.add(titleDisplay, formData);
 		formColumn1.add(emailDisplay, formData);
 		formColumn1.add(email2Display, formData);
-		formColumn2.add(renewalContactGroup, formData);
 		formColumn2.add(addressDisplay, formData);
 		formColumn2.add(cityDisplay, formData);
 		formColumn2.add(stateZipCountryCombo, formData);
@@ -302,6 +309,11 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 
 		panel.add(formColumn1,	tData1);
 		panel.add(formColumn2,	tData1);
+		
+		if (institution != null) {
+			ucnField.setValue(institution.getUcn());
+			institutionField.setValue(institution.getInstitutionName());
+		}
 	}
 	
 	protected NotesIconButtonField<String> getNotesButtonField() {
@@ -312,7 +324,7 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 			}
 		};
 		nibf.setLabelSeparator("");
-		nibf.setEmptyNoteText("Click the note icon to add notes for this agreement site.");
+		nibf.setEmptyNoteText("Click the note icon to add notes for this institution.");
 		return nibf;
 	}
 
@@ -320,6 +332,7 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 	protected ContactSearchField getContactField(String name, String label, int width, String toolTip) {
         ContactSearchField contactCombo = new ContactSearchField();
 		FieldFactory.setStandard(contactCombo, label);
+		contactCombo.setEmptyText("");
 		
 		if (toolTip != null)
 			contactCombo.setToolTip(toolTip);
@@ -365,10 +378,10 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 		selectedContact = instance;
 		
 		if (instance == null) {
-			if (billToInstitution != null)
-				institutionField.setValue(InstitutionInstance.obtainModel(billToInstitution));
+			if (institution != null)
+				institutionField.setValue(institution.getInstitutionName());
 			else
-				institutionField.setValue(InstitutionInstance.obtainModel(InstitutionInstance.getEmptyInstance()));
+				institutionField.setValue("");
 			contactTypeField.setValue(ContactTypeInstance.obtainModel(ContactTypeInstance.getEmptyInstance()));
 			fullNameDisplay.setValue("");
 			phoneDisplay.setValue("");
@@ -387,10 +400,13 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 			return;
 		}
 
-		if (instance.getInstitution() != null)
-			institutionField.setValue(InstitutionInstance.obtainModel(instance.getInstitution()));
-		else
-			institutionField.setValue(InstitutionInstance.obtainModel(InstitutionInstance.getEmptyInstance()));
+		if (instance.getInstitution() != null) {
+			ucnField.setValue(instance.getInstitution().getUcn());
+			institutionField.setValue(instance.getInstitution().getInstitutionName());
+		} else {
+			ucnField.setValue("");
+			institutionField.setValue("");
+		}
 		contactTypeField.setValue(ContactTypeInstance.obtainModel(instance.getContactType()));
 		fullNameDisplay.setValue(instance.getFullName());
 		phoneDisplay.setValue(instance.getPhone());
@@ -408,51 +424,6 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 		
 		setNotesField(instance.getNote());
 	}
-
-	
-	protected InstitutionSearchField getInstitutionField(String name, String label, int width, String toolTip) {
-        InstitutionSearchField instCombo = new InstitutionSearchField();
-		FieldFactory.setStandard(instCombo, label);
-		
-		if (toolTip != null)
-			instCombo.setToolTip(toolTip);
-		if (width > 0)
-			instCombo.setWidth(width);
-		instCombo.setDisplayField("institutionName");
-		
-		instCombo.addSelectionChangedListener(new SelectionChangedListener<BeanModel>() {
-
-			@Override
-			public void selectionChanged(SelectionChangedEvent<BeanModel> se) {
-				selectInstitution(se.getSelectedItem());
-			}
-			
-		});
-		
-		return instCombo;
-	}
-	
-	protected void selectInstitution(BeanModel model) {
-		if (model == null) {	// No value selected means leave it as is
-			if (institutionField.getSelectedValue() != null)
-				matchToInstitution( (InstitutionInstance) institutionField.getSelectedValue().getBean() );
-			else
-				if (institutionField.getOriginalValue() != null)
-					matchToInstitution( (InstitutionInstance) institutionField.getOriginalValue().getBean());
-				else
-					matchToInstitution( null );
-		} else {
-			InstitutionInstance instance = (InstitutionInstance) model.getBean();
-			matchToInstitution( instance );
-		}
-	}
-	
-	protected void matchToInstitution( InstitutionInstance instance) {
-		if (instance == null)
-			contactField.setUcn(0);
-		else
-			contactField.setUcn(instance.getUcn());
-	}
 	
 	protected String [] getAddressLines(String addressLines) {
 		if (addressLines == null)
@@ -464,7 +435,11 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 	@Override
 	public void handleNew() {
 		super.handleNew();
-		agreementIdField.setValue(AppConstants.appendCheckDigit(getAgreementId()) + "&nbsp;&nbsp;&nbsp;New" );
+		ucnField.setValue(getUcn() + "&nbsp;&nbsp;&nbsp;New" );
+		if (institution != null)
+			institutionField.setValue(institution.getInstitutionName());
+		else
+			institutionField.clear();
 	}
 
 	@Override
@@ -494,10 +469,7 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 		contactInstance.seteMail(emailDisplay.getValue());
 		contactInstance.seteMail2(email2Display.getValue());
 		
-		if (institutionField.getSelectedValue() != null) {
-			contactInstance.setInstitution( (InstitutionInstance) institutionField.getSelectedValue().getBean());
-		} else
-			contactInstance.setInstitution( null );
+		contactInstance.setInstitution(institution);
 		
 		String [] addressLines = getAddressLines(addressDisplay.getValue());
 		if (addressLines.length > 0)
@@ -519,9 +491,9 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 		contactInstance.setCountry(countryDisplay.getValue());
 		
 		if (focusInstance == null) {
-			focusInstance = new AgreementContactInstance();
+			focusInstance = new InstitutionContactInstance();
 			focusInstance.setNewRecord(true);
-			focusInstance.setAgreementId(getAgreementId());
+			focusInstance.setUcn(getUcn());
 			
 //			if (contactInstance == null) {
 //				MessageBox.alert("Unexpected Error", "No contact is selected.", null);
@@ -531,8 +503,7 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 			focusInstance.setContactId(contactInstance.getContactId());
 		}
 		
-		focusInstance.setContact(contactInstance);	
-		focusInstance.setRenewalContact(renewalContactCheck.getValue() ? 'y' : 'n');
+		focusInstance.setContact(contactInstance);
 		focusInstance.setStatus(AppConstants.STATUS_ACTIVE);
 		
 		if (contactInstance.isNewRecord())
@@ -541,14 +512,14 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 			contactInstance.setNote(null);	//	This will keep the note from being updated by this call
 	
 		//	Issue the asynchronous update request and plan on handling the response
-		updateAgreementContactService.updateAgreementContact(focusInstance,
-				new AsyncCallback<UpdateResponse<AgreementContactInstance>>() {
+		updateInstitutionContactService.updateInstitutionContact(focusInstance,
+				new AsyncCallback<UpdateResponse<InstitutionContactInstance>>() {
 					public void onFailure(Throwable caught) {
 						// Show the RPC error message to the user
 						if (caught instanceof IllegalArgumentException)
 							MessageBox.alert("Alert", caught.getMessage(), null);
 						else {
-							MessageBox.alert("Alert", "Agreement contact  update failed unexpectedly.", null);
+							MessageBox.alert("Alert", "Institution contact  update failed unexpectedly.", null);
 							System.out.println(caught.getClass().getName());
 							System.out.println(caught.getMessage());
 						}
@@ -556,22 +527,22 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 						newButton.enable();
 					}
 
-					public void onSuccess(UpdateResponse<AgreementContactInstance> updateResponse) {
-						AgreementContactInstance updatedAgreementContact = (AgreementContactInstance) updateResponse.getInstance();
-						if (updatedAgreementContact.isNewRecord()) {
-							updatedAgreementContact.setNewRecord(false);
-							grid.getStore().insert(AgreementContactInstance.obtainModel(updatedAgreementContact), 0);
+					public void onSuccess(UpdateResponse<InstitutionContactInstance> updateResponse) {
+						InstitutionContactInstance updatedInstitutionContact = (InstitutionContactInstance) updateResponse.getInstance();
+						if (updatedInstitutionContact.isNewRecord()) {
+							updatedInstitutionContact.setNewRecord(false);
+							grid.getStore().insert(InstitutionContactInstance.obtainModel(updatedInstitutionContact), 0);
 						}
 						
 						focusInstance.setNewRecord(false);
-						focusInstance.setValuesFrom(updatedAgreementContact);
-						focusInstance.getContact().setValuesFrom(updatedAgreementContact.getContact());
-						setFormFromInstance(updatedAgreementContact);	//	setFormFieldValues(updatedAgreementContact);
+						focusInstance.setValuesFrom(updatedInstitutionContact);
+						focusInstance.getContact().setValuesFrom(updatedInstitutionContact.getContact());
+						setFormFromInstance(updatedInstitutionContact);	//	setFormFieldValues(updatedInstitutionContact);
 						
 						//	This puts the grid in synch
 						BeanModel gridModel = grid.getStore().findModel(focusInstance.getUniqueKey());
 						if (gridModel != null) {
-							AgreementContactInstance matchInstance = gridModel.getBean();
+							InstitutionContactInstance matchInstance = gridModel.getBean();
 							matchInstance.setValuesFrom(focusInstance);
 							grid.getStore().update(gridModel);
 						}
@@ -617,7 +588,7 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 						//	This puts the grid in synch
 						BeanModel gridModel = grid.getStore().findModel(focusInstance.getUniqueKey());
 						if (gridModel != null) {
-							AgreementContactInstance matchInstance = gridModel.getBean();
+							InstitutionContactInstance matchInstance = gridModel.getBean();
 							matchInstance.getContact().setNote(focusInstance.getContact().getNote());
 							grid.getStore().update(gridModel);
 						}

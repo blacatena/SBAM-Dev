@@ -34,10 +34,10 @@ public class InstitutionContactGetServiceImpl extends AuthenticatedServiceServle
 		
 		InstitutionContactTuple	institutionContactTuple = null;
 		try {
-			Institution		dbInstance = DbInstitution.getByCode(ucn);
-			InstitutionContact	dbInstitutionContactInstance = DbInstitutionContact.getById(ucn, contactId);
-			if (dbInstance != null && dbInstitutionContactInstance != null && dbInstitutionContactInstance != null) {
-				institution = DbInstitution.getInstance(dbInstance);
+			Institution			dbInstitutionInstance			= DbInstitution.getByCode(ucn);
+			InstitutionContact	dbInstitutionContactInstance	= DbInstitutionContact.getById(ucn, contactId);
+			if (dbInstitutionInstance != null && dbInstitutionContactInstance != null && dbInstitutionContactInstance != null) {
+				institution = DbInstitution.getInstance(dbInstitutionInstance);
 				setDescriptions(institution);
 				institutionContact = DbInstitutionContact.getInstance(dbInstitutionContactInstance);
 				setDescriptions(institutionContact);
@@ -65,6 +65,6 @@ public class InstitutionContactGetServiceImpl extends AuthenticatedServiceServle
 	}
 	
 	public void setDescriptions(InstitutionContactInstance contact) {
-//		DbInstitutionContact.setDescriptions(contact);
+		DbInstitutionContact.setDescriptions(contact);
 	}
 }

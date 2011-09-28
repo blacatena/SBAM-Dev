@@ -70,33 +70,34 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 	
 	protected final InstitutionGetServiceAsync    institutionGetService    = GWT.create(InstitutionGetService.class);
 	
-	protected CardLayout			cards;
-	protected ContentPanel			searchPanel;
-	protected FormPanel				displayCard;
-	protected Grid<ModelData>		grid;
-	protected LiveGridView			liveView;
+	protected CardLayout				cards;
+	protected ContentPanel				searchPanel;
+	protected FormPanel					displayCard;
+	protected InstitutionContactsCard	contactsCard;
+	protected Grid<ModelData>			grid;
+	protected LiveGridView				liveView;
 	
-	protected ListStore<ModelData>	store;
-	protected ComboBox<ModelData>	filterCombo;
-	protected Timer					filterListenTimer;
-	protected String				filter = "";
+	protected ListStore<ModelData>		store;
+	protected ComboBox<ModelData>		filterCombo;
+	protected Timer						filterListenTimer;
+	protected String					filter = "";
 	
 	protected PagingLoader<PagingLoadResult<InstitutionInstance>> institutionLoader;
 
-	protected LabelField			ucn;
-	protected LabelField			address;
-	protected LabelField			type;
-	protected LabelField			altIds;
-	protected ListStore<ModelData>	agreementsStore;
-	protected Grid<ModelData>		agreementsGrid;
-	protected FieldSet				agreementsFieldSet;
+	protected LabelField				ucn;
+	protected LabelField				address;
+	protected LabelField				type;
+	protected LabelField				altIds;
+	protected ListStore<ModelData>		agreementsStore;
+	protected Grid<ModelData>			agreementsGrid;
+	protected FieldSet					agreementsFieldSet;
 	
-	protected AppPortletProvider	portletProvider;
+	protected AppPortletProvider		portletProvider;
 	
-	protected int					focusUcn;
-	protected InstitutionInstance	focusInstitution;
+	protected int						focusUcn;
+	protected InstitutionInstance		focusInstitution;
 	
-	protected long					searchSyncId = 0;
+	protected long						searchSyncId = 0;
 	
 	public InstitutionSearchPortletBase() {
 		super();
@@ -134,6 +135,9 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 		
 		createDisplayCard();
 		outerContainer.add(displayCard);
+		
+		createContactsCard();
+		outerContainer.add(contactsCard);
 		
 		if (focusUcn > 0)
 			loadInstitution(focusUcn);
@@ -222,7 +226,23 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 //			});
 //		displayCard.addButton(returnButton);
 	}
+
 	
+	protected void createContactsCard() {
+		
+		contactsCard = new InstitutionContactsCard();
+		
+		ToolButton returnTool = new ToolButton("x-tool-left") {
+				@Override
+				protected void onClick(ComponentEvent ce) {
+					cards.setActiveItem(displayCard);
+					updatePresenterLabel();
+				}
+			};
+		returnTool.enable();
+		
+		contactsCard.addToolItem(returnTool);
+	}
 
 	
 	protected void addAgreementsGrid(FormData formData) {
@@ -322,6 +342,8 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 		contactsButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
 				@Override
 				public void componentSelected(ButtonEvent ce) {
+					contactsCard.setInstitution(focusInstitution);
+					cards.setActiveItem(contactsCard);
 				}  
 			});
 		toolBar.add(contactsButton);

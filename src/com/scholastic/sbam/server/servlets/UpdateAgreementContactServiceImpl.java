@@ -7,10 +7,13 @@ import com.scholastic.sbam.client.services.UpdateAgreementContactService;
 import com.scholastic.sbam.server.database.codegen.AgreementContact;
 import com.scholastic.sbam.server.database.codegen.AgreementContactId;
 import com.scholastic.sbam.server.database.codegen.Contact;
+import com.scholastic.sbam.server.database.codegen.InstitutionContact;
+import com.scholastic.sbam.server.database.codegen.InstitutionContactId;
 import com.scholastic.sbam.server.database.codegen.SiteContact;
 import com.scholastic.sbam.server.database.codegen.SiteContactId;
 import com.scholastic.sbam.server.database.objects.DbAgreementContact;
 import com.scholastic.sbam.server.database.objects.DbContact;
+import com.scholastic.sbam.server.database.objects.DbInstitutionContact;
 import com.scholastic.sbam.server.database.objects.DbSiteContact;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.server.validation.AppAgreementContactValidator;
@@ -114,13 +117,13 @@ public class UpdateAgreementContactServiceImpl extends AuthenticatedServiceServl
 		return new UpdateResponse<AgreementContactInstance>(agreementContact, messages);
 	}
 	
-	private void validateInput(AgreementContactInstance instance) throws IllegalArgumentException {
+	protected void validateInput(AgreementContactInstance instance) throws IllegalArgumentException {
 		AppAgreementContactValidator validator = new AppAgreementContactValidator();
 		validator.setOriginal(instance);	//	This isn't really the original, but it's good enough, because it has the original ID
 		testMessages(validator.validateAgreementContact(instance));
 	}
 	
-	private Contact createContact(AgreementContactInstance agreementContact) {
+	protected Contact createContact(AgreementContactInstance agreementContact) {
 		Contact dbContact = new Contact();
 		
 		setDbContactFromInstance(agreementContact, dbContact);
@@ -129,29 +132,32 @@ public class UpdateAgreementContactServiceImpl extends AuthenticatedServiceServl
 		DbContact.persist(dbContact);
 		
 		if (dbContact.getParentUcn() > 0) {
-			createSiteContact(dbContact.getParentUcn(), dbContact.getContactId());
+			removeInstitutionContacts(dbContact.getParentUcn(), dbContact.getContactId());
+			createInstitutionContact(dbContact.getParentUcn(), dbContact.getContactId());
 		}
 		
 		return dbContact;
 	}
 	
-	private void updateContact(AgreementContactInstance agreementContact, Contact dbContact) {
-		int originalParentUcn = dbContact.getParentUcn();
+	protected void updateContact(AgreementContactInstance agreementContact, Contact dbContact) {
+//		int originalParentUcn = dbContact.getParentUcn();
 		
 		setDbContactFromInstance(agreementContact, dbContact);
 		fixNulls(dbContact);
 		
 		DbContact.persist(dbContact);
 		
-		if (originalParentUcn > 0 && dbContact.getParentUcn() != originalParentUcn) {
-			removeSiteContact(originalParentUcn, dbContact.getContactId());
-		}
-		if (dbContact.getParentUcn() > 0 && dbContact.getParentUcn() != originalParentUcn) {
-			createSiteContact(dbContact.getParentUcn(), dbContact.getContactId());
-		}
+//		if (originalParentUcn > 0 && dbContact.getParentUcn() != originalParentUcn) {
+//			removeInstitutionContact(originalParentUcn, dbContact.getContactId());
+//		}
+//		if (dbContact.getParentUcn() > 0 && dbContact.getParentUcn() != originalParentUcn) {
+//			createInstitutionContact(dbContact.getParentUcn(), dbContact.getContactId());
+//		}
+		removeInstitutionContacts(dbContact.getParentUcn(), dbContact.getContactId());
+		createInstitutionContact(dbContact.getParentUcn(), dbContact.getContactId());
 	}
 	
-	private void setDbContactFromInstance(AgreementContactInstance agreementContact, Contact dbContact) {
+	protected void setDbContactFromInstance(AgreementContactInstance agreementContact, Contact dbContact) {
 		ContactInstance source = agreementContact.getContact();
 		
 		if (source.getParentUcn() > 0)
@@ -198,7 +204,7 @@ public class UpdateAgreementContactServiceImpl extends AuthenticatedServiceServl
 			dbContact.setStatus(source.getStatus());		
 	}
 	
-	private void fixNulls(Contact dbContact) {
+	protected void fixNulls(Contact dbContact) {
 		if (dbContact.getFullName() == null)
 			dbContact.setFullName("");
 		if (dbContact.getContactTypeCode() == null)
@@ -239,7 +245,12 @@ public class UpdateAgreementContactServiceImpl extends AuthenticatedServiceServl
 			dbContact.setStatus(AppConstants.STATUS_ACTIVE);
 	}
 	
-	private void removeSiteContact(int ucn, int contactId) {
+	/**
+	 * Not used... removeInstitutionContact instead
+	 * @param ucn
+	 * @param contactId
+	 */
+	protected void removeSiteContact(int ucn, int contactId) {
 		SiteContact siteContact = DbSiteContact.getById(ucn, contactId);
 		if (siteContact != null) {
 			siteContact.setStatus(AppConstants.STATUS_DELETED);
@@ -247,7 +258,12 @@ public class UpdateAgreementContactServiceImpl extends AuthenticatedServiceServl
 		}
 	}
 	
-	private void createSiteContact(int ucn, int contactId) {
+	/**
+	 * Not used... createInstitutionContact instead
+	 * @param ucn
+	 * @param contactId
+	 */
+	protected void createSiteContact(int ucn, int contactId) {
 		SiteContact siteContact = DbSiteContact.getById(ucn, contactId);
 		if (siteContact == null) {
 			siteContact = new SiteContact();
@@ -261,18 +277,50 @@ public class UpdateAgreementContactServiceImpl extends AuthenticatedServiceServl
 		DbSiteContact.persist(siteContact);
 	}
 	
-	private void testMessages(List<String> messages) throws IllegalArgumentException {
+	protected void removeInstitutionContact(int ucn, int contactId) {
+		InstitutionContact siteContact = DbInstitutionContact.getById(ucn, contactId);
+		if (siteContact != null) {
+			siteContact.setStatus(AppConstants.STATUS_DELETED);
+			DbInstitutionContact.persist(siteContact);
+		}
+	}
+	
+	protected void removeInstitutionContacts(int keepUcn, int contactId) {
+		List<InstitutionContact> institutionContacts = DbInstitutionContact.findByContactId(contactId, AppConstants.STATUS_ANY_NONE, AppConstants.STATUS_ANY_NONE);
+		for (InstitutionContact institutionContact : institutionContacts) {
+			if (institutionContact != null && institutionContact.getId().getUcn() != keepUcn) {
+				institutionContact.setStatus(AppConstants.STATUS_DELETED);
+				DbInstitutionContact.persist(institutionContact);
+			}
+		}
+	}
+	
+	protected void createInstitutionContact(int ucn, int contactId) {
+		InstitutionContact institutionContact = DbInstitutionContact.getById(ucn, contactId);
+		if (institutionContact == null) {
+			institutionContact = new InstitutionContact();
+			InstitutionContactId scid = new InstitutionContactId();
+			scid.setContactId(contactId);
+			scid.setUcn(ucn);
+			institutionContact.setId(scid);
+			institutionContact.setCreatedDatetime(new Date());
+		}
+		institutionContact.setStatus(AppConstants.STATUS_ACTIVE);
+		DbInstitutionContact.persist(institutionContact);
+	}
+	
+	protected void testMessages(List<String> messages) throws IllegalArgumentException {
 		if (messages != null)
 			for (String message: messages)
 				testMessage(message);
 	}
 	
-	private void testMessage(String message) throws IllegalArgumentException {
+	protected void testMessage(String message) throws IllegalArgumentException {
 		if (message != null && message.length() > 0)
 			throw new IllegalArgumentException(message);
 	}
 	
-	private void silentRollback() {
+	protected void silentRollback() {
 		try {
 			if (HibernateUtil.isTransactionInProgress())
 				HibernateUtil.getSession().getTransaction().rollback();	
