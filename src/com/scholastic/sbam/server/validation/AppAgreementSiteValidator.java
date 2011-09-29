@@ -95,7 +95,7 @@ public class AppAgreementSiteValidator {
 	public List<String> validateNewAgreementSiteId(int agreementId, int ucn, int ucnSuffix, String siteLocCode) {
 		if (agreementId > 0 && ucn > 0 && siteLocCode != null) {
 			AgreementSite conflict = DbAgreementSite.getById(agreementId, ucn, ucnSuffix, siteLocCode);
-			if (conflict != null) {
+			if (conflict != null && conflict.getStatus() != AppConstants.STATUS_DELETED) {
 				addMessage("Agreement Site already exists.");
 			}
 		}

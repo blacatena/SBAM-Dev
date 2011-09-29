@@ -123,7 +123,8 @@ public class DbInstitutionContact extends HibernateAccessor {
         	String sqlQuery = "SELECT {institution.*}, {institution_contact.*}, {contact.*} FROM institution, institution_contact, contact WHERE institution.`status` <> '" + neStatus + "' " +
         						" AND institution_contact.status <> '" + neStatus + "' " +
         						" AND institution.ucn = institution_contact.ucn " + 
-        						" AND institution_contact.contact_id = contact.contact_id ";
+        						" AND institution_contact.contact_id = contact.contact_id " +
+        						" AND contact.status <> '" + neStatus + "' ";
 
         	if (status != AppConstants.STATUS_ANY_NONE)
         		sqlQuery += " AND institution.status = '" + status + "'";

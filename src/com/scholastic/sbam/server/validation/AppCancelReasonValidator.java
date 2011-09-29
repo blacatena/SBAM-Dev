@@ -6,6 +6,7 @@ import java.util.List;
 import com.scholastic.sbam.server.database.codegen.CancelReason;
 import com.scholastic.sbam.server.database.objects.DbCancelReason;
 import com.scholastic.sbam.shared.objects.CancelReasonInstance;
+import com.scholastic.sbam.shared.util.AppConstants;
 import com.scholastic.sbam.shared.validation.CodeValidator;
 import com.scholastic.sbam.shared.validation.NameValidator;
 
@@ -58,7 +59,7 @@ public class AppCancelReasonValidator {
 		addMessage((new CodeValidator(MIN_CODE_LEN)).validate(value));
 		if (value != null && value.length() > 0) {
 			CancelReason conflict = DbCancelReason.getByCode(value);
-			if (conflict != null) {
+			if (conflict != null && conflict.getStatus() != AppConstants.STATUS_DELETED) {
 				addMessage("Cancel reason code already exists.");
 			}
 		}

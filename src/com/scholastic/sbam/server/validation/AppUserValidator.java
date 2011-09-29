@@ -6,6 +6,7 @@ import java.util.List;
 import com.scholastic.sbam.server.database.codegen.User;
 import com.scholastic.sbam.server.database.objects.DbUser;
 import com.scholastic.sbam.shared.objects.UserInstance;
+import com.scholastic.sbam.shared.util.AppConstants;
 import com.scholastic.sbam.shared.validation.AppRoleGroupValidator;
 import com.scholastic.sbam.shared.validation.AppUserNameValidator;
 import com.scholastic.sbam.shared.validation.EmailValidator;
@@ -59,7 +60,7 @@ public class AppUserValidator {
 		addMessage((new AppUserNameValidator()).validate(value));
 		if (value != null && value.length() > 0) {
 			User conflict = DbUser.getByUserName(value);
-			if (conflict != null) {
+			if (conflict != null && conflict.getStatus() != AppConstants.STATUS_DELETED) {
 				addMessage("User name already exists.");
 			}
 		}

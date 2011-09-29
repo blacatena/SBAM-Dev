@@ -69,7 +69,7 @@ public class AppAgreementValidator {
 	public List<String> validateNewAgreementId(int value) {
 		if (value > 0) {
 			Agreement conflict = DbAgreement.getById(value);
-			if (conflict != null) {
+			if (conflict != null && conflict.getStatus() != AppConstants.STATUS_DELETED) {
 				addMessage("Agreement ID already exists.");
 			}
 		}

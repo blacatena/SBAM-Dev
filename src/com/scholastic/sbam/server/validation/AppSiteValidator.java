@@ -80,7 +80,7 @@ public class AppSiteValidator {
 	public List<String> validateNewSiteId(int ucn, int ucnSuffix, String siteLocCode) {
 		if (ucn > 0 && siteLocCode != null) {
 			Site conflict = DbSite.getById(ucn, ucnSuffix, siteLocCode);
-			if (conflict != null) {
+			if (conflict != null && conflict.getStatus() != AppConstants.STATUS_DELETED) {
 				addMessage("Site location already exists.");
 			}
 		}

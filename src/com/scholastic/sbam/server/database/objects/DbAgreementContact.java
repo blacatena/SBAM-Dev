@@ -102,7 +102,8 @@ public class DbAgreementContact extends HibernateAccessor {
         	String sqlQuery = "SELECT {agreement.*}, {agreement_contact.*}, {contact.*} FROM agreement, agreement_contact, contact WHERE agreement.`status` <> '" + neStatus + "' " +
         						" AND agreement_contact.status <> '" + neStatus + "' " +
         						" AND agreement.id = agreement_contact.agreement_id " + 
-        						" AND agreement_contact.contact_id = contact.contact_id ";
+        						" AND agreement_contact.contact_id = contact.contact_id " +
+        						" AND contact.status <> '" + neStatus + "' " ;
 
         	if (status != AppConstants.STATUS_ANY_NONE)
         		sqlQuery += " AND agreement.status = '" + status + "'";

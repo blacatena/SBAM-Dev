@@ -6,6 +6,7 @@ import java.util.List;
 import com.scholastic.sbam.server.database.codegen.AgreementType;
 import com.scholastic.sbam.server.database.objects.DbAgreementType;
 import com.scholastic.sbam.shared.objects.AgreementTypeInstance;
+import com.scholastic.sbam.shared.util.AppConstants;
 import com.scholastic.sbam.shared.validation.CodeValidator;
 import com.scholastic.sbam.shared.validation.NameValidator;
 
@@ -58,7 +59,7 @@ public class AppAgreementTypeValidator {
 		addMessage((new CodeValidator(MIN_CODE_LEN)).validate(value));
 		if (value != null && value.length() > 0) {
 			AgreementType conflict = DbAgreementType.getByCode(value);
-			if (conflict != null) {
+			if (conflict != null && conflict.getStatus() != AppConstants.STATUS_DELETED) {
 				addMessage("Agreement type code already exists.");
 			}
 		}

@@ -4,7 +4,7 @@ import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 
 public class SimpleKeyProvider implements ModelKeyProvider<BeanModel> {
-	private final String keyField;
+	private String keyField = "uniqueKey";
 	
 	public SimpleKeyProvider(String keyField) {
 		this.keyField = keyField;
@@ -12,8 +12,11 @@ public class SimpleKeyProvider implements ModelKeyProvider<BeanModel> {
 
 	@Override
 	public String getKey(BeanModel model) {
-		if (model.getProperties().containsKey(keyField))
+		if (model == null)
+			return "";
+		if (model.getProperties().containsKey(keyField) && model.get(keyField) != null) {
 			return model.get(keyField).toString();
+		}
 		return model.hashCode() + "";
 	}
 }

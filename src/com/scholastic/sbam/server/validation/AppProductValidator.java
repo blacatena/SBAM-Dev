@@ -7,6 +7,7 @@ import com.scholastic.sbam.server.database.codegen.Product;
 import com.scholastic.sbam.server.database.objects.DbProduct;
 import com.scholastic.sbam.server.database.objects.DbTermType;
 import com.scholastic.sbam.shared.objects.ProductInstance;
+import com.scholastic.sbam.shared.util.AppConstants;
 import com.scholastic.sbam.shared.validation.CodeValidator;
 import com.scholastic.sbam.shared.validation.NameValidator;
 
@@ -60,7 +61,7 @@ public class AppProductValidator {
 		addMessage((new CodeValidator(MIN_CODE_LEN)).validate(value));
 		if (value != null && value.length() > 0) {
 			Product conflict = DbProduct.getByCode(value);
-			if (conflict != null) {
+			if (conflict != null && conflict.getStatus() != AppConstants.STATUS_DELETED) {
 				addMessage("Product code already exists.");
 			}
 		}

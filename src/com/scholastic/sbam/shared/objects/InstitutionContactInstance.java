@@ -135,6 +135,6 @@ public class InstitutionContactInstance extends BetterRowEditInstance implements
 	}
 
 	public String toString() {
-		return "SiteContact " + ucn + "-" + contactId;
+		return "Institution Contact " + ucn + "-" + contactId;
 	}
 }

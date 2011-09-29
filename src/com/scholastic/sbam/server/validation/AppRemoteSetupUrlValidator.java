@@ -95,7 +95,7 @@ public class AppRemoteSetupUrlValidator {
 	public List<String> validateNewRemoteSetupUrlId(int agreementId, int ucn, int ucnSuffix, String siteLocCode, int urlId) {
 		if (agreementId > 0 && ucn > 0 && siteLocCode != null) {
 			RemoteSetupUrl conflict = DbRemoteSetupUrl.getById(agreementId, ucn, ucnSuffix, siteLocCode, urlId);
-			if (conflict != null) {
+			if (conflict != null && conflict.getStatus() != AppConstants.STATUS_DELETED) {
 				addMessage("Remote Setup URL already exists.");
 			}
 		}

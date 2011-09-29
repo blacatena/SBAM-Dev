@@ -6,6 +6,7 @@ import java.util.List;
 import com.scholastic.sbam.server.database.codegen.Proxy;
 import com.scholastic.sbam.server.database.objects.DbProxy;
 import com.scholastic.sbam.shared.objects.ProxyInstance;
+import com.scholastic.sbam.shared.util.AppConstants;
 import com.scholastic.sbam.shared.validation.NameValidator;
 
 public class AppProxyValidator {
@@ -53,7 +54,7 @@ public class AppProxyValidator {
 	public List<String> validateNewProxyId(int value) {
 		if (value > 0) {
 			Proxy conflict = DbProxy.getById(value);
-			if (conflict != null) {
+			if (conflict != null && conflict.getStatus() != AppConstants.STATUS_DELETED) {
 				addMessage("Proxy ID already exists.");
 			}
 		}

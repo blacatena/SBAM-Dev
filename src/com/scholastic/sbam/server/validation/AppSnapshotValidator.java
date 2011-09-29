@@ -6,6 +6,7 @@ import java.util.List;
 import com.scholastic.sbam.server.database.codegen.Snapshot;
 import com.scholastic.sbam.server.database.objects.DbSnapshot;
 import com.scholastic.sbam.shared.objects.SnapshotInstance;
+import com.scholastic.sbam.shared.util.AppConstants;
 import com.scholastic.sbam.shared.validation.NameValidator;
 
 public class AppSnapshotValidator {
@@ -56,7 +57,7 @@ public class AppSnapshotValidator {
 	public List<String> validateNewSnapshotId(int value) {
 		if (value > 0) {
 			Snapshot conflict = DbSnapshot.getById(value);
-			if (conflict != null) {
+			if (conflict != null && conflict.getStatus() != AppConstants.STATUS_DELETED) {
 				addMessage("Snapshot id already exists.");
 			}
 		}

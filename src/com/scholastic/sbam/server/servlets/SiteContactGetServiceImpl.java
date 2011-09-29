@@ -23,6 +23,10 @@ public class SiteContactGetServiceImpl extends AuthenticatedServiceServlet imple
 	@Override
 	public SiteContactTuple getSiteContact(int ucn, int ucnSuffix, String siteLocCode, int contactId) throws IllegalArgumentException {
 		
+		boolean disabled = true;
+		if (disabled)
+			throw new IllegalArgumentException("Do not use Site Contacts, use Institution Contacts");
+		
 		authenticate("get site contact", SecurityManager.ROLE_QUERY);
 		
 		HibernateUtil.openSession();

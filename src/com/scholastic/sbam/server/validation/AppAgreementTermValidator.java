@@ -76,7 +76,7 @@ public class AppAgreementTermValidator {
 	public List<String> validateNewAgreementTermId(int agreementId, int termId) {
 		if (agreementId > 0 && termId > 0) {
 			AgreementTerm conflict = DbAgreementTerm.getById(agreementId, termId);
-			if (conflict != null) {
+			if (conflict != null && conflict.getStatus() != AppConstants.STATUS_DELETED) {
 				addMessage("Agreement Term already exists.");
 			}
 		}

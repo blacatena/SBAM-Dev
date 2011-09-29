@@ -175,9 +175,9 @@ public class DbContact extends HibernateAccessor {
 	public static List<Contact> findByUcn(int ucn, char status, char neStatus) {
         try
         { 	
-        	String sqlQuery = "SELECT contact.* FROM contact, site_contact WHERE ";
-            sqlQuery += " site_contact.ucn = " + ucn;
-            sqlQuery += " AND site_contact.contact_id = contact.contact_id ";
+        	String sqlQuery = "SELECT contact.* FROM contact, institution_contact WHERE ";
+            sqlQuery += " institution_contact.ucn = " + ucn;
+            sqlQuery += " AND institution_contact.contact_id = contact.contact_id ";
             if (status != AppConstants.STATUS_ANY_NONE)
             	sqlQuery += " AND contact.status = '" + status + "' ";
             if (neStatus != AppConstants.STATUS_ANY_NONE)

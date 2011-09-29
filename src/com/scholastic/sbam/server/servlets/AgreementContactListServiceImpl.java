@@ -29,15 +29,14 @@ public class AgreementContactListServiceImpl extends AuthenticatedServiceServlet
 
 		List<AgreementContactInstance> list = new ArrayList<AgreementContactInstance>();
 		try {
-			//	Find only undeleted contact types
-			List<AgreementContact> contactInstances = DbAgreementContact.findByAgreementId(agreementId, AppConstants.STATUS_ANY_NONE, neStatus);
+			//	Find only undeleted contacts
+			List<AgreementContact> contacts = DbAgreementContact.findByAgreementId(agreementId, AppConstants.STATUS_ANY_NONE, neStatus);
 			
-			for (AgreementContact contactInstance : contactInstances) {
-				list.add(DbAgreementContact.getInstance(contactInstance));
-			}
-			
-			for (AgreementContactInstance contact : list) {
-				setDescriptions(contact);
+			for (AgreementContact contact : contacts) {
+				AgreementContactInstance contactInstance = DbAgreementContact.getInstance(contact);
+				setDescriptions(contactInstance);
+				if	(contactInstance.getContact() != null && contactInstance.getContact().getStatus() != neStatus)
+					list.add(contactInstance);
 			}
 
 		} catch (Exception exc) {

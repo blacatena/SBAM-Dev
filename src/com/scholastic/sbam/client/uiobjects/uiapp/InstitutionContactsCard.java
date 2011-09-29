@@ -100,6 +100,16 @@ public class InstitutionContactsCard extends FormAndGridPanel<InstitutionContact
 		this.institution = institution;
 		setUcn(institution.getUcn());
 	}
+	
+	@Override
+	protected String getButtonString() {
+		return NEW_BUTTON + EDIT_BUTTON + CANCEL_BUTTON + SAVE_BUTTON + DELETE_BUTTON;
+	}
+	
+	@Override
+	public String getDeleteMessage() {
+		return "Do you wish to delete this contact?";
+	}
 
 	@Override
 	public void awaken() {
@@ -170,7 +180,7 @@ public class InstitutionContactsCard extends FormAndGridPanel<InstitutionContact
 		
 //		ucnField.setValue(getUcn() + " &nbsp;&nbsp;&nbsp;<i>Contact " + AppConstants.getStatusDescription(instance.getStatus()) + "</i>");
 		
-		contactField.setValue(ContactSearchResultInstance.obtainModel(new ContactSearchResultInstance(instance.getContact())));
+		contactField.setValue(selectedContact);	//	ContactSearchResultInstance.obtainModel(new ContactSearchResultInstance(instance.getContact())));
 			
 		if (selectedContact != null) {
 			ucnField.setValue(selectedContact.getInstitution().getUcn() + " &nbsp;&nbsp;&nbsp;<i>Contact " + AppConstants.getStatusDescription(instance.getStatus()) + "</i>");
@@ -548,6 +558,49 @@ public class InstitutionContactsCard extends FormAndGridPanel<InstitutionContact
 						}
 						
 						editButton.enable();
+						newButton.enable();
+				}
+			});
+	}
+
+	@Override
+	protected void asyncDelete() {
+		if (focusInstance == null)
+			return;
+		
+		focusInstance.setStatus(AppConstants.STATUS_DELETED);
+		if (focusInstance.getContact() != null)
+			focusInstance.getContact().setStatus(AppConstants.STATUS_DELETED);
+	
+		//	Issue the asynchronous update request and plan on handling the response
+		updateInstitutionContactService.updateInstitutionContact(focusInstance,
+				new AsyncCallback<UpdateResponse<InstitutionContactInstance>>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "Insttitution contact delete failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+						deleteButton.enable();
+						editButton.enable();
+						newButton.enable();
+					}
+
+					public void onSuccess(UpdateResponse<InstitutionContactInstance> updateResponse) {
+						InstitutionContactInstance updatedInstitutionContact = (InstitutionContactInstance) updateResponse.getInstance();
+						//	This puts the grid in synch
+						BeanModel gridModel = grid.getStore().findModel(updatedInstitutionContact.getUniqueKey());
+						if (gridModel != null) {
+							grid.getStore().remove(gridModel);
+						}
+						
+						focusInstance = null;
+						
+						deleteButton.disable();
+						editButton.disable();
 						newButton.enable();
 				}
 			});

@@ -69,7 +69,7 @@ public class AppInstitutionContactValidator {
 	public List<String> validateNewInstitutionContactId(int ucn, int contactId) {
 		if (ucn > 0 && contactId > 0) {
 			InstitutionContact conflict = DbInstitutionContact.getById(ucn, contactId);
-			if (conflict != null) {
+			if (conflict != null && conflict.getStatus() != AppConstants.STATUS_DELETED) {
 				addMessage("Institution Contact already exists.");
 			}
 		}

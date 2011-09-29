@@ -273,6 +273,10 @@ public class ContactInstance extends BetterRowEditInstance implements BeanModelT
 		else
 			setParentUcn(institution.getUcn());
 	}
+	
+	public String getUniqueKey() {
+		return contactId + "";
+	}
 
 	public String getHtmlAddress() {
 		return AddressFormatter.getMultiLineAddress(address1, address2, address3, city, state, zip, country);

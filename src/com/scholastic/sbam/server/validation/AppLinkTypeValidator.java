@@ -6,6 +6,7 @@ import java.util.List;
 import com.scholastic.sbam.server.database.codegen.LinkType;
 import com.scholastic.sbam.server.database.objects.DbLinkType;
 import com.scholastic.sbam.shared.objects.LinkTypeInstance;
+import com.scholastic.sbam.shared.util.AppConstants;
 import com.scholastic.sbam.shared.validation.CodeValidator;
 import com.scholastic.sbam.shared.validation.NameValidator;
 
@@ -58,7 +59,7 @@ public class AppLinkTypeValidator {
 		addMessage((new CodeValidator(MIN_CODE_LEN)).validate(value));
 		if (value != null && value.length() > 0) {
 			LinkType conflict = DbLinkType.getByCode(value);
-			if (conflict != null) {
+			if (conflict != null && conflict.getStatus() != AppConstants.STATUS_DELETED) {
 				addMessage("Link type code already exists.");
 			}
 		}

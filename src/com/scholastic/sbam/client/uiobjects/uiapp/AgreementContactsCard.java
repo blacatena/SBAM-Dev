@@ -41,6 +41,7 @@ import com.scholastic.sbam.shared.objects.ContactInstance;
 import com.scholastic.sbam.shared.objects.ContactSearchResultInstance;
 import com.scholastic.sbam.shared.objects.ContactTypeInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
+import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.util.AppConstants;
 
@@ -104,6 +105,16 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 	public void setBillToInstitution(InstitutionInstance billToInstitution) {
 		this.billToInstitution = billToInstitution;
 	}
+	
+	@Override
+	protected String getButtonString() {
+		return NEW_BUTTON + EDIT_BUTTON + CANCEL_BUTTON + SAVE_BUTTON + DELETE_BUTTON;
+	}
+	
+	@Override
+	public String getDeleteMessage() {
+		return "Do you wish to remove this contact from this agreement?  The contact will not be deleted from its parent institution.";
+	}
 
 	@Override
 	public void awaken() {
@@ -129,6 +140,7 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 	@Override
 	public void setGridAttributes(Grid<BeanModel> grid) {
 		grid.setAutoExpandColumn("contact.fullName");  	
+		gridStore.setKeyProvider(new SimpleKeyProvider("uniqueKey")); 
 	}
 
 	@Override
@@ -158,7 +170,10 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 		
 		agreementIdField.setValue(AppConstants.appendCheckDigit(getAgreementId()) + " &nbsp;&nbsp;&nbsp;<i>Contact " + AppConstants.getStatusDescription(instance.getStatus()) + "</i>");
 		
-		contactField.setValue(ContactSearchResultInstance.obtainModel(new ContactSearchResultInstance(instance.getContact())));
+		contactField.setValue(selectedContact);	//	ContactSearchResultInstance.obtainModel(new ContactSearchResultInstance(instance.getContact())));
+		
+		//	This is a kludge bug fix, because contactField above is going to fire a selectionChanged event that's going to change it to the old one
+		selectedContact = instance.getContact();
 		
 		renewalContactCheck.setValue(instance.isRenewalContact());
 			
@@ -231,7 +246,7 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 	@Override
 	protected void executeLoader(int id,
 			AsyncCallback<List<AgreementContactInstance>> callback) {
-		agreementContactListService.getAgreementContacts(id, AppConstants.STATUS_DELETED,callback);
+		agreementContactListService.getAgreementContacts(id, AppConstants.STATUS_DELETED, callback);
 	}
 
 	@Override
@@ -552,36 +567,82 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 							System.out.println(caught.getClass().getName());
 							System.out.println(caught.getMessage());
 						}
+						deleteButton.setEnabled(focusInstance != null && !focusInstance.isNewRecord());
 						editButton.enable();
 						newButton.enable();
 					}
 
 					public void onSuccess(UpdateResponse<AgreementContactInstance> updateResponse) {
 						AgreementContactInstance updatedAgreementContact = (AgreementContactInstance) updateResponse.getInstance();
-						if (updatedAgreementContact.isNewRecord()) {
-							updatedAgreementContact.setNewRecord(false);
-							grid.getStore().insert(AgreementContactInstance.obtainModel(updatedAgreementContact), 0);
-						}
+						boolean isNew = updatedAgreementContact.isNewRecord();
 						
+						updatedAgreementContact.setNewRecord(false);
 						focusInstance.setNewRecord(false);
 						focusInstance.setValuesFrom(updatedAgreementContact);
 						focusInstance.getContact().setValuesFrom(updatedAgreementContact.getContact());
-						setFormFromInstance(updatedAgreementContact);	//	setFormFieldValues(updatedAgreementContact);
+						setFormFromInstance(focusInstance);	//	setFormFieldValues(updatedAgreementContact);
 						
-						//	This puts the grid in synch
-						BeanModel gridModel = grid.getStore().findModel(focusInstance.getUniqueKey());
-						if (gridModel != null) {
-							AgreementContactInstance matchInstance = gridModel.getBean();
-							matchInstance.setValuesFrom(focusInstance);
-							grid.getStore().update(gridModel);
+						if (isNew) {
+							grid.getStore().insert(AgreementContactInstance.obtainModel(focusInstance), 0);
+						} else {
+							//	This puts the grid in synch
+							BeanModel gridModel = grid.getStore().findModel(focusInstance.getUniqueKey());
+							if (gridModel != null) {
+								AgreementContactInstance matchInstance = gridModel.getBean();
+								matchInstance.setValuesFrom(focusInstance);
+	//							matchInstance.getContact().setValuesFrom(focusInstance.getContact());
+								grid.getStore().update(gridModel);
+							}
 						}
 						
+						deleteButton.enable();
 						editButton.enable();
 						newButton.enable();
 				}
 			});
 	}
 
+	@Override
+	protected void asyncDelete() {
+		if (focusInstance == null)
+			return;
+		
+		focusInstance.setStatus(AppConstants.STATUS_DELETED);
+	
+		//	Issue the asynchronous update request and plan on handling the response
+		updateAgreementContactService.updateAgreementContact(focusInstance,
+				new AsyncCallback<UpdateResponse<AgreementContactInstance>>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "Agreement contact delete failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+						deleteButton.enable();
+						editButton.enable();
+						newButton.enable();
+					}
+
+					public void onSuccess(UpdateResponse<AgreementContactInstance> updateResponse) {
+						AgreementContactInstance updatedAgreementContact = (AgreementContactInstance) updateResponse.getInstance();
+						//	This puts the grid in synch
+						BeanModel gridModel = grid.getStore().findModel(updatedAgreementContact.getUniqueKey());
+						if (gridModel != null) {
+							grid.getStore().remove(gridModel);
+						}
+						
+						focusInstance = null;
+						
+						deleteButton.disable();
+						editButton.disable();
+						newButton.enable();
+				}
+			});
+	}
+	
 	protected void asyncUpdateNote(String note) {
 	
 		// Set field values from form fields

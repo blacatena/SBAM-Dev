@@ -6,6 +6,7 @@ import java.util.List;
 import com.scholastic.sbam.server.database.codegen.WelcomeMessage;
 import com.scholastic.sbam.server.database.objects.DbWelcomeMessage;
 import com.scholastic.sbam.shared.objects.WelcomeMessageInstance;
+import com.scholastic.sbam.shared.util.AppConstants;
 import com.scholastic.sbam.shared.validation.NameValidator;
 
 public class AppWelcomeMessageValidator {
@@ -46,7 +47,7 @@ public class AppWelcomeMessageValidator {
 		}
 		
 		if (!WelcomeMessage.getId().equals(value))
-			addMessage("welcome message id cannot be changed.");
+			addMessage("Welcome message id cannot be changed.");
 		
 		return messages;
 	}
@@ -54,8 +55,8 @@ public class AppWelcomeMessageValidator {
 	public List<String> validateNewWelcomeMessageId(int value) {
 		if (value > 0) {
 			WelcomeMessage conflict = DbWelcomeMessage.getById(value);
-			if (conflict != null) {
-				addMessage("welcome message id already exists.");
+			if (conflict != null && conflict.getStatus() != AppConstants.STATUS_DELETED) {
+				addMessage("Welcome message id already exists.");
 			}
 		}
 		return messages;

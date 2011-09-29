@@ -9,6 +9,8 @@ import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
@@ -49,6 +51,7 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	public final static String CANCEL_BUTTON	= "C";
 	public final static String NEW_BUTTON		= "N";
 	public final static String SAVE_BUTTON		= "S";
+	public final static String DELETE_BUTTON	= "D";
 	
 	protected boolean				doNotExpandFields = false;
 	
@@ -59,10 +62,11 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	
 	protected ToolBar				editToolBar;
 	protected Button				editButton;
+	protected Button				deleteButton;
 	protected Button				cancelButton;
 	protected Button				saveButton;
 	protected Button				newButton;
-	protected String				useButtons = NEW_BUTTON + EDIT_BUTTON + CANCEL_BUTTON + SAVE_BUTTON;
+	protected String				useButtons = getButtonString();
 	
 	protected FormPanel				formPanel;
 	protected ContentPanel			gridPanel;
@@ -73,6 +77,10 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	protected ModelInstance			focusInstance;
 	
 	protected boolean				fieldsOpen;
+	
+	protected String getButtonString() {
+		return NEW_BUTTON + EDIT_BUTTON + CANCEL_BUTTON + SAVE_BUTTON;
+	}
 
 	@Override
 	protected void onRender(Element parent, int index) {
@@ -291,12 +299,14 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		// No agreement term means clear the form
 		if (focusInstance == null) {
 			if (editButton != null) editButton.disable();
+			if (deleteButton != null) deleteButton.disable();
 			clearFocusInstance();
 			return;
 		}
 		
 		//	Enable edit
 		if (editButton != null) editButton.enable();
+		if (deleteButton != null) deleteButton.enable();
 		
 		// Set the form fields
 		setFormFromInstance(focusInstance);
@@ -399,6 +409,22 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 			});
 			editToolBar.add(editButton);
 		}
+		
+		if (buttons.length() == 0 || buttons.contains(DELETE_BUTTON)) {
+			deleteButton = new Button("Delete");
+			IconSupplier.forceIcon(deleteButton, IconSupplier.getDeleteIconName());
+			if (focusInstance != null)
+				deleteButton.enable();
+			else
+				deleteButton.disable();
+			deleteButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+				@Override
+				public void componentSelected(ButtonEvent ce) {
+					confirmDelete();
+				}  
+			});
+			editToolBar.add(deleteButton);
+		}
 
 		if (buttons.length() == 0 || buttons.contains(CANCEL_BUTTON)) {
 			cancelButton = new Button("Cancel");
@@ -457,6 +483,21 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		return focusInstance == null || formPanel.isDirty();
 	}
 	
+	public String getDeleteMessage() {
+		return "Do you wish to delete this entry?";
+	}
+	
+	public void confirmDelete() {
+		final Listener<MessageBoxEvent> confirmDelete = new Listener<MessageBoxEvent>() {  
+			public void handleEvent(MessageBoxEvent ce) {  
+				Button btn = ce.getButtonClicked();
+				if ("Yes".equals(btn.getText()))
+					asyncDelete();
+			}  
+		};
+		MessageBox.confirm("Delete?", getDeleteMessage(), confirmDelete);
+	}
+	
 	/**
 	 * Override this to take action when the user wishes to create a new entry
 	 */
@@ -493,6 +534,7 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	public void beginEdit() {
 		if (newButton != null) newButton.disable();
 		if (editButton != null) editButton.disable();
+		if (deleteButton != null) deleteButton.disable();
 		if (cancelButton != null) cancelButton.enable();
 		enableFields();
 	}
@@ -504,16 +546,22 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		if (save) {
 			if (editButton != null) editButton.disable();	//	Disable this ...let the update enable it when the response arrives
 			if (editButton != null) newButton.disable();	//	Disable this ...let the update enable it when the response arrives
+			if (deleteButton != null) deleteButton.disable();
 			asyncUpdate();
 		} else {
 			resetFormValues();
 			if (newButton != null)	newButton.enable();
 			if (editButton != null && focusInstance != null) editButton.enable();
+			if (deleteButton != null) deleteButton.setEnabled(focusInstance != null);
 		}
 	}
 	
 	protected void asyncUpdate() {
-		
+		System.out.println("Update not implemented in " + getClass().getName());
+	}
+	
+	protected void asyncDelete() {
+		System.out.println("Delete not implemented in " + getClass().getName());
 	}
 	
 	protected void resetFormValues() {

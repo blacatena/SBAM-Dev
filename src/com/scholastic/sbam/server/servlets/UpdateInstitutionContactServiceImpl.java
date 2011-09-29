@@ -127,26 +127,36 @@ public class UpdateInstitutionContactServiceImpl extends AuthenticatedServiceSer
 		DbContact.persist(dbContact);
 		
 		if (dbContact.getParentUcn() > 0) {
-			createSiteContact(dbContact.getParentUcn(), dbContact.getContactId());
+			removeInstitutionContacts(dbContact.getParentUcn(), dbContact.getContactId());
+			createInstitutionContact(dbContact.getParentUcn(), dbContact.getContactId());
 		}
+		
+//		if (dbContact.getParentUcn() > 0) {
+//			createSiteContact(dbContact.getParentUcn(), dbContact.getContactId());
+//		}
 		
 		return dbContact;
 	}
 	
 	private void updateContact(InstitutionContactInstance institutionContact, Contact dbContact) {
-		int originalParentUcn = dbContact.getParentUcn();
+//		int originalParentUcn = dbContact.getParentUcn();
 		
 		setDbContactFromInstance(institutionContact, dbContact);
 		fixNulls(dbContact);
 		
 		DbContact.persist(dbContact);
+	
+		if (dbContact.getParentUcn() > 0) {
+			removeInstitutionContacts(dbContact.getParentUcn(), dbContact.getContactId());
+			createInstitutionContact(dbContact.getParentUcn(), dbContact.getContactId());
+		}
 		
-		if (originalParentUcn > 0 && dbContact.getParentUcn() != originalParentUcn) {
-			removeSiteContact(originalParentUcn, dbContact.getContactId());
-		}
-		if (dbContact.getParentUcn() > 0 && dbContact.getParentUcn() != originalParentUcn) {
-			createSiteContact(dbContact.getParentUcn(), dbContact.getContactId());
-		}
+//		if (originalParentUcn > 0 && dbContact.getParentUcn() != originalParentUcn) {
+//			removeSiteContact(originalParentUcn, dbContact.getContactId());
+//		}
+//		if (dbContact.getParentUcn() > 0 && dbContact.getParentUcn() != originalParentUcn) {
+//			createSiteContact(dbContact.getParentUcn(), dbContact.getContactId());
+//		}
 	}
 	
 	private void setDbContactFromInstance(InstitutionContactInstance institutionContact, Contact dbContact) {
@@ -237,7 +247,7 @@ public class UpdateInstitutionContactServiceImpl extends AuthenticatedServiceSer
 			dbContact.setStatus(AppConstants.STATUS_ACTIVE);
 	}
 	
-	private void removeSiteContact(int ucn, int contactId) {
+	protected void removeSiteContact(int ucn, int contactId) {
 		SiteContact siteContact = DbSiteContact.getById(ucn, contactId);
 		if (siteContact != null) {
 			siteContact.setStatus(AppConstants.STATUS_DELETED);
@@ -245,7 +255,7 @@ public class UpdateInstitutionContactServiceImpl extends AuthenticatedServiceSer
 		}
 	}
 	
-	private void createSiteContact(int ucn, int contactId) {
+	protected void createSiteContact(int ucn, int contactId) {
 		SiteContact siteContact = DbSiteContact.getById(ucn, contactId);
 		if (siteContact == null) {
 			siteContact = new SiteContact();
@@ -257,6 +267,38 @@ public class UpdateInstitutionContactServiceImpl extends AuthenticatedServiceSer
 		}
 		siteContact.setStatus(AppConstants.STATUS_ACTIVE);
 		DbSiteContact.persist(siteContact);
+	}
+	
+	protected void removeInstitutionContact(int ucn, int contactId) {
+		InstitutionContact siteContact = DbInstitutionContact.getById(ucn, contactId);
+		if (siteContact != null) {
+			siteContact.setStatus(AppConstants.STATUS_DELETED);
+			DbInstitutionContact.persist(siteContact);
+		}
+	}
+	
+	protected void removeInstitutionContacts(int keepUcn, int contactId) {
+		List<InstitutionContact> institutionContacts = DbInstitutionContact.findByContactId(contactId, AppConstants.STATUS_ANY_NONE, AppConstants.STATUS_ANY_NONE);
+		for (InstitutionContact institutionContact : institutionContacts) {
+			if (institutionContact != null && institutionContact.getId().getUcn() != keepUcn) {
+				institutionContact.setStatus(AppConstants.STATUS_DELETED);
+				DbInstitutionContact.persist(institutionContact);
+			}
+		}
+	}
+	
+	protected void createInstitutionContact(int ucn, int contactId) {
+		InstitutionContact institutionContact = DbInstitutionContact.getById(ucn, contactId);
+		if (institutionContact == null) {
+			institutionContact = new InstitutionContact();
+			InstitutionContactId scid = new InstitutionContactId();
+			scid.setContactId(contactId);
+			scid.setUcn(ucn);
+			institutionContact.setId(scid);
+			institutionContact.setCreatedDatetime(new Date());
+		}
+		institutionContact.setStatus(AppConstants.STATUS_ACTIVE);
+		DbInstitutionContact.persist(institutionContact);
 	}
 	
 	private void testMessages(List<String> messages) throws IllegalArgumentException {

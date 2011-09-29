@@ -10,6 +10,7 @@ import com.scholastic.sbam.server.database.objects.DbAgreementLink;
 import com.scholastic.sbam.server.database.objects.DbLinkType;
 import com.scholastic.sbam.server.database.objects.DbInstitution;
 import com.scholastic.sbam.shared.objects.AgreementLinkInstance;
+import com.scholastic.sbam.shared.util.AppConstants;
 import com.scholastic.sbam.shared.validation.NameValidator;
 
 public class AppAgreementLinkValidator {
@@ -58,7 +59,7 @@ public class AppAgreementLinkValidator {
 	public List<String> validateNewAgreementLinkId(int value) {
 		if (value > 0) {
 			AgreementLink conflict = DbAgreementLink.getById(value);
-			if (conflict != null) {
+			if (conflict != null && conflict.getStatus() != AppConstants.STATUS_DELETED) {
 				addMessage("Agreement link ID already exists.");
 			}
 		}

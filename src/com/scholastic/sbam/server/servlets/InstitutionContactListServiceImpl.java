@@ -30,14 +30,13 @@ public class InstitutionContactListServiceImpl extends AuthenticatedServiceServl
 		List<InstitutionContactInstance> list = new ArrayList<InstitutionContactInstance>();
 		try {
 			//	Find only undeleted contact types
-			List<InstitutionContact> contactInstances = DbInstitutionContact.findByUcn(ucn, AppConstants.STATUS_ANY_NONE, neStatus);
+			List<InstitutionContact> contacts = DbInstitutionContact.findByUcn(ucn, AppConstants.STATUS_ANY_NONE, neStatus);
 			
-			for (InstitutionContact contactInstance : contactInstances) {
-				list.add(DbInstitutionContact.getInstance(contactInstance));
-			}
-			
-			for (InstitutionContactInstance contact : list) {
-				setDescriptions(contact);
+			for (InstitutionContact contact : contacts) {
+				InstitutionContactInstance contactInstance = DbInstitutionContact.getInstance(contact);
+				setDescriptions(contactInstance);
+				if	(contactInstance.getContact() != null && contactInstance.getContact().getStatus() != neStatus)
+					list.add(contactInstance);
 			}
 
 		} catch (Exception exc) {

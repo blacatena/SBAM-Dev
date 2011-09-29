@@ -244,6 +244,25 @@ public class ContactSearchField extends ComboBox<BeanModel> {
 			query = getRawValue();
 		return query;
 	}
+	
+	public void setValue(ContactInstance contact) {
+		if (contact != null) {
+			for (BeanModel test : getStore().getModels() ) {
+				ContactSearchResultInstance result = (ContactSearchResultInstance) test.getBean();
+				if (result.getContact() != null) {
+					ContactInstance testContact = result.getContact();
+					if (testContact.getContactId() == contact.getContactId()) {
+						result.setContact(contact);	//	Synchronize the contacts, using the one supplied
+						setValue(test);				//	Make the bean containing the contact the current value/selection
+						return;
+					}
+				}
+			}
+		}
+		
+		//	Create a new search result instance to hold this contact
+		setValue(ContactSearchResultInstance.obtainModel(new ContactSearchResultInstance(contact)));
+	}
 
 	public boolean isIncludeAddOption() {
 		return includeAddOption;

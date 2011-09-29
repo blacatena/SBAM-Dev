@@ -6,6 +6,7 @@ import java.util.List;
 import com.scholastic.sbam.server.database.codegen.TermType;
 import com.scholastic.sbam.server.database.objects.DbTermType;
 import com.scholastic.sbam.shared.objects.TermTypeInstance;
+import com.scholastic.sbam.shared.util.AppConstants;
 import com.scholastic.sbam.shared.validation.CodeValidator;
 import com.scholastic.sbam.shared.validation.NameValidator;
 
@@ -58,7 +59,7 @@ public class AppTermTypeValidator {
 		addMessage((new CodeValidator(MIN_CODE_LEN)).validate(value));
 		if (value != null && value.length() > 0) {
 			TermType conflict = DbTermType.getByCode(value);
-			if (conflict != null) {
+			if (conflict != null && conflict.getStatus() != AppConstants.STATUS_DELETED) {
 				addMessage("Term type code already exists.");
 			}
 		}

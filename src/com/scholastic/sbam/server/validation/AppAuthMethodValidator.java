@@ -108,7 +108,7 @@ public class AppAuthMethodValidator {
 	public List<String> validateNewAuthMethodId(int agreementId, int ucn, int ucnSuffix, String siteLocCode, String methodType, int methodCode) {
 		if (agreementId > 0 && ucn > 0 && siteLocCode != null) {
 			AuthMethod conflict = DbAuthMethod.getById(agreementId, ucn, ucnSuffix, siteLocCode, methodType, methodCode);
-			if (conflict != null) {
+			if (conflict != null && conflict.getStatus() != AppConstants.STATUS_DELETED) {
 				addMessage("Authentication Method already exists.");
 			}
 		}

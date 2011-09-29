@@ -83,12 +83,12 @@ public class AppProxyIpValidator {
 	public List<String> validateNewProxyIpId(int proxyId, int ipId, long ipLo, long ipHi) {
 		if (proxyId > 0 && ipId > 0 ) {
 			ProxyIp conflict = DbProxyIp.getById(proxyId, ipId);
-			if (conflict != null) {
+			if (conflict != null && conflict.getStatus() != AppConstants.STATUS_DELETED) {
 				addMessage("Proxy IP already exists.");
 			}
 		} else if (proxyId > 0) {
 			ProxyIp conflict = DbProxyIp.findInRange(proxyId, ipLo, ipHi);
-			if (conflict != null) {
+			if (conflict != null && conflict.getStatus() != AppConstants.STATUS_DELETED) {
 				addMessage("Proxy IP already exists.");
 			}
 		}

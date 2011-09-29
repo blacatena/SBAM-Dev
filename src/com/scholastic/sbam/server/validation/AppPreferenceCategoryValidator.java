@@ -6,6 +6,7 @@ import java.util.List;
 import com.scholastic.sbam.server.database.codegen.PreferenceCategory;
 import com.scholastic.sbam.server.database.objects.DbPreferenceCategory;
 import com.scholastic.sbam.shared.objects.PreferenceCategoryInstance;
+import com.scholastic.sbam.shared.util.AppConstants;
 import com.scholastic.sbam.shared.validation.CodeValidator;
 import com.scholastic.sbam.shared.validation.NameValidator;
 
@@ -57,7 +58,7 @@ public class AppPreferenceCategoryValidator {
 		addMessage((new CodeValidator(MIN_CODE_LEN)).validate(value));
 		if (value != null && value.length() > 0) {
 			PreferenceCategory conflict = DbPreferenceCategory.getByCode(value);
-			if (conflict != null) {
+			if (conflict != null && conflict.getStatus() != AppConstants.STATUS_DELETED) {
 				addMessage("Preference Category code already exists.");
 			}
 		}
