@@ -530,7 +530,7 @@ public abstract class BetterEditGrid<I extends BetterRowEditInstance> extends La
 	 */
 	protected abstract I getNewInstance();
 	
-	private BeanModel getModel(I instance) {
+	protected BeanModel getModel(I instance) {
 		BeanModelFactory factory = BeanModelLookup.get().getFactory(instance.getClass());
 		BeanModel model = factory.createModel(instance);
 		return model;

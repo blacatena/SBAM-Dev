@@ -17,6 +17,7 @@ import com.scholastic.sbam.client.services.UserNameValidationService;
 import com.scholastic.sbam.client.services.UserNameValidationServiceAsync;
 import com.scholastic.sbam.client.uiobjects.foundation.BetterFilterEditGrid;
 import com.scholastic.sbam.client.util.IconSupplier;
+import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.objects.UserInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
@@ -84,6 +85,10 @@ public class UserEditGrid extends BetterFilterEditGrid<UserInstance> {
 
 	@Override
 	protected void asyncUpdate(BeanModel beanModel) {
+		if (store.getKeyProvider() == null) {
+			System.out.println("Set key provider");
+			store.setKeyProvider(new SimpleKeyProvider("userName"));
+		}
 		final BeanModel targetBeanModel = beanModel;
 		//	System.out.println("Before update: " + targetBeanModel.getProperties());
 			updateUserService.updateUser((UserInstance) beanModel.getBean(),
@@ -105,10 +110,13 @@ public class UserEditGrid extends BetterFilterEditGrid<UserInstance> {
 							storeInstance.setNewRecord(false);
 							if (storeInstance.getId() == null)
 								storeInstance.setId(updatedUser.getId());
-							if (storeInstance.getCreatedDatetime() == null)
-								storeInstance.setCreatedDatetime(updatedUser.getCreatedDatetime());
 							storeInstance.setNewRecord(false);
 							storeInstance.setResetPassword(false);
+							if (updatedUser.getCreatedDatetime() != null)
+								storeInstance.setCreatedDatetime(updatedUser.getCreatedDatetime());
+							
+							grid.getView().refresh(false);
+							
 							if (updateResponse.getMessage() != null && updateResponse.getMessage().length() > 0)
 								MessageBox.info("Please Note...", updateResponse.getMessage(), null);
 					}
