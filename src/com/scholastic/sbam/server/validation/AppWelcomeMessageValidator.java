@@ -23,7 +23,7 @@ public class AppWelcomeMessageValidator {
 			return null;
 		validateId(instance.getId(), instance.isNewRecord());
 		validateTitle(instance.getTitle());
-	//	validateContent(instance.getContent());
+		validateContent(instance.getContent());
 		validateStatus(instance.getStatus());
 		return messages;
 	}
@@ -68,7 +68,9 @@ public class AppWelcomeMessageValidator {
 	}
 	
 	public List<String> validateContent(String content) {
-		addMessage(new NameValidator("message", 10, 4000).validate(content));
+		if (content == null || content.length() < 10)
+			addMessage("Please specify a message at least ten characters long.");
+//		addMessage(new NameValidator("message", 10, 4000).validate(content));
 		return messages;
 	}
 	

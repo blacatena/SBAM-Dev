@@ -32,7 +32,6 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.DateField;
-import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.HtmlEditor;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
@@ -213,6 +212,7 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 	    posted.setName("postDate");
 	    posted.setFieldLabel("Posted");
 	    posted.setReadOnly(true);
+	    posted.setEnabled(false);
 	    posted.setToolTip("This is the date on which this message was created.");
 	    panel.add(posted);   
 	
@@ -242,7 +242,7 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 	    checkGroup.add(priority);
 	    panel.add(checkGroup);
 	    
-	    content = new HtmlEditor();
+	    content = new HtmlEditor() ;
 	    content.setName("content");
 	    content.setFieldLabel("Message");
 	    content.setHeight(380);
@@ -273,34 +273,30 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 				button.setEnabled(enable);
 	}
 	
-	protected boolean mainFieldsAreEmpty() {
+	protected boolean mainFieldsAreIncomplete() {
 		return title.getValue() == null || title.getValue().length() == 0 || expires.getValue() == null;
 	}
 	
-	protected boolean allFieldsAreEmpty() {
-		return mainFieldsAreEmpty() || content.getValue() == null || content.getValue().length() == 0;
+	protected boolean anyFieldsAreIncomplete() {
+		return mainFieldsAreIncomplete() || content.getValue() == null || content.getValue().length() < 10;
 	}
 	
 	protected boolean fieldsAreComplete() {
-		return title.isValid() && expires.isValid() && !mainFieldsAreEmpty();
+		return title.isValid() && expires.isValid() && !anyFieldsAreIncomplete();
 	}
 	
-	protected void debugDirty() {
-		if (panel.isDirty()) {
-
-		    for (Field<?> f : panel.getFields()) {
-		      if (f.isDirty()) {
-		        System.out.println(f.getName() + " is dirty with <" + f.getOriginalValue() + "> versus <" + f.getValue() + ">");
-		      }
-		    }
-		}
+	/**
+	 * Custom method because panel.isDirty() isn't working with the number field
+	 */
+	protected boolean panelIsDirty() {
+		return title.isDirty() || expires.isDirty() || active.isDirty() || priority.isDirty() || content.isDirty();
 	}
 	
 	protected void setButtonStatusListener(final FormPanel panel) {
 		dirtyListenTimer = new Timer() {
 			  @Override
 			  public void run() {
-			    	boolean panelDirty = panel != null && panel.isDirty();
+			    	boolean panelDirty = panel != null && panelIsDirty();	//	panel.isDirty();
 			    	boolean panelValid = panel != null && panel.isValid();
 			    	setButtonEnable(refreshThisButton, 	panelDirty && targetModel != null);
 			    	setButtonEnable(refreshAllButton, 	!panelDirty || targetModel == null);
@@ -320,14 +316,25 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 		active.setReadOnly(readOnly);
 		priority.setReadOnly(readOnly);
 		content.setReadOnly(readOnly);
+		content.setEnabled(!readOnly);
+	}
+	
+	protected void setFieldsEnabled(boolean readOnly) {
+		title.setEnabled(!readOnly);
+		expires.setEnabled(!readOnly);
+		active.setEnabled(!readOnly);
+		priority.setEnabled(!readOnly);
+		content.setEnabled(!readOnly);
 	}
 	
 	protected void protectFields() {
-		setReadOnly(true);
+//		setReadOnly(true);
+		setFieldsEnabled(true);
 	}
 	
 	protected void openFields() {
-		setReadOnly(false);
+//		setReadOnly(false);
+		setFieldsEnabled(false);
 	}
 	
 	protected void bind(SelectionChangedEvent<BeanModel> be) {
@@ -366,13 +373,13 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 	}
 	
 	protected void formClear() {
-		panel.clear();
+	//	panel.clear();
 		panel.clearDirtyFields();
 		protectFields();
 	}
 	
 	protected void formSet() {
-		id.setOriginalValue(targetInstance.getId());
+		id.setOriginalValue(targetInstance.getId() * 1.0);
 		title.setOriginalValue(targetInstance.getTitle());
 		posted.setOriginalValue(targetInstance.getPostDate());
 		expires.setOriginalValue(targetInstance.getExpireDate());
@@ -385,7 +392,7 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 	
 	protected void formReset() {
 		
-		id.setValue(targetInstance.getId());
+		id.setValue(targetInstance.getId() * 1.0);
 		title.setValue(targetInstance.getTitle());
 		posted.setValue(targetInstance.getPostDate());
 		expires.setValue(targetInstance.getExpireDate());

@@ -419,8 +419,12 @@ public class DbAuthMethod extends HibernateAccessor {
 		" AND (agreement.`status` is null or agreement.`status` <> 'X') " +
 		" AND (site.`status` is null or site.`status` <> 'X') ";
 
+    	boolean validCriteria = false;
+    	
     	sqlQuery += " AND ( /* 1 */ ";	//	-->1
     	if (typedTerms.getIps().size() > 0) {
+    		validCriteria = true;
+    		
     		sqlQuery += " ( /* 2a */ ";	// -->2
     		
     		/* Anything that qualifies by IP any range */
@@ -474,6 +478,7 @@ public class DbAuthMethod extends HibernateAccessor {
     	}
     	
     	if (typedTerms.getWords().size() > 0 || typedTerms.getNumbers().size() > 0) {
+    		validCriteria = true;
     		
     		StringBuffer fullTextMatch = new StringBuffer();
     		int termCount = 0;
@@ -534,6 +539,9 @@ public class DbAuthMethod extends HibernateAccessor {
     	}
     	
     	sqlQuery += ") /* 1 */ ";	// <--1
+    	
+    	if (!validCriteria)
+    		return new ArrayList<Object []>();;
     	
  //   	System.out.println(sqlQuery);
     	        	

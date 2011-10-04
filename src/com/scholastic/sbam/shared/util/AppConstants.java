@@ -258,7 +258,7 @@ public class AppConstants {
 	
 	public static String addAsIp(StringBuffer ip, List<Long []> ipRanges) {
 		if (ip.indexOf(".") < 0)
-			return null;
+			return "";
 		
 		int ipCount = 0;
 		int octetCount = 0;
@@ -405,9 +405,10 @@ public class AppConstants {
 	    					ip.setLength(0);
 	    				} else {
 		    				String message = addAsIp(ip, ipRanges);
-		    				if (message != null) {	// If addAsIp returns a non-zero length message, then this wasn't a valid IP range
+		    				if (message != null) {	// If addAsIp returns a message, then this wasn't a valid IP range
 		    					remnant.append(ip);
-		    					messages.add(message);
+		    					if (message.length() > 0)
+		    						messages.add(message);	//	If there's something to tell the user about, do it
 		    				} else
 		    					ipStrings.add(ip.toString());
 		    				ip.setLength(0);

@@ -161,6 +161,16 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	public void setAuthMethod(AuthMethodInstance instance) {
 		setFocusInstance(instance);
 	}
+	
+	@Override
+	protected String getButtonString() {
+		return NEW_BUTTON + EDIT_BUTTON + CANCEL_BUTTON + SAVE_BUTTON + DELETE_BUTTON;
+	}
+	
+	@Override
+	public String getDeleteMessage() {
+		return "Do you wish to delete this authentication method?";
+	}
 
 	@Override
 	public void awaken() {
@@ -806,6 +816,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 							System.out.println(caught.getClass().getName());
 							System.out.println(caught.getMessage());
 						}
+						deleteButton.setEnabled(focusInstance != null && !focusInstance.isNewRecord());
 						editButton.enable();
 						newButton.enable();
 					}
@@ -833,7 +844,8 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 							matchInstance.setValuesFrom(focusInstance);
 							grid.getStore().update(gridModel);
 						}
-						
+
+						deleteButton.enable();
 						editButton.enable();
 						newButton.enable();
 				}
@@ -880,6 +892,47 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 							grid.getStore().update(gridModel);
 						}
 						notesField.unlockNote();
+				}
+			});
+	}
+	 
+	@Override
+	protected void asyncDelete() {
+		if (focusInstance == null)
+			return;
+		
+		focusInstance.setStatus(AppConstants.STATUS_DELETED);
+	
+		//	Issue the asynchronous update request and plan on handling the response
+		updateAuthMethodService.updateAuthMethod(focusInstance,
+				new AsyncCallback<UpdateResponse<AuthMethodInstance>>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "Authentication method delete failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+						deleteButton.enable();
+						editButton.enable();
+						newButton.enable();
+					}
+
+					public void onSuccess(UpdateResponse<AuthMethodInstance> updateResponse) {
+						AuthMethodInstance updatedAuthMethod = (AuthMethodInstance) updateResponse.getInstance();
+						//	This puts the grid in synch
+						BeanModel gridModel = grid.getStore().findModel(updatedAuthMethod.getUniqueKey());
+						if (gridModel != null) {
+							grid.getStore().remove(gridModel);
+						}
+						
+						focusInstance = null;
+						
+						deleteButton.disable();
+						editButton.disable();
+						newButton.enable();
 				}
 			});
 	}
