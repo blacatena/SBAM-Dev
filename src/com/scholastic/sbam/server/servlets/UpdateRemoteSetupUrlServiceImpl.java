@@ -6,12 +6,16 @@ import java.util.List;
 import com.scholastic.sbam.client.services.UpdateRemoteSetupUrlService;
 import com.scholastic.sbam.server.database.codegen.RemoteSetupUrl;
 import com.scholastic.sbam.server.database.codegen.RemoteSetupUrlId;
+import com.scholastic.sbam.server.database.codegen.Site;
 import com.scholastic.sbam.server.database.objects.DbRemoteSetupUrl;
+import com.scholastic.sbam.server.database.objects.DbSite;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.server.validation.AppRemoteSetupUrlValidator;
+import com.scholastic.sbam.shared.objects.SiteInstance;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.objects.RemoteSetupUrlInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
+import com.scholastic.sbam.shared.util.AppConstants;
 
 /**
  * The server side implementation of the RPC service.
@@ -41,6 +45,10 @@ public class UpdateRemoteSetupUrlServiceImpl extends AuthenticatedServiceServlet
 			//	Get existing, or create new
 			if (instance.getUrlId() > 0 && !instance.isNewRecord())
 				dbInstance = DbRemoteSetupUrl.getById(instance.getAgreementId(), instance.getUcn(), instance.getUcnSuffix(), instance.getSiteLocCode(), instance.getUrlId());
+			else {
+				//	Look for deleted
+				dbInstance = DbRemoteSetupUrl.getByOwnerUrl(instance.getAgreementId(), instance.getUcn(), instance.getUcnSuffix(), instance.getSiteLocCode(), instance.getUrl());
+			}
 			
 			//	If none found, create new
 			if (dbInstance == null) {
@@ -107,6 +115,19 @@ public class UpdateRemoteSetupUrlServiceImpl extends AuthenticatedServiceServlet
 			//	Persist in database
 			DbRemoteSetupUrl.persist(dbInstance);
 			
+			//	Create the site if necessary
+			if (instance.getForUcn() > 0 && instance.getForSiteLocCode() != null && instance.getForSiteLocCode().length() > 0) {
+				Site site = DbSite.getById(instance.getForUcn(), instance.getForUcnSuffix(), instance.getForSiteLocCode());
+				if (site == null) {
+					UpdateSiteLocationServiceImpl.updateSite(SiteInstance.getDefaultNewInstance(instance.getForUcn(), instance.getForUcnSuffix(), instance.getForSiteLocCode()));
+				} else if (site.getStatus() == AppConstants.STATUS_DELETED) {
+					SiteInstance siteInstance = DbSite.getInstance(site);
+					siteInstance.setStatus(AppConstants.STATUS_ACTIVE);
+					UpdateSiteLocationServiceImpl.updateSite(siteInstance);
+				}
+			}
+			
+			//	Fill in the related instances
 			DbRemoteSetupUrl.setDescriptions(instance);
 			
 			//	Refresh when new row is created, to get assigned ID

@@ -24,6 +24,10 @@ public class AppAuthMethodValidator {
 	private AuthMethod		 authMethod;
 
 	public List<String> validateAuthMethod(AuthMethodInstance instance) {
+		return validateAuthMethod(instance, false);
+	}
+
+	public List<String> validateAuthMethod(AuthMethodInstance instance, boolean validateSite) {
 		if (instance.getStatus() == AppConstants.STATUS_DELETED)
 			return null;
 
@@ -33,7 +37,8 @@ public class AppAuthMethodValidator {
 		if (instance.getUcn() > 0)
 			validateInstitution(instance.getUcn());
 		validateInstitution(instance.getForUcn());
-		validateSite(instance.getForUcn(), instance.getForUcnSuffix(), instance.getForSiteLocCode());
+		if (validateSite)
+			validateSite(instance.getForUcn(), instance.getForUcnSuffix(), instance.getForSiteLocCode());
 		validateAgreementSite(instance.getAgreementId(), instance.getForUcn(), instance.getForUcnSuffix(), instance.getForSiteLocCode());
 		validateStatus(instance.getStatus());
 		validateIpRange(instance);

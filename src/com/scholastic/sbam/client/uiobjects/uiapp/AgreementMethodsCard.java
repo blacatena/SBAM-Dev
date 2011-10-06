@@ -60,6 +60,20 @@ import com.scholastic.sbam.shared.objects.SiteInstance;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.util.AppConstants;
 
+/**
+ * The is implementation of a card is the most complex of any.  It contains many special features.
+ * 
+ * In particular, since it allows three types of entities to be edited, the form has three collapsable field sets.  For an existing
+ * method, the field set for that method type must be expanded and others closed and disabled.  For a new method,
+ * all three must be available, and the user must be able to open and close them all, but opening one must close the others.
+ * Lastly, all fields must be disabled when a user is no longer in edit mode.
+ * 
+ * To do this, a more sophisticated field set (a LockableFieldSet) has been set up and used, but the interaction is still tricky,
+ * and because of the various interactions using it is also tricky.
+ * 
+ * @author Bob Lacatena
+ *
+ */
 public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	
 	private static final int DEFAULT_FIELD_WIDTH	=	0;	//250;
@@ -147,6 +161,8 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		setFocusId(agreementId);
 		if (siteLocationField != null)
 			siteLocationField.setAgreementId(agreementId);
+		if (institutionField != null)
+			institutionField.setAgreementId(agreementId);
 	}
 	
 	public AgreementInstance getAgreement() {
@@ -297,11 +313,28 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 //		setOriginalValues();
 	}
 	
+	public void clearFormFieldValues() {
+		agreementIdField.setValue(AppConstants.appendCheckDigit(getAgreementId()));
+		ucnDisplay.setValue("");
+		institutionField.setValue(null);
+		siteLocationField.setValue(null);
+		validatedCheck.setValue(false);
+		approvedCheck.setValue(false);
+		remoteCheck.setValue(false);
+		ipRangeField.setValue(0L,0L);
+		uidPasswordField.setValue("", "", "");
+		urlField.setValue("");
+		proxyField.setValue(null);
+		openUrlFields(false);
+		openUidFields(false);
+		openIpFields(false);
+	}
+	
 	public void openIpFields(boolean open) {
 		ipRangeField.setReadOnly(!open);
 	//	ipFieldSet.markLocked(!open);
 		ipFieldSet.setExpanded(open);
-		ipFieldSet.enableFields(false);
+		ipFieldSet.enableFields(false);	// false?		//	Why is this here?
 		ipFieldSet.setEnabled(open);
 	}
 	
@@ -313,7 +346,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		urlField.setReadOnly(!open);
 	//	urlFieldSet.markLocked(!open);
 		urlFieldSet.setExpanded(open);
-		urlFieldSet.enableFields(false);
+		urlFieldSet.enableFields(false);	//	false?
 		urlFieldSet.setEnabled(open);
 	}
 	
@@ -326,7 +359,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		proxyField.setReadOnly(!open);
 	//	uidFieldSet.markLocked(!open);
 		uidFieldSet.setExpanded(open);
-		uidFieldSet.enableFields(false);
+		uidFieldSet.enableFields(false);	// false?
 		uidFieldSet.setEnabled(open);
 	}
 	
@@ -345,11 +378,29 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	}
 	
 	@Override
+	public void endEdit(boolean save) {
+		super.endEdit(save);
+		
+		ipFieldSet.enableFields(false);
+		uidFieldSet.enableFields(false);
+		urlFieldSet.enableFields(false);
+	}
+	
+	@Override
 	public void handleNew() {
+		
+		//	This must be called first, because it will accidentally disable the field sets, and we have to override that later
+		super.handleNew();
+		
+		//	Because a new method could be anything, open all field sets
 		openIpFields(true);
 		openUidFields(true);
 		openUrlFields(true);
-		super.handleNew();
+		
+		//	They're open, but not yet enabled
+		ipFieldSet.enableFields(true);
+		uidFieldSet.enableFields(true);
+		urlFieldSet.enableFields(true);
 		
 		//	This is for/shared by the ip, uid and url fields that do async validation based on the method ID
 		methodId.setFrom(MethodIdInstance.getEmptyInstance());
@@ -372,7 +423,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	
 	@Override
 	protected boolean isFormValidAndReady() {
-		boolean ready = formPanel.isValid();
+		boolean ready = formPanel.isValid() && (ipFieldSet.isExpanded() || uidFieldSet.isExpanded() || urlFieldSet.isExpanded());
 		
 		return ready;
 	}
@@ -929,6 +980,8 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 						}
 						
 						focusInstance = null;
+						
+						clearFormFieldValues();
 						
 						deleteButton.disable();
 						editButton.disable();

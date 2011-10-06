@@ -85,6 +85,9 @@ public class AppIpConflictDetector {
 		int otherAgreements = 0;
 		if (authMethods != null) {
 			for (AuthMethod authMethod : authMethods) {
+				if (authMethod.getStatus() == AppConstants.STATUS_DELETED)
+					continue;
+				
 				AuthMethodInstance amInstance = DbAuthMethod.getInstance(authMethod);
 				//	Don't check a method against itself
 				if (methodId != null && methodId.sourceEquals(amInstance.obtainMethodId())) {
@@ -104,6 +107,9 @@ public class AppIpConflictDetector {
 		
 		if (proxyIps != null) {
 			for (ProxyIp proxyIp : proxyIps) {
+				if (proxyIp.getStatus() == AppConstants.STATUS_DELETED)
+					continue;
+				
 				ProxyIpInstance pipInstance = DbProxyIp.getInstance(proxyIp);
 				//	Don't check a proxy IP against itself
 				if (methodId != null && methodId.sourceEquals(pipInstance.obtainMethodId())) {

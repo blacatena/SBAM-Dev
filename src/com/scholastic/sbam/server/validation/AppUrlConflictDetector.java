@@ -54,6 +54,9 @@ public class AppUrlConflictDetector {
 		int otherAgreements = 0;
 		if (authMethods != null) {
 			for (AuthMethod authMethod : authMethods) {
+				if (authMethod.getStatus() == AppConstants.STATUS_DELETED)
+					continue;
+				
 				AuthMethodInstance amInstance = DbAuthMethod.getInstance(authMethod);
 				//	Don't check a method against itself
 				if (methodId != null && methodId.sourceEquals(amInstance.obtainMethodId())) {
@@ -68,6 +71,8 @@ public class AppUrlConflictDetector {
 		
 		if (remoteSetupUrls != null) {
 			for (RemoteSetupUrl remoteSetupUrl : remoteSetupUrls) {
+				if (remoteSetupUrl.getStatus() == AppConstants.STATUS_DELETED)
+					continue;
 				RemoteSetupUrlInstance amInstance = DbRemoteSetupUrl.getInstance(remoteSetupUrl);
 				//	Don't check a method against itself
 				if (methodId != null && methodId.sourceEquals(amInstance.obtainMethodId())) {
@@ -199,7 +204,7 @@ public class AppUrlConflictDetector {
 			if (AuthMethodInstance.AM_URL.equals(compareMethodId.getMethodType()))
 				msg.append(" as an access method");
 			else if (RemoteSetupUrlInstance.REMOTE_SETUP_URL.equals(compareMethodId.getMethodType()))
-				msg.append(" as an access method");
+				msg.append(" as a remote setup URL");
 			else
 				msg.append(" with an unknown usage");
 		}

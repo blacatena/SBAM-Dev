@@ -24,6 +24,10 @@ public class AppRemoteSetupUrlValidator {
 	private RemoteSetupUrl		 remoteSetupUrl;
 
 	public List<String> validateRemoteSetupUrl(RemoteSetupUrlInstance instance) {
+		return validateRemoteSetupUrl(instance, false);
+	}
+
+	public List<String> validateRemoteSetupUrl(RemoteSetupUrlInstance instance, boolean validateSite) {
 		if (instance.getStatus() == AppConstants.STATUS_DELETED)
 			return null;
 
@@ -33,7 +37,8 @@ public class AppRemoteSetupUrlValidator {
 		if (instance.getUcn() > 0)
 			validateInstitution(instance.getUcn());
 		validateInstitution(instance.getForUcn());
-		validateSite(instance.getForUcn(), instance.getForUcnSuffix(), instance.getForSiteLocCode());
+		if (validateSite)
+			validateSite(instance.getForUcn(), instance.getForUcnSuffix(), instance.getForSiteLocCode());
 		validateAgreementSite(instance.getAgreementId(), instance.getForUcn(), instance.getForUcnSuffix(), instance.getForSiteLocCode());
 		validateStatus(instance.getStatus());
 		return messages;

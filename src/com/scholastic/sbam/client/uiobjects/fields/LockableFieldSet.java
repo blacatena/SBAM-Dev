@@ -40,8 +40,21 @@ public class LockableFieldSet extends FieldSet {
 	
 	@Override
 	public void onExpand() {
-		super.onExpand();
+		super.onExpand();;
 		enableFields();
+	}
+	
+	@Override
+	public void setEnabled(boolean enabled) {
+		if (enabled)
+			enable();
+		else
+			disable();
+	}
+	
+	@Override
+	public void disable() {
+		super.disable();
 	}
 	
 	@Override
@@ -87,11 +100,23 @@ public class LockableFieldSet extends FieldSet {
 	
 	public void enableFields() {
 		if (enableFields && !locked && isExpanded()) {
+			System.out.println("enable");
 			for (Component component : this.getItems()) {
 				if (component instanceof Field) {
 					Field<?> field = (Field<?>) component;
 					field.enable();
 				}
+			}
+		}
+	}
+	
+	public void dumpStatus() {
+		System.out.println("....." + this.getId() + " enableFields " + enableFields + ", locked " + locked + ", expanded " + isExpanded() + ", enabled " + isEnabled()); 
+		
+		for (Component component : this.getItems()) {
+			if (component instanceof Field) {
+				Field<?> field = (Field<?>) component;
+				System.out.println("....." + field.getId() + " : enabled " + field.isEnabled() + ", read only " + field.isReadOnly());
 			}
 		}
 	}

@@ -166,16 +166,22 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 
 	@Override
 	public void setFormFieldValues(AgreementContactInstance instance) {
-		selectedContact = instance.getContact();
+		selectedContact = instance == null ? null : instance.getContact();
 		
-		agreementIdField.setValue(AppConstants.appendCheckDigit(getAgreementId()) + " &nbsp;&nbsp;&nbsp;<i>Contact " + AppConstants.getStatusDescription(instance.getStatus()) + "</i>");
+		if (instance != null)
+			agreementIdField.setValue(AppConstants.appendCheckDigit(getAgreementId()) + " &nbsp;&nbsp;&nbsp;<i>Contact " + AppConstants.getStatusDescription(instance.getStatus()) + "</i>");
+		else
+			agreementIdField.setValue(AppConstants.appendCheckDigit(getAgreementId()));
 		
 		contactField.setValue(selectedContact);	//	ContactSearchResultInstance.obtainModel(new ContactSearchResultInstance(instance.getContact())));
 		
 		//	This is a kludge bug fix, because contactField above is going to fire a selectionChanged event that's going to change it to the old one
-		selectedContact = instance.getContact();
+		selectedContact = instance == null ? null : instance.getContact();
 		
-		renewalContactCheck.setValue(instance.isRenewalContact());
+		if (instance != null)
+			renewalContactCheck.setValue(instance.isRenewalContact());
+		else
+			renewalContactCheck.setValue(false);
 			
 		if (selectedContact != null) {
 			institutionField.setValue(InstitutionInstance.obtainModel(selectedContact.getInstitution()));
@@ -635,6 +641,10 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 						}
 						
 						focusInstance = null;
+						selectedContact = null;
+						
+						//	Clear contact form values
+						setFormFieldValues(focusInstance);
 						
 						deleteButton.disable();
 						editButton.disable();

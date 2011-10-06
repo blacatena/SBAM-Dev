@@ -176,7 +176,7 @@ public class InstitutionContactsCard extends FormAndGridPanel<InstitutionContact
 
 	@Override
 	public void setFormFieldValues(InstitutionContactInstance instance) {
-		selectedContact = instance.getContact();
+		selectedContact = instance == null ? null : instance.getContact();
 		
 //		ucnField.setValue(getUcn() + " &nbsp;&nbsp;&nbsp;<i>Contact " + AppConstants.getStatusDescription(instance.getStatus()) + "</i>");
 		
@@ -598,6 +598,7 @@ public class InstitutionContactsCard extends FormAndGridPanel<InstitutionContact
 						}
 						
 						focusInstance = null;
+						setFormFieldValues(null);
 						
 						deleteButton.disable();
 						editButton.disable();

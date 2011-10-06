@@ -130,7 +130,7 @@ public class DbRemoteSetupUrl extends HibernateAccessor {
         crit.add(Restrictions.eq("id.ucnSuffix", 	ucnSuffix));
         crit.add(Restrictions.eq("id.siteLocCode", 	siteLocCode));
         crit.setMaxResults(1);
-        crit.addOrder(Order.desc("urlId"));
+        crit.addOrder(Order.desc("id.urlId"));
         @SuppressWarnings("unchecked")
 		List<RemoteSetupUrl> objects = crit.list();
         if (objects == null || objects.size() == 0)
@@ -150,6 +150,22 @@ public class DbRemoteSetupUrl extends HibernateAccessor {
         @SuppressWarnings("unchecked")
 		List<RemoteSetupUrl> objects = crit.list();
         return objects;
+	}
+	
+	public static RemoteSetupUrl getByOwnerUrl(int agreementId, int ucn, int ucnSuffix, String siteLocCode, String url) {
+		if (url == null || url.length() == 0)
+			return null;
+		
+        Criteria crit = sessionFactory.getCurrentSession().createCriteria(getObjectReference(objectName));
+
+        //	This criterion is for database performance (i.e. prevents a full database scan)
+        crit.add(Restrictions.eq("url", url));
+        
+        @SuppressWarnings("unchecked")
+		List<RemoteSetupUrl> objects = crit.list();
+        if (objects == null || objects.size() == 0)
+        	return null;
+        return objects.get(0);
 	}
 	
 	public static List<Object []> findFiltered(String filter, boolean doBoolean, char neStatus) {
@@ -298,21 +314,21 @@ public class DbRemoteSetupUrl extends HibernateAccessor {
 		if (remoteSetupUrl == null)
 			return;
 		
-		if (remoteSetupUrl.getUcn() > 0) {
-			if (remoteSetupUrl.getSiteLocCode() != null && remoteSetupUrl.getSiteLocCode().length() > 0) {
-				Site dbSite = DbSite.getById(remoteSetupUrl.getUcn(), remoteSetupUrl.getUcnSuffix(), remoteSetupUrl.getSiteLocCode());
+		if (remoteSetupUrl.getForUcn() > 0) {
+			if (remoteSetupUrl.getForSiteLocCode() != null && remoteSetupUrl.getForSiteLocCode().length() > 0) {
+				Site dbSite = DbSite.getById(remoteSetupUrl.getForUcn(), remoteSetupUrl.getForUcnSuffix(), remoteSetupUrl.getForSiteLocCode());
 				if (dbSite != null)
 					remoteSetupUrl.setSite( DbSite.getInstance(dbSite) );
 				else
-					remoteSetupUrl.setSite( SiteInstance.getUnknownInstance( remoteSetupUrl.getUcn(), remoteSetupUrl.getUcnSuffix(), remoteSetupUrl.getSiteLocCode()) );
+					remoteSetupUrl.setSite( SiteInstance.getUnknownInstance( remoteSetupUrl.getForUcn(), remoteSetupUrl.getForUcnSuffix(), remoteSetupUrl.getForSiteLocCode()) );
 			} else {
-				remoteSetupUrl.setSite( SiteInstance.getAllInstance(remoteSetupUrl.getUcn(), remoteSetupUrl.getUcnSuffix()) );
+				remoteSetupUrl.setSite( SiteInstance.getAllInstance(remoteSetupUrl.getForUcn(), remoteSetupUrl.getForUcnSuffix()) );
 			}
-			Institution dbInstitution = DbInstitution.getByCode(remoteSetupUrl.getUcn());
+			Institution dbInstitution = DbInstitution.getByCode(remoteSetupUrl.getForUcn());
 			if (dbInstitution != null)
 				remoteSetupUrl.getSite().setInstitution( DbInstitution.getInstance( dbInstitution));
 			else
-				remoteSetupUrl.getSite().setInstitution( InstitutionInstance.getEmptyInstance() );
+				remoteSetupUrl.getSite().setInstitution( InstitutionInstance.getUnknownInstance(remoteSetupUrl.getForUcn()) );
 		} else {
 			remoteSetupUrl.setSite( SiteInstance.getEmptyInstance());
 		}

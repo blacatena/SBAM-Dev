@@ -13,6 +13,7 @@ import com.scholastic.sbam.server.database.objects.DbPreferenceCategory;
 import com.scholastic.sbam.server.database.objects.DbSite;
 import com.scholastic.sbam.server.database.objects.DbSitePreference;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
+import com.scholastic.sbam.server.fastSearch.InstitutionCache.InstitutionCacheConflict;
 import com.scholastic.sbam.server.fastSearch.SiteInstitutionCache;
 import com.scholastic.sbam.server.validation.AppSiteValidator;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
@@ -31,12 +32,6 @@ public class UpdateSiteLocationServiceImpl extends AuthenticatedServiceServlet i
 	@Override
 	public UpdateResponse<SiteInstance> updateSiteLocation(SiteInstance instance) throws IllegalArgumentException {
 		
-		boolean newCreated				= false;
-		
-		String	messages				= null;
-		
-		Site dbInstance = null;
-		
 		authenticate("update site", SecurityManager.ROLE_MAINT);
 		
 		HibernateUtil.openSession();
@@ -44,71 +39,7 @@ public class UpdateSiteLocationServiceImpl extends AuthenticatedServiceServlet i
 
 		try {
 			
-			//	Pre-edit/fix values
-			validateInput(instance);
-			
-			//	Get existing, or create new
-			if (instance.getUcn() > 0) {
-				dbInstance = DbSite.getById(instance.getUcn(), instance.getUcnSuffix(), instance.getSiteLocCode());
-			}
-
-			//	If none found, create new
-			if (dbInstance == null) {
-				newCreated = true;
-				dbInstance = new Site();
-				SiteId id = new SiteId();
-				id.setUcn(instance.getUcn());
-				id.setUcnSuffix(instance.getUcnSuffix());
-				id.setSiteLocCode(instance.getSiteLocCode());
-				dbInstance.setId(id);
-				//	Set the create date/time and status
-				dbInstance.setCreatedDatetime(new Date());
-			}
-
-			//	Update values
-
-			if (instance.getDescription() != null)
-				dbInstance.setDescription(instance.getDescription());
-			if (instance.getStatus() != 0)
-				dbInstance.setStatus(instance.getStatus());
-			if (instance.getCommissionCode() != null)
-				dbInstance.setCommissionCode(instance.getCommissionCode());
-			if (instance.getPseudoSite() != 0)
-				dbInstance.setPseudoSite(instance.getPseudoSite());
-			if (instance.getNote() != null)
-				dbInstance.setNote(instance.getNote());
-				
-			//	Fix any nulls
-			if (instance.getDescription() == null)
-				dbInstance.setDescription("Missing Description");
-			if (dbInstance.getStatus() == AppConstants.STATUS_ANY_NONE)
-				dbInstance.setStatus(AppConstants.STATUS_ACTIVE);
-			if (dbInstance.getCommissionCode() == null)
-				dbInstance.setCommissionCode("");
-			if (dbInstance.getPseudoSite() == 0)
-				dbInstance.setPseudoSite('n');
-			if (dbInstance.getNote() == null)
-				dbInstance.setNote("");
-			
-			//	Persist in database
-			DbSite.persist(dbInstance);
-			
-			//	Refresh when new row is created, to get assigned ID
-			if (newCreated) {
-			//	DbSite.refresh(dbInstance);	// This may not be necessary, but just in case
-				instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
-				DbSite.setDescriptions(instance);
-			}
-			
-			//	Finally, record the site in the site cache
-			if (SiteInstitutionCache.getSingleton() != null) {
-				InstitutionInstance institution = instance.getInstitution();
-				if (institution == null && instance.getUcn() > 0) {
-					institution = DbInstitution.getInstance(DbInstitution.getByCode(instance.getUcn()));
-				}
-				if (institution != null)
-					SiteInstitutionCache.getSingleton().addInstitution(institution);
-			}
+			updateSite(instance);
 			
 			updateSitePreferences(instance);
 			
@@ -125,10 +56,83 @@ public class UpdateSiteLocationServiceImpl extends AuthenticatedServiceServlet i
 			HibernateUtil.closeSession();
 		}
 		
-		return new UpdateResponse<SiteInstance>(instance, messages);
+		return new UpdateResponse<SiteInstance>(instance, null);
 	}
 	
-	private void updateSitePreferences(SiteInstance site) {
+	public static void updateSite(SiteInstance instance) throws InstitutionCacheConflict, Exception {
+		
+		boolean newCreated				= false;
+		
+		Site dbInstance = null;
+		
+//		Pre-edit/fix values
+		validateInput(instance);
+		
+		//	Get existing, or create new
+		if (instance.getUcn() > 0) {
+			dbInstance = DbSite.getById(instance.getUcn(), instance.getUcnSuffix(), instance.getSiteLocCode());
+		}
+
+		//	If none found, create new
+		if (dbInstance == null) {
+			newCreated = true;
+			dbInstance = new Site();
+			SiteId id = new SiteId();
+			id.setUcn(instance.getUcn());
+			id.setUcnSuffix(instance.getUcnSuffix());
+			id.setSiteLocCode(instance.getSiteLocCode());
+			dbInstance.setId(id);
+			//	Set the create date/time and status
+			dbInstance.setCreatedDatetime(new Date());
+		}
+
+		//	Update values
+
+		if (instance.getDescription() != null)
+			dbInstance.setDescription(instance.getDescription());
+		if (instance.getStatus() != 0)
+			dbInstance.setStatus(instance.getStatus());
+		if (instance.getCommissionCode() != null)
+			dbInstance.setCommissionCode(instance.getCommissionCode());
+		if (instance.getPseudoSite() != 0)
+			dbInstance.setPseudoSite(instance.getPseudoSite());
+		if (instance.getNote() != null)
+			dbInstance.setNote(instance.getNote());
+			
+		//	Fix any nulls
+		if (instance.getDescription() == null)
+			dbInstance.setDescription("Missing Description");
+		if (dbInstance.getStatus() == AppConstants.STATUS_ANY_NONE)
+			dbInstance.setStatus(AppConstants.STATUS_ACTIVE);
+		if (dbInstance.getCommissionCode() == null)
+			dbInstance.setCommissionCode("");
+		if (dbInstance.getPseudoSite() == 0)
+			dbInstance.setPseudoSite('n');
+		if (dbInstance.getNote() == null)
+			dbInstance.setNote("");
+		
+		//	Persist in database
+		DbSite.persist(dbInstance);
+		
+		//	Refresh when new row is created, to get assigned ID
+		if (newCreated) {
+		//	DbSite.refresh(dbInstance);	// This may not be necessary, but just in case
+			instance.setCreatedDatetime(dbInstance.getCreatedDatetime());
+			DbSite.setDescriptions(instance);
+		}
+		
+		//	Finally, record the site in the site cache
+		if (SiteInstitutionCache.getSingleton() != null) {
+			InstitutionInstance institution = instance.getInstitution();
+			if (institution == null && instance.getUcn() > 0) {
+				institution = DbInstitution.getInstance(DbInstitution.getByCode(instance.getUcn()));
+			}
+			if (institution != null)
+				SiteInstitutionCache.getSingleton().addInstitution(institution);
+		}
+	}
+	
+	public void updateSitePreferences(SiteInstance site) {
 		//	A null hash map means we're not updating preferences... it's a don't know/don't care situation
 		if (site.getSelectedPreferences() == null)
 			return;
@@ -167,19 +171,19 @@ public class UpdateSiteLocationServiceImpl extends AuthenticatedServiceServlet i
 		site.setAllPreferenceCategories(categories);
 	}
 	
-	private void validateInput(SiteInstance instance) throws IllegalArgumentException {
+	protected static void validateInput(SiteInstance instance) throws IllegalArgumentException {
 		AppSiteValidator validator = new AppSiteValidator();
 		validator.setOriginal(instance);	//	This isn't really the original, but it's good enough, because it has the original ID
 		testMessages(validator.validateSite(instance));
 	}
 	
-	private void testMessages(List<String> messages) throws IllegalArgumentException {
+	protected static void testMessages(List<String> messages) throws IllegalArgumentException {
 		if (messages != null)
 			for (String message: messages)
 				testMessage(message);
 	}
 	
-	private void testMessage(String message) throws IllegalArgumentException {
+	protected static void testMessage(String message) throws IllegalArgumentException {
 		if (message != null && message.length() > 0)
 			throw new IllegalArgumentException(message);
 	}

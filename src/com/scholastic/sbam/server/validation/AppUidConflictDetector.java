@@ -68,6 +68,9 @@ public class AppUidConflictDetector {
 		int otherAgreements = 0;
 		if (authMethods != null) {
 			for (AuthMethod authMethod : authMethods) {
+				if (authMethod.getStatus() == AppConstants.STATUS_DELETED)
+					continue;
+				
 				AuthMethodInstance amInstance = DbAuthMethod.getInstance(authMethod);
 				//	Don't check a method against itself
 				if (methodId != null && methodId.sourceEquals(amInstance.obtainMethodId())) {

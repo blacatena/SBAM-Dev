@@ -628,7 +628,7 @@ public class DbAuthMethod extends HibernateAccessor {
 			if (dbInstitution != null)
 				authMethod.getSite().setInstitution( DbInstitution.getInstance( dbInstitution));
 			else
-				authMethod.getSite().setInstitution( InstitutionInstance.getEmptyInstance() );
+				authMethod.getSite().setInstitution( InstitutionInstance.getUnknownInstance(authMethod.getForUcn()) );
 		} else {
 			authMethod.setSite( SiteInstance.getEmptyInstance());
 		}

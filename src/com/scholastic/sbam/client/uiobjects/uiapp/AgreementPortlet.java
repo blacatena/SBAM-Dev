@@ -391,6 +391,15 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		profileFieldSet.setWidth(0);//buildingsField.getWidth() + 50);
 		profileFieldSet.setCollapsible(true);
 		
+		buildingsField.setMinValue(0);
+		buildingsField.setMaxValue(999999999);
+		populationField.setMinValue(0);
+		populationField.setMaxValue(999999999);
+		enrollmentField.setMinValue(0);
+		enrollmentField.setMaxValue(999999999);
+		workstationsField.setMinValue(0);
+		workstationsField.setMaxValue(999999999);
+		
 		profileFieldSet.add(buildingsField, formData90);
 		profileFieldSet.add(populationField, formData90);
 		profileFieldSet.add(enrollmentField, formData90);

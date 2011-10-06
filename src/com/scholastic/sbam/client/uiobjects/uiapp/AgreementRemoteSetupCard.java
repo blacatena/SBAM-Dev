@@ -97,6 +97,8 @@ public class AgreementRemoteSetupCard extends FormAndGridPanel<RemoteSetupUrlIns
 		setFocusId(agreementId);
 		if (siteLocationField != null)
 			siteLocationField.setAgreementId(agreementId);
+		if (institutionField != null)
+			institutionField.setAgreementId(agreementId);
 	}
 	
 	public AgreementInstance getAgreement() {
@@ -204,6 +206,16 @@ public class AgreementRemoteSetupCard extends FormAndGridPanel<RemoteSetupUrlIns
 		setNotesField(instance.getNote());
 		
 //		setOriginalValues();
+	}
+	
+	public void clearFormFieldValues() {
+		agreementIdField.setValue(AppConstants.appendCheckDigit(getAgreementId()));
+		ucnDisplay.setValue("");
+		institutionField.setValue(null);
+		siteLocationField.setValue(null);
+		approvedCheck.setValue(false);
+		urlField.setValue("");
+		setNotesField("");
 	}
  	
 	public void setNotesField(String note) {
@@ -662,6 +674,8 @@ public class AgreementRemoteSetupCard extends FormAndGridPanel<RemoteSetupUrlIns
 						}
 						
 						focusInstance = null;
+						
+						clearFormFieldValues();
 						
 						deleteButton.disable();
 						editButton.disable();

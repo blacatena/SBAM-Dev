@@ -6,12 +6,16 @@ import java.util.List;
 import com.scholastic.sbam.client.services.UpdateAuthMethodService;
 import com.scholastic.sbam.server.database.codegen.AuthMethod;
 import com.scholastic.sbam.server.database.codegen.AuthMethodId;
+import com.scholastic.sbam.server.database.codegen.Site;
 import com.scholastic.sbam.server.database.objects.DbAuthMethod;
+import com.scholastic.sbam.server.database.objects.DbSite;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.server.validation.AppAuthMethodValidator;
+import com.scholastic.sbam.shared.objects.SiteInstance;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.objects.AuthMethodInstance;
 import com.scholastic.sbam.shared.security.SecurityManager;
+import com.scholastic.sbam.shared.util.AppConstants;
 
 /**
  * The server side implementation of the RPC service.
@@ -142,6 +146,19 @@ public class UpdateAuthMethodServiceImpl extends AuthenticatedServiceServlet imp
 			//	Persist in database
 			DbAuthMethod.persist(dbInstance);
 			
+			//	Create the site if necessary
+			if (instance.getForUcn() > 0 && instance.getForSiteLocCode() != null && instance.getForSiteLocCode().length() > 0) {
+				Site site = DbSite.getById(instance.getForUcn(), instance.getForUcnSuffix(), instance.getForSiteLocCode());
+				if (site == null) {
+					UpdateSiteLocationServiceImpl.updateSite(SiteInstance.getDefaultNewInstance(instance.getForUcn(), instance.getForUcnSuffix(), instance.getForSiteLocCode()));
+				} else if (site.getStatus() == AppConstants.STATUS_DELETED) {
+					SiteInstance siteInstance = DbSite.getInstance(site);
+					siteInstance.setStatus(AppConstants.STATUS_ACTIVE);
+					UpdateSiteLocationServiceImpl.updateSite(siteInstance);
+				}
+			}
+			
+			//	Fill in the related instances
 			DbAuthMethod.setDescriptions(instance);
 			
 			//	Refresh when new row is created, to get assigned ID
