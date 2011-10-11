@@ -44,6 +44,7 @@ import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.util.AppConstants;
+import com.scholastic.sbam.shared.validation.EmailValidator;
 
 public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInstance> {
 	
@@ -288,6 +289,9 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 //		addressDisplay.setHeight(72);
 		
 		renewalContactGroup.setLabelSeparator("");
+		
+		emailDisplay.setValidator(new EmailValidator());
+		email2Display.setValidator(new EmailValidator());
 		
 //		contactTypeField.setWidth(200);
 //		fullNameDisplay.setWidth(250);

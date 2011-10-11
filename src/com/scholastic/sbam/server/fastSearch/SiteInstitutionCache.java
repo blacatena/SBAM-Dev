@@ -1,5 +1,7 @@
 package com.scholastic.sbam.server.fastSearch;
 
+import com.scholastic.sbam.shared.objects.CacheStatusInstance;
+
 /**
  * This version of the institution cache is restricted to customers with agreements (active or not).
  * 
@@ -14,10 +16,12 @@ public class SiteInstitutionCache extends InstitutionCache {
 	
 	protected static SiteInstitutionCache singleton = null;
 	
+	protected static final String SITE_SQL_FROM = "institution WHERE institution.ucn in (select distinct site_ucn from agreement_site where agreement_site.site_loc_code <> '' and agreement_site.status <> 'X' union select distinct ucn from site where site.status <> 'X') ";
+	
 	/**
 	 * SQL statement with a join to agreement
 	 */
-	protected static final String SITE_SQL = "SELECT DISTINCT ucn, parent_ucn, institution_name, address1, address2, address3, city, state, zip, country, phone, fax, alternate_ids FROM institution WHERE institution.ucn in (select distinct site_ucn from agreement_site where agreement_site.site_loc_code <> '' and agreement_site.status <> 'X' union select distinct ucn from site where site.status <> 'X') ";
+	protected static final String SITE_SQL = "SELECT DISTINCT ucn, parent_ucn, institution_name, address1, address2, address3, city, state, zip, country, phone, fax, alternate_ids FROM " + SITE_SQL_FROM;
 	
 //	public SiteInstitutionCache() {
 //		config = new InstitutionCacheConfig();
@@ -64,5 +68,26 @@ public class SiteInstitutionCache extends InstitutionCache {
 	
 	public static synchronized SiteInstitutionCache getSingleton() throws InstitutionCacheConflict {
 		return getSingleton(null);
+	}
+
+	
+	@Override
+	public String getTableName() {
+		return SITE_SQL_FROM;
+	}
+
+	@Override
+	public String getName() {
+		return "Site Cache";
+	}
+
+	@Override
+	public int getSeq() {
+		return 2;
+	}
+
+	@Override
+	public String getKey() {
+		return CacheStatusInstance.SITE_CACHE_KEY;
 	}
 }

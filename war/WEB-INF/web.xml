@@ -27,6 +27,16 @@
   </servlet>
   
   <servlet>
+    <servlet-name>cacheRefreshServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.CacheRefreshServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>cacheStatusListServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.CacheStatusListServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>getExportReportServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.GetExportReportServiceImpl</servlet-class>
   </servlet>
@@ -754,6 +764,16 @@
   <servlet-mapping>
     <servlet-name>deauthenticateServlet</servlet-name>
     <url-pattern>/sbam/deauthenticate</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>cacheRefreshServlet</servlet-name>
+    <url-pattern>/sbam/refreshCache</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>cacheStatusListServlet</servlet-name>
+    <url-pattern>/sbam/listCacheStatus</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

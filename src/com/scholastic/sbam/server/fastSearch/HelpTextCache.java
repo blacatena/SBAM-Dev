@@ -11,6 +11,7 @@ import java.util.TreeSet;
 import com.scholastic.sbam.server.database.codegen.HelpText;
 import com.scholastic.sbam.server.database.objects.DbHelpText;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
+import com.scholastic.sbam.shared.objects.CacheStatusInstance;
 import com.scholastic.sbam.shared.objects.HelpTextIndexInstance;
 
 /**
@@ -19,7 +20,7 @@ import com.scholastic.sbam.shared.objects.HelpTextIndexInstance;
  * @author Bob Lacatena
  *
  */
-public class HelpTextCache implements Runnable {
+public class HelpTextCache extends AppCacheBase implements Runnable {
 	
 	public static final int MIN_WORD_LENGTH = 3;
 	public static final int MAX_WORD_LIST_LENGTH = 50;
@@ -55,6 +56,8 @@ public class HelpTextCache implements Runnable {
 	protected List<HelpTextIndexInstance> index = new ArrayList<HelpTextIndexInstance>();
 	
 	protected String indexError = null;
+	
+	protected int	helpPages;
 	
 	private HelpTextCache() {
 		init();
@@ -105,6 +108,7 @@ public class HelpTextCache implements Runnable {
 			System.out.println("Parsing help text...");
 			for (HelpText dbHelpText : dbHelpTextList) {
 				count++;
+				helpPages++;
 				parse(dbHelpText);
 				map.put(dbHelpText.getId(), dbHelpText);
 				if (dbHelpText.getParentId() == null || dbHelpText.getParentId().length() == 0)
@@ -404,5 +408,50 @@ public class HelpTextCache implements Runnable {
 		this.index = null;
 		System.out.println("Error generating help index: " + indexError);
 	}
+
 	
+	@Override
+	public String getTableName() {
+		return "help_text";
+	}
+	
+	@Override
+	public String [] getCountHeadings() {
+		return new String [] {"Pages", "Words"};
+	}
+
+	@Override
+	public int [] getProcessed() {
+		return new int [] {helpPages, wordMap.size()};
+	}
+	
+	@Override
+	public int [] getExpectedCounts() throws Exception {
+		return new int [] {getExpectedCount()};
+	}
+
+	@Override
+	public boolean getReady() {
+		return mapsReady;
+	}
+
+	@Override
+	public boolean getLoading() {
+		return initRunning;
+	}
+
+	@Override
+	public String getName() {
+		return "Help Text Cache";
+	}
+
+	@Override
+	public int getSeq() {
+		return 3;
+	}
+
+	@Override
+	public String getKey() {
+		return CacheStatusInstance.HELP_TEXT_CACHE_KEY;
+	}
 }

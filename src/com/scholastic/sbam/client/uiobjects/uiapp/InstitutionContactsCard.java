@@ -43,6 +43,7 @@ import com.scholastic.sbam.shared.objects.ContactTypeInstance;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.util.AppConstants;
+import com.scholastic.sbam.shared.validation.EmailValidator;
 
 public class InstitutionContactsCard extends FormAndGridPanel<InstitutionContactInstance> {
 	
@@ -294,6 +295,9 @@ public class InstitutionContactsCard extends FormAndGridPanel<InstitutionContact
 //		phoneDisplay.setWidth(200);
 //		emailDisplay.setWidth(200);
 //		addressDisplay.setWidth(200);
+		
+		emailDisplay.setValidator(new EmailValidator());
+		email2Display.setValidator(new EmailValidator());
 
 		idNotesCombo.add(ucnField);	
 		idNotesCombo.add(notesField);

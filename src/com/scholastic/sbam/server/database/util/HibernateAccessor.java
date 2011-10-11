@@ -1,5 +1,9 @@
 package com.scholastic.sbam.server.database.util;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -366,6 +370,31 @@ public class HibernateAccessor
             System.out.println(e.getMessage());
         }
         return null;
+    }
+    
+    public static int count(String tableName) throws SQLException {
+		StringBuffer sql = new StringBuffer();
+		sql.append("select count(*) as entry_count from ");
+		sql.append(tableName);
+		
+		//	Execute the query
+		try  {
+			Connection conn   = HibernateUtil.getConnection();
+			Statement sqlStmt = conn.createStatement();
+			ResultSet	results = sqlStmt.executeQuery(sql.toString());
+			results.first();
+			int			count	= results.getBigDecimal("entry_count").intValue();
+			results.close();
+			sqlStmt.close();
+			conn.close();
+			
+			return count;
+		} catch (SQLException sqlExc) {
+			System.out.println(sql);
+			System.out.println(sqlExc.getMessage());
+			sqlExc.printStackTrace();
+			throw sqlExc;
+		}
     }
 
     public static void easyPersist(Object instance)

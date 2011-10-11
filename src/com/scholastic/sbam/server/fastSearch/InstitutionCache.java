@@ -19,6 +19,7 @@ import com.scholastic.sbam.server.database.objects.DbInstitutionGroup;
 import com.scholastic.sbam.server.database.objects.DbInstitutionPubPriv;
 import com.scholastic.sbam.server.database.objects.DbInstitutionType;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
+import com.scholastic.sbam.shared.objects.CacheStatusInstance;
 import com.scholastic.sbam.shared.objects.InstitutionGroupInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.InstitutionPubPrivInstance;
@@ -31,7 +32,7 @@ import com.scholastic.sbam.shared.util.AppConstants;
  * @author Bob Lacatena
  *
  */
-public class InstitutionCache implements Runnable {
+public class InstitutionCache extends AppCacheBase implements Runnable {
 	protected static final boolean FIRST_PASS_READY	= false;	//	Are maps ready for use after the first pass?
 	protected static final boolean SECOND_PASS_READY	=	true;	//	Are maps ready for use after the second pass?
 	
@@ -206,6 +207,8 @@ public class InstitutionCache implements Runnable {
 	 * Whether or not a reload is in progress and data is ready
 	 */
 	protected boolean mapsReady			= false;
+	
+	protected int ucns = 0;
 	
 	protected HashMap<String, SortedSet<String>>	wordMap	  = new HashMap<String, SortedSet<String>>();
 	protected HashMap<String, List<Integer>>		searchMap = new HashMap<String, List<Integer>>();
@@ -559,6 +562,9 @@ public class InstitutionCache implements Runnable {
 	 * @param tempMap
 	 */
 	protected void parse(InstitutionInstance institution, int pass) {
+		if (pass == 1)	
+			ucns++;
+		
 		if (config.updateable && pass == 1)
 			ucnSet.add(institution.getUcn());
 		
@@ -996,5 +1002,50 @@ public class InstitutionCache implements Runnable {
 		pubPrivs.put(pubPrivCode, unknown);
 		
 		return unknown;
+	}
+	
+	@Override
+	public String getTableName() {
+		return "institution";
+	}
+	
+	@Override
+	public String [] getCountHeadings() {
+		return new String [] {"UCNs", "Searchable Terms", "Countable Terms", "Words"};
+	}
+
+	@Override
+	public int [] getProcessed() {
+		return new int [] {ucns, searchMap.size(), countMap.size(), wordMap.size()};
+	}
+	
+	@Override
+	public int [] getExpectedCounts() throws Exception {
+		return new int [] {getExpectedCount()};
+	}
+
+	@Override
+	public boolean getReady() {
+		return mapsReady;
+	}
+
+	@Override
+	public boolean getLoading() {
+		return initRunning;
+	}
+
+	@Override
+	public String getName() {
+		return "Institution Cache";
+	}
+
+	@Override
+	public int getSeq() {
+		return 0;
+	}
+
+	@Override
+	public String getKey() {
+		return CacheStatusInstance.INSTITUTION_CACHE_KEY;
 	}
 }

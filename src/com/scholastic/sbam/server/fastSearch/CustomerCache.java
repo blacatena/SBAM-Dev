@@ -1,5 +1,7 @@
 package com.scholastic.sbam.server.fastSearch;
 
+import com.scholastic.sbam.shared.objects.CacheStatusInstance;
+
 /**
  * This version of the institution cache is restricted to customers with agreements (active or not).
  * 
@@ -14,10 +16,12 @@ public class CustomerCache extends InstitutionCache {
 	
 	protected static CustomerCache singleton = null;
 	
+	protected static String CUSTOMER_SQL_FROM = "institution, agreement WHERE institution.ucn = agreement.bill_ucn and agreement.status <> 'X' ";
+	
 	/**
 	 * SQL statement with a join to agreement
 	 */
-	protected static final String CUSTOMER_SQL = "SELECT DISTINCT ucn, parent_ucn, institution_name, address1, address2, address3, city, state, zip, country, phone, fax, alternate_ids FROM institution, agreement WHERE institution.ucn = agreement.bill_ucn and agreement.status <> 'X' ";
+	protected static final String CUSTOMER_SQL = "SELECT DISTINCT ucn, parent_ucn, institution_name, address1, address2, address3, city, state, zip, country, phone, fax, alternate_ids FROM " + CUSTOMER_SQL_FROM;
 	
 //	public CustomerCache() {
 //		config = new InstitutionCacheConfig();
@@ -64,5 +68,26 @@ public class CustomerCache extends InstitutionCache {
 	
 	public static synchronized CustomerCache getSingleton() throws InstitutionCacheConflict {
 		return getSingleton(null);
+	}
+
+	
+	@Override
+	public String getTableName() {
+		return CUSTOMER_SQL_FROM;
+	}
+
+	@Override
+	public String getName() {
+		return "Customer Cache";
+	}
+
+	@Override
+	public int getSeq() {
+		return 1;
+	}
+
+	@Override
+	public String getKey() {
+		return CacheStatusInstance.CUSTOMER_CACHE_KEY;
 	}
 }
