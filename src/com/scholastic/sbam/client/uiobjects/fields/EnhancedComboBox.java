@@ -6,7 +6,7 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 
 /**
  * An enhanced combo box which adds two new features, the ability to apply type ahead when exactly one selection is available, and the ability to force the field's value back
- * to its original value if the user exists without having made a valid selection.  Also apply the key provider automatically for comparing models.
+ * to its original value if the user exits without having made a valid selection.  Also apply the key provider automatically for comparing models.
  * 
  * @author Bob Lacatena
  *

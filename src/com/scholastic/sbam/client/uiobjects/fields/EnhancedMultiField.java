@@ -96,6 +96,17 @@ public class EnhancedMultiField<D> extends MultiField<D> {
 		this.setFirstFieldValue = setFirstFieldValue;
 	}
 
+	@Override
+	public boolean isDirty() {
+		if (disabled || !rendered)
+			return false;
+		
+		for (Field<?> field : fields) {
+			if (field.isDirty())
+				return true;
+		}
+		return false;
+	}
 	
 	
 	/**

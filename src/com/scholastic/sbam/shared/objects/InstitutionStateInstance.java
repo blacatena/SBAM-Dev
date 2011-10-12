@@ -9,7 +9,7 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 public class InstitutionStateInstance implements BeanModelTag, IsSerializable {
 
 	private static BeanModelFactory beanModelfactory;
-
+	
 	protected String stateCode;
 	protected String description;
 	protected String countryCode;
@@ -34,7 +34,20 @@ public class InstitutionStateInstance implements BeanModelTag, IsSerializable {
 		this.countryCode = countryCode;
 	}
 	
+	public String getComboDescription() {
+		if (description == null || description.length() == 0)
+			return "None";
+		return description;
+	}
+	
 	public static InstitutionStateInstance getEmptyInstance() {
+		InstitutionStateInstance instance = new InstitutionStateInstance();
+		instance.stateCode = "";
+		instance.description = "";
+		return instance;
+	}
+	
+	public static InstitutionStateInstance getNoneInstance() {
 		InstitutionStateInstance instance = new InstitutionStateInstance();
 		instance.stateCode = "";
 		instance.description = "";

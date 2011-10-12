@@ -133,8 +133,8 @@ public class UiConstants {
 		loadContactTypes();
 		loadDeleteReasons();
 		loadCancelReasons();
-//		loadInstitutionStates();
-//		loadInstitutionCountries();
+		loadInstitutionStates();	//Could be turned off, but causes problems with contact drop down menus
+		loadInstitutionCountries();	//Could be turned off, but causes problems with contact drop down menus
 		loadLinkTypes();
 		loadProducts();
 		loadTermTypes();
@@ -386,7 +386,9 @@ public class UiConstants {
 			public void onSuccess(List<InstitutionCountryInstance> list) {
 				institutionCountries.removeAll();
 				if (institutionCountries.getKeyProvider() == null)
-					institutionCountries.setKeyProvider(new SimpleKeyProvider("institutionCountryCode"));
+					institutionCountries.setKeyProvider(new SimpleKeyProvider("countryCode"));
+
+				institutionCountries.add(InstitutionCountryInstance.obtainModel(InstitutionCountryInstance.getNoneInstance()));
 				for (InstitutionCountryInstance instance : list) {
 					institutionCountries.add(InstitutionCountryInstance.obtainModel(instance));	
 				}
@@ -420,7 +422,9 @@ public class UiConstants {
 			public void onSuccess(List<InstitutionStateInstance> list) {
 				institutionStates.removeAll();
 				if (institutionStates.getKeyProvider() == null)
-					institutionStates.setKeyProvider(new SimpleKeyProvider("institutionStateCode"));
+					institutionStates.setKeyProvider(new SimpleKeyProvider("stateCode"));
+				
+				institutionStates.add(InstitutionStateInstance.obtainModel(InstitutionStateInstance.getNoneInstance()));
 				for (InstitutionStateInstance instance : list) {
 					institutionStates.add(InstitutionStateInstance.obtainModel(instance));	
 				}
@@ -433,6 +437,8 @@ public class UiConstants {
 	}
 	
 	public static ListStore<BeanModel> getInstitutionStates() {
+		if (!institutionCountriesLoaded)
+			loadInstitutionCountries();
 		return institutionStates;
 	}
 	

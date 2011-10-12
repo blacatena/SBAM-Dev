@@ -360,11 +360,19 @@ div.noteText {
 	padding-bottom: 4px;
 }
 
+.list-normal .show-plain {
+}
+
 .list-normal .show-name {
 	font-weight: bold;
 }
 
 .list-normal .show-ucn {
+	color:gray;
+	font-style: italic;
+}
+
+.list-normal .show-code {
 	color:gray;
 	font-style: italic;
 }

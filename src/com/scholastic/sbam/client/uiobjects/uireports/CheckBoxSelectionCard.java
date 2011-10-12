@@ -78,6 +78,17 @@ public abstract class CheckBoxSelectionCard extends SnapshotCriteriaCardBase {
 	 * @param keyName
 	 */
 	public void addColumns(LayoutContainer table, List<BeanModel> models, String keyName, List<CheckBox> boxList, String breakColumn) {
+		
+		//	Remove models with blank key values
+		List<BeanModel> oldModels = new ArrayList<BeanModel>();
+		for (BeanModel model : models) {
+			if (model.get(keyName) == null || model.get(keyName).toString().length() == 0)
+				continue;
+			oldModels.add(model);
+		}
+		models = oldModels;
+		
+		
 
 		String breakColVal = null;
 		int col = 0;

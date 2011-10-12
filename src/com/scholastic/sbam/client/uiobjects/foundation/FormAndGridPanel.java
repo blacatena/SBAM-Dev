@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
+import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.SliderField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -577,30 +578,42 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		setOriginalValues(formPanel);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void setOriginalValues(FormPanel formPanel) {
 		if (formPanel != null)
 			for (Field<?> field : formPanel.getFields()) {
-				if (field instanceof EnhancedComboBox) {
-					EnhancedComboBox<ModelData>  ecb = (EnhancedComboBox<ModelData>) field;
-					ecb.setOriginalValue(ecb.getSelectedValue());
-				} else if (field instanceof InstitutionSearchField) {
-					InstitutionSearchField  isf = (InstitutionSearchField) field;
-					isf.setOriginalValue(isf.getSelectedValue());
-				} else if (field instanceof SliderField)
-					((Field<Object>) field).setOriginalValue(field.getValue());
-				else if (field instanceof CheckBoxGroup) {
-					CheckBoxGroup cbg = (CheckBoxGroup) field;
-					for (Field<?> cbf : cbg.getAll()) {
-						CheckBox cb = (CheckBox) cbf;
-						cb.setOriginalValue(cb.getValue());
-					}
-				} else if (field instanceof CheckBox) {
-					CheckBox cb = (CheckBox) field;
-					cb.setOriginalValue(cb.getOriginalValue());
-				} else
-					((Field<Object>) field).setOriginalValue(field.getValue());
+				setOriginalValues(field);
 			}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void setOriginalValues(Field<?> field) {
+		if (field instanceof EnhancedComboBox) {
+			EnhancedComboBox<ModelData>  ecb = (EnhancedComboBox<ModelData>) field;
+			ecb.setOriginalValue(ecb.getSelectedValue());
+		} else if (field instanceof InstitutionSearchField) {
+			InstitutionSearchField  isf = (InstitutionSearchField) field;
+			isf.setOriginalValue(isf.getSelectedValue());
+		} else if (field instanceof SliderField)
+			((Field<Object>) field).setOriginalValue(field.getValue());
+		else if (field instanceof CheckBoxGroup) {
+			CheckBoxGroup cbg = (CheckBoxGroup) field;
+			for (Field<?> cbf : cbg.getAll()) {
+				CheckBox cb = (CheckBox) cbf;
+				cb.setOriginalValue(cb.getValue());
+			}
+		} else if (field instanceof CheckBox) {
+			CheckBox cb = (CheckBox) field;
+			cb.setOriginalValue(cb.getOriginalValue());
+		} else if (field instanceof MultiField) {
+			MultiField<Object> mf = (MultiField<Object>) field; 
+			for (Object o : mf.getAll()) {
+				Field<?> f = (Field<?>) o;
+				setOriginalValues(f);
+			}
+		} else {
+			((Field<Object>) field).setOriginalValue(field.getValue());
+		}
+		
 	}
 	
 	protected Grid<BeanModel> getGrid(FormData formData) {

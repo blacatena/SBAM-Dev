@@ -119,8 +119,8 @@ public class CacheControlPanel extends LayoutContainer implements AppSleeper {
 		ToolBar toolBar = new ToolBar();
 		toolBar.setAlignment(HorizontalAlignment.CENTER);
 		
-		Button refresh = new Button("Refresh");
-		refresh.setToolTip(UiConstants.getQuickTip("Use this button to refresh the cache data."));
+		Button refresh = new Button("Refresh List");
+		refresh.setToolTip(UiConstants.getQuickTip("Use this button to refresh the display."));
 		IconSupplier.forceIcon(refresh, IconSupplier.getRefreshIconName());
 		refresh.addSelectionListener(new SelectionListener<ButtonEvent>() {  
 			@Override

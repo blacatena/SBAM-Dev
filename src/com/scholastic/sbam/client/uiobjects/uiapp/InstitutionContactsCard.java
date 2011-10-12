@@ -29,8 +29,11 @@ import com.scholastic.sbam.client.services.UpdateInstitutionContactServiceAsync;
 import com.scholastic.sbam.client.services.UpdateContactNoteService;
 import com.scholastic.sbam.client.services.UpdateContactNoteServiceAsync;
 import com.scholastic.sbam.client.uiobjects.fields.ContactSearchField;
+import com.scholastic.sbam.client.uiobjects.fields.CountryComboBox;
 import com.scholastic.sbam.client.uiobjects.fields.EnhancedComboBox;
+import com.scholastic.sbam.client.uiobjects.fields.EnhancedMultiField;
 import com.scholastic.sbam.client.uiobjects.fields.NotesIconButtonField;
+import com.scholastic.sbam.client.uiobjects.fields.StateComboBox;
 import com.scholastic.sbam.client.uiobjects.foundation.FieldFactory;
 import com.scholastic.sbam.client.uiobjects.foundation.FormAndGridPanel;
 import com.scholastic.sbam.client.uiobjects.foundation.FormInnerPanel;
@@ -44,6 +47,7 @@ import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.util.AppConstants;
 import com.scholastic.sbam.shared.validation.EmailValidator;
+import com.scholastic.sbam.shared.validation.PhoneValidator;
 
 public class InstitutionContactsCard extends FormAndGridPanel<InstitutionContactInstance> {
 	
@@ -68,10 +72,12 @@ public class InstitutionContactsCard extends FormAndGridPanel<InstitutionContact
 	protected TextField<String>				fullNameDisplay		= getTextField("Name");
 	protected TextArea						addressDisplay		= getMultiLineField("Address", 3);
 	protected TextField<String>				cityDisplay			= getTextField("City");
-	protected MultiField<String>			stateZipCountryCombo= new MultiField<String>("State/Zip/Country");
-	protected TextField<String>				stateDisplay		= getTextField("State");
+	protected MultiField<String>			stateZipCountryCombo= new EnhancedMultiField<String>("State/Zip/Country");
+//	protected TextField<String>				stateDisplay		= getTextField("State");
+	protected StateComboBox					stateCombo			= new StateComboBox();
 	protected TextField<String>				zipDisplay			= getTextField("Zip");
-	protected TextField<String>				countryDisplay		= getTextField("Country");
+//	protected TextField<String>				countryDisplay		= getTextField("Country");
+	protected CountryComboBox				countryCombo		= new CountryComboBox();
 	protected TextField<String>				titleDisplay		= getTextField("Title");
 	protected TextField<String>				phoneDisplay		= getTextField("Phone");
 	protected TextField<String>				phone2Display		= getTextField("Phone (alt)");
@@ -196,9 +202,9 @@ public class InstitutionContactsCard extends FormAndGridPanel<InstitutionContact
 			email2Display.setValue(selectedContact.geteMail2());
 			addressDisplay.setValue(getAddressLines(selectedContact));
 			cityDisplay.setValue(selectedContact.getCity());
-			stateDisplay.setValue(selectedContact.getState());
+			stateCombo.setRawValue(selectedContact.getState());
 			zipDisplay.setValue(selectedContact.getZip());
-			countryDisplay.setValue(selectedContact.getCountry());
+			countryCombo.setRawValue(selectedContact.getCountry());
 
 			setNotesField(selectedContact.getNote());
 			
@@ -220,9 +226,9 @@ public class InstitutionContactsCard extends FormAndGridPanel<InstitutionContact
 			email2Display.clear();
 			addressDisplay.clear();
 			cityDisplay.clear();
-			stateDisplay.clear();
+			stateCombo.clear();
 			zipDisplay.clear();
-			countryDisplay.clear();
+			countryCombo.clear();
 			
 			setNotesField("");
 		}
@@ -283,9 +289,16 @@ public class InstitutionContactsCard extends FormAndGridPanel<InstitutionContact
 		idNotesCombo.setSpacing(20);
 		
 		stateZipCountryCombo.setSpacing(20);
-		stateDisplay.setWidth(30);
+//		stateDisplay.setWidth(30);
 		zipDisplay.setWidth(60);
-		countryDisplay.setWidth(80);
+//		countryDisplay.setWidth(80);
+
+		FieldFactory.setStandard(stateCombo, "");
+		FieldFactory.setStandard(countryCombo, "");
+		
+		phoneDisplay.setValidator(new PhoneValidator(countryCombo));
+		phone2Display.setValidator(new PhoneValidator(countryCombo));
+		faxDisplay.setValidator(new PhoneValidator(countryCombo));
 		
 //		addressDisplay.setHeight(72);
 		
@@ -302,9 +315,9 @@ public class InstitutionContactsCard extends FormAndGridPanel<InstitutionContact
 		idNotesCombo.add(ucnField);	
 		idNotesCombo.add(notesField);
 		
-		stateZipCountryCombo.add(stateDisplay);
+		stateZipCountryCombo.add(stateCombo);
 		stateZipCountryCombo.add(zipDisplay);
-		stateZipCountryCombo.add(countryDisplay);
+		stateZipCountryCombo.add(countryCombo);
 		
 		formColumn1.add(idNotesCombo,    formData);
 		formColumn1.add(institutionField, formData);
@@ -406,9 +419,11 @@ public class InstitutionContactsCard extends FormAndGridPanel<InstitutionContact
 			titleDisplay.setValue("");
 			addressDisplay.setValue("");
 			cityDisplay.setValue("");
-			stateDisplay.setValue("");
+			stateCombo.setValue(null);
+			stateCombo.setRawValue("");
 			zipDisplay.setValue("");
-			countryDisplay.setValue("");
+			countryCombo.setValue(null);
+			countryCombo.setRawValue("");
 			
 			setNotesField("");
 			return;
@@ -432,9 +447,9 @@ public class InstitutionContactsCard extends FormAndGridPanel<InstitutionContact
 
 		addressDisplay.setValue(getAddressLines(instance));
 		cityDisplay.setValue(instance.getCity());
-		stateDisplay.setValue(instance.getState());
+		stateCombo.setRawValue(instance.getState());
 		zipDisplay.setValue(instance.getZip());
-		countryDisplay.setValue(instance.getCountry());
+		countryCombo.setRawValue(instance.getCountry());
 		
 		setNotesField(instance.getNote());
 	}
@@ -500,9 +515,9 @@ public class InstitutionContactsCard extends FormAndGridPanel<InstitutionContact
 			contactInstance.setAddress3("");
 		
 		contactInstance.setCity(cityDisplay.getValue());
-		contactInstance.setState(stateDisplay.getValue());
+		contactInstance.setState(stateCombo.getCodeValue());
 		contactInstance.setZip(zipDisplay.getValue());
-		contactInstance.setCountry(countryDisplay.getValue());
+		contactInstance.setCountry(countryCombo.getCodeValue());
 		
 		if (focusInstance == null) {
 			focusInstance = new InstitutionContactInstance();

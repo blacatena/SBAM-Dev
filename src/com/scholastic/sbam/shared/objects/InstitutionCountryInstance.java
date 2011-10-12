@@ -26,7 +26,20 @@ public class InstitutionCountryInstance implements BeanModelTag, IsSerializable 
 		this.description = description;
 	}
 	
+	public String getComboDescription() {
+		if (description == null || description.length() == 0)
+			return "None";
+		return description;
+	}
+	
 	public static InstitutionCountryInstance getEmptyInstance() {
+		InstitutionCountryInstance instance = new InstitutionCountryInstance();
+		instance.countryCode = "";
+		instance.description = "";
+		return instance;
+	}
+	
+	public static InstitutionCountryInstance getNoneInstance() {
 		InstitutionCountryInstance instance = new InstitutionCountryInstance();
 		instance.countryCode = "";
 		instance.description = "";
