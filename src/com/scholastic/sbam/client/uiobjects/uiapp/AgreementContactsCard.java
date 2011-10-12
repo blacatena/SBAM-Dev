@@ -49,6 +49,7 @@ import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.util.AppConstants;
 import com.scholastic.sbam.shared.validation.EmailValidator;
 import com.scholastic.sbam.shared.validation.PhoneValidator;
+import com.scholastic.sbam.shared.validation.ZipValidator;
 
 public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInstance> {
 	
@@ -295,6 +296,7 @@ public class AgreementContactsCard extends FormAndGridPanel<AgreementContactInst
 //		stateDisplay.setWidth(30);
 		zipDisplay.setWidth(60);
 //		countryDisplay.setWidth(80);
+		zipDisplay.setValidator(new ZipValidator(countryCombo));
 
 		FieldFactory.setStandard(stateCombo, "");
 		FieldFactory.setStandard(countryCombo, "");

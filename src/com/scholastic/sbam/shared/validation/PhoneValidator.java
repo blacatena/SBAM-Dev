@@ -33,7 +33,11 @@ public class PhoneValidator implements Validator {
 		value = value.trim();
 		if (value.length() == 0)
 			return null;
-		if (countryField == null || countryField.getRawValue() == null || countryField.getRawValue().length() == 0)
+		if (countryField == null 
+		||  countryField.getRawValue() == null 
+		||  countryField.getRawValue().length() == 0 
+		||  countryField.getRawValue().equalsIgnoreCase("US")
+		||  countryField.getRawValue().equalsIgnoreCase("USA"))
 			return validateUsaPhone(value);
 		return null;
 	}
