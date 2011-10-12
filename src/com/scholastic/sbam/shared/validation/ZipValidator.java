@@ -52,6 +52,8 @@ public class ZipValidator implements Validator {
 			return "A zip code can have at most two parts, separated by a dash.";
 		
 		if (parts.length > 0) {
+			if (parts.length == 1 && parts [0].length() == 9 && AppConstants.isNumeric(parts [0]))
+				return null;
 			if (parts [0].length() != 5)
 				return "The main zip code length must be exactly 5 digits.";
 			if (!AppConstants.isNumeric(parts [0]))
