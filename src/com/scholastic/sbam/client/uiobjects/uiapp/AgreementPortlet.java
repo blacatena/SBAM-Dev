@@ -546,6 +546,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 	@Override
 	protected void onRowSelected(BeanModel data) {
 		termsCard.setAgreementId(agreementId);
+		termsCard.setAgreement(agreement);
 		termsCard.setAgreementTerm((AgreementTermInstance) data.getBean());
 		cards.setActiveItem(termsCard);
 		// Set the button states to match the automatic switch
@@ -708,6 +709,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 				@Override
 				public void componentSelected(ButtonEvent ce) {
 					termsCard.setAgreementId(agreementId);
+					termsCard.setAgreement(agreement);
 					cards.setActiveItem(termsCard);
 					termsButton.toggle(true);
 				}  
@@ -1104,6 +1106,15 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		AppEventBus.getSingleton().fireEvent(AppEvents.AgreementAccess, appEvent);
 	}
 
+	public void fireNewAgreementEvent(UserCacheTarget target) {
+		//	Fire an event so any listening portlets can update themselves
+		AppEvent appEvent = new AppEvent(AppEvents.NewAgreement);
+		if (target instanceof AgreementInstance)
+			appEvent.set( (AgreementInstance) target);
+		AppEventBus.getSingleton().fireEvent(AppEvents.NewAgreement, appEvent);
+	}
+
+
 	protected void asyncUpdate() {
 	
 		// Set field values from form fields
@@ -1158,6 +1169,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 						AgreementInstance updatedAgreement = (AgreementInstance) updateResponse.getInstance();
 						if (updatedAgreement.isNewRecord()) {
 							updatedAgreement.setNewRecord(false);
+							fireNewAgreementEvent(updatedAgreement);
 							if (updatedAgreement.getInstitution() == null)
 								identificationTip = "Agreement created " + new Date();
 							else
@@ -1165,6 +1177,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 						}
 						agreement.setNewRecord(false);
 						set(updatedAgreement);
+						fireUserCacheUpdateEvents(updatedAgreement);
 				//		enableAgreementButtons(true);
 				}
 			});

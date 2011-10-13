@@ -26,6 +26,9 @@ import com.scholastic.sbam.client.services.UpdateAgreementTermNoteService;
 import com.scholastic.sbam.client.services.UpdateAgreementTermNoteServiceAsync;
 import com.scholastic.sbam.client.services.UpdateAgreementTermService;
 import com.scholastic.sbam.client.services.UpdateAgreementTermServiceAsync;
+import com.scholastic.sbam.client.uiobjects.events.AppEvent;
+import com.scholastic.sbam.client.uiobjects.events.AppEventBus;
+import com.scholastic.sbam.client.uiobjects.events.AppEvents;
 import com.scholastic.sbam.client.uiobjects.fields.BoundDateField;
 import com.scholastic.sbam.client.uiobjects.fields.BoundSliderField;
 import com.scholastic.sbam.client.uiobjects.fields.DateDefaultBinder;
@@ -35,6 +38,7 @@ import com.scholastic.sbam.client.uiobjects.fields.NotesIconButtonField;
 import com.scholastic.sbam.client.uiobjects.foundation.FormAndGridPanel;
 import com.scholastic.sbam.client.uiobjects.foundation.FormInnerPanel;
 import com.scholastic.sbam.client.util.UiConstants;
+import com.scholastic.sbam.shared.objects.AgreementInstance;
 import com.scholastic.sbam.shared.objects.AgreementTermInstance;
 import com.scholastic.sbam.shared.objects.CancelReasonInstance;
 import com.scholastic.sbam.shared.objects.CommissionTypeInstance;
@@ -55,7 +59,7 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 	protected FormInnerPanel				formColumn2;
 	protected FormInnerPanel				formRow2;
 	
-	protected ListStore<BeanModel>	agreementGridStore;
+	protected ListStore<BeanModel>			agreementGridStore;
 	
 	protected RowExpander					noteExpander;
 
@@ -96,6 +100,8 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 	protected DatesSliderBinder				endTerminateSliderBinder = new DatesSliderBinder(150);
 	protected DateDefaultBinder				terminateDefaultBinder	= new DateDefaultBinder(60);
 	
+	protected AgreementInstance				agreement;
+	
 	public int getAgreementId() {
 		return getFocusId();
 	}
@@ -106,6 +112,14 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 	
 	public void setAgreementTerm(AgreementTermInstance instance) {
 		setFocusInstance(instance);
+	}
+
+	public AgreementInstance getAgreement() {
+		return agreement;
+	}
+
+	public void setAgreement(AgreementInstance agreement) {
+		this.agreement = agreement;
 	}
 
 	@Override
@@ -386,6 +400,14 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 		
 		return ready;
 	}
+	
+	public void fireChangeTermsEvent(AgreementTermInstance target) {
+		//	Fire an event so any listening portlets can update themselves
+		AppEvent appEvent = new AppEvent(AppEvents.ChangeAgreementTerms);
+		appEvent.set( agreement );
+		appEvent.set( target );
+		AppEventBus.getSingleton().fireEvent(AppEvents.ChangeAgreementTerms, appEvent);
+	}
 
 	@Override
 	protected void asyncUpdate() {
@@ -482,6 +504,8 @@ public class AgreementTermsCard extends FormAndGridPanel<AgreementTermInstance> 
 								agreementGridStore.update(mainGridModel);
 							}
 						}
+						
+						fireChangeTermsEvent(updatedAgreementTerm);
 						
 						editButton.enable();
 						newButton.enable();

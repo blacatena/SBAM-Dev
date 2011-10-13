@@ -2,6 +2,7 @@ package com.scholastic.sbam.shared.objects;
 
 import java.util.Date;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.data.BeanModelFactory;
@@ -46,6 +47,7 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable, UserCa
 	private int		activeAgreements;
 	private Date	lastServiceDate;
 	private SortedMap<Integer, AgreementSummaryInstance> agreementSummaryList;
+	private SortedMap<Integer, AgreementSummaryInstance> activeAgreementSummaryList;
 	
 	public int getUcn() {
 		return ucn;
@@ -228,10 +230,26 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable, UserCa
 		return "list-normal";
 	}
 	
+	public SortedMap<Integer, AgreementSummaryInstance> getAgreementSummaryList(boolean active) {
+		if (active) {
+			if (activeAgreementSummaryList != null)
+				return activeAgreementSummaryList;
+			Date today = new Date();
+			activeAgreementSummaryList = new TreeMap<Integer, AgreementSummaryInstance>();
+			for (AgreementSummaryInstance agreement : agreementSummaryList.values()) {
+				if (agreement.termActive(today))
+					activeAgreementSummaryList.put(agreement.getId(), agreement);
+			}
+			return activeAgreementSummaryList;
+		}
+		return agreementSummaryList;
+	}
+	
 	public SortedMap<Integer, AgreementSummaryInstance> getAgreementSummaryList() {
 		return agreementSummaryList;
 	}
 	public void setAgreementSummaryList(SortedMap<Integer, AgreementSummaryInstance> agreementSummaryList) {
+		this.activeAgreementSummaryList = null;
 		this.agreementSummaryList = agreementSummaryList;
 		agreements = 0;
 		activeAgreements = 0;
@@ -240,7 +258,7 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable, UserCa
 		if (this.agreementSummaryList != null) {
 			for (AgreementSummaryInstance instance : agreementSummaryList.values()) {
 				agreements++;
-				if (instance.hasExpired(today)) {
+				if (!instance.hasExpired(today)) {
 					activeAgreements++;
 				}
 				if (instance.getEndDate() != null)

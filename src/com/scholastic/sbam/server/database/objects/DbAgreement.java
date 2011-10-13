@@ -342,7 +342,20 @@ public class DbAgreement extends HibernateAccessor {
 		 * will get the values of the first occurrence of the column name (i.e. the value from the first table).
 		 */
 		
-		String sqlQuery = "SELECT {agreement.*}, {agreement_term.*} FROM agreement, agreement_term WHERE ";
+		String sqlQuery = "SELECT {agreement.*}, {agreement_term.*} FROM agreement ";
+
+		sqlQuery += " LEFT JOIN agreement_term ON ";
+        sqlQuery += " agreement.id = agreement_term.agreement_id ";
+        if (status != AppConstants.STATUS_ANY_NONE) {	// NOTE: Status restrictions apply to both the master agreement and the individual terms
+        	sqlQuery += " and agreement_term.status = '" + status + "' ";
+        }
+        if (neStatus != AppConstants.STATUS_ANY_NONE) {	// NOTE: Status restrictions apply to both the master agreement and the individual terms
+        	sqlQuery += " and agreement_term.status <> '" + neStatus + "' ";
+        }
+        if (primary)
+        	sqlQuery += " and  agreement_term.primary = 'y' ";
+		
+		sqlQuery += " WHERE ";
 		if (ucn > 0)
 			sqlQuery += " agreement.bill_ucn = " + ucn;
 		else if (ucns != null && ucns.size() > 0) {
@@ -356,18 +369,16 @@ public class DbAgreement extends HibernateAccessor {
 			sqlQuery += sb.toString();
 		} else
 			throw new Exception("Illegal arguments to construct agreement summary SQL");
-        sqlQuery += " and agreement.id = agreement_term.agreement_id ";
         if (status != AppConstants.STATUS_ANY_NONE) {	// NOTE: Status restrictions apply to both the master agreement and the individual terms
-        	sqlQuery += "and agreement.status = '" + status + "' ";
-        	sqlQuery += "and agreement_term.status = '" + status + "' ";
+        	sqlQuery += " and agreement.status = '" + status + "' ";
         }
         if (neStatus != AppConstants.STATUS_ANY_NONE) {	// NOTE: Status restrictions apply to both the master agreement and the individual terms
-        	sqlQuery += "and agreement.status <> '" + neStatus + "' ";
-        	sqlQuery += "and agreement_term.status <> '" + neStatus + "' ";
+        	sqlQuery += " and agreement.status <> '" + neStatus + "' ";
         }
-        if (primary)
-        	sqlQuery += "and  agreement_term.primary = 'y' ";
+
         sqlQuery += " order by agreement.bill_ucn, agreement.id";
+
+    //    System.out.println(sqlQuery);
         
         return sqlQuery;
 	}
@@ -382,7 +393,20 @@ public class DbAgreement extends HibernateAccessor {
 		 * will get the values of the first occurrence of the column name (i.e. the value from the first table).
 		 */
 		
-		String sqlQuery = "SELECT {agreement.*}, {agreement_term.*} FROM agreement, agreement_term, agreement_site WHERE ";
+		String sqlQuery = "SELECT {agreement.*}, {agreement_term.*} FROM agreement_site, agreement ";
+		
+		sqlQuery += " LEFT JOIN agreement_term ON ";
+        sqlQuery += " agreement.id = agreement_term.agreement_id ";
+        if (status != AppConstants.STATUS_ANY_NONE) {	// NOTE: Status restrictions apply to both the master agreement and the individual terms
+        	sqlQuery += " and agreement_term.status = '" + status + "' ";
+        }
+        if (neStatus != AppConstants.STATUS_ANY_NONE) {	// NOTE: Status restrictions apply to both the master agreement and the individual terms
+        	sqlQuery += " and agreement_term.status <> '" + neStatus + "' ";
+        }
+        if (primary)
+        	sqlQuery += " and  agreement_term.primary = 'y' ";
+        
+		sqlQuery += " WHERE ";
 		sqlQuery += " agreement_site.agreement_id = agreement.id ";
 		sqlQuery += " and agreement_site.status = '" + AppConstants.STATUS_ACTIVE + "' "; 
 		if (ucn > 0)
@@ -398,37 +422,39 @@ public class DbAgreement extends HibernateAccessor {
 			sqlQuery += sb.toString();
 		} else
 			throw new Exception("Illegal arguments to construct agreement summary SQL");
-        sqlQuery += " and agreement.id = agreement_term.agreement_id ";
+
         if (status != AppConstants.STATUS_ANY_NONE) {	// NOTE: Status restrictions apply to both the master agreement and the individual terms
-        	sqlQuery += "and agreement.status = '" + status + "' ";
-        	sqlQuery += "and agreement_term.status = '" + status + "' ";
+        	sqlQuery += " and agreement.status = '" + status + "' ";
         }
         if (neStatus != AppConstants.STATUS_ANY_NONE) {	// NOTE: Status restrictions apply to both the master agreement and the individual terms
-        	sqlQuery += "and agreement.status <> '" + neStatus + "' ";
-        	sqlQuery += "and agreement_term.status <> '" + neStatus + "' ";
+        	sqlQuery += " and agreement.status <> '" + neStatus + "' ";
         }
-        if (primary)
-        	sqlQuery += "and  agreement_term.primary = 'y' ";
+        
         sqlQuery += " order by agreement.bill_ucn, agreement.id";
+        
+//        System.out.println(sqlQuery);
         
         return sqlQuery;
 	}
+
 	
 	protected static SortedMap<Integer, AgreementSummaryInstance> getAgreementSummaryList(List<Object []> objects, boolean primary, boolean siteSearch) throws Exception {
 		SortedMap<Integer, AgreementSummaryInstance> agreementMap = new TreeMap<Integer, AgreementSummaryInstance>();
         AgreementSummaryInstance instance = null;
         for (Object [] row : objects) {
-        	if (row.length == 2 && row [0] instanceof Agreement && row [1] instanceof AgreementTerm) {
+        	if (row.length >= 1 && row [0] instanceof Agreement) {
         		Agreement		agreement		= (Agreement) row [0];
-        		AgreementTerm	agreementTerm	= (AgreementTerm) row [1];
         		if (agreementMap.containsKey(agreement.getId())) {
         			instance = agreementMap.get(agreement.getId());
         		} else {
         			instance = getAgreementSummaryInstance(agreement, primary, siteSearch);
         			agreementMap.put(instance.getId(), instance);
         		}
+        	}
+        	if (row.length == 2 && row [0] instanceof Agreement && row [1] != null && row [1] instanceof AgreementTerm) {
+        		AgreementTerm	agreementTerm	= (AgreementTerm) row [1];
         		applyAgreementTerm(instance, agreementTerm);
-        	} else
+        	} else if (row.length != 2 || !(row [0] instanceof Agreement)|| !(row [1] == null || row [1] instanceof Agreement))
         		throw new Exception("Unexpected SQL result in getAgreementSummaryList");
         }
         
@@ -457,6 +483,8 @@ public class DbAgreement extends HibernateAccessor {
 	}
 	
 	protected static void applyAgreementTerm(AgreementSummaryInstance instance, AgreementTerm agreementTerm) {
+		if (agreementTerm == null)
+			return;
 		
 		if (agreementTerm.getStartDate() != null) {
 			if (instance.getFirstStartDate() == null || instance.getFirstStartDate().after(agreementTerm.getStartDate())) {

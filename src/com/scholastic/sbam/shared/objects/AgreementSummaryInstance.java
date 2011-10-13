@@ -223,6 +223,38 @@ public class AgreementSummaryInstance implements BeanModelTag, IsSerializable {
 		this.id = idCheckDigit / 10;
 	}
 	
+	public boolean termUnstarted() {
+		return termActive(new Date());
+	}
+	
+	public boolean termUnstarted(Date today) {
+		if (lastStartDate == null)
+			return true;
+		if (terminateDate == null && endDate == null)
+			return true;
+		if (lastStartDate.after(today))
+			return true;
+		return false;
+	}
+	
+	public boolean termActive() {
+		return termActive(new Date());
+	}
+	
+	public boolean termActive(Date today) {
+		if (lastStartDate == null)
+			return false;
+		if (lastStartDate.after(today))
+			return false;
+		if (terminateDate == null && endDate == null)
+			return false;
+		if (terminateDate != null && terminateDate.before(today))
+			return false;
+		if (terminateDate == null && endDate != null && endDate.before(today))
+			return false;
+		return true;
+	}
+	
 	public boolean hasExpired() {
 		return hasExpired(new Date());
 	}

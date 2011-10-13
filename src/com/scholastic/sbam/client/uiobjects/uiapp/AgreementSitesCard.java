@@ -526,6 +526,14 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 			appEvent.set( (AgreementSiteInstance) target);
 		AppEventBus.getSingleton().fireEvent(AppEvents.SiteAccess, appEvent);
 	}
+	
+	public void fireNewSiteEvent(UserCacheTarget target) {
+		//	Fire an event so any listening portlets can update themselves
+		AppEvent appEvent = new AppEvent(AppEvents.NewSite);
+		if (target instanceof AgreementSiteInstance)
+			appEvent.set( (AgreementSiteInstance) target);
+		AppEventBus.getSingleton().fireEvent(AppEvents.NewSite, appEvent);
+	}
 
 	@Override
 	protected void asyncUpdate() {
@@ -589,9 +597,10 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 							updatedAgreementSite.setNewRecord(false);
 							grid.getStore().insert(AgreementSiteInstance.obtainModel(updatedAgreementSite), 0);
 							//	Fire an event so any listening portlets can update themselves
-							AppEvent appEvent = new AppEvent(AppEvents.SiteAccess);
-							appEvent.set(updatedAgreementSite);
-							AppEventBus.getSingleton().fireEvent(AppEvents.SiteAccess, appEvent);
+							fireNewSiteEvent(updatedAgreementSite);
+//							AppEvent appEvent = new AppEvent(AppEvents.SiteAccess);
+//							appEvent.set(updatedAgreementSite);
+//							AppEventBus.getSingleton().fireEvent(AppEvents.SiteAccess, appEvent);
 						}
 						
 						focusInstance.setNewRecord(false);
@@ -608,6 +617,9 @@ public class AgreementSitesCard extends FormAndGridPanel<AgreementSiteInstance> 
 						
 						editButton.enable();
 						newButton.enable();
+				
+						grid.getStore().getLoader().load();
+						
 				}
 			});
 	}

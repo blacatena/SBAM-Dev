@@ -2,6 +2,7 @@ package com.scholastic.sbam.client.uiobjects.uiapp;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedMap;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -28,6 +29,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
@@ -54,6 +56,9 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.InstitutionGetService;
 import com.scholastic.sbam.client.services.InstitutionGetServiceAsync;
+import com.scholastic.sbam.client.uiobjects.events.AppEvent;
+import com.scholastic.sbam.client.uiobjects.events.AppEventBus;
+import com.scholastic.sbam.client.uiobjects.events.AppEvents;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
 import com.scholastic.sbam.client.uiobjects.foundation.GridSupportPortlet;
 import com.scholastic.sbam.client.util.IconSupplier;
@@ -91,6 +96,7 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 	protected ListStore<ModelData>		agreementsStore;
 	protected Grid<ModelData>			agreementsGrid;
 	protected FieldSet					agreementsFieldSet;
+	protected CheckBox					termsTypeCheckBox;
 	
 	protected AppPortletProvider		portletProvider;
 	
@@ -139,6 +145,8 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 		createContactsCard();
 		outerContainer.add(contactsCard);
 		
+		addAppListeners();
+		
 		if (focusUcn > 0)
 			loadInstitution(focusUcn);
 	}
@@ -169,6 +177,27 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 			model.set("word", filter);
 			filterCombo.setValue(model);
 		}
+	}
+	
+	public void addAppListeners() {
+		AppEventBus.getSingleton().addListener(AppEvents.NewAgreement, new Listener<AppEvent>() {
+			public void handleEvent(AppEvent e) {
+				if (focusUcn > 0 && e.getUcn() == focusUcn)
+					loadInstitution(focusUcn);
+			}
+		});
+		AppEventBus.getSingleton().addListener(AppEvents.NewSite, new Listener<AppEvent>() {
+			public void handleEvent(AppEvent e) {
+				if (focusUcn > 0 && e.getUcn() == focusUcn)
+					loadInstitution(focusUcn);
+			}
+		});
+		AppEventBus.getSingleton().addListener(AppEvents.ChangeAgreementTerms, new Listener<AppEvent>() {
+			public void handleEvent(AppEvent e) {
+				if (focusUcn > 0 && e.getUcn() == focusUcn)
+					loadInstitution(focusUcn);
+			}
+		});
 	}
 	
 	private void createDisplayCard() {
@@ -213,6 +242,18 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 		type = new LabelField(); 
 		type.setFieldLabel("Type :");
 		displayCard.add(type, formData);
+		
+		termsTypeCheckBox = new CheckBox() {
+			@Override
+			public void onClick(ComponentEvent ce) {
+				super.onClick(ce);
+				reloadAgreements();
+			}
+		};
+		termsTypeCheckBox.setFieldLabel("");
+		termsTypeCheckBox.setBoxLabel("Show active agreements only");
+		termsTypeCheckBox.setValue(true);
+		displayCard.add(termsTypeCheckBox);
 		
 		addAgreementsGrid(formData);
 		addButtons(formData);
@@ -379,24 +420,44 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 		type.setValue(focusInstitution.getPublicPrivateDescription() + " / " + focusInstitution.getGroupDescription() + " &rArr; " + focusInstitution.getTypeDescription());
 //		group.setValue(instance.getGroupDescription());
 		
-		ListStore<ModelData> store = agreementsStore;
-		store.removeAll();
-		if (focusInstitution != null && focusInstitution.getAgreementSummaryList() != null)
-			for (AgreementSummaryInstance agreement : focusInstitution.getAgreementSummaryList().values()) {
-				store.add(getModel(agreement));
-			}
+		reloadAgreements();
 		
 		cards.setActiveItem(displayCard);
 		if (presenter != null)
 			presenter.updateLabel(this);
 	}
+	
+	protected void reloadAgreements() {
+		ListStore<ModelData> store = agreementsStore;
+		store.removeAll();
+		if (focusInstitution != null && focusInstitution.getAgreementSummaryList() != null) {
+			SortedMap<Integer, AgreementSummaryInstance> list;
+			if (termsTypeCheckBox == null)
+				list = focusInstitution.getAgreementSummaryList(true);
+			else
+				list = focusInstitution.getAgreementSummaryList(termsTypeCheckBox.getValue());
+			for (AgreementSummaryInstance agreement : list.values()) {
+				if (agreement != null)
+					store.add(getModel(agreement));
+			}
+		}
+	}
 
 	@Override
 	protected BeanModel getModel(AgreementSummaryInstance instance) {
+		if (instance == null)
+			return null;
 		BeanModel model = super.getModel(instance);
-		String display = "<b>" + instance.getId() + "</b> : " + instance.getLastStartDate() + " &ndash; " + instance.getEndDate();
-		if (!instance.getFirstStartDate().equals(instance.getLastStartDate()))
-			display += " (since " + instance.getFirstStartDate() + ")";
+		String display = "<b>" + instance.getId() + "</b>";
+		if (instance.getFirstStartDate() != null) {
+			if (instance.getEndDate() != null)
+				display += " : " + instance.getLastStartDate() + " &rarr; " + instance.getEndDate();
+			else
+				display += " : " + instance.getLastStartDate() + " &rarr; ";
+			if (instance.getFirstStartDate() != null && !instance.getFirstStartDate().equals(instance.getLastStartDate()))
+				display += " (since " + instance.getFirstStartDate() + ")";
+		} else
+			display += " : No term dates yet.";
 		model.set("display", display);
 		return model;
 	}

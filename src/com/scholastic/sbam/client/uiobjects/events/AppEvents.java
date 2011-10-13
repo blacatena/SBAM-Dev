@@ -37,17 +37,21 @@ import com.extjs.gxt.ui.client.event.EventType;
 public class AppEvents {
 	public static final int			APP_EVENT_BASE		=	2011000;
 	public static final int			GENERIC_APP_EVENT	=	0 + APP_EVENT_BASE;
-	public static final int			NEW_AGREEMENT		=	1 + APP_EVENT_BASE;
+	public static final int			ACCESS_AGREEMENT	=	1 + APP_EVENT_BASE;
 	public static final int			CHANGE_AGREEMENT	=	2 + APP_EVENT_BASE;
-	public static final int			NEW_SITE			=	3 + APP_EVENT_BASE;
+	public static final int			ACCESS_SITE			=	3 + APP_EVENT_BASE;
 	public static final int			NEW_CUSTOMER		=	4 + APP_EVENT_BASE;
 	public static final int			NEW_PROXY			=	5 + APP_EVENT_BASE;
+	public static final int			NEW_SITE			=	6 + APP_EVENT_BASE;
+	public static final int			NEW_AGREEMENT		=	7 + APP_EVENT_BASE;
 
 	
 	public static final EventType GenericAppEvent		= new EventType(GENERIC_APP_EVENT);
-	public static final EventType AgreementAccess		= new EventType(NEW_AGREEMENT);
+	public static final EventType AgreementAccess		= new EventType(ACCESS_AGREEMENT);
 	public static final EventType ChangeAgreementTerms	= new EventType(CHANGE_AGREEMENT);
-	public static final EventType SiteAccess			= new EventType(NEW_SITE);
+	public static final EventType SiteAccess			= new EventType(ACCESS_SITE);
 	public static final EventType NewCustomer			= new EventType(NEW_CUSTOMER);
 	public static final EventType ProxyAccess			= new EventType(NEW_PROXY);
+	public static final EventType NewSite				= new EventType(NEW_SITE);
+	public static final EventType NewAgreement			= new EventType(NEW_AGREEMENT);
 }
