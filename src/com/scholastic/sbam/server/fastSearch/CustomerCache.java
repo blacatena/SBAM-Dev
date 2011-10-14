@@ -16,7 +16,7 @@ public class CustomerCache extends InstitutionCache {
 	
 	protected static CustomerCache singleton = null;
 	
-	protected static String CUSTOMER_SQL_FROM = "institution, agreement WHERE institution.ucn = agreement.bill_ucn and agreement.status <> 'X' ";
+	protected static String CUSTOMER_SQL_FROM = "institution, agreement WHERE institution.ucn > 0 and institution.ucn = agreement.bill_ucn and agreement.status <> 'X' ";
 	
 	/**
 	 * SQL statement with a join to agreement

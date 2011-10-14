@@ -5,9 +5,13 @@
 <hibernate-configuration>
     <session-factory>
         <property name="hibernate.bytecode.use_reflection_optimizer">false</property>
+        <property name="hibernate.c3p0.acquire_increment">1</property>
+        <property name="hibernate.c3p0.idle_test_period">3600</property>
         <property name="hibernate.c3p0.max_size">50</property>
-        <property name="hibernate.c3p0.min_size">3</property>
-        <property name="hibernate.c3p0.timeout">1800</property>
+        <property name="hibernate.c3p0.max_statements">0</property>
+        <property name="hibernate.c3p0.min_size">1</property>
+        <property name="hibernate.c3p0.preferredTestQuery">select 1;</property>
+        <property name="hibernate.c3p0.timeout">3605</property>
         <property name="hibernate.cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
         <property name="hibernate.cache.use_minimal_puts">false</property>
         <property name="hibernate.cache.use_query_cache">false</property>
