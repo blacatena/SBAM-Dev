@@ -319,6 +319,7 @@ public class InstitutionCache extends AppCacheBase implements Runnable {
 		initRunning = true;
 		mapsReady = false;
 		
+		ucns = 0;
 		searchMap = new HashMap<String, List<Integer>>();
 		countMap  = new HashMap<String, Integer>();
 		wordMap	  = new HashMap<String, SortedSet<String>>();

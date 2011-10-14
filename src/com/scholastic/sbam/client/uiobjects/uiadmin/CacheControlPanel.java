@@ -47,6 +47,8 @@ import com.scholastic.sbam.shared.objects.CacheStatusInstance;
 
 public class CacheControlPanel extends LayoutContainer implements AppSleeper {
 	
+	protected final static int REFRESH_DELAY = 15000;
+	
 	private final CacheStatusListServiceAsync	cacheStatusListService	= GWT.create(CacheStatusListService.class);
 	private final CacheRefreshServiceAsync		cacheRefreshService		= GWT.create(CacheRefreshService.class);
 
@@ -166,6 +168,7 @@ public class CacheControlPanel extends LayoutContainer implements AppSleeper {
 						callback.onSuccess(list);
 						grid.unmask();
 						layout(true);
+						enableRefreshButtons();
 						scheduleTimer();
 					}
 				};
@@ -254,15 +257,22 @@ public class CacheControlPanel extends LayoutContainer implements AppSleeper {
 					});  
 				}  
 
-				Button b = new Button("Refresh this Cache", new SelectionListener<ButtonEvent>() {  
+				final Button b = new Button("Refresh this Cache");
+				final Grid<ModelData> finalGrid = grid;
+				b.addSelectionListener(new SelectionListener<ButtonEvent>() {  
 					@Override  
-					public void componentSelected(ButtonEvent ce) {  
+					public void componentSelected(ButtonEvent ce) {
+						model.set("ready", false);
+						finalGrid.getView().refresh(true);
+						b.disable();
 						asyncRefreshCache(model.get("key").toString());  
 					}  
 				});  
 				b.setWidth(grid.getColumnModel().getColumnWidth(colIndex) - 10);  
 				b.setToolTip("Click to refresh this cache.");
 				IconSupplier.forceIcon(b, IconSupplier.getCacheIconName());
+
+				model.set("refreshButton", b); //	This is an easy way to get it later, to enable or disable
 
 				return b;  
 			}  
@@ -279,6 +289,13 @@ public class CacheControlPanel extends LayoutContainer implements AppSleeper {
 	    column.setRenderer(getRefreshButtonRenderer()); 
 
 	    return column;
+	}
+	
+	protected void enableRefreshButtons() {
+		for (ModelData model : store.getModels()) {
+			if (model.get("refreshButton") != null)
+				((Button) model.get("refreshButton")).setEnabled((Boolean) model.get("ready")) ;
+		}
 	}
 
 	protected void asyncRefreshCache(String cacheKey) {
@@ -301,28 +318,42 @@ public class CacheControlPanel extends LayoutContainer implements AppSleeper {
 						ModelData model = CacheStatusInstance.obtainModel(refreshedCache);
 						if (store.contains(model))
 							store.update(model);
-						scheduleTimer();
+						scheduleTimer(true);
 					}
 				});
 	}
 	
 	public void scheduleTimer() {
+		scheduleTimer(false);
+	}
+	
+	public void scheduleTimer(boolean force) {
 		if (store != null) {
+			if (force) {
+				createRefreshTimer();
+				refreshTimer.cancel();
+				refreshTimer.schedule(REFRESH_DELAY);
+				return;
+			}
 			for (ModelData model : store.getModels()) {
 				if (!"true".equals(model.get("ready").toString())) {
-					if (refreshTimer == null) {
-						refreshTimer = new Timer() {
-							  @Override
-							  public void run() {
-								  reloadGrid();
-							  }
-						};
-					}
-					refreshTimer.schedule(30000);
-					System.out.println("Rescheduled");
+					createRefreshTimer();
+					refreshTimer.cancel();
+					refreshTimer.schedule(REFRESH_DELAY);
 					return;
 				}
 			}
+		}
+	}
+	
+	public void createRefreshTimer() {
+		if (refreshTimer == null) {
+			refreshTimer = new Timer() {
+				  @Override
+				  public void run() {
+					  reloadGrid();
+				  }
+			};
 		}
 	}
 	
