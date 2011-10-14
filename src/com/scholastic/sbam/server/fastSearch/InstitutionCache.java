@@ -383,6 +383,13 @@ public class InstitutionCache extends AppCacheBase implements Runnable {
 	
 	protected String getSqlStatement() {
 		StringBuffer sb = new StringBuffer(getBaseSqlStatement());
+		
+		appendStatusClause(sb);
+		
+		return sb.toString();
+	}
+	
+	protected void appendStatusClause(StringBuffer sb) {
 		if (config.loadStatusList != null && config.loadStatusList.length() > 0) {
 			for (int i = 0; i < config.loadStatusList.length(); i++) {
 				char status = config.loadStatusList.charAt(i);
@@ -404,7 +411,6 @@ public class InstitutionCache extends AppCacheBase implements Runnable {
 			sb.append(")");
 		}
 		
-		return sb.toString();
 	}
 	
 	protected void loadCodes() {
@@ -1006,7 +1012,10 @@ public class InstitutionCache extends AppCacheBase implements Runnable {
 	
 	@Override
 	public String getTableName() {
-		return "institution";
+		StringBuffer sb = new StringBuffer();
+		sb.append("institution where ucn > 0 ");
+		appendStatusClause(sb);
+		return sb.toString();
 	}
 	
 	@Override

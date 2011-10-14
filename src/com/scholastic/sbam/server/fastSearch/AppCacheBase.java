@@ -8,7 +8,9 @@ public abstract class AppCacheBase implements AppCache {
 	public abstract String getTableName();
 
 	public int getExpectedCount() throws Exception {
+//		long start = System.currentTimeMillis();
 		int count = HibernateAccessor.count(getTableName());
+//		System.out.println((System.currentTimeMillis() - start) + " : " + getTableName());
 		return count;
 	}
 
