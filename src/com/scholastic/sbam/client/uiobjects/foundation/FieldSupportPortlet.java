@@ -4,6 +4,7 @@ import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.DateField;
+import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
@@ -30,7 +31,19 @@ public abstract class FieldSupportPortlet extends AppPortlet {
 	}
 	
 	protected FormPanel getNewOuterFormPanel() {
-		FormPanel newFormPanel = new FormPanel();
+		FormPanel newFormPanel = new FormPanel() {
+		
+		@Override
+		public boolean isDirty() {
+			for (Field<?> f : getFields()) {
+				if (f.isDirty()) {
+//					System.out.println("ofp dirty " + f.getId() + " : " + f.getFieldLabel() + " / " + f.getValue() + " vs " + f.getOriginalValue() + " ... " + f.getRawValue() + " [ " + f.getClass().getName());
+					return true;
+				}
+			}			
+//			System.out.println("ofp not dirty");
+			return false;
+		} };
 		
 		newFormPanel.setFrame(false); // true
 		newFormPanel.setHeaderVisible(false);  

@@ -171,6 +171,20 @@ public class IpAddressField extends MultiField<Long> {
 	}
 	
 	@Override
+	public boolean isDirty() {
+	    if (disabled || !rendered) {
+	      return false;
+	    }
+	    
+	    if (octetFields != null)
+	    	for (OctetField of : octetFields)
+	    		if (of != null && of.isDirty())
+	    			return true;
+	    
+	    return false;
+	}
+	
+	@Override
 	public void clear() {
 		for (OctetField octetField : octetFields)
 			octetField.clear();

@@ -5,7 +5,6 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Slider;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
-import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
@@ -18,6 +17,7 @@ import com.google.gwt.i18n.client.NumberFormat;
 import com.scholastic.sbam.client.uiobjects.fields.BoundDateField;
 import com.scholastic.sbam.client.uiobjects.fields.BoundSliderField;
 import com.scholastic.sbam.client.uiobjects.fields.ConstantLabelField;
+import com.scholastic.sbam.client.uiobjects.fields.EnhancedCheckBoxGroup;
 import com.scholastic.sbam.client.uiobjects.fields.EnhancedComboBox;
 import com.scholastic.sbam.client.uiobjects.fields.InstitutionSearchField;
 import com.scholastic.sbam.client.uiobjects.fields.SizedTextArea;
@@ -160,8 +160,8 @@ public class FieldFactory {
 		return field;
 	}
 	
-	public static CheckBoxGroup getCheckBoxGroup(String label, CheckBox... boxes) {
-		CheckBoxGroup cbGroup = new CheckBoxGroup();
+	public static EnhancedCheckBoxGroup getCheckBoxGroup(String label, CheckBox... boxes) {
+		EnhancedCheckBoxGroup cbGroup = new EnhancedCheckBoxGroup();
 		setStandard(cbGroup, label);
 		for (CheckBox cb : boxes) {
 			cbGroup.add(cb);

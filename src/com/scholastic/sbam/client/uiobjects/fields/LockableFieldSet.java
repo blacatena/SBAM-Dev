@@ -100,7 +100,6 @@ public class LockableFieldSet extends FieldSet {
 	
 	public void enableFields() {
 		if (enableFields && !locked && isExpanded()) {
-			System.out.println("enable");
 			for (Component component : this.getItems()) {
 				if (component instanceof Field) {
 					Field<?> field = (Field<?>) component;

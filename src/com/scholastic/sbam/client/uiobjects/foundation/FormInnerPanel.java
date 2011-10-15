@@ -160,9 +160,11 @@ public class FormInnerPanel extends ContentPanel {
   public boolean isDirty() {
     for (Field<?> f : getFields()) {
       if (f.isDirty()) {
+//    	System.out.println("ifp dirty " + f.getId() + " : " + f.getFieldLabel());
         return true;
       }
     }
+//	System.out.println("ifp not dirty");
     return false;
   }
 

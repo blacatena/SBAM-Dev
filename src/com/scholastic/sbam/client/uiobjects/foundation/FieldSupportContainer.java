@@ -5,7 +5,6 @@ import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
-import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
@@ -16,6 +15,7 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.scholastic.sbam.client.uiobjects.fields.BoundDateField;
 import com.scholastic.sbam.client.uiobjects.fields.BoundSliderField;
+import com.scholastic.sbam.client.uiobjects.fields.EnhancedCheckBoxGroup;
 import com.scholastic.sbam.client.uiobjects.fields.EnhancedComboBox;
 import com.scholastic.sbam.client.uiobjects.fields.SliderFieldWithDisable;
 import com.scholastic.sbam.client.util.AddressFormatter;
@@ -136,7 +136,7 @@ public abstract class FieldSupportContainer extends LayoutContainer {
 		return FieldFactory.getNumberField(label, numberFormat);
 	}
 	
-	protected static CheckBoxGroup getCheckBoxGroup(String label, CheckBox... boxes) {
+	protected static EnhancedCheckBoxGroup getCheckBoxGroup(String label, CheckBox... boxes) {
 		return FieldFactory.getCheckBoxGroup(label, boxes);
 	}
 	

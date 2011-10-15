@@ -12,7 +12,6 @@ import com.extjs.gxt.ui.client.widget.WidgetComponent;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.Radio;
-import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Command;
@@ -36,36 +35,36 @@ public class UserIdPasswordField extends MultiField<String []> {
 	public final int	DEFAULT_FIELD_WIDTH		=	100;
 	public final int	DEFAULT_MIN_VAL_LEN		=	2;
 
-	protected LabelField		iconPositionField;
-	protected LabelField		userIdLabelField;
-	protected TextField<String>	userIdField;
-	protected LabelField		passwordLabelField;
-	protected TextField<String>	passwordField;
+	protected LabelField			iconPositionField;
+	protected LabelField			userIdLabelField;
+	protected TextField<String>		userIdField;
+	protected LabelField			passwordLabelField;
+	protected TextField<String>		passwordField;
 	
-	protected LabelField		userTypeSpacerField;
-	protected LabelField		userTypeLabelField;
-	protected RadioGroup		userTypeGroup;
-	protected Radio				cookieCheckBox;
-	protected Radio				permanentCheckBox;
+	protected LabelField			userTypeSpacerField;
+	protected LabelField			userTypeLabelField;
+	protected EnhancedRadioGroup	userTypeGroup;
+	protected Radio					cookieCheckBox;
+	protected Radio					permanentCheckBox;
 
-	protected ProxySearchField	proxyField;
+	protected ProxySearchField		proxyField;
 	
-	protected int				validationCounter		= 0;
-	protected String			lastUidValidated		= "";
-	protected String			lastPasswordValidated	= "";
-	protected char				lastUserTypeValidated	= 0;
-	protected int				lastProxyIdValidated	= 0;
-	protected MethodIdInstance	lastMethodId			= MethodIdInstance.getEmptyInstance();
-	protected List<String>		asyncMessages			= null;
-	protected List<String>		asyncAlertMessages		= null;
-	protected List<String>		asyncInfoMessages		= null;
-	protected MethodIdInstance	methodId				= MethodIdInstance.getEmptyInstance();
+	protected int					validationCounter		= 0;
+	protected String				lastUidValidated		= "";
+	protected String				lastPasswordValidated	= "";
+	protected char					lastUserTypeValidated	= 0;
+	protected int					lastProxyIdValidated	= 0;
+	protected MethodIdInstance		lastMethodId			= MethodIdInstance.getEmptyInstance();
+	protected List<String>			asyncMessages			= null;
+	protected List<String>			asyncAlertMessages		= null;
+	protected List<String>			asyncInfoMessages		= null;
+	protected MethodIdInstance		methodId				= MethodIdInstance.getEmptyInstance();
 	
 
-	protected WidgetComponent	infoIcon;
-	protected String			infoStyle	= "x-form-info";
-	protected String			alertStyle	= "x-form-info-alert";
-	protected String			activeInfoMessage;
+	protected WidgetComponent		infoIcon;
+	protected String				infoStyle	= "x-form-info";
+	protected String				alertStyle	= "x-form-info-alert";
+	protected String				activeInfoMessage;
 	
 	protected UidValidationServiceAsync validationService = GWT.create(UidValidationService.class);
 	
@@ -118,7 +117,7 @@ public class UserIdPasswordField extends MultiField<String []> {
 	}
 	
 	protected void createUserTypeGroup() {
-		userTypeGroup = new RadioGroup();
+		userTypeGroup = new EnhancedRadioGroup();
 		cookieCheckBox = new Radio();
 		permanentCheckBox = new Radio();
 		
@@ -244,10 +243,13 @@ public class UserIdPasswordField extends MultiField<String []> {
 		userIdField.setOriginalValue(values [0]);
 		passwordField.setOriginalValue(values [1]);
 		if (userTypeGroup != null && values.length > 2) {
-			if (AuthMethodInstance.UserTypes.COOKIE.getCode().equals(values [2]))
+			if (AuthMethodInstance.UserTypes.COOKIE.getCode().equals(values [2])) {
+				permanentCheckBox.setOriginalValue(false);
 				cookieCheckBox.setOriginalValue(true);
-			else
+			} else {
+				cookieCheckBox.setOriginalValue(false);
 				permanentCheckBox.setOriginalValue(true);
+			}
 		}
 	}
 	
@@ -261,6 +263,14 @@ public class UserIdPasswordField extends MultiField<String []> {
 	
 	public void setOriginalValue(String userId, String password, char userType) {
 		setOriginalValue(new String [] {userId, password, userType + ""});
+	}
+	
+	@Override
+	public boolean isDirty() {
+		return	userIdField.isDirty()
+		||		passwordField.isDirty()
+		||	   (userTypeGroup != null && userTypeGroup.isDirty())
+		||	   (proxyField != null && proxyField.isDirty());
 	}
 	
 	@Override

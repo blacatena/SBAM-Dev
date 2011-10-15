@@ -17,6 +17,20 @@ public class OctetField extends TextField<String> {
 		setAllowBlank(true);
 	}
 	
+	@Override
+	public boolean isDirty() {
+	    if (disabled || !rendered) {
+	      return false;
+	    }
+	    String v = getValue();
+	    if (v == null || v.length() == 0)
+	    	if (originalValue == null || originalValue.length() == 0)
+	    		return false;
+	    if (v == null || originalValue == null)
+	    	return true;
+	    return !v.equals(originalValue);
+	  }
+	
 	public boolean isBlank() {
 		return (getValue() == null || getValue().trim().length() == 0);
 	}

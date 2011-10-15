@@ -251,6 +251,32 @@ public class IpAddressRangeField extends MultiField<Long []> {
 	}
 	
 	@Override
+	public boolean isDirty() {
+	    if (disabled || !rendered) {
+	      return false;
+	    }
+	    
+//		if (originalValue == null && value == null)
+//			return false;
+//		if (originalValue == null || value == null)
+//			return true;
+//		
+//		if (originalValue.length != value.length)
+//			return true;
+//		
+//		System.out.println("test values");
+//		for (int i = 0; i < originalValue.length; i++)
+//			if (value [i].longValue() != originalValue [i].longValue()) {
+//				System.out.println(i + " : " + value [i] + " vs " + originalValue [i]);
+//				return true;
+//			}
+//		
+//		return false;
+
+		return loIpField.isDirty() || hiIpField.isDirty();
+	}
+	
+	@Override
 	public void clear() {
 		loIpField.clear();
 		hiIpField.clear();

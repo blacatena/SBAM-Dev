@@ -15,7 +15,6 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
-import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
@@ -37,6 +36,7 @@ import com.scholastic.sbam.client.services.UpdateAuthMethodNoteServiceAsync;
 import com.scholastic.sbam.client.services.UpdateAuthMethodService;
 import com.scholastic.sbam.client.services.UpdateAuthMethodServiceAsync;
 import com.scholastic.sbam.client.uiobjects.fields.AgreementSiteInstitutionSearchField;
+import com.scholastic.sbam.client.uiobjects.fields.EnhancedCheckBoxGroup;
 import com.scholastic.sbam.client.uiobjects.fields.IpAddressRangeField;
 import com.scholastic.sbam.client.uiobjects.fields.LockableFieldSet;
 import com.scholastic.sbam.client.uiobjects.fields.NotesIconButtonField;
@@ -110,7 +110,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	protected CheckBox						approvedCheck		= getCheckBoxField("Approved");
 	protected CheckBox						validatedCheck		= getCheckBoxField("Validated");
 	protected CheckBox						remoteCheck			= getCheckBoxField("Remote");
-	protected CheckBoxGroup					statusGroup			= getCheckBoxGroup(null, approvedCheck, validatedCheck, remoteCheck);
+	protected EnhancedCheckBoxGroup			statusGroup			= getCheckBoxGroup(null, approvedCheck, validatedCheck, remoteCheck);
 	
 	protected IpAddressRangeField			ipRangeField		= new IpAddressRangeField();
 	protected UserIdPasswordField			uidPasswordField	= new UserIdPasswordField();

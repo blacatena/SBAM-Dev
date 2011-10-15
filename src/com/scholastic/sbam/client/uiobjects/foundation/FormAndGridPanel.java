@@ -24,6 +24,7 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.SliderField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -40,7 +41,10 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.stores.KeyModelComparer;
 import com.scholastic.sbam.client.uiobjects.fields.EnhancedComboBox;
 import com.scholastic.sbam.client.uiobjects.fields.InstitutionSearchField;
+import com.scholastic.sbam.client.uiobjects.fields.IpAddressField;
+import com.scholastic.sbam.client.uiobjects.fields.IpAddressRangeField;
 import com.scholastic.sbam.client.uiobjects.fields.LockableFieldSet;
+import com.scholastic.sbam.client.uiobjects.fields.UserIdPasswordField;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 
@@ -147,6 +151,23 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 				super.onAfterLayout();
 				adjustGridPanelHeight();
 			}
+			
+//			@Override
+//			public boolean isDirty() {
+//				if (super.isDirty()) {
+//					for (Field<?> f : getFields()) {
+//						if (!(f instanceof CheckBoxGroup) && f.isDirty()) {
+//							f.isDirty();
+//							System.out.println("dirty " + f.getId() + " : " + f.getFieldLabel() +  " / " + f.getValue() + " vs " + f.getOriginalValue() + " ... " + f.getRawValue() + " [ " + f.getClass().getName());
+//							return true;
+//						}
+//					}
+//					return true;
+//				} else {
+//					System.out.println("form panel not dirty");
+//					return false;
+//				}
+//			}
 			
 		};
 		
@@ -464,10 +485,11 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 
 				@Override
 				public void run() {
-					if (isDirtyForm())
+					if (isDirtyForm()) {
 						handleDirtyForm();
-					else
+					} else {
 						handleCleanForm();
+					}
 				}
 				
 			};
@@ -517,7 +539,7 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	}
 	
 	protected void handleDirtyForm() {
-		if (fieldsOpen && isFormValidAndReady() ) {
+		if (fieldsOpen && isFormValidAndReady() && isDirtyForm()) {
 			saveButton.enable();
 		} else {
 			saveButton.disable();
@@ -525,7 +547,7 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	}
 	
 	protected boolean isFormValidAndReady() {
-		return true;
+		return formPanel != null && formPanel.isValid();
 	}
 	
 	protected void handleCleanForm() {
@@ -579,11 +601,21 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	}
 	
 	public void setOriginalValues(FormPanel formPanel) {
-		if (formPanel != null)
+		if (formPanel != null) {
 			for (Field<?> field : formPanel.getFields()) {
 				setOriginalValues(field);
 			}
+			
+		}
 	}
+	
+//	public void setOriginalValues(FieldSet formPanel) {
+//		if (formPanel != null)
+//			for (Component field : formPanel.getItems()) {
+//				if (field instanceof Field)
+//					setOriginalValues((Field<?>) field);
+//			}
+//	}
 	
 	@SuppressWarnings("unchecked")
 	public void setOriginalValues(Field<?> field) {
@@ -593,10 +625,16 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		} else if (field instanceof InstitutionSearchField) {
 			InstitutionSearchField  isf = (InstitutionSearchField) field;
 			isf.setOriginalValue(isf.getSelectedValue());
-		} else if (field instanceof SliderField)
+		} else if (field instanceof SliderField) {
 			((Field<Object>) field).setOriginalValue(field.getValue());
-		else if (field instanceof CheckBoxGroup) {
+		} else if (field instanceof CheckBoxGroup) {
 			CheckBoxGroup cbg = (CheckBoxGroup) field;
+			for (Field<?> cbf : cbg.getAll()) {
+				CheckBox cb = (CheckBox) cbf;
+				cb.setOriginalValue(cb.getValue());
+			}
+		} else if (field instanceof RadioGroup) {
+			RadioGroup cbg = (RadioGroup) field;
 			for (Field<?> cbf : cbg.getAll()) {
 				CheckBox cb = (CheckBox) cbf;
 				cb.setOriginalValue(cb.getValue());
@@ -604,6 +642,15 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 		} else if (field instanceof CheckBox) {
 			CheckBox cb = (CheckBox) field;
 			cb.setOriginalValue(cb.getOriginalValue());
+		} else if (field instanceof IpAddressRangeField) {
+			IpAddressRangeField iprf = (IpAddressRangeField) field;
+			iprf.setOriginalValue(iprf.getValue());
+		} else if (field instanceof IpAddressField) {
+			IpAddressField ipf = (IpAddressField) field;
+			ipf.setOriginalValue(ipf.getValue());
+		} else if (field instanceof UserIdPasswordField) {
+			UserIdPasswordField ipf = (UserIdPasswordField) field;
+			ipf.setOriginalValue(ipf.getValue());
 		} else if (field instanceof MultiField) {
 			MultiField<Object> mf = (MultiField<Object>) field; 
 			for (Object o : mf.getAll()) {

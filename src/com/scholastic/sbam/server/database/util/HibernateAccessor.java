@@ -377,11 +377,15 @@ public class HibernateAccessor
 		sql.append("select count(*) as entry_count from ");
 		sql.append(tableName);
 		
+		Connection conn		=	null;
+		Statement sqlStmt	=	null;
+		ResultSet	results	=	null;
+		
 		//	Execute the query
 		try  {
-			Connection conn   = HibernateUtil.getConnection();
-			Statement sqlStmt = conn.createStatement();
-			ResultSet	results = sqlStmt.executeQuery(sql.toString());
+			conn   = HibernateUtil.getConnection();
+			sqlStmt = conn.createStatement();
+			results = sqlStmt.executeQuery(sql.toString());
 			results.first();
 			int			count	= results.getBigDecimal("entry_count").intValue();
 			results.close();
@@ -394,6 +398,10 @@ public class HibernateAccessor
 			System.out.println(sqlExc.getMessage());
 			sqlExc.printStackTrace();
 			throw sqlExc;
+		} finally {
+			if (results != null) results.close();
+			if (sqlStmt != null) sqlStmt.close();
+			if (conn != null) conn.close();
 		}
     }
 
