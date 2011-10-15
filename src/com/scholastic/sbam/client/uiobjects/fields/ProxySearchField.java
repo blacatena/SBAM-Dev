@@ -31,18 +31,19 @@ public class ProxySearchField extends ComboBox<BeanModel> implements CreateProxy
 	
 	protected final ProxySearchServiceAsync proxySearchService = GWT.create(ProxySearchService.class);
 	
-	protected final ProxyInstance		NO_PROXY_INSTANCE	= ProxyInstance.getEmptyInstance();
-	protected final BeanModel			NO_PROXY			= ProxyInstance.obtainModel(NO_PROXY_INSTANCE);
+	protected final ProxyInstance		NO_PROXY_INSTANCE		= ProxyInstance.getEmptyInstance();
+	protected final BeanModel			NO_PROXY				= ProxyInstance.obtainModel(NO_PROXY_INSTANCE);
 	
-	private long						searchSyncId		=	0;
+	private long						searchSyncId			=	0;
 
-	private boolean						includeNoneOption	=	true;
-	private boolean						includeAddOption	=	true;
-	private ProxyInstance				addInstance			=	null;
-	private ProxyInstance				noneInstance		=	null;
+	private boolean						includeNoneOption		=	true;
+	private boolean						includeAddOption		=	true;
+	private boolean						includeOriginalOption	=	true;
+	private ProxyInstance				addInstance				=	null;
+	private ProxyInstance				noneInstance			=	null;
 
-	private String						sortField			=	"description";
-	private SortDir						sortDir				=	SortDir.ASC;
+	private String						sortField				=	"description";
+	private SortDir						sortDir					=	SortDir.ASC;
 	
 	protected LayoutContainer			createDialogContainer	= null;
 	
@@ -243,6 +244,12 @@ public class ProxySearchField extends ComboBox<BeanModel> implements CreateProxy
 							result.getData().add(0, noneInstance);
 							result.setTotalLength(result.getTotalLength() + 1);
 						}
+						if (includeOriginalOption) {
+							if (originalValue != null) {
+								result.getData().add(0, (ProxyInstance) originalValue.getBean());
+								result.setTotalLength(result.getTotalLength() + 1);
+							}
+						}
 
 						callback.onSuccess(result);
 					}
@@ -276,6 +283,22 @@ public class ProxySearchField extends ComboBox<BeanModel> implements CreateProxy
 
 	public void setIncludeAddOption(boolean includeAddOption) {
 		this.includeAddOption = includeAddOption;
+	}
+
+	public boolean isIncludeNoneOption() {
+		return includeNoneOption;
+	}
+
+	public void setIncludeNoneOption(boolean includeNoneOption) {
+		this.includeNoneOption = includeNoneOption;
+	}
+
+	public boolean isIncludeOriginalOption() {
+		return includeOriginalOption;
+	}
+
+	public void setIncludeOriginalOption(boolean includeOriginalOption) {
+		this.includeOriginalOption = includeOriginalOption;
 	}
 
 	public String getSortField() {
