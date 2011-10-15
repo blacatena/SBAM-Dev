@@ -31,6 +31,9 @@ public class ProxySearchField extends ComboBox<BeanModel> implements CreateProxy
 	
 	protected final ProxySearchServiceAsync proxySearchService = GWT.create(ProxySearchService.class);
 	
+	protected final ProxyInstance		NO_PROXY_INSTANCE	= ProxyInstance.getEmptyInstance();
+	protected final BeanModel			NO_PROXY			= ProxyInstance.obtainModel(NO_PROXY_INSTANCE);
+	
 	private long						searchSyncId		=	0;
 
 	private boolean						includeNoneOption	=	true;
@@ -71,7 +74,7 @@ public class ProxySearchField extends ComboBox<BeanModel> implements CreateProxy
 			@Override
 			public void selectionChanged(SelectionChangedEvent<BeanModel> se) {
 				if (se.getSelectedItem() == null) {
-					onSelectionChange(null);
+					onSelectionChange(NO_PROXY_INSTANCE);
 				} else
 					onSelectionChange((ProxyInstance) se.getSelectedItem().getBean());
 			}
@@ -86,7 +89,7 @@ public class ProxySearchField extends ComboBox<BeanModel> implements CreateProxy
 	
 	public void onSelectionChange(ProxyInstance selected) {
 		if (selected == null) {
-			this.setValue(ProxyInstance.obtainModel(ProxyInstance.getEmptyInstance()));
+			this.setValue(NO_PROXY);
 			return;
 		}
 		if (selected.isAddNew()) {
