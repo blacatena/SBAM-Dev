@@ -69,7 +69,8 @@ public class HelpTextCache extends AppCacheBase implements Runnable {
 	private synchronized boolean init() {
 		if (initRunning)
 			return false;
-		
+
+		mapsReady = false;
 		initRunning = true;
 		System.out.println("HelpText cache thread starting...");
 		Thread initThread = new Thread(this);

@@ -127,7 +127,7 @@ public class InstitutionContactSearchPortlet extends GridSupportPortlet<Institut
 	protected long								searchSyncId = 0;
 	
 	public InstitutionContactSearchPortlet() {
-		super();
+		super(AppPortletIds.INSTITUTION_CONTACT_SEARCH.getHelpTextId());
 	}
 	
 	public InstitutionContactSearchPortlet(String helpTextId) {

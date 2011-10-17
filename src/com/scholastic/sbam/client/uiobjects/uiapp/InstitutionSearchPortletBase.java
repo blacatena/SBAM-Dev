@@ -216,6 +216,7 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 		ToolButton returnTool = new ToolButton("x-tool-left") {
 				@Override
 				protected void onClick(ComponentEvent ce) {
+					focusUcn = 0;
 					cards.setActiveItem(searchPanel);
 					updatePresenterLabel();
 				}

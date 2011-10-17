@@ -40,10 +40,12 @@ import com.scholastic.sbam.client.services.CacheRefreshService;
 import com.scholastic.sbam.client.services.CacheRefreshServiceAsync;
 import com.scholastic.sbam.client.services.CacheStatusListService;
 import com.scholastic.sbam.client.services.CacheStatusListServiceAsync;
+import com.scholastic.sbam.client.stores.KeyModelComparer;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.CacheStatusInstance;
+import com.scholastic.sbam.shared.objects.SimpleModelDataKeyProvider;
 
 public class CacheControlPanel extends LayoutContainer implements AppSleeper {
 	
@@ -79,7 +81,9 @@ public class CacheControlPanel extends LayoutContainer implements AppSleeper {
 
 		cacheStatusLoader.setRemoteSort(false);  
 
-		store = new ListStore<ModelData>(cacheStatusLoader);  
+		store = new ListStore<ModelData>(cacheStatusLoader);
+		store.setKeyProvider(new SimpleModelDataKeyProvider("key"));
+		store.setModelComparer(new KeyModelComparer<ModelData>(store));
  
 		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();  
 		
@@ -258,6 +262,11 @@ public class CacheControlPanel extends LayoutContainer implements AppSleeper {
 				}  
 
 				final Button b = new Button("Refresh this Cache");
+
+				boolean ready = (Boolean) model.get("ready");
+				boolean loading = (Boolean) model.get("loading");
+				b.setEnabled(ready && !loading);
+				
 				final Grid<ModelData> finalGrid = grid;
 				b.addSelectionListener(new SelectionListener<ButtonEvent>() {  
 					@Override  
@@ -293,13 +302,28 @@ public class CacheControlPanel extends LayoutContainer implements AppSleeper {
 	
 	protected void enableRefreshButtons() {
 		for (ModelData model : store.getModels()) {
-			if (model.get("refreshButton") != null)
-				((Button) model.get("refreshButton")).setEnabled((Boolean) model.get("ready")) ;
+			if (model.get("refreshButton") != null) {
+				boolean ready = (Boolean) model.get("ready");
+				boolean loading = (Boolean) model.get("loading");
+				((Button) model.get("refreshButton")).setEnabled(ready && !loading) ;
+			}
 		}
 	}
 
 	protected void asyncRefreshCache(String cacheKey) {
 	
+		ModelData model = store.findModel(cacheKey);
+		if (model != null) {
+			model.set("ready", false);
+			model.set("loading", true);
+			if (model.get("refreshButton") != null) {
+				Button b = (Button) model.get("refreshButton");
+				if (b != null){
+					b.disable();
+				}
+			} 
+		}
+		
 		//	Issue the asynchronous update request and plan on handling the response
 		cacheRefreshService.refreshCache(cacheKey,
 				new AsyncCallback<CacheStatusInstance>() {
@@ -316,8 +340,10 @@ public class CacheControlPanel extends LayoutContainer implements AppSleeper {
 
 					public void onSuccess(CacheStatusInstance refreshedCache) {
 						ModelData model = CacheStatusInstance.obtainModel(refreshedCache);
-						if (store.contains(model))
+						if (store.contains(model)) {
+							model.set("refreshButton", store.findModel(model).get("refreshButton"));
 							store.update(model);
+						}
 						scheduleTimer(true);
 					}
 				});

@@ -119,7 +119,7 @@ public class AgreementLinkSearchPortlet extends GridSupportPortlet<AgreementLink
 	protected long								searchSyncId = 0;
 	
 	public AgreementLinkSearchPortlet() {
-		super();
+		super(AppPortletIds.AGREEMENT_LINK_SEARCH.getHelpTextId());
 	}
 	
 	public AgreementLinkSearchPortlet(String helpTextId) {

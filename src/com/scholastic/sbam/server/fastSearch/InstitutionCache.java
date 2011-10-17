@@ -299,6 +299,8 @@ public class InstitutionCache extends AppCacheBase implements Runnable {
 			return false;
 		
 		initRunning = true;
+		mapsReady   = false;
+		ucns        = 0;
 		
 		this.config = config;
 		
@@ -479,7 +481,7 @@ public class InstitutionCache extends AppCacheBase implements Runnable {
 		
 		results.close();
 		sqlStmt.close();
-		conn.close();
+		HibernateUtil.freeConnection(conn);	//	conn.close();
 		
 		return count;
 	}

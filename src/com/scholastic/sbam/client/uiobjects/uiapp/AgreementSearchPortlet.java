@@ -115,7 +115,7 @@ public class AgreementSearchPortlet extends GridSupportPortlet<AgreementTermInst
 	protected long					searchSyncId = 0;
 	
 	public AgreementSearchPortlet() {
-		super();
+		super(AppPortletIds.AGREEMENT_SEARCH.getHelpTextId());
 	}
 	
 	public AgreementSearchPortlet(String helpTextId) {

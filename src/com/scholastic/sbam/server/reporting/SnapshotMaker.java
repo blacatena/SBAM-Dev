@@ -212,7 +212,7 @@ public class SnapshotMaker {
 			
 			results.close();
 			sqlStmt.close();
-			conn.close();
+			HibernateUtil.freeConnection(conn);	//	conn.close();
 			
 			//	Customer permutations done here
 			

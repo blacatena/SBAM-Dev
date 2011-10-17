@@ -14,12 +14,16 @@ import com.mchange.v2.c3p0.PooledDataSource;
 
 public class HibernateUtil {
 
+	private static final Configuration	configuration;
     private static final SessionFactory sessionFactory;
 
     static {
         try {
+        	// Create a configuration for later use
+        	configuration = new Configuration();
+        	configuration.configure();
             // Create the SessionFactory from hibernate.cfg.xml
-            sessionFactory = new Configuration().configure().buildSessionFactory();
+            sessionFactory = configuration.buildSessionFactory();
         } catch (Throwable ex) {
             // Make sure you log the exception, as it might be swallowed
             System.err.println("Initial SessionFactory creation failed." + ex);
@@ -71,7 +75,21 @@ public class HibernateUtil {
     }
     
     public static Connection getConnection() throws SQLException {
-    	return new Configuration().configure().buildSettings().getConnectionProvider().getConnection(); 
+    	try {
+    		return configuration.buildSettings().getConnectionProvider().getConnection(); 
+    	} catch (Exception exc) {
+    		System.out.println("*********************************");
+    		System.out.println(exc.getMessage());
+    		exc.printStackTrace();
+    		if (exc instanceof SQLException) throw (SQLException) exc;
+    		return null;
+    	}
+    }
+    
+    public static void freeConnection(Connection conn) throws HibernateException, SQLException {
+    	if (conn == null)
+    		return;
+    	configuration.buildSettings().getConnectionProvider().closeConnection(conn);
     }
     
     public static void poolConsoleQuery(String dsname) {

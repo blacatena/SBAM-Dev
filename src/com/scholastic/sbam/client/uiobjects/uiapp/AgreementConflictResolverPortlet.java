@@ -140,7 +140,7 @@ public class AgreementConflictResolverPortlet extends GridSupportPortlet<AuthMet
 	protected long								searchSyncId = 0;
 	
 	public AgreementConflictResolverPortlet() {
-		super();
+		super(AppPortletIds.AGREEMENT_AUTH_METHOD_CONFLICT.getHelpTextId());
 	}
 	
 	public AgreementConflictResolverPortlet(String helpTextId) {

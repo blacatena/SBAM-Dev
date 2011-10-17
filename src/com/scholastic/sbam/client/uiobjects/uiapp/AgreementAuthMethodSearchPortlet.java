@@ -120,7 +120,7 @@ public class AgreementAuthMethodSearchPortlet extends GridSupportPortlet<AuthMet
 	protected long								searchSyncId = 0;
 	
 	public AgreementAuthMethodSearchPortlet() {
-		super();
+		super(AppPortletIds.AGREEMENT_AUTH_METHOD_SEARCH.getHelpTextId());
 	}
 	
 	public AgreementAuthMethodSearchPortlet(String helpTextId) {

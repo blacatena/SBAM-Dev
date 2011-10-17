@@ -114,7 +114,7 @@ public class ProxySearchPortlet extends GridSupportPortlet<ProxyInstance> implem
 	protected long								searchSyncId = 0;
 	
 	public ProxySearchPortlet() {
-		super();
+		super(AppPortletIds.PROXY_SEARCH.getHelpTextId());
 	}
 	
 	public ProxySearchPortlet(String helpTextId) {

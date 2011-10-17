@@ -388,9 +388,6 @@ public class HibernateAccessor
 			results = sqlStmt.executeQuery(sql.toString());
 			results.first();
 			int			count	= results.getBigDecimal("entry_count").intValue();
-			results.close();
-			sqlStmt.close();
-			conn.close();
 			
 			return count;
 		} catch (SQLException sqlExc) {
@@ -401,7 +398,7 @@ public class HibernateAccessor
 		} finally {
 			if (results != null) results.close();
 			if (sqlStmt != null) sqlStmt.close();
-			if (conn != null) conn.close();
+			if (conn != null) HibernateUtil.freeConnection(conn);	//	conn.close();
 		}
     }
 

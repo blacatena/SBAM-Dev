@@ -12,8 +12,13 @@ public class SimpleModelDataKeyProvider implements ModelKeyProvider<ModelData> {
 
 	@Override
 	public String getKey(ModelData model) {
-		if (model.getProperties().containsKey(keyField))
-			return model.get(keyField).toString();
-		return model.hashCode() + "";
+		if (model != null && model.getProperties() != null && model.getProperties().containsKey(keyField))
+			if (model.get(keyField) == null)
+				return "";
+			else
+				return model.get(keyField).toString();
+		if (model != null)
+			return model.hashCode() + "";
+		return "";
 	}
 }

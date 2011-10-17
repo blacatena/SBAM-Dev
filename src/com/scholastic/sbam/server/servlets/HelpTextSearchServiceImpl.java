@@ -90,7 +90,7 @@ public class HelpTextSearchServiceImpl extends AuthenticatedServiceServlet imple
 				
 				results.close();
 				sqlStmt.close();
-				conn.close();
+				HibernateUtil.freeConnection(conn);	//	conn.close();
 				
 				result = new BasePagingLoadResult<SearchResultInstance>(list, loadConfig.getOffset(), totSize);
 				

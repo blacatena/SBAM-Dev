@@ -71,7 +71,7 @@ public class SqlExecution {
 		closeResult();
 		
 		if (conn != null)
-			conn.close();
+			HibernateUtil.freeConnection(conn);	//	conn.close();
 	}
 
 	public Connection getConn() {

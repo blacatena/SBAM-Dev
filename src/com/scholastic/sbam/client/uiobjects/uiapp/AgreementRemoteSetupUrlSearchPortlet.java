@@ -118,7 +118,7 @@ public class AgreementRemoteSetupUrlSearchPortlet extends GridSupportPortlet<Agr
 	protected long								searchSyncId = 0;
 	
 	public AgreementRemoteSetupUrlSearchPortlet() {
-		super();
+		super(AppPortletIds.AGREEMENT_REMOTE_SETUP_URL_SEARCH.getHelpTextId());
 	}
 	
 	public AgreementRemoteSetupUrlSearchPortlet(String helpTextId) {
