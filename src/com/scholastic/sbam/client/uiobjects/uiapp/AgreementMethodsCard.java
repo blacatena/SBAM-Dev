@@ -543,7 +543,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		
 		uidFieldSet.add(uidPasswordField);
 		
-		FieldAndButtonCombo<BeanModel> combo = new FieldAndButtonCombo<BeanModel>(proxyField, "Proxy", null);
+		FieldAndButtonCombo<BeanModel> combo = new FieldAndButtonCombo<BeanModel>(proxyField, "Proxy", proxyField.createOpenButton());
 		uidFieldSet.add(combo, formData);
 //		uidFieldSet.add(proxyField, formData);
 		uidFieldSet.collapse();

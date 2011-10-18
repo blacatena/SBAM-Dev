@@ -9,12 +9,15 @@ import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -211,9 +214,29 @@ public class ProxySearchField extends ComboBox<BeanModel> implements CreateProxy
 		portlet.setProxyId(proxyId);
 		if (tip != null)
 			portlet.setIdentificationTip(tip);
-//		if (agreementId > 0)
-//			portlet.setIdentificationTip("Created for agreement " + agreementId);
 		appPortletProvider.addPortlet(portlet);
+	}
+
+	
+	public Button createOpenButton() {
+		final ProxySearchField proxyField = this;
+		Button button = new Button("Open");
+		button.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				if (proxyField.getSelectedProxy() != null && proxyField.getSelectedProxy().getProxyId() > 0) {
+					String tip = proxyField.getAgreementId() > 0 ? "Opened for Agreement " + AppConstants.appendCheckDigit(proxyField.getAgreementId()) : null;
+					openProxyPortlet(proxyField.getSelectedProxy(), tip);
+				}
+			}
+			
+		});
+		button.setWidth(40);
+		button.setHeight(20);
+		button.setPixelSize(40, 20);
+		
+		return button;
 	}
 	
 	@Override
