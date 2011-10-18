@@ -7,7 +7,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
-import com.extjs.gxt.ui.client.data.BeanModel;import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -22,15 +22,12 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
-import com.extjs.gxt.ui.client.widget.form.CheckBox;
-import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
-import com.extjs.gxt.ui.client.widget.form.SliderField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -64,10 +61,7 @@ import com.scholastic.sbam.client.uiobjects.fields.AgreementLinkSearchField;
 import com.scholastic.sbam.client.uiobjects.fields.EnhancedComboBox;
 import com.scholastic.sbam.client.uiobjects.fields.EnhancedMultiField;
 import com.scholastic.sbam.client.uiobjects.fields.InstitutionSearchField;
-import com.scholastic.sbam.client.uiobjects.fields.IpAddressField;
-import com.scholastic.sbam.client.uiobjects.fields.IpAddressRangeField;
 import com.scholastic.sbam.client.uiobjects.fields.NotesIconButtonField;
-import com.scholastic.sbam.client.uiobjects.fields.UserIdPasswordField;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
 import com.scholastic.sbam.client.uiobjects.foundation.FieldFactory;
 import com.scholastic.sbam.client.uiobjects.foundation.GridSupportPortlet;
@@ -293,6 +287,7 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		outerContainer.add(contactsCard);
 		
 		methodsCard = new AgreementMethodsCard();
+		methodsCard.setAppPortletProvider(portletProvider);
 		outerContainer.add(methodsCard);
 		
 		remoteSetupCard = new AgreementRemoteSetupCard();
@@ -1015,67 +1010,9 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 		setOriginalValues(formColumn1);
 		setOriginalValues(formColumn2);
 	}
-	
-//	@SuppressWarnings("unchecked")
-//	public void setOriginalValues(FormPanel formPanel) {
-//		for (Field<?> field : formPanel.getFields()) {
-//			if (field instanceof EnhancedComboBox) {
-//				EnhancedComboBox<BeanModel>  ecb = (EnhancedComboBox<BeanModel>) field;
-//				ecb.setOriginalValue(ecb.getSelectedValue());
-//			} else if (field instanceof InstitutionSearchField) {
-//				InstitutionSearchField  isf = (InstitutionSearchField) field;
-//				isf.setOriginalValue(isf.getSelectedValue());
-//			} else
-//			((Field<Object>) field).setOriginalValue(field.getValue());
-//		}
-//	}
-	
 
-	
 	public void setOriginalValues(FormPanel formPanel) {
-		if (formPanel != null)
-			for (Field<?> field : formPanel.getFields()) {
-				setOriginalValues(field);
-			}
-	}
-	
-	@SuppressWarnings("unchecked")
-	public void setOriginalValues(Field<?> field) {
-		if (field instanceof EnhancedComboBox) {
-			EnhancedComboBox<ModelData>  ecb = (EnhancedComboBox<ModelData>) field;
-			ecb.setOriginalValue(ecb.getSelectedValue());
-		} else if (field instanceof InstitutionSearchField) {
-			InstitutionSearchField  isf = (InstitutionSearchField) field;
-			isf.setOriginalValue(isf.getSelectedValue());
-		} else if (field instanceof SliderField)
-			((Field<Object>) field).setOriginalValue(field.getValue());
-		else if (field instanceof CheckBoxGroup) {
-			CheckBoxGroup cbg = (CheckBoxGroup) field;
-			for (Field<?> cbf : cbg.getAll()) {
-				CheckBox cb = (CheckBox) cbf;
-				cb.setOriginalValue(cb.getValue());
-			}
-		} else if (field instanceof CheckBox) {
-			CheckBox cb = (CheckBox) field;
-			cb.setOriginalValue(cb.getOriginalValue());
-		} else if (field instanceof IpAddressRangeField) {
-			IpAddressRangeField iprf = (IpAddressRangeField) field;
-			iprf.setOriginalValue(iprf.getValue());
-		} else if (field instanceof IpAddressField) {
-			IpAddressField ipf = (IpAddressField) field;
-			ipf.setOriginalValue(ipf.getValue());
-		} else if (field instanceof UserIdPasswordField) {
-			UserIdPasswordField ipf = (UserIdPasswordField) field;
-			ipf.setOriginalValue(ipf.getValue());
-		} else if (field instanceof MultiField) {
-			MultiField<Object> mf = (MultiField<Object>) field; 
-			for (Object o : mf.getAll()) {
-				Field<?> f = (Field<?>) o;
-				setOriginalValues(f);
-			}
-		} else {
-			((Field<Object>) field).setOriginalValue(field.getValue());
-		}
+		FieldFactory.setOriginalValues(formPanel);
 	}
 	
 	public void enableFields() {

@@ -20,16 +20,22 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.ProxySearchService;
 import com.scholastic.sbam.client.services.ProxySearchServiceAsync;
+import com.scholastic.sbam.client.uiobjects.uiapp.AppPortletIds;
+import com.scholastic.sbam.client.uiobjects.uiapp.AppPortletProvider;
 import com.scholastic.sbam.client.uiobjects.uiapp.CreateProxyDialog;
 import com.scholastic.sbam.client.uiobjects.uiapp.CreateProxyDialog.CreateProxyDialogSaver;
+import com.scholastic.sbam.client.uiobjects.uiapp.ProxyPortlet;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.ProxyInstance;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
+import com.scholastic.sbam.shared.util.AppConstants;
 
 public class ProxySearchField extends ComboBox<BeanModel> implements CreateProxyDialogSaver {
 	
 	protected final ProxySearchServiceAsync proxySearchService = GWT.create(ProxySearchService.class);
+	
+	protected AppPortletProvider		appPortletProvider;
 	
 	protected final ProxyInstance		NO_PROXY_INSTANCE		= ProxyInstance.getEmptyInstance();
 	protected final BeanModel			NO_PROXY				= ProxyInstance.obtainModel(NO_PROXY_INSTANCE);
@@ -46,6 +52,8 @@ public class ProxySearchField extends ComboBox<BeanModel> implements CreateProxy
 	private SortDir						sortDir					=	SortDir.ASC;
 	
 	protected LayoutContainer			createDialogContainer	= null;
+	
+	protected int						agreementId				=	0;
 	
 	public ProxySearchField() {
 		super();
@@ -86,6 +94,11 @@ public class ProxySearchField extends ComboBox<BeanModel> implements CreateProxy
 	public ProxySearchField(LayoutContainer createDialogContainer) {
 		this();
 		this.createDialogContainer = createDialogContainer;
+	}
+	
+	public ProxySearchField(LayoutContainer createDialogContainer, AppPortletProvider appPortletProvider) {
+		this(createDialogContainer);
+		this.appPortletProvider = appPortletProvider;
 	}
 	
 	public void onSelectionChange(ProxyInstance selected) {
@@ -171,14 +184,36 @@ public class ProxySearchField extends ComboBox<BeanModel> implements CreateProxy
 	}
 
 	@Override
-	public void onCreateProxySave(ProxyInstance instance) {
+	public void onCreateProxySave(ProxyInstance instance, boolean openAfterSave) {
 		//	Add the model to the field store and select it
 		BeanModel model = ProxyInstance.obtainModel(instance);
 		this.getStore().add(model);
 //		this.select(model);
 		this.setValue(model);
 //		this.setRawValue(instance.getDescriptionAndCode());
-		lastQuery = null;		//	So next trigger click reloads/sorts from database
+		lastQuery = null;		//	So next trigger click reloads/sorts from databaseappPortletProvider.getPortlet(AppPortletIds.SITE_LOCATION_DISPLAY);
+		
+		if (appPortletProvider != null && openAfterSave) {
+			openProxyPortlet(instance, (agreementId > 0) ? "Created for Agreement " + AppConstants.appendCheckDigit(agreementId) : "Newly Created");
+		}
+	}
+	
+	public void openProxyPortlet(ProxyInstance instance, String tip) {
+		if (instance == null)
+			return;
+		openProxyPortlet(instance.getProxyId(), tip);
+	}
+	
+	public void openProxyPortlet(int proxyId, String tip) {
+		if (appPortletProvider == null)
+			return;
+		ProxyPortlet portlet = (ProxyPortlet) appPortletProvider.getPortlet(AppPortletIds.PROXY_DISPLAY);
+		portlet.setProxyId(proxyId);
+		if (tip != null)
+			portlet.setIdentificationTip(tip);
+//		if (agreementId > 0)
+//			portlet.setIdentificationTip("Created for agreement " + agreementId);
+		appPortletProvider.addPortlet(portlet);
 	}
 	
 	@Override
@@ -275,6 +310,22 @@ public class ProxySearchField extends ComboBox<BeanModel> implements CreateProxy
 		if (query == null)
 			query = getRawValue();
 		return query;
+	}
+
+	public AppPortletProvider getAppPortletProvider() {
+		return appPortletProvider;
+	}
+
+	public void setAppPortletProvider(AppPortletProvider appPortletProvider) {
+		this.appPortletProvider = appPortletProvider;
+	}
+
+	public int getAgreementId() {
+		return agreementId;
+	}
+
+	public void setAgreementId(int agreementId) {
+		this.agreementId = agreementId;
 	}
 
 	public boolean isIncludeAddOption() {

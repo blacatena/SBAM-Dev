@@ -26,7 +26,7 @@ public class CreateProxyDialog extends PortletMaskDialog {
 	 *
 	 */
 	public interface CreateProxyDialogSaver {
-		public void onCreateProxySave(ProxyInstance instance);
+		public void onCreateProxySave(ProxyInstance instance, boolean openAfterSave);
 		
 		public void lockTrigger();
 		
@@ -40,7 +40,7 @@ public class CreateProxyDialog extends PortletMaskDialog {
 	protected HtmlEditor					noteField;
 	
 	public CreateProxyDialog(LayoutContainer container, CreateProxyDialogSaver saver) {
-		super(container);
+		super(container, true);
 		this.saver = saver;
 		setMarginWidth(50);
 	}
@@ -104,7 +104,7 @@ public class CreateProxyDialog extends PortletMaskDialog {
 	}
 
 	@Override
-	protected void onSave(boolean openAfterSave) {
+	protected void onSave(final boolean openAfterSave) {
 	
 		// Set field values from form fields
 		ProxyInstance proxyInstance = new ProxyInstance();
@@ -130,7 +130,7 @@ public class CreateProxyDialog extends PortletMaskDialog {
 
 					public void onSuccess(UpdateResponse<ProxyInstance> updateResponse) {
 						if (saver != null)
-							saver.onCreateProxySave(updateResponse.getInstance());
+							saver.onCreateProxySave(updateResponse.getInstance(), openAfterSave);
 				}
 			});
 	}

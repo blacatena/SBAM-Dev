@@ -5,11 +5,16 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Slider;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.DateTimePropertyEditor;
 import com.extjs.gxt.ui.client.widget.form.Field;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
+import com.extjs.gxt.ui.client.widget.form.MultiField;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
+import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.extjs.gxt.ui.client.widget.form.SliderField;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
@@ -20,8 +25,11 @@ import com.scholastic.sbam.client.uiobjects.fields.ConstantLabelField;
 import com.scholastic.sbam.client.uiobjects.fields.EnhancedCheckBoxGroup;
 import com.scholastic.sbam.client.uiobjects.fields.EnhancedComboBox;
 import com.scholastic.sbam.client.uiobjects.fields.InstitutionSearchField;
+import com.scholastic.sbam.client.uiobjects.fields.IpAddressField;
+import com.scholastic.sbam.client.uiobjects.fields.IpAddressRangeField;
 import com.scholastic.sbam.client.uiobjects.fields.SizedTextArea;
 import com.scholastic.sbam.client.uiobjects.fields.SliderFieldWithDisable;
+import com.scholastic.sbam.client.uiobjects.fields.UserIdPasswordField;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 import com.scholastic.sbam.shared.objects.SimpleModelDataKeyProvider;
@@ -325,6 +333,60 @@ public class FieldFactory {
 		field.setFieldLabel(label);
 		if (label == null || label.length() == 0)
 			field.setLabelSeparator("");
+	}
+	
+
+	
+	public static void setOriginalValues(FormPanel formPanel) {
+		if (formPanel != null) {
+			for (Field<?> field : formPanel.getFields()) {
+				setOriginalValues(field);
+			}	
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static void setOriginalValues(Field<?> field) {
+		if (field instanceof EnhancedComboBox) {
+			EnhancedComboBox<ModelData>  ecb = (EnhancedComboBox<ModelData>) field;
+			ecb.setOriginalValue(ecb.getSelectedValue());
+		} else if (field instanceof InstitutionSearchField) {
+			InstitutionSearchField  isf = (InstitutionSearchField) field;
+			isf.setOriginalValue(isf.getSelectedValue());
+		} else if (field instanceof SliderField) {
+			((Field<Object>) field).setOriginalValue(field.getValue());
+		} else if (field instanceof CheckBoxGroup) {
+			CheckBoxGroup cbg = (CheckBoxGroup) field;
+			for (Field<?> cbf : cbg.getAll()) {
+				setOriginalValues(cbf);
+			}
+		} else if (field instanceof RadioGroup) {
+			RadioGroup cbg = (RadioGroup) field;
+			for (Field<?> cbf : cbg.getAll()) {
+				setOriginalValues(cbf);
+			}
+		} else if (field instanceof CheckBox) {
+			CheckBox cb = (CheckBox) field;
+			cb.setOriginalValue(cb.getOriginalValue());
+		} else if (field instanceof IpAddressRangeField) {
+			IpAddressRangeField iprf = (IpAddressRangeField) field;
+			iprf.setOriginalValue(iprf.getValue());
+		} else if (field instanceof IpAddressField) {
+			IpAddressField ipf = (IpAddressField) field;
+			ipf.setOriginalValue(ipf.getValue());
+		} else if (field instanceof UserIdPasswordField) {
+			UserIdPasswordField ipf = (UserIdPasswordField) field;
+			ipf.setOriginalValue(ipf.getValue());
+		} else if (field instanceof MultiField) {
+			MultiField<Object> mf = (MultiField<Object>) field; 
+			for (Object o : mf.getAll()) {
+				Field<?> f = (Field<?>) o;
+				setOriginalValues(f);
+			}
+		} else {
+			((Field<Object>) field).setOriginalValue(field.getValue());
+		}
+		
 	}
 
 }

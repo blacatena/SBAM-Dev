@@ -20,6 +20,7 @@ public class MethodIdInstance implements BeanModelTag, IsSerializable {
 	public static final String AM_URL	= "url";
 	public static final String AM_UID	= "uid";
 	public static final String AM_RSURL	= "rsurl";
+	public static final String PXY_IP 	= "pip";
 
 	private int		agreementId;
 	private int		ucn;
@@ -177,7 +178,6 @@ public class MethodIdInstance implements BeanModelTag, IsSerializable {
 	public boolean sourceOwnerEquals(MethodIdInstance other) {
 		return (
 					proxyId		== other.proxyId
-			&&		ipId		== other.ipId
 			&&		agreementId == other.agreementId
 			&&		ucn			== other.ucn
 			&&		ucnSuffix	== other.ucnSuffix

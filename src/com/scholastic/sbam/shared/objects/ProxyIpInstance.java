@@ -12,6 +12,8 @@ import com.scholastic.sbam.shared.util.AppConstants;
 public class ProxyIpInstance extends IpAddressInstance implements BeanModelTag, IsSerializable {
 
 	private static BeanModelFactory beanModelfactory;
+	
+	public static final String PXY_IP 	= MethodIdInstance.PXY_IP;
 
 	private int			proxyId;
 	private int			ipId;
@@ -216,7 +218,7 @@ public class ProxyIpInstance extends IpAddressInstance implements BeanModelTag, 
 		mid.setUcn(0);
 		mid.setUcnSuffix(0);
 		mid.setSiteLocCode(null);
-		mid.setMethodType(null);
+		mid.setMethodType(PXY_IP);
 		mid.setMethodKey(0);
 		mid.setForUcn(0);
 		mid.setForUcnSuffix(0);

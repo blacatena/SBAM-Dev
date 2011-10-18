@@ -2,6 +2,8 @@ package com.scholastic.sbam.client.uiobjects.fields;
 
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.Container;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 
@@ -55,17 +57,19 @@ public class LockableFieldSet extends FieldSet {
 	@Override
 	public void disable() {
 		super.disable();
+		setEnabledFields(this, false);
 	}
 	
 	@Override
 	public void onCollapse() {
 		super.onCollapse();
-		for (Component component : this.getItems()) {
-			if (component instanceof Field) {
-				Field<?> field = (Field<?>) component;
-				field.disable();
-			}
-		}
+		setEnabledFields(this, false);
+//		for (Component component : this.getItems()) {
+//			if (component instanceof Field) {
+//				Field<?> field = (Field<?>) component;
+//				field.disable();
+//			}
+//		}
 	}
 	
 	public void markLocked(boolean locked) {
@@ -74,12 +78,13 @@ public class LockableFieldSet extends FieldSet {
 	
 	public void lock() {
 		locked = true;
-		for (Component component : this.getItems()) {
-			if (component instanceof Field) {
-				Field<?> field = (Field<?>) component;
-				field.disable();
-			}
-		}
+		setEnabledFields(this, false);
+//		for (Component component : this.getItems()) {
+//			if (component instanceof Field) {
+//				Field<?> field = (Field<?>) component;
+//				field.disable();
+//			}
+//		}
 	}
 
 	public void unlock() {
@@ -100,11 +105,19 @@ public class LockableFieldSet extends FieldSet {
 	
 	public void enableFields() {
 		if (enableFields && !locked && isExpanded()) {
-			for (Component component : this.getItems()) {
-				if (component instanceof Field) {
-					Field<?> field = (Field<?>) component;
-					field.enable();
-				}
+			setEnabledFields(this, true);
+		}
+	}
+	
+	public void setEnabledFields(Container<?> comp, boolean enabled) {
+		for (Object component : comp.getItems()) {
+			if (component instanceof Field) {
+				Field<?> field = (Field<?>) component;
+				field.setEnabled(enabled);
+			} else if (component instanceof Button) {
+				((Button) component).setEnabled(enabled);
+			} else if (component instanceof Container) {
+				setEnabledFields((Container<?>) component, enabled);
 			}
 		}
 	}
@@ -122,7 +135,10 @@ public class LockableFieldSet extends FieldSet {
 	
 	public void enableFields(boolean enableFields) {
 		this.enableFields = enableFields;
-		enableFields();
+		if (enableFields)
+			enableFields();
+		else
+			setEnabledFields(this, false);
 	}
 	
 	public boolean canEnableFields() {

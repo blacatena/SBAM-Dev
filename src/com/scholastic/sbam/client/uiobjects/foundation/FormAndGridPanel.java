@@ -6,7 +6,6 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BeanModel;
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -18,14 +17,9 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.CheckBox;
-import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
-import com.extjs.gxt.ui.client.widget.form.MultiField;
-import com.extjs.gxt.ui.client.widget.form.RadioGroup;
-import com.extjs.gxt.ui.client.widget.form.SliderField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -39,12 +33,7 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.stores.KeyModelComparer;
-import com.scholastic.sbam.client.uiobjects.fields.EnhancedComboBox;
-import com.scholastic.sbam.client.uiobjects.fields.InstitutionSearchField;
-import com.scholastic.sbam.client.uiobjects.fields.IpAddressField;
-import com.scholastic.sbam.client.uiobjects.fields.IpAddressRangeField;
 import com.scholastic.sbam.client.uiobjects.fields.LockableFieldSet;
-import com.scholastic.sbam.client.uiobjects.fields.UserIdPasswordField;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
 
@@ -601,67 +590,63 @@ public abstract class FormAndGridPanel<ModelInstance> extends GridSupportContain
 	}
 	
 	public void setOriginalValues(FormPanel formPanel) {
-		if (formPanel != null) {
-			for (Field<?> field : formPanel.getFields()) {
-				setOriginalValues(field);
-			}
-			
-		}
+		FieldFactory.setOriginalValues(formPanel);
 	}
 	
-//	public void setOriginalValues(FieldSet formPanel) {
-//		if (formPanel != null)
-//			for (Component field : formPanel.getItems()) {
-//				if (field instanceof Field)
-//					setOriginalValues((Field<?>) field);
+//	public void setOriginalValues(FormPanel formPanel) {
+//		if (formPanel != null) {
+//			for (Field<?> field : formPanel.getFields()) {
+//				setOriginalValues(field);
 //			}
+//			
+//		}
 //	}
-	
-	@SuppressWarnings("unchecked")
-	public void setOriginalValues(Field<?> field) {
-		if (field instanceof EnhancedComboBox) {
-			EnhancedComboBox<ModelData>  ecb = (EnhancedComboBox<ModelData>) field;
-			ecb.setOriginalValue(ecb.getSelectedValue());
-		} else if (field instanceof InstitutionSearchField) {
-			InstitutionSearchField  isf = (InstitutionSearchField) field;
-			isf.setOriginalValue(isf.getSelectedValue());
-		} else if (field instanceof SliderField) {
-			((Field<Object>) field).setOriginalValue(field.getValue());
-		} else if (field instanceof CheckBoxGroup) {
-			CheckBoxGroup cbg = (CheckBoxGroup) field;
-			for (Field<?> cbf : cbg.getAll()) {
-				CheckBox cb = (CheckBox) cbf;
-				cb.setOriginalValue(cb.getValue());
-			}
-		} else if (field instanceof RadioGroup) {
-			RadioGroup cbg = (RadioGroup) field;
-			for (Field<?> cbf : cbg.getAll()) {
-				CheckBox cb = (CheckBox) cbf;
-				cb.setOriginalValue(cb.getValue());
-			}
-		} else if (field instanceof CheckBox) {
-			CheckBox cb = (CheckBox) field;
-			cb.setOriginalValue(cb.getOriginalValue());
-		} else if (field instanceof IpAddressRangeField) {
-			IpAddressRangeField iprf = (IpAddressRangeField) field;
-			iprf.setOriginalValue(iprf.getValue());
-		} else if (field instanceof IpAddressField) {
-			IpAddressField ipf = (IpAddressField) field;
-			ipf.setOriginalValue(ipf.getValue());
-		} else if (field instanceof UserIdPasswordField) {
-			UserIdPasswordField ipf = (UserIdPasswordField) field;
-			ipf.setOriginalValue(ipf.getValue());
-		} else if (field instanceof MultiField) {
-			MultiField<Object> mf = (MultiField<Object>) field; 
-			for (Object o : mf.getAll()) {
-				Field<?> f = (Field<?>) o;
-				setOriginalValues(f);
-			}
-		} else {
-			((Field<Object>) field).setOriginalValue(field.getValue());
-		}
-		
-	}
+//	
+//	@SuppressWarnings("unchecked")
+//	public void setOriginalValues(Field<?> field) {
+//		if (field instanceof EnhancedComboBox) {
+//			EnhancedComboBox<ModelData>  ecb = (EnhancedComboBox<ModelData>) field;
+//			ecb.setOriginalValue(ecb.getSelectedValue());
+//		} else if (field instanceof InstitutionSearchField) {
+//			InstitutionSearchField  isf = (InstitutionSearchField) field;
+//			isf.setOriginalValue(isf.getSelectedValue());
+//		} else if (field instanceof SliderField) {
+//			((Field<Object>) field).setOriginalValue(field.getValue());
+//		} else if (field instanceof CheckBoxGroup) {
+//			CheckBoxGroup cbg = (CheckBoxGroup) field;
+//			for (Field<?> cbf : cbg.getAll()) {
+//				CheckBox cb = (CheckBox) cbf;
+//				cb.setOriginalValue(cb.getValue());
+//			}
+//		} else if (field instanceof RadioGroup) {
+//			RadioGroup cbg = (RadioGroup) field;
+//			for (Field<?> cbf : cbg.getAll()) {
+//				CheckBox cb = (CheckBox) cbf;
+//				cb.setOriginalValue(cb.getValue());
+//			}
+//		} else if (field instanceof CheckBox) {
+//			CheckBox cb = (CheckBox) field;
+//			cb.setOriginalValue(cb.getOriginalValue());
+//		} else if (field instanceof IpAddressRangeField) {
+//			IpAddressRangeField iprf = (IpAddressRangeField) field;
+//			iprf.setOriginalValue(iprf.getValue());
+//		} else if (field instanceof IpAddressField) {
+//			IpAddressField ipf = (IpAddressField) field;
+//			ipf.setOriginalValue(ipf.getValue());
+//		} else if (field instanceof UserIdPasswordField) {
+//			UserIdPasswordField ipf = (UserIdPasswordField) field;
+//			ipf.setOriginalValue(ipf.getValue());
+//		} else if (field instanceof MultiField) {
+//			MultiField<Object> mf = (MultiField<Object>) field; 
+//			for (Object o : mf.getAll()) {
+//				Field<?> f = (Field<?>) o;
+//				setOriginalValues(f);
+//			}
+//		} else {
+//			((Field<Object>) field).setOriginalValue(field.getValue());
+//		}
+//		
+//	}
 	
 	protected Grid<BeanModel> getGrid(FormData formData) {
 

@@ -40,6 +40,7 @@ import com.scholastic.sbam.client.uiobjects.fields.EnhancedCheckBoxGroup;
 import com.scholastic.sbam.client.uiobjects.fields.IpAddressRangeField;
 import com.scholastic.sbam.client.uiobjects.fields.LockableFieldSet;
 import com.scholastic.sbam.client.uiobjects.fields.NotesIconButtonField;
+import com.scholastic.sbam.client.uiobjects.fields.FieldAndButtonCombo;
 import com.scholastic.sbam.client.uiobjects.fields.ProxySearchField;
 import com.scholastic.sbam.client.uiobjects.fields.SiteLocationSearchField;
 import com.scholastic.sbam.client.uiobjects.fields.UrlField;
@@ -83,6 +84,8 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	protected final AuthMethodListServiceAsync 			authMethodListService 		= GWT.create(AuthMethodListService.class);
 	protected final UpdateAuthMethodServiceAsync		updateAuthMethodService		= GWT.create(UpdateAuthMethodService.class);
 	protected final UpdateAuthMethodNoteServiceAsync	updateAuthMethodNoteService	= GWT.create(UpdateAuthMethodNoteService.class);
+	
+	protected AppPortletProvider			appPortletProvider;
 
 	protected FormInnerPanel				formRow1;
 	protected FormInnerPanel				formColumn1;
@@ -116,7 +119,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 	protected UserIdPasswordField			uidPasswordField	= new UserIdPasswordField();
 	protected UrlField						urlField			= new UrlField();
 	
-	protected ProxySearchField				proxyField			= getProxySearchField("proxyId", "Proxy", 350, "Any proxy attached to this user ID.");
+	protected ProxySearchField				proxyField			= getProxySearchField("proxyId", "Proxy", 0, "Any proxy attached to this user ID.");
 
 	protected LockableFieldSet				ipFieldSet		= new LockableFieldSet() 
 //																{
@@ -163,6 +166,8 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 			siteLocationField.setAgreementId(agreementId);
 		if (institutionField != null)
 			institutionField.setAgreementId(agreementId);
+		if (proxyField != null)
+			proxyField.setAgreementId(agreementId);
 	}
 	
 	public AgreementInstance getAgreement() {
@@ -484,6 +489,8 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		if (agreement != null)
 			siteLocationField.setAgreementId(agreement.getId());
 		
+		siteLocationField.setAppPortletProvider(appPortletProvider);
+		
 		FieldFactory.setStandard(ipRangeField, "");
 		FieldFactory.setStandard(uidPasswordField, "");
 		FieldFactory.setStandard(urlField, "URL");
@@ -496,6 +503,9 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		ucnDisplay.setWidth(0);
 		siteLocationField.setWidth(0);
 		proxyField.setWidth(0);
+		
+		proxyField.setAppPortletProvider(appPortletProvider);
+		proxyField.setAgreementId(getAgreementId());
 		
 		idNotesCombo.add(agreementIdField);	
 		idNotesCombo.add(notesField);
@@ -532,7 +542,10 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		uidFieldSet.setToolTip(UiConstants.getQuickTip("Define authentication by User ID and password."));
 		
 		uidFieldSet.add(uidPasswordField);
-		uidFieldSet.add(proxyField, formData);
+		
+		FieldAndButtonCombo<BeanModel> combo = new FieldAndButtonCombo<BeanModel>(proxyField, "Proxy", null);
+		uidFieldSet.add(combo, formData);
+//		uidFieldSet.add(proxyField, formData);
 		uidFieldSet.collapse();
 		
 
@@ -1130,6 +1143,14 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		openFocusFieldSet();
 	}
 	
+	public AppPortletProvider getAppPortletProvider() {
+		return appPortletProvider;
+	}
+
+	public void setAppPortletProvider(AppPortletProvider appPortletProvider) {
+		this.appPortletProvider = appPortletProvider;
+	}
+
 	@Override
 	public void afterRender() {
 		super.afterRender();

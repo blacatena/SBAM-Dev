@@ -46,9 +46,7 @@ import com.scholastic.sbam.client.stores.KeyModelComparer;
 import com.scholastic.sbam.client.uiobjects.events.AppEvent;
 import com.scholastic.sbam.client.uiobjects.events.AppEventBus;
 import com.scholastic.sbam.client.uiobjects.events.AppEvents;
-import com.scholastic.sbam.client.uiobjects.fields.EnhancedComboBox;
 import com.scholastic.sbam.client.uiobjects.fields.EnhancedMultiField;
-import com.scholastic.sbam.client.uiobjects.fields.InstitutionSearchField;
 import com.scholastic.sbam.client.uiobjects.fields.IpAddressRangeField;
 import com.scholastic.sbam.client.uiobjects.fields.LockableFieldSet;
 import com.scholastic.sbam.client.uiobjects.fields.NotesIconButtonField;
@@ -279,31 +277,6 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 		ipAddressGrid.setHideHeaders(false);
 		
 		addRowListener(ipAddressGrid);
-		
-//		//	Open a new portlet to display an agreement when a row is selected
-//		agreementsGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); 
-//		final AppPortlet thisPortlet = this; 
-//		agreementsGrid.getSelectionModel().addListener(Events.SelectionChange,  
-//				new Listener<SelectionChangedEvent<ModelData>>() {  
-//					public void handleEvent(SelectionChangedEvent<ModelData> be) {  
-//						if (be.getSelection().size() > 0) {
-//						//	System.out.println("Agreement " + ((BeanModel) be.getSelectedItem()).get("idCheckDigit"));
-//							AgreementInstance agreement = (AgreementInstance) ((BeanModel) be.getSelectedItem()).getBean();
-//							AgreementPortlet portlet = (AgreementPortlet) portletProvider.getPortlet(AppPortletIds.AGREEMENT_DISPLAY);
-//							portlet.setAgreementId(agreement.getId());
-//							if (proxy != null) {
-//								String foundFor = "Proxy #" + proxy.getIdCheckDigit();
-//								portlet.setIdentificationTip("Opened for " + foundFor + "");
-//							}
-////							Old, simple way
-////							int insertCol = (portalColumn == 0) ? 1 : 0;
-////							portletProvider.insertPortlet(portlet, portalRow, insertCol);
-////							New, more thorough way
-//							portletProvider.insertPortlet(portlet, portalRow, thisPortlet.getInsertColumn());
-//							agreementsGrid.getSelectionModel().deselectAll();
-//						} 
-//					}
-//			});
 	
 		ipAddressGridFieldSet = new FieldSet();
 		ipAddressGridFieldSet.setBorders(true);
@@ -323,11 +296,24 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 	 */
 	@Override
 	protected void onRowSelected(BeanModel data) {
+		if (cancelButton != null && cancelButton.isEnabled() && isDirtyForm()) {
+			ipAddressGrid.mask("Save or cancel your changes in progress before selecting a row.");
+			Timer unmaskTimer = new Timer() {
+				@Override
+				public void run() {
+					ipAddressGrid.unmask();
+				}
+			};
+			unmaskTimer.schedule(2000);
+			return;
+		}
+		
 		ProxyIpInstance ip = (ProxyIpInstance) data.getBean();
 		
 		proxyIpId = ip.getIpId();
 		
 		ipAddressField.setValue(ip.getIpLo(), ip.getIpHi());
+		ipAddressField.setMethodId(ip.obtainMethodId());
 		ipApprovedField.setValue(ip.isApproved());
 		ipStatusField.setValue(ip.isActive());
 		if (ip.getNote() != null && ip.getNote().length() > 0) {
@@ -337,6 +323,7 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 			ipNotesField.setAddMode();
 			ipNotesField.setNote("");			
 		}
+		setOriginalValues();
 		
 		beginIpEdit();
 	}
@@ -388,6 +375,17 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 		newIpButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
 			@Override
 			public void componentSelected(ButtonEvent ce) {
+				if (cancelButton != null && cancelButton.isEnabled() && isDirtyForm()) {
+					ipAddressGrid.mask("Save or cancel your changes in progress before creating a new IP address.");
+					Timer unmaskTimer = new Timer() {
+						@Override
+						public void run() {
+							ipAddressGrid.unmask();
+						}
+					};
+					unmaskTimer.schedule(2000);
+					return;
+				}
 				proxyIpId = -1;
 				beginIpEdit();
 			}  
@@ -535,18 +533,26 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 	}
 	
 	public void beginEdit() {
-		editButton.disable();
-		cancelButton.enable();
-		enableFields();
+		editIpAddress = false;
+		beginAnyEdit();
 	}
 	
 	public void beginIpEdit() {
 		editIpAddress = true;
-		beginEdit();
+		beginAnyEdit();
+	}
+	
+	public void beginAnyEdit() {
+		editButton.disable();
+		newIpButton.disable();
+		cancelButton.enable();
+		disableFields();
+		enableFields();
 	}
 	
 	public void endEdit(boolean save) {
 		cancelButton.disable();
+		newIpButton.enable();
 		saveButton.disable();
 		disableFields();
 		if (save) {
@@ -578,20 +584,9 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 	public void setOriginalValues() {
 		setOriginalValues(outerContainer);
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	public void setOriginalValues(FormPanel formPanel) {
-		for (Field<?> field : formPanel.getFields()) {
-			if (field instanceof EnhancedComboBox) {
-				EnhancedComboBox<BeanModel>  ecb = (EnhancedComboBox<BeanModel>) field;
-				ecb.setOriginalValue(ecb.getSelectedValue());
-			} else if (field instanceof InstitutionSearchField) {
-				InstitutionSearchField  isf = (InstitutionSearchField) field;
-				isf.setOriginalValue(isf.getSelectedValue());
-			} else {
-				((Field<Object>) field).setOriginalValue(field.getValue());
-			}
-		}
+		FieldFactory.setOriginalValues(formPanel);
 	}
 	
 	public void enableFields() {
@@ -600,7 +595,7 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 			ipApprovedField.enable();
 			ipStatusField.enable();
 			ipFieldSet.setExpanded(true);
-			ipFieldSet.enableFields(false);
+			ipFieldSet.enableFields(true);
 			ipFieldSet.setEnabled(true);
 		} else {
 			descriptionField.enable();
@@ -610,14 +605,6 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 			ipFieldSet.enableFields(false);
 			ipFieldSet.setEnabled(false);
 		}
-		
-//		for (Field<?> field : outerContainer.getFields()) {
-//			if (field.getParent() != null && field.getParent() instanceof LockableFieldSet) {
-//				LockableFieldSet lfs = (LockableFieldSet) field.getParent();
-//				lfs.enableFields(true);
-//			} else 
-//				field.enable();
-//		}
 	}
 	
 	public void disableFields() {
