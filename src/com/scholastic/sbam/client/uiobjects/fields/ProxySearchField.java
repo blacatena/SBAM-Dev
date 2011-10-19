@@ -28,6 +28,7 @@ import com.scholastic.sbam.client.uiobjects.uiapp.AppPortletProvider;
 import com.scholastic.sbam.client.uiobjects.uiapp.CreateProxyDialog;
 import com.scholastic.sbam.client.uiobjects.uiapp.CreateProxyDialog.CreateProxyDialogSaver;
 import com.scholastic.sbam.client.uiobjects.uiapp.ProxyPortlet;
+import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.ProxyInstance;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
@@ -58,6 +59,8 @@ public class ProxySearchField extends ComboBox<BeanModel> implements CreateProxy
 	
 	protected int						agreementId				=	0;
 	
+	protected Button					openButton				=	null;
+	
 	public ProxySearchField() {
 		super();
 		
@@ -87,8 +90,9 @@ public class ProxySearchField extends ComboBox<BeanModel> implements CreateProxy
 			public void selectionChanged(SelectionChangedEvent<BeanModel> se) {
 				if (se.getSelectedItem() == null) {
 					onSelectionChange(NO_PROXY_INSTANCE);
-				} else
+				} else {
 					onSelectionChange((ProxyInstance) se.getSelectedItem().getBean());
+				}
 			}
 			
 		});
@@ -107,14 +111,25 @@ public class ProxySearchField extends ComboBox<BeanModel> implements CreateProxy
 	public void onSelectionChange(ProxyInstance selected) {
 		if (selected == null) {
 			this.setValue(NO_PROXY);
+			if (openButton != null)
+				openButton.disable();
 			return;
 		}
 		if (selected.isAddNew()) {
 			this.setRawValue("");
+			if (openButton != null)
+				openButton.disable();
 			return;
 		}
 		//	For add let the object using the field handle it
 		//	For an actual proxy, let the object using the field handle it
+		if (selected.getProxyId() > 0) {
+			if (openButton != null)
+				openButton.enable();
+		} else {
+			if (openButton != null)
+				openButton.disable();
+		}
 	}
 	
 	
@@ -219,9 +234,13 @@ public class ProxySearchField extends ComboBox<BeanModel> implements CreateProxy
 
 	
 	public Button createOpenButton() {
+		if (openButton != null)
+			return openButton;
+		
 		final ProxySearchField proxyField = this;
-		Button button = new Button("Open");
-		button.addSelectionListener(new SelectionListener<ButtonEvent>() {
+		openButton = new Button();
+		IconSupplier.forceIcon(openButton, IconSupplier.getGoOpenIconName());
+		openButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
 			@Override
 			public void componentSelected(ButtonEvent ce) {
@@ -232,11 +251,11 @@ public class ProxySearchField extends ComboBox<BeanModel> implements CreateProxy
 			}
 			
 		});
-		button.setWidth(40);
-		button.setHeight(20);
-		button.setPixelSize(40, 20);
+		openButton.setWidth(24);
+		openButton.setHeight(24);
+		openButton.setPixelSize(24, 24);
 		
-		return button;
+		return openButton;
 	}
 	
 	@Override
@@ -341,6 +360,14 @@ public class ProxySearchField extends ComboBox<BeanModel> implements CreateProxy
 
 	public void setAppPortletProvider(AppPortletProvider appPortletProvider) {
 		this.appPortletProvider = appPortletProvider;
+	}
+
+	public Button getOpenButton() {
+		return createOpenButton();
+	}
+
+	public void setOpenButton(Button openButton) {
+		this.openButton = openButton;
 	}
 
 	public int getAgreementId() {

@@ -39,6 +39,8 @@ import com.extjs.gxt.ui.client.widget.layout.FormData;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.extjs.gxt.ui.client.widget.layout.TableData;
+import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.core.client.GWT;
@@ -381,8 +383,18 @@ public class AgreementPortlet extends GridSupportPortlet<AgreementTermInstance> 
 //		linkFieldSet.setLayout(new FitLayout());
 //		linkFieldSet.setHeight(300);
 
+		agreementLinkField.setAppPortletProvider(portletProvider);
 		linkFieldSet.add(agreementLinkField, formData90);
-		linkFieldSet.add(linkTypeDisplay, formData90);
+		LayoutContainer grouper = new LayoutContainer(new TableLayout(2));
+		grouper.setStyleAttribute("padding-left", "30px");
+		grouper.add(linkTypeDisplay);	//, formData90);
+		TableData td = new TableData();
+		td.setWidth("40px");
+		td.setHorizontalAlign(HorizontalAlignment.RIGHT);
+		grouper.add(agreementLinkField.createOpenButton(), td);
+		linkFieldSet.add(grouper, formData90);
+//		linkFieldSet.add(new FieldAndButtonCombo<Object>(linkTypeDisplay, "Type", agreementLinkField.createOpenButton()));
+//		linkTypeDisplay.setWidth(50);
 		formColumn2.add(linkFieldSet);
 
 		FormLayout profileLayout = new FormLayout();

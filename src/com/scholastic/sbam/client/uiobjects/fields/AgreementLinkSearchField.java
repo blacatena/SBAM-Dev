@@ -9,17 +9,26 @@ import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.AgreementLinkSearchService;
 import com.scholastic.sbam.client.services.AgreementLinkSearchServiceAsync;
+import com.scholastic.sbam.client.uiobjects.uiapp.AgreementLinkPortlet;
+import com.scholastic.sbam.client.uiobjects.uiapp.AppPortletIds;
+import com.scholastic.sbam.client.uiobjects.uiapp.AppPortletProvider;
 import com.scholastic.sbam.client.uiobjects.uiapp.CreateAgreementLinkDialog;
 import com.scholastic.sbam.client.uiobjects.uiapp.CreateAgreementLinkDialog.CreateAgreementLinkDialogSaver;
+import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.AgreementLinkInstance;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
@@ -29,6 +38,8 @@ import com.scholastic.sbam.shared.util.AppConstants;
 public class AgreementLinkSearchField extends ComboBox<BeanModel> implements CreateAgreementLinkDialogSaver {
 	
 	protected final AgreementLinkSearchServiceAsync agreementLinkSearchService = GWT.create(AgreementLinkSearchService.class);
+	
+	protected AppPortletProvider	appPortletProvider	=	null;
 	
 	private long					searchSyncId		=	0;
 	
@@ -40,7 +51,11 @@ public class AgreementLinkSearchField extends ComboBox<BeanModel> implements Cre
 	private String					sortField			=	"institution.institutionName";
 	private SortDir					sortDir				=	SortDir.ASC;
 	
-	protected LayoutContainer			createDialogContainer	= null;
+	protected LayoutContainer		createDialogContainer	= null;
+	
+	protected int					agreementId			=	0;
+	
+	protected Button				openButton			=	null;
 	
 	public AgreementLinkSearchField() {
 		super();
@@ -63,6 +78,22 @@ public class AgreementLinkSearchField extends ComboBox<BeanModel> implements Cre
 		this.setAllowBlank(true);
 		this.setEditable(true);
 		this.setSimpleTemplate(getMultiLineAddressTemplate());
+		
+		this.addSelectionChangedListener(new SelectionChangedListener<BeanModel>() {
+
+			@Override
+			public void selectionChanged(SelectionChangedEvent<BeanModel> se) {
+				if (se.getSelectedItem() == null) {
+					if (openButton != null)
+						openButton.disable();
+				} else {
+					AgreementLinkInstance selected = (AgreementLinkInstance) se.getSelectedItem().getBean();
+					if (openButton != null)
+						openButton.setEnabled(selected.getLinkId() > 0);
+				}
+			}
+			
+		});
 	}
 	
 	public AgreementLinkSearchField(LayoutContainer createDialogContainer) {
@@ -109,6 +140,12 @@ public class AgreementLinkSearchField extends ComboBox<BeanModel> implements Cre
 		return value;
 	}
 	
+	public AgreementLinkInstance getSelectedAgreementLink() {
+		if (value != null)
+			return (AgreementLinkInstance) value.getBean();
+		return null;
+	}
+	
 	public void onBlur(ComponentEvent ce) {
 		super.onBlur(ce);
 		if (this.value == null) {
@@ -152,6 +189,48 @@ public class AgreementLinkSearchField extends ComboBox<BeanModel> implements Cre
 		this.setValue(model);
 //		this.setRawValue(instance.getDescriptionAndCode());
 		lastQuery = null;		//	So next trigger click reloads/sorts from database
+	}
+	
+	public void openAgreementLinkPortlet(AgreementLinkInstance instance) {
+		if (instance == null)
+			return;
+		openAgreementLinkPortlet(instance.getLinkId());
+	}
+	
+	public void openAgreementLinkPortlet(int linkId) {
+		if (appPortletProvider == null)
+			return;
+		AgreementLinkPortlet portlet = (AgreementLinkPortlet) appPortletProvider.getPortlet(AppPortletIds.AGREEMENT_LINK_DISPLAY);
+		portlet.setAgreementLinkId(linkId);
+		appPortletProvider.addPortlet(portlet);
+	}
+
+	
+	public Button createOpenButton() {
+		if (openButton != null)
+			return openButton;
+		
+		final AgreementLinkSearchField agrementLinkField = this;
+		openButton = new Button();
+		IconSupplier.forceIcon(openButton, IconSupplier.getGoOpenIconName());
+		openButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				if (agrementLinkField.getSelectedAgreementLink() != null && agrementLinkField.getSelectedAgreementLink().getLinkId() > 0) {
+					openAgreementLinkPortlet(agrementLinkField.getSelectedAgreementLink());
+				}
+			}
+			
+		});
+		
+		final int WIDTH  = 24;
+		final int HEIGHT = 22;
+		openButton.setWidth(WIDTH);
+		openButton.setHeight(HEIGHT);
+		openButton.setPixelSize(WIDTH, HEIGHT);
+		
+		return openButton;
 	}
 	
 	@Override
@@ -238,6 +317,30 @@ public class AgreementLinkSearchField extends ComboBox<BeanModel> implements Cre
 		if (query == null)
 			query = getRawValue();
 		return query;
+	}
+
+	public AppPortletProvider getAppPortletProvider() {
+		return appPortletProvider;
+	}
+
+	public void setAppPortletProvider(AppPortletProvider appPortletProvider) {
+		this.appPortletProvider = appPortletProvider;
+	}
+
+	public Button getOpenButton() {
+		return createOpenButton();
+	}
+
+	public void setOpenButton(Button openButton) {
+		this.openButton = openButton;
+	}
+
+	public int getAgreementId() {
+		return agreementId;
+	}
+
+	public void setAgreementId(int agreementId) {
+		this.agreementId = agreementId;
 	}
 
 	public boolean isIncludeAddOption() {

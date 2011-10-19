@@ -209,6 +209,10 @@ public class IconSupplier {
 		return "refresh.png";
 	}
 	
+	public static String getGoOpenIconName() {
+		return "go_open.png";
+	}
+	
 	public static String getResetIconName() {
 		return getRefreshIconName();
 	}

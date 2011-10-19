@@ -7,10 +7,7 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BeanModel;
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -267,28 +264,29 @@ public class AgreementLinkPortlet extends GridSupportPortlet<AgreementLinkInstan
 		
 		//	Open a new portlet to display an agreement when a row is selected
 		agreementsGrid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE); 
-		final AppPortlet thisPortlet = this; 
-		agreementsGrid.getSelectionModel().addListener(Events.SelectionChange,  
-				new Listener<SelectionChangedEvent<ModelData>>() {  
-					public void handleEvent(SelectionChangedEvent<ModelData> be) {  
-						if (be.getSelection().size() > 0) {
-						//	System.out.println("Agreement " + ((BeanModel) be.getSelectedItem()).get("idCheckDigit"));
-							AgreementInstance agreement = (AgreementInstance) ((BeanModel) be.getSelectedItem()).getBean();
-							AgreementPortlet portlet = (AgreementPortlet) portletProvider.getPortlet(AppPortletIds.AGREEMENT_DISPLAY);
-							portlet.setAgreementId(agreement.getId());
-							if (agreementLink != null) {
-								String foundFor = "Link #" + agreementLink.getLinkIdCheckDigit();
-								portlet.setIdentificationTip(foundFor);
-							}
-//							Old, simple way
-//							int insertCol = (portalColumn == 0) ? 1 : 0;
-//							portletProvider.insertPortlet(portlet, portalRow, insertCol);
-//							New, more thorough way
-							portletProvider.insertPortlet(portlet, portalRow, thisPortlet.getInsertColumn());
-							agreementsGrid.getSelectionModel().deselectAll();
-						} 
-					}
-			});
+		
+//		final AppPortlet thisPortlet = this; 
+//		agreementsGrid.getSelectionModel().addListener(Events.SelectionChange,  
+//				new Listener<SelectionChangedEvent<ModelData>>() {  
+//					public void handleEvent(SelectionChangedEvent<ModelData> be) {  
+//						if (be.getSelection().size() > 0) {
+//						//	System.out.println("Agreement " + ((BeanModel) be.getSelectedItem()).get("idCheckDigit"));
+//							AgreementInstance agreement = (AgreementInstance) ((BeanModel) be.getSelectedItem()).getBean();
+//							AgreementPortlet portlet = (AgreementPortlet) portletProvider.getPortlet(AppPortletIds.AGREEMENT_DISPLAY);
+//							portlet.setAgreementId(agreement.getId());
+//							if (agreementLink != null) {
+//								String foundFor = "Link #" + agreementLink.getLinkIdCheckDigit();
+//								portlet.setIdentificationTip(foundFor);
+//							}
+////							Old, simple way
+////							int insertCol = (portalColumn == 0) ? 1 : 0;
+////							portletProvider.insertPortlet(portlet, portalRow, insertCol);
+////							New, more thorough way
+//							portletProvider.insertPortlet(portlet, portalRow, thisPortlet.getInsertColumn());
+//							agreementsGrid.getSelectionModel().deselectAll();
+//						} 
+//					}
+//			});
 	
 		agreementsFieldSet = new FieldSet();
 		agreementsFieldSet.setBorders(true);
@@ -307,10 +305,22 @@ public class AgreementLinkPortlet extends GridSupportPortlet<AgreementLinkInstan
 //	/**
 //	 * What to do when a row is selected.
 //	 */
-//	@Override
-//	protected void onRowSelected(BeanModel data) {
-//		System.out.println("Open the agreement portlet for " + data.get("id"));
-//	}
+	@Override
+	protected void onRowSelected(BeanModel data) {
+		if (data != null)
+			openAgreement((AgreementInstance) data.getBean());
+	}
+	
+	protected void openAgreement(AgreementInstance agreement) {
+		AgreementPortlet portlet = (AgreementPortlet) portletProvider.getPortlet(AppPortletIds.AGREEMENT_DISPLAY);
+		portlet.setAgreementId(agreement.getId());
+		if (agreementLink != null) {
+			String foundFor = "Link #" + agreementLink.getLinkIdCheckDigit();
+			portlet.setIdentificationTip(foundFor);
+		}
+		portletProvider.insertPortlet(portlet, portalRow, this.getInsertColumn());
+		agreementsGrid.getSelectionModel().deselectAll();
+	}
 	
 	protected InstitutionSearchField getInstitutionField(String name, String label, int width, String toolTip) {
         InstitutionSearchField instCombo = new InstitutionSearchField();

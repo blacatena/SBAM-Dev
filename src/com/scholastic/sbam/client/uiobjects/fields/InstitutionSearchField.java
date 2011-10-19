@@ -9,14 +9,22 @@ import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.InstitutionSearchService;
 import com.scholastic.sbam.client.services.InstitutionSearchServiceAsync;
+import com.scholastic.sbam.client.uiobjects.uiapp.AppPortletIds;
+import com.scholastic.sbam.client.uiobjects.uiapp.AppPortletProvider;
+import com.scholastic.sbam.client.uiobjects.uiapp.InstitutionSearchPortlet;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
@@ -27,10 +35,16 @@ public class InstitutionSearchField extends ComboBox<BeanModel> {
 	
 	protected final InstitutionSearchServiceAsync institutionSearchService = GWT.create(InstitutionSearchService.class);
 	
+	protected AppPortletProvider		appPortletProvider;
+	
 	private long					searchSyncId	=	0;
 
 	private String					sortField		=	"institutionName";
 	private SortDir					sortDir			=	SortDir.ASC;
+	
+	protected int					agreementId		=	0;
+	
+	protected Button				openButton		=	null;
 	
 	public InstitutionSearchField() {
 		super();
@@ -52,6 +66,22 @@ public class InstitutionSearchField extends ComboBox<BeanModel> {
 		this.setAllowBlank(false);
 		this.setEditable(true);
 		this.setSimpleTemplate(getMultiLineAddressTemplate());
+		
+		this.addSelectionChangedListener(new SelectionChangedListener<BeanModel>() {
+
+			@Override
+			public void selectionChanged(SelectionChangedEvent<BeanModel> se) {
+				if (se.getSelectedItem() == null) {
+					if (openButton != null)
+						openButton.disable();
+				} else {
+					InstitutionInstance selected = (InstitutionInstance) se.getSelectedItem().getBean();
+					if (openButton != null)
+						openButton.setEnabled(selected.getUcn() > 0);
+				}
+			}
+			
+		});
 	}
 	
 	@Override
@@ -93,6 +123,12 @@ public class InstitutionSearchField extends ComboBox<BeanModel> {
 		return value;
 	}
 	
+	public InstitutionInstance getSelectedInstitution() {
+		if (value != null)
+			return (InstitutionInstance) value.getBean();
+		return null;
+	}
+	
 	public void onBlur(ComponentEvent ce) {
 		super.onBlur(ce);
 		if (this.value == null) {
@@ -118,6 +154,44 @@ public class InstitutionSearchField extends ComboBox<BeanModel> {
 	
 	protected String getMultiLineAddressTemplate() {
 		return "<div class=\"{listStyle}\"><span class=\"show-name\">{institutionName}</span><span class=\"show-ucn\"> {ucn}</span><span class=\"show-address\"><br/>{htmlAddress}</span></div>"; // {address1}<br/>{city}, {state} &nbsp;&nbsp;&nbsp; {zip}";
+	}
+	
+	public void openInstitutionPortlet(InstitutionInstance instance) {
+		if (instance == null)
+			return;
+		openInstitutionPortlet(instance.getUcn());
+	}
+	
+	public void openInstitutionPortlet(int ucn) {
+		if (appPortletProvider == null)
+			return;
+		InstitutionSearchPortlet portlet = (InstitutionSearchPortlet) appPortletProvider.getPortlet(AppPortletIds.FULL_INSTITUTION_SEARCH);
+		portlet.setFocusUcn(ucn);
+		appPortletProvider.addPortlet(portlet);
+	}
+
+	
+	public Button createOpenButton() {
+		if (openButton != null)
+			return openButton;
+		
+		final InstitutionSearchField institutionField = this;
+		openButton = new Button("Open");
+		openButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				if (institutionField.getSelectedInstitution() != null && institutionField.getSelectedInstitution().getUcn() > 0) {
+					openInstitutionPortlet(institutionField.getSelectedInstitution());
+				}
+			}
+			
+		});
+		openButton.setWidth(40);
+		openButton.setHeight(20);
+		openButton.setPixelSize(40, 20);
+		
+		return openButton;
 	}
 	
 	/**
@@ -192,6 +266,30 @@ public class InstitutionSearchField extends ComboBox<BeanModel> {
 		if (query == null)
 			query = getRawValue();
 		return query;
+	}
+
+	public AppPortletProvider getAppPortletProvider() {
+		return appPortletProvider;
+	}
+
+	public void setAppPortletProvider(AppPortletProvider appPortletProvider) {
+		this.appPortletProvider = appPortletProvider;
+	}
+
+	public Button getOpenButton() {
+		return createOpenButton();
+	}
+
+	public void setOpenButton(Button openButton) {
+		this.openButton = openButton;
+	}
+
+	public int getAgreementId() {
+		return agreementId;
+	}
+
+	public void setAgreementId(int agreementId) {
+		this.agreementId = agreementId;
 	}
 
 	public String getSortField() {

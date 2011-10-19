@@ -28,6 +28,7 @@ import com.extjs.gxt.ui.client.widget.form.FieldSet;
 public class LockableFieldSet extends FieldSet {
 	protected boolean locked;
 	protected boolean enableFields;
+	protected boolean disableButtons	=	false;
 	
 	@Override
 	public void enable() {
@@ -114,7 +115,7 @@ public class LockableFieldSet extends FieldSet {
 			if (component instanceof Field) {
 				Field<?> field = (Field<?>) component;
 				field.setEnabled(enabled);
-			} else if (component instanceof Button) {
+			} else if (disableButtons && component instanceof Button) {
 				((Button) component).setEnabled(enabled);
 			} else if (component instanceof Container) {
 				setEnabledFields((Container<?>) component, enabled);
@@ -144,4 +145,13 @@ public class LockableFieldSet extends FieldSet {
 	public boolean canEnableFields() {
 		return enableFields;
 	}
+
+	public boolean isDisableButtons() {
+		return disableButtons;
+	}
+
+	public void setDisableButtons(boolean disableButtons) {
+		this.disableButtons = disableButtons;
+	}
+	
 }
