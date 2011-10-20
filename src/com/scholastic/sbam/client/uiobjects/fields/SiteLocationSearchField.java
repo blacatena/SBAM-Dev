@@ -9,10 +9,13 @@ import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -23,6 +26,7 @@ import com.scholastic.sbam.client.uiobjects.uiapp.AppPortletProvider;
 import com.scholastic.sbam.client.uiobjects.uiapp.CreateSiteDialog;
 import com.scholastic.sbam.client.uiobjects.uiapp.CreateSiteDialog.CreateSiteDialogSaver;
 import com.scholastic.sbam.client.uiobjects.uiapp.SiteLocationPortlet;
+import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.AgreementSiteInstance;
 import com.scholastic.sbam.shared.objects.AuthMethodInstance;
@@ -57,6 +61,8 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> implements Crea
 	
 	protected LayoutContainer			createDialogContainer	= null;
 	protected String					institutionName			= null;
+	
+	protected Button					openButton			=	null;
 	
 	public SiteLocationSearchField() {
 		super();
@@ -157,6 +163,28 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> implements Crea
 		super.onSelect(model, index);
 	}
 	
+	@Override
+	public void setValue(BeanModel value) {
+		super.setValue(value);
+		if (openButton != null) {
+			if (value == null)
+				openButton.disable();
+			else {
+				SiteInstance instance = (SiteInstance) value.getBean();
+				if (instance == null || instance.getSiteLocCode() == null || instance.getSiteLocCode().length() == 0)
+					openButton.disable();
+				else
+					openButton.enable();
+			}
+		}
+	}
+	
+	public SiteInstance getSelectedSite() {
+		if (value != null)
+			return (SiteInstance) value.getBean();
+		return null;
+	}
+	
 	protected void openCreateSiteDialog() {
 		if (ucn == 0) {
 			MessageBox.alert("Programming Error", "No institution has been selected for which to create a site location.", null);
@@ -177,14 +205,48 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> implements Crea
 		lastQuery = null;		//	So next trigger click reloads/sorts from database
 		
 		if (openAfterSave && appPortletProvider != null) {
-			SiteLocationPortlet portlet = (SiteLocationPortlet) appPortletProvider.getPortlet(AppPortletIds.SITE_LOCATION_DISPLAY);
-			portlet.setSiteUcn(instance.getUcn());
-			portlet.setSiteUcnSuffix(instance.getUcnSuffix());
-			portlet.setSiteLocCode(instance.getSiteLocCode());
-			if (agreementId > 0)
-				portlet.setIdentificationTip("Created for agreement " + agreementId);
-			appPortletProvider.addPortlet(portlet);
+			openSitePortlet(instance);
 		}
+	}
+	
+	public void openSitePortlet(SiteInstance instance) {
+		if (instance == null)
+			return;
+		if (appPortletProvider == null)
+			return;
+		SiteLocationPortlet portlet = (SiteLocationPortlet) appPortletProvider.getPortlet(AppPortletIds.SITE_LOCATION_DISPLAY);
+		portlet.setSiteUcn(instance.getUcn());
+		portlet.setSiteUcnSuffix(instance.getUcnSuffix());
+		portlet.setSiteLocCode(instance.getSiteLocCode());
+		if (agreementId > 0)
+			portlet.setIdentificationTip("For agreement " + agreementId);
+		appPortletProvider.addPortlet(portlet);
+	}
+	
+	public Button createOpenButton() {
+		if (openButton != null)
+			return openButton;
+		
+		openButton = new Button();
+		IconSupplier.forceIcon(openButton, IconSupplier.getGoOpenIconName());
+		openButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				if (getSelectedSite() != null && getSelectedSite().getSiteLocCode() != null && getSelectedSite().getSiteLocCode().length() > 0) {
+					openSitePortlet(getSelectedSite());
+				}
+			}
+			
+		});
+		
+		final int WIDTH  = 24;
+		final int HEIGHT = 22;
+		openButton.setWidth(WIDTH);
+		openButton.setHeight(HEIGHT);
+		openButton.setPixelSize(WIDTH, HEIGHT);
+		
+		return openButton;
 	}
 	
 	@Override
@@ -292,6 +354,14 @@ public class SiteLocationSearchField extends ComboBox<BeanModel> implements Crea
 
 	public void setAppPortletProvider(AppPortletProvider appPortletProvider) {
 		this.appPortletProvider = appPortletProvider;
+	}
+
+	public Button getOpenButton() {
+		return createOpenButton();
+	}
+
+	public void setOpenButton(Button openButton) {
+		this.openButton = openButton;
 	}
 
 

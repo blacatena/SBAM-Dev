@@ -490,6 +490,9 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 			siteLocationField.setAgreementId(agreement.getId());
 		
 		siteLocationField.setAppPortletProvider(appPortletProvider);
+		FieldAndButtonCombo<BeanModel> siteCombo = new FieldAndButtonCombo<BeanModel>(siteLocationField, "Location", siteLocationField.createOpenButton());
+		siteCombo.setFieldLabelWidth(60);
+		siteCombo.setWidth(250);
 		
 		FieldFactory.setStandard(ipRangeField, "");
 		FieldFactory.setStandard(uidPasswordField, "");
@@ -569,7 +572,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 		formColumn1.add(institutionField, formData);
 		formColumn1.add(ucnDisplay, formData);
 		
-		formColumn2.add(siteLocationField, formData);
+		formColumn2.add(siteCombo, formData);	//siteLocationField, formData);
 		formColumn2.add(statusGroup, formData);
 		
 		formRow2.add(ipFieldSet);
@@ -645,7 +648,7 @@ public class AgreementMethodsCard extends FormAndGridPanel<AuthMethodInstance> {
 			@Override
 			public void selectionChanged(SelectionChangedEvent<BeanModel> se) {
 				//	Since all IP/uid/url fields share the same method ID instance, this only has to be done once
-				if (se.getSelectedItem() == null) {
+				if (se == null || se.getSelectedItem() == null) {
 					methodId.setForSiteLocCode(null);
 				} else
 					methodId.setForSiteLocCode(se.getSelectedItem().get("siteLocCode").toString());

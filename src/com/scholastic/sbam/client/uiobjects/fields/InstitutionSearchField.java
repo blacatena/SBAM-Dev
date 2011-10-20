@@ -25,6 +25,7 @@ import com.scholastic.sbam.client.services.InstitutionSearchServiceAsync;
 import com.scholastic.sbam.client.uiobjects.uiapp.AppPortletIds;
 import com.scholastic.sbam.client.uiobjects.uiapp.AppPortletProvider;
 import com.scholastic.sbam.client.uiobjects.uiapp.InstitutionSearchPortlet;
+import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
 import com.scholastic.sbam.shared.objects.SimpleKeyProvider;
@@ -175,21 +176,24 @@ public class InstitutionSearchField extends ComboBox<BeanModel> {
 		if (openButton != null)
 			return openButton;
 		
-		final InstitutionSearchField institutionField = this;
-		openButton = new Button("Open");
+		openButton = new Button();
+		IconSupplier.forceIcon(openButton, IconSupplier.getGoOpenIconName());
 		openButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				if (institutionField.getSelectedInstitution() != null && institutionField.getSelectedInstitution().getUcn() > 0) {
-					openInstitutionPortlet(institutionField.getSelectedInstitution());
+				if (getSelectedInstitution() != null && getSelectedInstitution().getUcn() > 0) {
+					openInstitutionPortlet(getSelectedInstitution());
 				}
 			}
 			
 		});
-		openButton.setWidth(40);
-		openButton.setHeight(20);
-		openButton.setPixelSize(40, 20);
+		
+		final int WIDTH  = 24;
+		final int HEIGHT = 22;
+		openButton.setWidth(WIDTH);
+		openButton.setHeight(HEIGHT);
+		openButton.setPixelSize(WIDTH, HEIGHT);
 		
 		return openButton;
 	}

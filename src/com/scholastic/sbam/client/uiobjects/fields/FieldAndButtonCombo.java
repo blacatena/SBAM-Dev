@@ -15,6 +15,8 @@ public class FieldAndButtonCombo<D> extends LayoutContainer {
 	protected	Button				button;
 	protected	String				fieldLabel;
 	
+	protected	int					fieldLabelWidth	=	40;
+	
 	public FieldAndButtonCombo(Field<D> dataField, String fieldLabel) {
 		this.fieldLabel = fieldLabel;
 		this.dataField	= dataField;
@@ -77,11 +79,14 @@ public class FieldAndButtonCombo<D> extends LayoutContainer {
 	}
 	
 	public LabelField createLabelField(String label) {
+		if (dataField != null && (label == null || label.length() == 0) )
+			label = dataField.getFieldLabel();
+		
 		if (label == null)
 			label = "";
 		if (label.length() > 0 && !label.endsWith(":"))
-			label += " :";
-		LabelField labelField = FieldFactory.getLabelField(40);
+			label += ":";
+		LabelField labelField = FieldFactory.getLabelField(fieldLabelWidth);
 		labelField.setValue(label);
 		labelField.addStyleName("x-form-item-label");
 		labelField.removeStyleName("field-or-label");
@@ -135,6 +140,14 @@ public class FieldAndButtonCombo<D> extends LayoutContainer {
 
 	public void setFieldLabel(String fieldLabel) {
 		this.fieldLabel = fieldLabel;
+	}
+
+	public int getFieldLabelWidth() {
+		return fieldLabelWidth;
+	}
+
+	public void setFieldLabelWidth(int fieldLabelWidth) {
+		this.fieldLabelWidth = fieldLabelWidth;
 	}
 
 	@Override
