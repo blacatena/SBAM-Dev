@@ -154,7 +154,7 @@ public class AgreementLinkPortlet extends GridSupportPortlet<AgreementLinkInstan
 		if (agreementLinkId <= 0) {
 			tooltip = "Create new agreement link";
 		} else {
-			tooltip = "Agreement Link " + agreementLinkId;
+			tooltip = "Agreement Link " + AppConstants.appendCheckDigit(agreementLinkId);
 		}
 		if (agreementLinkInstitution != null) {
 			tooltip += " &ndash; <i>" + agreementLinkInstitution.getInstitutionName() + "</i>";
