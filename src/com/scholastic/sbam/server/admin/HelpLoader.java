@@ -30,6 +30,7 @@ import com.scholastic.sbam.server.database.util.HibernateUtil;
 public class HelpLoader {
 	
 	public static final String DEFAULT_ICON_PATH		= "resources/images/icons/colorful/";
+	public static final String DEFAULT_HELP_IMAGE_PATH	= "resources/images/help/";
 	public static final String ID_START_CHARS			= "[({|";
 	public static final String ID_END_CHARS 			= "])}|";
 	public static final String PAGE_REFERENCES_START	=	"<p class=\"PageReferences\">";
@@ -251,7 +252,7 @@ public class HelpLoader {
 		}
 	}
 	
-	protected void printAttributes(MutableAttributeSet a) {
+	protected void printAttributes(HTML.Tag t, MutableAttributeSet a) {
 		if (a.getAttributeCount() > 0) {
 			Enumeration<?> enu = a.getAttributeNames();
 			while (enu.hasMoreElements()) {
@@ -261,6 +262,25 @@ public class HelpLoader {
 					continue;
 				if ("style".equals(name.toString()))
 					o = cleanStyleAttribute(o);
+				//	For images
+				if (t.equals(HTML.Tag.IMG)) {
+					String nameStr = name.toString();
+					//	For images, skip any "width" or "height" attributes
+					if ("width".equals(nameStr) || "height".equals(nameStr))
+						continue;
+					//	For images, skip any "v" or "shapes" attributes
+					if ("v".equals(nameStr) || "shapes".equals(nameStr))
+						continue;
+					//	For images, skip the src tag, and change the alt attribute to the src attribute
+					if ("src".equals(nameStr))
+						continue;
+					//	Also use the alt to generate the proper src attribute from the image name
+					if ("alt".equals(nameStr)) {
+						currentSb.append(" src=\"");
+						currentSb.append(alterImagePathAttribute(o));
+						currentSb.append("\"");
+					}
+				}
 				currentSb.append(" ");
 				currentSb.append(name);
 				currentSb.append("=\"");
@@ -291,6 +311,25 @@ public class HelpLoader {
 		return attr;
 	}
 	
+	protected Object alterImagePathAttribute(Object attr) {
+		if (attr instanceof String) {
+			String imageFull = (String) attr;
+			for (int i = imageFull.length() - 1; i >= 0; i--) {
+				if (imageFull.charAt(i) == '/') {
+					String imageName = imageFull.substring(i + 1);
+					//	PNG images are assumed to be icons.  All others (JPG, GIF) are assumed to be explicit help images and to reside in the help image directory.
+					if (imageName.endsWith(".png"))
+						return DEFAULT_ICON_PATH + imageName;
+					else
+						return DEFAULT_HELP_IMAGE_PATH + imageName;
+				}
+			}
+			return DEFAULT_ICON_PATH + imageFull;
+		}
+		
+		return attr;
+	}
+	
 	protected void printTag(HTML.Tag t, MutableAttributeSet a, boolean simple) {
 		if (currentSb == null) {
 			System.out.println("No current StringBuffer for " + t.toString());
@@ -298,7 +337,7 @@ public class HelpLoader {
 		}
 		currentSb.append("<");
 		currentSb.append(t);
-		printAttributes(a);
+		printAttributes(t, a);
 		if (simple)
 			currentSb.append("/>");
 		else
@@ -437,6 +476,7 @@ public class HelpLoader {
 		for (HelpPage page : allPages) {
 			
 			if (page.title != null && page.title.length() > 0) {
+				System.out.println(page.title);
 				int pageImgStart = page.title.indexOf("<img");
 				if (pageImgStart >= 0) {
 					int pageImgEnd = page.title.indexOf(">", pageImgStart) + 1;
@@ -454,6 +494,8 @@ public class HelpLoader {
 					
 					page.title.delete(pageImgStart, pageImgEnd);
 				}
+				System.out.println(page.title);
+				System.out.println("-------------------------------");
 			}
 			
 		}
@@ -502,7 +544,18 @@ public class HelpLoader {
 			ht.setId(page.getId());
 			ht.setIconName(page.iconName);
 			ht.setTitle(trimmed(page.title));
-			ht.setText(trimmed(page.content));
+			
+			String content;
+			if (page.iconName != null && page.iconName.length() > 0) {
+				content = "<h1>" + 
+							"<img src=\"" + page.iconName + "\"/> " +
+							trimmed(page.title) + "</h1><br/>" + trimmed(page.content);
+			} else {
+				content = "<h1>" + 
+							trimmed(page.title) + "</h1><br/>" + trimmed(page.content);
+			}
+			
+			ht.setText(content);
 			ht.setRelatedIds(page.relatedIds);
 			
 			if (page.parentPage == null)
