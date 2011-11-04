@@ -70,6 +70,7 @@ public class HelpTextCache extends AppCacheBase implements Runnable {
 		if (initRunning)
 			return false;
 
+		helpPages = 0;
 		mapsReady = false;
 		initRunning = true;
 		System.out.println("HelpText cache thread starting...");
@@ -85,10 +86,12 @@ public class HelpTextCache extends AppCacheBase implements Runnable {
 	 * Threaded code to initialize the map from the help text in the database.
 	 */
 	public synchronized void run() {
+		helpPages = 0;
 		initRunning = true;
 		mapsReady = false;
 		
-		wordMap	  = new HashMap<String, SortedSet<String>>();
+		index		= new ArrayList<HelpTextIndexInstance>();
+		wordMap	  	= new HashMap<String, SortedSet<String>>();
 		
 		System.gc();
 		
