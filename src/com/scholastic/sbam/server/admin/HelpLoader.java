@@ -258,10 +258,15 @@ public class HelpLoader {
 			while (enu.hasMoreElements()) {
 				Object name = enu.nextElement();
 				Object o = a.getAttribute(name);
-				if ("class".equals(name.toString()) && "MsoNormal".equals(o.toString()))
-					continue;
-				if ("style".equals(name.toString()))
-					o = cleanStyleAttribute(o);
+//				if ("class".equals(name.toString())) {
+//					System.out.println("=============Class " + o);
+//					if ("MsoNormal".equals(o.toString()))
+//						continue;
+//				}
+				if ("style".equals(name.toString())) {
+//					o = cleanStyleAttribute(o);
+					continue;	//	Eliminate all style tags... use CSS with Mso Styles
+				}
 				//	For images
 				if (t.equals(HTML.Tag.IMG)) {
 					String nameStr = name.toString();
@@ -318,16 +323,20 @@ public class HelpLoader {
 				if (imageFull.charAt(i) == '/') {
 					String imageName = imageFull.substring(i + 1);
 					//	PNG images are assumed to be icons.  All others (JPG, GIF) are assumed to be explicit help images and to reside in the help image directory.
-					if (imageName.endsWith(".png"))
-						return DEFAULT_ICON_PATH + imageName;
-					else
-						return DEFAULT_HELP_IMAGE_PATH + imageName;
+					return getImageWithPath(imageName);
 				}
 			}
-			return DEFAULT_ICON_PATH + imageFull;
+			return getImageWithPath(imageFull);
 		}
 		
 		return attr;
+	}
+	
+	protected String getImageWithPath(String imageName) {
+		if (imageName.endsWith(".png"))
+			return DEFAULT_ICON_PATH + imageName;
+		else
+			return DEFAULT_HELP_IMAGE_PATH + imageName;
 	}
 	
 	protected void printTag(HTML.Tag t, MutableAttributeSet a, boolean simple) {

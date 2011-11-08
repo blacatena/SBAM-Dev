@@ -303,6 +303,8 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 //		textCard.setLayout(new FlowLayout());
 		textContainer = new LayoutContainer(new FlowLayout(20));
 		textContainer.setScrollMode(Scroll.AUTO);
+		textContainer.setStyleAttribute("padding", "10px");
+		textContainer.addStyleName("sbam-help");
 		textContainer.add(text);
 		text.setAutoHeight(true);
 		textCard.add(textContainer);
