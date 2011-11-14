@@ -787,11 +787,13 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 			indexTree = HelpIndexTree.getTreePanel(this);
 			indexCard = new CardPanel();
 			indexCard.setLayout(new FlowLayout(20));
+			indexCard.setStyleAttribute("overflow", "auto");
 			indexCard.add(indexTree);
 			content.add(indexCard);
 		}
 		//	Make the index active
 		cards.setActiveItem(indexCard);
+		content.layout(true);
 		//	Set the nav buttons for going back to the last page (or first page)
 		histFirstButton.enable();
 		IconSupplier.forceIcon(histFirstButton,IconSupplier.getFirstIconName());

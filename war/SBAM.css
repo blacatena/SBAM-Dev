@@ -904,3 +904,16 @@ td.sbam-report-value {
 
 .sbam-help img {
 }
+
+.MsoTableGrid {
+	padding: 2px;
+	margin: 2px;
+}
+
+.MsoTableGrid td {
+	padding: 2px;
+}
+
+.MsoNormal {
+	font: 11px tahoma,arial,helvetica,sans-serif;
+}

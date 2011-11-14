@@ -253,6 +253,9 @@ public class HelpLoader {
 	}
 	
 	protected void printAttributes(HTML.Tag t, MutableAttributeSet a) {
+		boolean largeImage	= false;
+		String	imageName	= null;
+		
 		if (a.getAttributeCount() > 0) {
 			Enumeration<?> enu = a.getAttributeNames();
 			while (enu.hasMoreElements()) {
@@ -271,8 +274,19 @@ public class HelpLoader {
 				if (t.equals(HTML.Tag.IMG)) {
 					String nameStr = name.toString();
 					//	For images, skip any "width" or "height" attributes
-					if ("width".equals(nameStr) || "height".equals(nameStr))
+					if ("width".equals(nameStr) || "height".equals(nameStr)) {
+						if (o.toString().length() > 0) {
+							try {
+								if (Integer.parseInt(o.toString()) > 20) {
+									largeImage = true;
+									System.out.println("large image");
+								}
+							} catch (NumberFormatException exc) {
+								System.out.println("width/height exception " + exc);
+							}
+						}
 						continue;
+					}
 					//	For images, skip any "v" or "shapes" attributes
 					if ("v".equals(nameStr) || "shapes".equals(nameStr))
 						continue;
@@ -281,9 +295,11 @@ public class HelpLoader {
 						continue;
 					//	Also use the alt to generate the proper src attribute from the image name
 					if ("alt".equals(nameStr)) {
-						currentSb.append(" src=\"");
-						currentSb.append(alterImagePathAttribute(o));
-						currentSb.append("\"");
+						imageName = o.toString();
+						//	Write the src last
+//						currentSb.append(" src=\"");
+//						currentSb.append(alterImagePathAttribute(o, largeImage));
+//						currentSb.append("\"");
 					}
 				}
 				currentSb.append(" ");
@@ -292,6 +308,12 @@ public class HelpLoader {
 				currentSb.append(o);
 				currentSb.append("\"");
 			}
+		}
+		
+		if (imageName != null) {
+			currentSb.append(" src=\"");
+			currentSb.append(alterImagePathAttribute(imageName, largeImage));
+			currentSb.append("\"");
 		}
 	}
 	
@@ -316,24 +338,24 @@ public class HelpLoader {
 		return attr;
 	}
 	
-	protected Object alterImagePathAttribute(Object attr) {
+	protected Object alterImagePathAttribute(Object attr, boolean largeImage) {
 		if (attr instanceof String) {
 			String imageFull = (String) attr;
 			for (int i = imageFull.length() - 1; i >= 0; i--) {
 				if (imageFull.charAt(i) == '/') {
 					String imageName = imageFull.substring(i + 1);
 					//	PNG images are assumed to be icons.  All others (JPG, GIF) are assumed to be explicit help images and to reside in the help image directory.
-					return getImageWithPath(imageName);
+					return getImageWithPath(imageName, largeImage);
 				}
 			}
-			return getImageWithPath(imageFull);
+			return getImageWithPath(imageFull, largeImage);
 		}
 		
 		return attr;
 	}
 	
-	protected String getImageWithPath(String imageName) {
-		if (imageName.endsWith(".png"))
+	protected String getImageWithPath(String imageName, boolean largeImage) {
+		if (imageName.endsWith(".png") && !largeImage)
 			return DEFAULT_ICON_PATH + imageName;
 		else
 			return DEFAULT_HELP_IMAGE_PATH + imageName;
