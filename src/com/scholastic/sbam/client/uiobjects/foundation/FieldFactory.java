@@ -24,6 +24,7 @@ import com.scholastic.sbam.client.uiobjects.fields.BoundSliderField;
 import com.scholastic.sbam.client.uiobjects.fields.ConstantLabelField;
 import com.scholastic.sbam.client.uiobjects.fields.EnhancedCheckBoxGroup;
 import com.scholastic.sbam.client.uiobjects.fields.EnhancedComboBox;
+import com.scholastic.sbam.client.uiobjects.fields.EnhancedTextField;
 import com.scholastic.sbam.client.uiobjects.fields.InstitutionSearchField;
 import com.scholastic.sbam.client.uiobjects.fields.IpAddressField;
 import com.scholastic.sbam.client.uiobjects.fields.IpAddressRangeField;
@@ -119,6 +120,19 @@ public class FieldFactory {
 	
 	public static TextField<String> getStringTextField(String label, int width, String toolTip) {
 		TextField<String> field = new TextField<String>();
+		setStandard(field, label);
+		
+		if (width >= 0)
+			field.setWidth(width);
+		
+		if (toolTip != null && toolTip.length() > 0)
+			field.setToolTip(toolTip);
+		
+		return field;
+	}
+	
+	public static EnhancedTextField getEnhancedTextField(String label, int width, String toolTip) {
+		EnhancedTextField field = new EnhancedTextField();
 		setStandard(field, label);
 		
 		if (width >= 0)

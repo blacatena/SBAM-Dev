@@ -35,6 +35,7 @@ import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -44,6 +45,8 @@ import com.extjs.gxt.ui.client.widget.grid.LiveGridView;
 import com.extjs.gxt.ui.client.widget.layout.CardLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.extjs.gxt.ui.client.widget.layout.TableData;
+import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LiveToolItem;
@@ -56,10 +59,16 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.scholastic.sbam.client.services.InstitutionGetService;
 import com.scholastic.sbam.client.services.InstitutionGetServiceAsync;
+import com.scholastic.sbam.client.services.StatsAdminGetService;
+import com.scholastic.sbam.client.services.StatsAdminGetServiceAsync;
+import com.scholastic.sbam.client.services.UpdateStatsAdminService;
+import com.scholastic.sbam.client.services.UpdateStatsAdminServiceAsync;
 import com.scholastic.sbam.client.uiobjects.events.AppEvent;
 import com.scholastic.sbam.client.uiobjects.events.AppEventBus;
 import com.scholastic.sbam.client.uiobjects.events.AppEvents;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
+import com.scholastic.sbam.client.uiobjects.foundation.FieldFactory;
+import com.scholastic.sbam.client.uiobjects.foundation.FormInnerPanel;
 import com.scholastic.sbam.client.uiobjects.foundation.GridSupportPortlet;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
@@ -67,17 +76,21 @@ import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
 import com.scholastic.sbam.shared.objects.AgreementSummaryInstance;
 import com.scholastic.sbam.shared.objects.FilterWordInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
+import com.scholastic.sbam.shared.objects.StatsAdminInstance;
 import com.scholastic.sbam.shared.objects.SynchronizedPagingLoadResult;
+import com.scholastic.sbam.shared.objects.UpdateResponse;
 
 public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSummaryInstance> implements AppSleeper, AppPortletRequester {
 	
 	protected static final int FILTER_LISTEN_PERIOD = 250;
 	
-	protected final InstitutionGetServiceAsync    institutionGetService    = GWT.create(InstitutionGetService.class);
+	protected final InstitutionGetServiceAsync		institutionGetService		= GWT.create(InstitutionGetService.class);
+	protected final StatsAdminGetServiceAsync		statsAdminGetService		= GWT.create(StatsAdminGetService.class);
+	protected final UpdateStatsAdminServiceAsync	statsAdminUpdateService   	= GWT.create(UpdateStatsAdminService.class);
 	
 	protected CardLayout				cards;
 	protected ContentPanel				searchPanel;
-	protected FormPanel					displayCard;
+	protected ContentPanel				displayCard;
 	protected InstitutionContactsCard	contactsCard;
 	protected Grid<ModelData>			grid;
 	protected LiveGridView				liveView;
@@ -97,6 +110,13 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 	protected Grid<ModelData>			agreementsGrid;
 	protected FieldSet					agreementsFieldSet;
 	protected CheckBox					termsTypeCheckBox;
+	
+	protected FormInnerPanel			statsAdminInner = new FormInnerPanel();
+	protected TextField<String> 		adminUid		= FieldFactory.getEnhancedTextField("UID", 50, "This is the user ID to be used to access usage statistics.");
+	protected TextField<String>			adminPassword	= FieldFactory.getEnhancedTextField("Password", 50, "This is the password to be used to access usage statistics.");
+	protected TextField<String>			statsGroup 		= FieldFactory.getEnhancedTextField("Group", 50, "This is the grouping code to be used to aggregate usage statistics.");
+	protected Button					saveStatsAdmin	= new Button("Save");
+	protected Button					cancelStatsAdmin= new Button("Cancel");
 	
 	protected AppPortletProvider		portletProvider;
 	
@@ -202,16 +222,27 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 	
 	private void createDisplayCard() {
 		FormData formData = new FormData("100%");
-		displayCard = new FormPanel();
-
-		displayCard.setPadding(10);  
+		
+		TableLayout layout = new TableLayout(2);
+		layout.setCellPadding(0);
+		
+		displayCard = new ContentPanel(layout);
+		
+		FormPanel addressPanel = new FormPanel();
+ 
 		displayCard.setFrame(true); 
 		displayCard.setHeaderVisible(false);  
 		displayCard.setBodyBorder(true);
 		displayCard.setBodyStyleName("subtle-form");
 		displayCard.setButtonAlign(HorizontalAlignment.CENTER);
-		displayCard.setLabelAlign(LabelAlign.RIGHT);
-		displayCard.setLabelWidth(100); 
+		 
+		addressPanel.setBodyBorder(false);
+		addressPanel.setBodyStyleName("subtle-form");
+		addressPanel.setButtonAlign(HorizontalAlignment.CENTER);
+		addressPanel.setHeaderVisible(false);  
+		addressPanel.setPadding(5); 
+		addressPanel.setLabelAlign(LabelAlign.RIGHT);
+		addressPanel.setLabelWidth(100); 
 		
 		ToolButton returnTool = new ToolButton("x-tool-left") {
 				@Override
@@ -231,18 +262,18 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 
 		ucn = new LabelField();  
 		ucn.setFieldLabel("UCN :");
-		displayCard.add(ucn, formData);
+		addressPanel.add(ucn, formData);
 		
 		address = new LabelField(); 
-		displayCard.add(address, formData); 
+		addressPanel.add(address, formData); 
 		
 		altIds = new LabelField(); 
 		altIds.setFieldLabel("Alternate IDs :");
-		displayCard.add(altIds, formData); 
+		addressPanel.add(altIds, formData); 
 		
 		type = new LabelField(); 
 		type.setFieldLabel("Type :");
-		displayCard.add(type, formData);
+		addressPanel.add(type, formData);
 		
 		termsTypeCheckBox = new CheckBox() {
 			@Override
@@ -254,8 +285,16 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 		termsTypeCheckBox.setFieldLabel("");
 		termsTypeCheckBox.setBoxLabel("Show active agreements only");
 		termsTypeCheckBox.setValue(true);
-		displayCard.add(termsTypeCheckBox);
+		addressPanel.add(termsTypeCheckBox);
 		
+		TableData td1 = new TableData();
+		td1.setWidth("50%");
+		
+		TableData td2 = new TableData();
+		td2.setWidth("50%");
+		
+		displayCard.add(addressPanel, td1);
+		displayCard.add(getStatsAdminPanel(formData), td2);
 		addAgreementsGrid(formData);
 		addButtons(formData);
 		
@@ -268,7 +307,64 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 //			});
 //		displayCard.addButton(returnButton);
 	}
+	
+	protected FormPanel getStatsAdminPanel(FormData formData) {
+		FormPanel statsAdminPanel = new FormPanel();
 
+		statsAdminPanel.setBodyBorder(false);
+		statsAdminPanel.setBodyStyleName("subtle-form");
+		statsAdminPanel.setButtonAlign(HorizontalAlignment.CENTER);
+		statsAdminPanel.setHeaderVisible(false);
+		statsAdminPanel.setPadding(0); 
+		statsAdminPanel.setLabelAlign(LabelAlign.RIGHT);
+		statsAdminPanel.setLabelWidth(50); 
+			
+		FieldSet statsAdminFieldSet = new FieldSet();
+		statsAdminFieldSet.setBorders(true);
+		statsAdminFieldSet.setHeading("Usage Statistics Administration");// 		displayCard.add(new LabelField("<br/><i>Existing Agreements</i>"));
+		statsAdminFieldSet.setCollapsible(false);
+		statsAdminFieldSet.setToolTip(UiConstants.getQuickTip("Use these fields to enter and change any statistic administration data."));
+		
+		statsAdminInner.setBodyStyleName("subtle-form");
+		statsAdminInner.setHeaderVisible(false);
+		statsAdminInner.setPadding(5); 
+		statsAdminInner.setLabelAlign(LabelAlign.RIGHT);
+		statsAdminInner.setLabelWidth(50); 
+		
+		statsAdminInner.add(adminUid);
+		statsAdminInner.add(adminPassword);
+		statsAdminInner.add(statsGroup);
+
+		IconSupplier.forceIcon(cancelStatsAdmin, IconSupplier.getCancelIconName());
+		cancelStatsAdmin.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				statsAdminInner.reset();
+			}  
+		});
+		
+		IconSupplier.forceIcon(saveStatsAdmin, IconSupplier.getSaveIconName());
+		saveStatsAdmin.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				updateStatsAdmin();
+			}  
+		});
+		
+		ToolBar toolbar = new ToolBar();
+		toolbar.add(cancelStatsAdmin);
+		toolbar.add(saveStatsAdmin);
+		
+		statsAdminInner.add(toolbar);
+		
+		statsAdminInner.disable();
+		
+		statsAdminFieldSet.add(statsAdminInner);
+		statsAdminPanel.add(statsAdminFieldSet);
+		
+		return statsAdminPanel;
+	}
+ 
 	
 	protected void createContactsCard() {
 		
@@ -348,7 +444,13 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 		agreementsFieldSet.add(agreementsGrid, new FormData(cm.getTotalWidth() + 10, 200));
 		
 	//	displayCard.add(new LabelField(""));	// Used as a spacer
-		displayCard.add(agreementsFieldSet, formData);	//	new FormData("95%")); // new FormData(cm.getTotalWidth() + 20, 200));
+		
+		if (displayCard.getLayout() instanceof TableLayout) {
+			TableData td = new TableData();
+			td.setColspan(2);
+			displayCard.add(agreementsFieldSet, td);	//, formData);	//	new FormData("95%")); // new FormData(cm.getTotalWidth() + 20, 200));
+		} else
+			displayCard.add(agreementsFieldSet, formData);	//	new FormData("95%")); // new FormData(cm.getTotalWidth() + 20, 200));
 		
 	}
 	
@@ -389,8 +491,10 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 				}  
 			});
 		toolBar.add(contactsButton);
-		
-		displayCard.add(toolBar);
+
+		TableData td = new TableData();
+		td.setColspan(2);
+		displayCard.add(toolBar, td);
 	}
 	
 	protected void showInstitution(BeanModel model) {
@@ -421,6 +525,20 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 		type.setValue(focusInstitution.getPublicPrivateDescription() + " / " + focusInstitution.getGroupDescription() + " &rArr; " + focusInstitution.getTypeDescription());
 //		group.setValue(instance.getGroupDescription());
 		
+		if (focusInstitution.getStatsAdmin() != null) {
+			adminUid.setOriginalValue(focusInstitution.getStatsAdmin().getAdminUid());
+			adminPassword.setOriginalValue(focusInstitution.getStatsAdmin().getAdminPassword());
+			statsGroup.setOriginalValue(focusInstitution.getStatsAdmin().getStatsGroup());
+			statsAdminInner.reset();
+			statsAdminInner.enable();
+		} else {
+			statsAdminInner.disable();
+			adminUid.setOriginalValue("");
+			adminPassword.setOriginalValue("");
+			statsGroup.setOriginalValue("");
+			loadStatsAdmin(focusInstitution.getUcn());
+		}
+		
 		reloadAgreements();
 		
 		cards.setActiveItem(displayCard);
@@ -442,6 +560,89 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 					store.add(getModel(agreement));
 			}
 		}
+	}
+	
+	protected void loadStatsAdmin(int ucn) {
+		statsAdminGetService.getStatsAdmin(ucn,
+				new AsyncCallback<StatsAdminInstance>() {
+					public void onFailure(Throwable caught) {
+						// Show the RPC error message to the user
+						if (caught instanceof IllegalArgumentException)
+							MessageBox.alert("Alert", caught.getMessage(), null);
+						else {
+							MessageBox.alert("Alert", "Institution Statistics Administration access failed unexpectedly.", null);
+							System.out.println(caught.getClass().getName());
+							System.out.println(caught.getMessage());
+						}
+					}
+
+					public void onSuccess(StatsAdminInstance statsAdmin) {
+						if (statsAdmin == null) {
+							adminUid.setOriginalValue("");
+							adminPassword.setOriginalValue("");
+							statsGroup.setOriginalValue("");
+						} else {
+							adminUid.setOriginalValue(statsAdmin.getAdminUid());
+							adminPassword.setOriginalValue(statsAdmin.getAdminPassword());
+							statsGroup.setOriginalValue(statsAdmin.getStatsGroup());
+						}
+						statsAdminInner.reset();
+						statsAdminInner.enable();
+						cancelStatsAdmin.disable();
+						saveStatsAdmin.disable();
+						
+						if (statsAdminInner.isDirty()) {
+							statsAdminInner.isDirty();
+						}
+					}
+			});
+	}
+	
+	protected void updateStatsAdmin() {
+		if (focusInstitution == null)
+			return;
+		
+		statsAdminInner.disable();
+		
+		if (focusInstitution.getStatsAdmin() == null)
+			focusInstitution.setStatsAdmin(StatsAdminInstance.getDefaultNewInstance(focusUcn));
+		
+		focusInstitution.getStatsAdmin().setAdminUid(adminUid.getValue());
+		focusInstitution.getStatsAdmin().setAdminPassword(adminPassword.getValue());
+		focusInstitution.getStatsAdmin().setStatsGroup(statsGroup.getValue());
+		
+		statsAdminUpdateService.updateStatsAdmin(focusInstitution.getStatsAdmin(),
+				new AsyncCallback<UpdateResponse<StatsAdminInstance>>() {
+			public void onFailure(Throwable caught) {
+				// Show the RPC error message to the user
+				if (caught instanceof IllegalArgumentException)
+					MessageBox.alert("Alert", caught.getMessage(), null);
+				else {
+					MessageBox.alert("Alert", "Institution Statistics Administration access failed unexpectedly.", null);
+					System.out.println(caught.getClass().getName());
+					System.out.println(caught.getMessage());
+				}
+				statsAdminInner.enable();
+			}
+
+			public void onSuccess(UpdateResponse<StatsAdminInstance> statsAdminUpdate) {
+				if (statsAdminUpdate == null || statsAdminUpdate.getInstance() == null) {
+					adminUid.setOriginalValue("");
+					adminPassword.setOriginalValue("");
+					statsGroup.setOriginalValue("");
+				} else {
+					if (focusInstitution != null)
+						focusInstitution.setStatsAdmin(statsAdminUpdate.getInstance());
+					adminUid.setOriginalValue(statsAdminUpdate.getInstance().getAdminUid());
+					adminPassword.setOriginalValue(statsAdminUpdate.getInstance().getAdminPassword());
+					statsGroup.setOriginalValue(statsAdminUpdate.getInstance().getStatsGroup());
+				}
+				statsAdminInner.reset();
+				statsAdminInner.enable();
+				cancelStatsAdmin.disable();
+				saveStatsAdmin.disable();
+			}
+	});
 	}
 
 	@Override
@@ -542,10 +743,35 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 				  String value = (combo.getRawValue() == null)?"":combo.getRawValue().trim();
 				  if (!value.equals(filter.trim()))
 					  loadFiltered(combo.getRawValue());
+				  
+				  cancelStatsAdmin.setEnabled(statsAdminInner.isDirty());
+				  saveStatsAdmin.setEnabled(statsAdminInner.isDirty() && isStatsAdminValid());
 			  }
 			};
 
 			filterListenTimer.scheduleRepeating(FILTER_LISTEN_PERIOD);
+	}
+	
+	protected boolean isStatsAdminValid() {
+		if (adminUid.getValue() == null || adminUid.getValue().length() == 0)
+			if (adminPassword.getValue() != null && adminPassword.getValue().length() > 0) {
+				adminUid.forceInvalid("An admin user ID is required with a password.");
+				return false;
+			} else {
+				adminUid.clearInvalid();
+				adminPassword.clearInvalid();
+				return true;
+			}
+		else {
+			if (adminPassword.getValue() != null && adminPassword.getValue().length() > 0) {
+				adminUid.clearInvalid();
+				adminPassword.clearInvalid();
+				return true;
+			} else {
+				adminPassword.forceInvalid("An admin password is required with an admin user ID.");
+				return false;
+			}
+		}
 	}
 	
 	protected void addGrid() {

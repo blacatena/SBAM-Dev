@@ -23,6 +23,8 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.extjs.gxt.ui.client.widget.layout.TableData;
+import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -105,7 +107,7 @@ public class SiteInstitutionSearchPortlet extends InstitutionSearchPortletBase {
 		
 		siteLocationsGrid = new Grid<ModelData>(siteLocationsStore, cm);  
 		siteLocationsGrid.setBorders(true);
-		siteLocationsGrid.setHeight(200);
+		siteLocationsGrid.setHeight(180);
 		siteLocationsGrid.setStripeRows(true);
 		siteLocationsGrid.setColumnLines(true);
 		siteLocationsGrid.setHideHeaders(false);
@@ -144,7 +146,12 @@ public class SiteInstitutionSearchPortlet extends InstitutionSearchPortletBase {
 		siteLocationsFieldSet.collapse();
 		
 //		displayCard.add(new LabelField(""));	// Used as a spacer
-		displayCard.add(siteLocationsFieldSet, formData);	// new FormData("95%")); // new FormData(cm.getTotalWidth() + 20, 200));	
+		if (displayCard.getLayout() instanceof TableLayout) {
+			TableData td = new TableData();
+			td.setColspan(2);
+			displayCard.add(siteLocationsFieldSet, td);
+		} else
+			displayCard.add(siteLocationsFieldSet, formData);	// new FormData("95%")); // new FormData(cm.getTotalWidth() + 20, 200));	
 	}
 	
 	/**

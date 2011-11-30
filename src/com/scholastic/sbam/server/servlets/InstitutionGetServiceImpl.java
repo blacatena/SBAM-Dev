@@ -2,8 +2,10 @@ package com.scholastic.sbam.server.servlets;
 
 import com.scholastic.sbam.client.services.InstitutionGetService;
 import com.scholastic.sbam.server.database.codegen.Institution;
+import com.scholastic.sbam.server.database.codegen.StatsAdmin;
 import com.scholastic.sbam.server.database.objects.DbAgreement;
 import com.scholastic.sbam.server.database.objects.DbInstitution;
+import com.scholastic.sbam.server.database.objects.DbStatsAdmin;
 import com.scholastic.sbam.server.database.util.HibernateUtil;
 import com.scholastic.sbam.server.fastSearch.InstitutionCache;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
@@ -40,6 +42,10 @@ public class InstitutionGetServiceImpl extends AuthenticatedServiceServlet imple
 				if (loadSummary)
 					result.setAgreementSummaryList(DbAgreement.findAllAgreementSummaries(ucn, false, (char) 0, AppConstants.STATUS_DELETED));
 					
+				StatsAdmin dbStatsAdmin = DbStatsAdmin.getById(ucn);
+				if (dbStatsAdmin != null) {
+					result.setStatsAdmin(DbStatsAdmin.getInstance(dbStatsAdmin));
+				}
 			}
 			
 		} catch (Exception exc) {

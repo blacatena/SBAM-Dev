@@ -49,6 +49,8 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable, UserCa
 	private SortedMap<Integer, AgreementSummaryInstance> agreementSummaryList;
 	private SortedMap<Integer, AgreementSummaryInstance> activeAgreementSummaryList;
 	
+	private StatsAdminInstance	statsAdmin;
+	
 	public int getUcn() {
 		return ucn;
 	}
@@ -205,6 +207,12 @@ public class InstitutionInstance implements BeanModelTag, IsSerializable, UserCa
 	}
 	public void setLastServiceDate(Date lastServiceDate) {
 		this.lastServiceDate = lastServiceDate;
+	}
+	public StatsAdminInstance getStatsAdmin() {
+		return statsAdmin;
+	}
+	public void setStatsAdmin(StatsAdminInstance statsAdmin) {
+		this.statsAdmin = statsAdmin;
 	}
 	public String getNameAndUcn() {
 		if (ucn <= 0)

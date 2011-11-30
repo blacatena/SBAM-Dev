@@ -97,6 +97,16 @@
   </servlet>
   
   <servlet>
+    <servlet-name>StatsAdminGetServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.StatsAdminGetServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>updateStatsAdminServlet</servlet-name>
+    <servlet-class>com.scholastic.sbam.server.servlets.UpdateStatsAdminServiceImpl</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>agreementGetServlet</servlet-name>
     <servlet-class>com.scholastic.sbam.server.servlets.AgreementGetServiceImpl</servlet-class>
   </servlet>
@@ -844,6 +854,16 @@
   <servlet-mapping>
     <servlet-name>userNameValidationServlet</servlet-name>
     <url-pattern>/sbam/validateUserName</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>StatsAdminGetServlet</servlet-name>
+    <url-pattern>/sbam/getStatsAdmin</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>updateStatsAdminServlet</servlet-name>
+    <url-pattern>/sbam/updateStatsAdmin</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>
