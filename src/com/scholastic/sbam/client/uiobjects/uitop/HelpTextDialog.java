@@ -267,6 +267,7 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 	}
 
 	public void init() {
+		this.setId("Help" + this.getId());
 		FlowLayout layout = new FlowLayout();
 		setLayout(layout);
 	
@@ -294,6 +295,7 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 		bottomToolBar = getHistoryToolBar();
 		
 		content = new LayoutContainer();
+		content.setId("HelpContent" + this.getId());
 
 		cards = new CardLayout();
 		content.setLayout(cards);
@@ -302,6 +304,7 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 		textCard = new CardPanel();
 //		textCard.setLayout(new FlowLayout());
 		textContainer = new LayoutContainer(new FlowLayout(20));
+		textContainer.setId("HelpTextContainer" + this.getId());
 		textContainer.setScrollMode(Scroll.AUTO);
 		textContainer.setStyleAttribute("padding", "10px");
 		textContainer.addStyleName("sbam-help");
@@ -310,6 +313,8 @@ public class HelpTextDialog extends EffectsDialog implements HelpIndexTreeActor 
 		textCard.add(textContainer);
 		content.add(textCard);
 //		content.add(text);
+		
+		text.setId("HelpText" + this.getId());
 		
 		setTopComponent(topToolBar);
 		

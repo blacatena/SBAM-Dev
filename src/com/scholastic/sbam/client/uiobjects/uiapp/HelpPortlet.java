@@ -37,6 +37,8 @@ public class HelpPortlet extends AppPortlet {
 		helpDialog.addStyleName("help-portlet");
 		
 		add(helpDialog);
+		
+		layout(true);
 	}
 
 	@Override
