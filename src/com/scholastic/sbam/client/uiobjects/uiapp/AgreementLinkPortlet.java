@@ -619,23 +619,24 @@ public class AgreementLinkPortlet extends GridSupportPortlet<AgreementLinkInstan
 	}
 	
 	public void setOriginalValues() {
-		setOriginalValues(outerContainer);
+		FieldFactory.setOriginalValues(outerContainer);
+//		setOriginalValues(outerContainer);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public void setOriginalValues(FormPanel formPanel) {
-		for (Field<?> field : formPanel.getFields()) {
-			if (field instanceof EnhancedComboBox) {
-				EnhancedComboBox<BeanModel>  ecb = (EnhancedComboBox<BeanModel>) field;
-				ecb.setOriginalValue(ecb.getSelectedValue());
-			} else if (field instanceof InstitutionSearchField) {
-				InstitutionSearchField  isf = (InstitutionSearchField) field;
-				isf.setOriginalValue(isf.getSelectedValue());
-			} else {
-				((Field<Object>) field).setOriginalValue(field.getValue());
-			}
-		}
-	}
+//	@SuppressWarnings("unchecked")
+//	public void setOriginalValues(FormPanel formPanel) {
+//		for (Field<?> field : formPanel.getFields()) {
+//			if (field instanceof EnhancedComboBox) {
+//				EnhancedComboBox<BeanModel>  ecb = (EnhancedComboBox<BeanModel>) field;
+//				ecb.setOriginalValue(ecb.getSelectedValue());
+//			} else if (field instanceof InstitutionSearchField) {
+//				InstitutionSearchField  isf = (InstitutionSearchField) field;
+//				isf.setOriginalValue(isf.getSelectedValue());
+//			} else {
+//				((Field<Object>) field).setOriginalValue(field.getValue());
+//			}
+//		}
+//	}
 	
 	public void enableFields() {
 		for (Field<?> field : outerContainer.getFields()) {

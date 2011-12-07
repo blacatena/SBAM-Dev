@@ -917,3 +917,16 @@ td.sbam-report-value {
 .MsoNormal {
 	font: 11px tahoma,arial,helvetica,sans-serif;
 }
+
+.TableHeader {
+	background-color: #E6CAAD; /* #DDEFFF; */
+	font: 11px tahoma,arial,helvetica,sans-serif;
+	font-weight: bold;
+	padding: 2px;
+}
+
+.TableCell {
+	font: 11px tahoma,arial,helvetica,sans-serif;
+	padding: 2px;
+/*	background-color: #FFF1E9; */
+}
