@@ -12,7 +12,9 @@ import com.extjs.gxt.ui.client.dnd.DND.Feedback;
 import com.extjs.gxt.ui.client.dnd.TreePanelDragSource;
 import com.extjs.gxt.ui.client.dnd.TreePanelDropTarget;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.DNDEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -25,6 +27,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
+import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
@@ -49,6 +52,7 @@ import com.scholastic.sbam.client.services.UpdateProductServiceListServiceAsync;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
 import com.scholastic.sbam.client.uiobjects.foundation.DualEditGridLink;
 import com.scholastic.sbam.client.uiobjects.foundation.DualEditGridLinker;
+import com.scholastic.sbam.client.uiobjects.uitop.HelpTextDialog;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.objects.ProductServiceTreeInstance;
 
@@ -205,6 +209,8 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 	}
 
 	
+	protected String				helpTextId;
+	
 	private String productCode;
 	private String panelHeading;
 	private DualEditGridLinker gridLinker;
@@ -217,6 +223,10 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 	private final UpdateProductServiceListServiceAsync updateProductServiceListService = GWT.create(UpdateProductServiceListService.class);
 
 	public ProductServiceSelectTree() {
+		super();
+		this.helpTextId = this.getClass().getName();
+		if (helpTextId.lastIndexOf('.') >= 0)
+			helpTextId = helpTextId.substring(helpTextId.lastIndexOf('.') + 1);
 	}
 
 	@Override  
@@ -226,7 +236,13 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 		setLayout(new FitLayout());
 		setBorders(false);
 		
-		panel = new ContentPanel(new FitLayout());
+		panel = new ContentPanel(new FitLayout()) {
+			@Override
+			protected void initTools() {
+				addHelp(this);
+				super.initTools();
+			}		
+		};
 		panel.setBorders(false);
 		IconSupplier.setIcon(panel, IconSupplier.getServiceIconName());
 		panel.setHeading(panelHeading);
@@ -702,6 +718,23 @@ public class ProductServiceSelectTree extends LayoutContainer implements DualEdi
 			for (ProductServiceTreeInstance child : instance.getChildInstances()) {
 				addInstanceToStore(item, child);
 			}
+	}
+	
+	protected void addHelp(ContentPanel panel) {
+		if (helpTextId == null)
+			return;
+		
+		ToolButton helpBtn = new ToolButton("x-tool-help");
+//		if (GXT.isAriaEnabled()) {
+//			helpBtn.setTitle(GXT.MESSAGES.pagingToolBar_beforePageText());
+//		}
+		helpBtn.addListener(Events.Select, new Listener<ComponentEvent>() {
+			public void handleEvent(ComponentEvent ce) {
+				HelpTextDialog htd = new HelpTextDialog(helpTextId);
+				htd.show();
+			}
+		});
+		panel.getHeader().addTool(helpBtn);
 	}
 	
 	public void setPanelHeading(String panelHeading) {

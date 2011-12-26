@@ -19,6 +19,7 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -29,6 +30,7 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.DateField;
@@ -59,12 +61,15 @@ import com.scholastic.sbam.client.services.UpdateWelcomeMessageServiceAsync;
 import com.scholastic.sbam.client.services.WelcomeMessageListService;
 import com.scholastic.sbam.client.services.WelcomeMessageListServiceAsync;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
+import com.scholastic.sbam.client.uiobjects.uitop.HelpTextDialog;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.objects.UpdateResponse;
 import com.scholastic.sbam.shared.objects.WelcomeMessageInstance;
 import com.scholastic.sbam.shared.util.AppConstants;
 
 public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleeper {
+	
+	protected String									helpTextId;
 
 	private final WelcomeMessageListServiceAsync welcomeMessageListService = GWT.create(WelcomeMessageListService.class);
 	private final UpdateWelcomeMessageServiceAsync updateWelcomeMessageService = GWT.create(UpdateWelcomeMessageService.class);
@@ -101,6 +106,12 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 	protected int					verticalMargins = 60;
 	
 	public WelcomeMessageEditGrid() {
+		super();
+		if (helpTextId == null) {
+			this.helpTextId = this.getClass().getName();
+			if (helpTextId.lastIndexOf('.') >= 0)
+				helpTextId = helpTextId.substring(helpTextId.lastIndexOf('.') + 1);
+		}
 	}
 	
 	@Override    
@@ -110,7 +121,13 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 	    setStyleAttribute("margin", "10px");
 //	    setStyleAttribute("background", "transparent !important");	// No longer needed, and !important was causing Internet Explorer to gag
 	
-	    cp = new ContentPanel();
+	    cp = new ContentPanel() {
+			@Override
+			protected void initTools() {
+				addHelp(this);
+				super.initTools();
+			}		
+		};
 	
 	    cp.setHeading("Welcome Messages");
 	    cp.setFrame(true);
@@ -765,6 +782,23 @@ public class WelcomeMessageEditGrid extends LayoutContainer implements AppSleepe
 						formClear();
 				}
 			});
+	}
+
+	protected void addHelp(ContentPanel panel) {
+		if (helpTextId == null)
+			return;
+		
+		ToolButton helpBtn = new ToolButton("x-tool-help");
+//		if (GXT.isAriaEnabled()) {
+//			helpBtn.setTitle(GXT.MESSAGES.pagingToolBar_beforePageText());
+//		}
+		helpBtn.addListener(Events.Select, new Listener<ComponentEvent>() {
+			public void handleEvent(ComponentEvent ce) {
+				HelpTextDialog htd = new HelpTextDialog(helpTextId);
+				htd.show();
+			}
+		});
+		panel.getHeader().addTool(helpBtn);
 	}
 
 	public WelcomeMessageListServiceAsync getWelcomeMessageListService() {

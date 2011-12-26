@@ -12,7 +12,9 @@ import com.extjs.gxt.ui.client.dnd.DND.Feedback;
 import com.extjs.gxt.ui.client.dnd.TreePanelDragSource;
 import com.extjs.gxt.ui.client.dnd.TreePanelDropTarget;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.DNDEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -26,6 +28,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
+import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.form.StoreFilterField;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
@@ -48,6 +51,7 @@ import com.scholastic.sbam.client.services.SnapshotProductListServiceAsync;
 import com.scholastic.sbam.client.services.UpdateSnapshotProductListService;
 import com.scholastic.sbam.client.services.UpdateSnapshotProductListServiceAsync;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
+import com.scholastic.sbam.client.uiobjects.uitop.HelpTextDialog;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.objects.SnapshotInstance;
 import com.scholastic.sbam.shared.objects.SnapshotProductTreeInstance;
@@ -230,10 +234,18 @@ public class SnapshotProductSelectTree extends LayoutContainer implements AppSle
 	}
 
 	
+	protected String				helpTextId;
+	
 	private SnapshotInstance		snapshot;
 	private String					panelHeading;
 
-	private ContentPanel 			panel		= new ContentPanel(new FitLayout());	// We need to make sure this is created even before rendering
+	private ContentPanel 			panel		= new ContentPanel(new FitLayout()) {
+			@Override
+			protected void initTools() {
+				addHelp(this);
+				super.initTools();
+			}		
+		};	// We need to make sure this is created even before rendering
 	private TreeStore<ModelData>	store 		= new TreeStore<ModelData>();;
 	private MyTreePanel<ModelData>	tree 		= new MyTreePanel<ModelData>(store);
 	private Button					saveButton	= new Button("Save");
@@ -242,6 +254,13 @@ public class SnapshotProductSelectTree extends LayoutContainer implements AppSle
 	private final UpdateSnapshotProductListServiceAsync	updateSnapshotProductListService	= GWT.create(UpdateSnapshotProductListService.class);
 
 	public SnapshotProductSelectTree() {
+		super();
+
+		if (helpTextId == null) {
+			this.helpTextId = this.getClass().getName();
+			if (helpTextId.lastIndexOf('.') >= 0)
+				helpTextId = helpTextId.substring(helpTextId.lastIndexOf('.') + 1);
+		}
 	}
 	
 	public SnapshotProductSelectTree(boolean allowReorganize) {
@@ -817,6 +836,23 @@ public class SnapshotProductSelectTree extends LayoutContainer implements AppSle
 			for (SnapshotProductTreeInstance child : instance.getChildInstances()) {
 				addInstanceToStore(item, child);
 			}
+	}
+
+	protected void addHelp(ContentPanel panel) {
+		if (helpTextId == null)
+			return;
+		
+		ToolButton helpBtn = new ToolButton("x-tool-help");
+//		if (GXT.isAriaEnabled()) {
+//			helpBtn.setTitle(GXT.MESSAGES.pagingToolBar_beforePageText());
+//		}
+		helpBtn.addListener(Events.Select, new Listener<ComponentEvent>() {
+			public void handleEvent(ComponentEvent ce) {
+				HelpTextDialog htd = new HelpTextDialog(helpTextId);
+				htd.show();
+			}
+		});
+		panel.getHeader().addTool(helpBtn);
 	}
 	
 	public void setPanelHeading(String panelHeading) {

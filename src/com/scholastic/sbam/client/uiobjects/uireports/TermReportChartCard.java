@@ -36,6 +36,8 @@ import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -63,6 +65,7 @@ import com.scholastic.sbam.client.services.SnapshotTermDataListService;
 import com.scholastic.sbam.client.services.SnapshotTermDataListServiceAsync;
 import com.scholastic.sbam.client.uiobjects.fields.EnhancedComboBox;
 import com.scholastic.sbam.client.uiobjects.foundation.FieldFactory;
+import com.scholastic.sbam.client.uiobjects.uitop.HelpTextDialog;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
@@ -80,7 +83,8 @@ public class TermReportChartCard extends SnapshotCardBase {
 	
 	public static final String chartTitleStyle	= "font-size: 20px; font-family: Verdana; text-align: center; color: saddlebrown;";
 	public static final String [] chartColors	=	{ "#ff0000", "#00aa00", "#0000ff", "#ff9900", "#ff00ff" };
-	
+
+	protected String									helpTextId;
 	
 	protected int														chartType				=	PIE_CHART;
 	protected SnapshotParameterSetInstance								snapshotParameterSet	=	null;
@@ -120,6 +124,10 @@ public class TermReportChartCard extends SnapshotCardBase {
 	public TermReportChartCard() {
 		super();
 		this.headingToolTip = "Use this panel to view a terms based chart.";
+		
+		this.helpTextId = this.getClass().getName();
+		if (helpTextId.lastIndexOf('.') >= 0)
+			helpTextId = helpTextId.substring(helpTextId.lastIndexOf('.') + 1);
 	}
 
 	@Override
@@ -135,6 +143,7 @@ public class TermReportChartCard extends SnapshotCardBase {
 		if (chart == null)
 			createChart();
 		
+		addHelpTool(contentPanel);
 		contentPanel.getHeader().addTool(getParametersTool());
 		
 		contentPanel.setTopComponent(getButtonsBar());
@@ -148,7 +157,7 @@ public class TermReportChartCard extends SnapshotCardBase {
 	}
 	
 	public ToolButton getParametersTool() {
-		ToolButton parametersTool = new ToolButton("x-tool-help") {
+		ToolButton parametersTool = new ToolButton("x-tool-search") {
 			@Override
 			protected void onClick(ComponentEvent ce) {
 				if (contentPanel.getHeader().getToolTip() != null)
@@ -157,6 +166,23 @@ public class TermReportChartCard extends SnapshotCardBase {
 		};
 		parametersTool.enable();
 		return parametersTool; 
+	}
+	
+	protected void addHelpTool(ContentPanel panel) {
+		if (helpTextId == null)
+			return;
+		
+		ToolButton helpBtn = new ToolButton("x-tool-help");
+//		if (GXT.isAriaEnabled()) {
+//			helpBtn.setTitle(GXT.MESSAGES.pagingToolBar_beforePageText());
+//		}
+		helpBtn.addListener(Events.Select, new Listener<ComponentEvent>() {
+			public void handleEvent(ComponentEvent ce) {
+				HelpTextDialog htd = new HelpTextDialog(helpTextId);
+				htd.show();
+			}
+		});
+		panel.getHeader().addTool(helpBtn);
 	}
 	
 	public void createChart() {

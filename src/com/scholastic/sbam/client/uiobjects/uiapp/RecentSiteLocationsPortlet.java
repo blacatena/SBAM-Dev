@@ -65,7 +65,7 @@ public class RecentSiteLocationsPortlet extends GridSupportPortlet<InstitutionIn
 	protected String				filter;
 	
 	public RecentSiteLocationsPortlet() {
-		super(AppPortletIds.RECENT_CUSTOMERS_DISPLAY.getHelpTextId());
+		super(AppPortletIds.RECENT_SITES_DISPLAY.getHelpTextId());
 	}
 	
 	public RecentSiteLocationsPortlet(String helpTextId) {

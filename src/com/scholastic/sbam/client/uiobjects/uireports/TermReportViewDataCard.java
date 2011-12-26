@@ -16,6 +16,8 @@ import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -51,6 +53,7 @@ import com.scholastic.sbam.client.services.SnapshotTakeServiceAsync;
 import com.scholastic.sbam.client.services.SnapshotTermDataListService;
 import com.scholastic.sbam.client.services.SnapshotTermDataListServiceAsync;
 import com.scholastic.sbam.client.stores.ExtendedStoreSorter;
+import com.scholastic.sbam.client.uiobjects.uitop.HelpTextDialog;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.exceptions.ServiceNotReadyException;
@@ -98,6 +101,8 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 	}
 	
 	public static final String [] OTHER_TERM_DATA_SORTS = {"institution.institutionName", "ucn", "ucnSuffix", "agreementId", "productCode", "serviceCode", "rowId"};
+
+	protected String									helpTextId;
 	
 	protected SnapshotParameterSetInstance								snapshotParameterSet	= null;
 	
@@ -120,6 +125,10 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 	public TermReportViewDataCard() {
 		super();
 		this.headingToolTip = "Use this panel to view a terms based report.";
+		
+		this.helpTextId = this.getClass().getName();
+		if (helpTextId.lastIndexOf('.') >= 0)
+			helpTextId = helpTextId.substring(helpTextId.lastIndexOf('.') + 1);
 	}
 
 	@Override
@@ -132,6 +141,7 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 		grid = getGrid(); 
 		contentPanel.add(grid);
 
+		addHelpTool(contentPanel);
 		contentPanel.getHeader().addTool(getParametersTool());
 		contentPanel.getHeader().addTool(getPieChartTool());
 		contentPanel.getHeader().addTool(getBarChartTool());
@@ -143,7 +153,7 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 	}
 	
 	public ToolButton getParametersTool() {
-		ToolButton parametersTool = new ToolButton("x-tool-help") {
+		ToolButton parametersTool = new ToolButton("x-tool-search") {
 			@Override
 			protected void onClick(ComponentEvent ce) {
 				if (contentPanel.getHeader().getToolTip() != null)
@@ -152,6 +162,23 @@ public class TermReportViewDataCard extends SnapshotCardBase {
 		};
 		parametersTool.enable();
 		return parametersTool; 
+	}
+	
+	protected void addHelpTool(ContentPanel panel) {
+		if (helpTextId == null)
+			return;
+		
+		ToolButton helpBtn = new ToolButton("x-tool-help");
+//		if (GXT.isAriaEnabled()) {
+//			helpBtn.setTitle(GXT.MESSAGES.pagingToolBar_beforePageText());
+//		}
+		helpBtn.addListener(Events.Select, new Listener<ComponentEvent>() {
+			public void handleEvent(ComponentEvent ce) {
+				HelpTextDialog htd = new HelpTextDialog(helpTextId);
+				htd.show();
+			}
+		});
+		panel.getHeader().addTool(helpBtn);
 	}
 	
 	public ToolButton getPieChartTool() {

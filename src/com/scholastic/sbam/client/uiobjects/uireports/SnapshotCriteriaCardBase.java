@@ -6,6 +6,8 @@ import java.util.List;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.data.BeanModel;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -16,6 +18,7 @@ import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
+import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.DateField;
@@ -36,6 +39,7 @@ import com.scholastic.sbam.client.services.UpdateSnapshotParameterSetServiceAsyn
 import com.scholastic.sbam.client.uiobjects.fields.BoundDateField;
 import com.scholastic.sbam.client.uiobjects.foundation.AppSleeper;
 import com.scholastic.sbam.client.uiobjects.foundation.FieldFactory;
+import com.scholastic.sbam.client.uiobjects.uitop.HelpTextDialog;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.SnapshotInstance;
@@ -46,6 +50,8 @@ import com.scholastic.sbam.shared.util.AppConstants;
 public abstract class SnapshotCriteriaCardBase extends SnapshotCardBase implements AppSleeper {
 	
 	protected final int						DIRTY_FIELDS_LISTEN_TIME	=	250;
+	
+	protected String						helpTextId;
 	
 	protected String						source;
 	protected SnapshotParameterSetInstance	snapshotParameterSet;
@@ -75,6 +81,12 @@ public abstract class SnapshotCriteriaCardBase extends SnapshotCardBase implemen
 		super();
 		
 		this.headingToolTip = getPanelToolTip();
+		
+		if (helpTextId == null) {
+			this.helpTextId = this.getClass().getName();
+			if (helpTextId.lastIndexOf('.') >= 0)
+				helpTextId = helpTextId.substring(helpTextId.lastIndexOf('.') + 1);
+		}
 	}
 	
 	public abstract String getPanelToolTip();
@@ -114,7 +126,13 @@ public abstract class SnapshotCriteriaCardBase extends SnapshotCardBase implemen
 	public abstract String getPanelIconName();
 	
 	public ContentPanel getNewContentPanel() {
-		ContentPanel contentPanel = new ContentPanel();
+		ContentPanel contentPanel = new ContentPanel() {
+			@Override
+			protected void initTools() {
+				addHelp(this);
+				super.initTools();
+			}		
+		};
 		contentPanel.setHeading(getPanelTitle());
 		IconSupplier.setIcon(contentPanel, getPanelIconName());
 		return contentPanel;
@@ -681,6 +699,24 @@ public abstract class SnapshotCriteriaCardBase extends SnapshotCardBase implemen
 	public void handleCleanForm() {
 		if (saveButton != null) saveButton.disable();
 		if (cancelButton != null) cancelButton.disable();
+	}
+	
+
+	protected void addHelp(ContentPanel panel) {
+		if (helpTextId == null)
+			return;
+		
+		ToolButton helpBtn = new ToolButton("x-tool-help");
+//		if (GXT.isAriaEnabled()) {
+//			helpBtn.setTitle(GXT.MESSAGES.pagingToolBar_beforePageText());
+//		}
+		helpBtn.addListener(Events.Select, new Listener<ComponentEvent>() {
+			public void handleEvent(ComponentEvent ce) {
+				HelpTextDialog htd = new HelpTextDialog(helpTextId);
+				htd.show();
+			}
+		});
+		panel.getHeader().addTool(helpBtn);
 	}
 
 	@Override

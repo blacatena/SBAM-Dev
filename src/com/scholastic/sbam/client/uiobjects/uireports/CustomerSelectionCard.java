@@ -1,13 +1,20 @@
 package com.scholastic.sbam.client.uiobjects.uireports;
 
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
+import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.scholastic.sbam.client.uiobjects.uitop.HelpTextDialog;
 import com.scholastic.sbam.client.util.IconSupplier;
 import com.scholastic.sbam.shared.objects.SnapshotInstance;
 
 public class CustomerSelectionCard extends SnapshotCardBase {
+	
+	protected String				helpTextId;
 	
 	protected ContentPanel	contentPanel				=	 getNewContentPanel();
 	
@@ -19,6 +26,9 @@ public class CustomerSelectionCard extends SnapshotCardBase {
 	public CustomerSelectionCard() {
 		super();
 		this.headingToolTip = "Use this panel to select customers for the snapshot.";
+		this.helpTextId = this.getClass().getName();
+		if (helpTextId.lastIndexOf('.') >= 0)
+			helpTextId = helpTextId.substring(helpTextId.lastIndexOf('.') + 1);
 	}
 
 	@Override
@@ -28,7 +38,13 @@ public class CustomerSelectionCard extends SnapshotCardBase {
 	}
 	
 	public ContentPanel getNewContentPanel() {
-		ContentPanel contentPanel = new ContentPanel();
+		ContentPanel contentPanel = new ContentPanel() {
+			@Override
+			protected void initTools() {
+				addHelp(this);
+				super.initTools();
+			}		
+		};
 		contentPanel.setHeading(getPanelTitle());
 		IconSupplier.setIcon(contentPanel, IconSupplier.getCustomerIconName());
 		contentPanel.setLayout(new FitLayout());
@@ -54,6 +70,23 @@ public class CustomerSelectionCard extends SnapshotCardBase {
 		countriesTab.add(countryCard);
 		
 		return advanced;
+	}
+	
+	protected void addHelp(ContentPanel panel) {
+		if (helpTextId == null)
+			return;
+		
+		ToolButton helpBtn = new ToolButton("x-tool-help");
+//		if (GXT.isAriaEnabled()) {
+//			helpBtn.setTitle(GXT.MESSAGES.pagingToolBar_beforePageText());
+//		}
+		helpBtn.addListener(Events.Select, new Listener<ComponentEvent>() {
+			public void handleEvent(ComponentEvent ce) {
+				HelpTextDialog htd = new HelpTextDialog(helpTextId);
+				htd.show();
+			}
+		});
+		panel.getHeader().addTool(helpBtn);
 	}
 
 	@Override
