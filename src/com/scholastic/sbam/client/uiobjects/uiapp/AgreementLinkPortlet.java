@@ -109,7 +109,7 @@ public class AgreementLinkPortlet extends GridSupportPortlet<AgreementLinkInstan
 																	UiConstants.getLinkTypes(), "linkTypeCode", "descriptionAndCode");
 	
 	public AgreementLinkPortlet() {
-		super(AppPortletIds.AGREEMENT_DISPLAY.getHelpTextId());
+		super(AppPortletIds.AGREEMENT_LINK_DISPLAY.getHelpTextId());
 //		forceHeight = DEFAULT_HEIGHT;
 	}
 

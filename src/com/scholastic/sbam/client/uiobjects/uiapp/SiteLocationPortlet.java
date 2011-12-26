@@ -132,7 +132,7 @@ public class SiteLocationPortlet extends GridSupportPortlet<SiteInstance> implem
 	protected LockableFieldSet				preferencesFieldSet	= new LockableFieldSet();
 	
 	public SiteLocationPortlet() {
-		super(AppPortletIds.AGREEMENT_DISPLAY.getHelpTextId());
+		super(AppPortletIds.SITE_LOCATION_DISPLAY.getHelpTextId());
 	}
 	
 //	public void setSiteLocation(SiteInstance site) {

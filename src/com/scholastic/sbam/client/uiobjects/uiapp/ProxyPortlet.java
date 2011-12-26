@@ -119,7 +119,7 @@ public class ProxyPortlet extends GridSupportPortlet<ProxyInstance> implements A
 	protected NotesIconButtonField<String>	ipNotesField		= getIpNotesButtonField();
 	
 	public ProxyPortlet() {
-		super(AppPortletIds.AGREEMENT_DISPLAY.getHelpTextId());
+		super(AppPortletIds.PROXY_DISPLAY.getHelpTextId());
 //		forceHeight = DEFAULT_HEIGHT;
 	}
 
