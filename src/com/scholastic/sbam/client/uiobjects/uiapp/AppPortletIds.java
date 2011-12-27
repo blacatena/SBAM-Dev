@@ -20,7 +20,7 @@ public enum AppPortletIds {
 	SITE_INSTITUTION_SEARCH				(
 				"Site Institution Search",
 				IconSupplier.getSiteIconName(),
-				"SiteIntitutionSearch",
+				"SiteInstitutionSearch",
 				SiteInstitutionSearchPortlet.class.getName()
 			),
 	INSTITUTION_CONTACT_SEARCH				(
