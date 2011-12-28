@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.BeanModel;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.ToolButton;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
@@ -37,6 +41,7 @@ import com.scholastic.sbam.client.uiobjects.fields.StateComboBox;
 import com.scholastic.sbam.client.uiobjects.foundation.FieldFactory;
 import com.scholastic.sbam.client.uiobjects.foundation.FormAndGridPanel;
 import com.scholastic.sbam.client.uiobjects.foundation.FormInnerPanel;
+import com.scholastic.sbam.client.uiobjects.uitop.HelpTextDialog;
 import com.scholastic.sbam.client.util.UiConstants;
 import com.scholastic.sbam.shared.objects.InstitutionContactInstance;
 import com.scholastic.sbam.shared.objects.InstitutionInstance;
@@ -51,6 +56,8 @@ import com.scholastic.sbam.shared.validation.PhoneValidator;
 import com.scholastic.sbam.shared.validation.ZipValidator;
 
 public class InstitutionContactsCard extends FormAndGridPanel<InstitutionContactInstance> {
+	
+	protected String										helpTextId;
 	
 	protected final InstitutionContactListServiceAsync 		institutionContactListService 	= GWT.create(InstitutionContactListService.class);
 	protected final UpdateInstitutionContactServiceAsync	updateInstitutionContactService	= GWT.create(UpdateInstitutionContactService.class);
@@ -91,6 +98,16 @@ public class InstitutionContactsCard extends FormAndGridPanel<InstitutionContact
 	protected InstitutionInstance			institution;
 	
 	protected List<ToolButton>				toolButtons			= new ArrayList<ToolButton>();
+	
+	public InstitutionContactsCard() {
+		super();
+
+		if (helpTextId == null) {
+			this.helpTextId = this.getClass().getName();
+			if (helpTextId.lastIndexOf('.') >= 0)
+				helpTextId = helpTextId.substring(helpTextId.lastIndexOf('.') + 1);
+		}
+	}
 	
 	public int getUcn() {
 		return getFocusId();
@@ -141,6 +158,7 @@ public class InstitutionContactsCard extends FormAndGridPanel<InstitutionContact
 		
 		if (toolButtons.size() > 0) {
 			this.formPanel.setHeaderVisible(true);
+			addHelp(formPanel);
 			for (ToolButton toolButton : toolButtons)
 				this.formPanel.getHeader().addTool(toolButton);
 		}
@@ -671,6 +689,23 @@ public class InstitutionContactsCard extends FormAndGridPanel<InstitutionContact
 				}
 			});
 	}
-	
+
+
+	protected void addHelp(ContentPanel panel) {
+		if (helpTextId == null)
+			return;
+		
+		ToolButton helpBtn = new ToolButton("x-tool-help");
+//		if (GXT.isAriaEnabled()) {
+//			helpBtn.setTitle(GXT.MESSAGES.pagingToolBar_beforePageText());
+//		}
+		helpBtn.addListener(Events.Select, new Listener<ComponentEvent>() {
+			public void handleEvent(ComponentEvent ce) {
+				HelpTextDialog htd = new HelpTextDialog(helpTextId);
+				htd.show();
+			}
+		});
+		panel.getHeader().addTool(helpBtn);
+	}
 	
 }
