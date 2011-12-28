@@ -48,6 +48,7 @@ public class HelpTextInstance implements IsSerializable, BeanModelTag {
 		List<String> returnList = new ArrayList<String>();
 		if (idList == null)
 			return returnList;
+		idList = idList.replace(',', ';');
 		String [] parts = idList.split(";");
 		for (String part : parts) {
 			if (part.trim().length() > 0)
