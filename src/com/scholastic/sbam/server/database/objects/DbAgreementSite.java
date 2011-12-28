@@ -141,9 +141,9 @@ public class DbAgreementSite extends HibernateAccessor {
             if (filter != null) {
 				filter = filter.replaceAll("'", "''");
 				if (doBoolean) {
-					sqlQuery += "AND MATCH (institution_name,address1,adress2,adress3,city,zip,country,ucn,parent_ucn) AGAINST ('" + filter + "' IN BOOLEAN MODE)";
+					sqlQuery += "AND MATCH (institution_name,address1,address2,address3,city,zip,country,ucn,parent_ucn) AGAINST ('" + filter + "' IN BOOLEAN MODE)";
 				} else {
-					sqlQuery += "AND MATCH (institution_name,address1,adress2,adress3,city,zip,country) AGAINST ('" + filter + "')";
+					sqlQuery += "AND MATCH (institution_name,address1,address2,address3,city,zip,country,ucn,parent_ucn) AGAINST ('" + filter + "')";
 				}
             }
 			
@@ -179,9 +179,9 @@ public class DbAgreementSite extends HibernateAccessor {
             if (filter != null) {
 				filter = filter.replaceAll("'", "''");
 				if (doBoolean) {
-					sqlQuery += "AND MATCH (institution_name,address1,city,zip,ucn,parent_ucn) AGAINST ('" + filter + "' IN BOOLEAN MODE)";
+					sqlQuery += "AND MATCH (institution_name,address1,address2,address3,city,zip,ucn,parent_ucn) AGAINST ('" + filter + "' IN BOOLEAN MODE)";
 				} else {
-					sqlQuery += "AND MATCH (institution_name,address1,city,zip,ucn,parent_ucn) AGAINST ('" + filter + "')";
+					sqlQuery += "AND MATCH (institution_name,address1,address2,address3,city,zip,ucn,parent_ucn) AGAINST ('" + filter + "')";
 				}
             }
 			
