@@ -9,6 +9,9 @@ import com.google.gwt.user.client.rpc.IsSerializable;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.scholastic.sbam.client.util.IconSupplier;
 
+/*
+ * This class contains the complete Application area navigation tree that allows user access to individual application functions.
+ */
 public class AppNavTree {
 	
 	public static class SelectionIconProvider implements ModelIconProvider<ModelData> {

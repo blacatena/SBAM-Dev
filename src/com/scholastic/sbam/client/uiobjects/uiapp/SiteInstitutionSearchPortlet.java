@@ -13,11 +13,14 @@ import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.MessageBox;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -88,6 +91,25 @@ public class SiteInstitutionSearchPortlet extends InstitutionSearchPortletBase {
 	protected void showInstitution(InstitutionInstance institution) {
 		super.showInstitution(institution);
 		siteLocationsLoader.load();
+	}
+	
+	@Override
+	protected void addButtons(FormData formData) {
+		super.addButtons(formData);
+		
+		Button newLocationButton = new Button("New Site Location");
+		newLocationButton.setToolTip(UiConstants.getQuickTip("Use this button to create a new site location within this institution."));
+		IconSupplier.forceIcon(newLocationButton, IconSupplier.getNewIconName());
+		newLocationButton.addSelectionListener(new SelectionListener<ButtonEvent>() {  
+				@Override
+				public void componentSelected(ButtonEvent ce) {
+					SiteLocationPortlet portlet = (SiteLocationPortlet) portletProvider.getPortlet(AppPortletIds.SITE_LOCATION_DISPLAY);
+					portlet.setCreateForInstitution(focusInstitution);
+					int insertCol = (portalColumn == 0) ? 1 : 0;
+					portletProvider.insertPortlet(portlet, portalRow, insertCol);
+				}  
+			});
+		cardToolBar.add(newLocationButton);
 	}
 	
 	protected void addSiteLocationsGrid(FormData formData) {

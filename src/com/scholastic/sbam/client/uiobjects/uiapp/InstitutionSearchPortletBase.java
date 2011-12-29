@@ -94,6 +94,7 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 	protected InstitutionContactsCard	contactsCard;
 	protected Grid<ModelData>			grid;
 	protected LiveGridView				liveView;
+	protected ToolBar					cardToolBar;
 	
 	protected ListStore<ModelData>		store;
 	protected ComboBox<ModelData>		filterCombo;
@@ -494,6 +495,8 @@ public class InstitutionSearchPortletBase extends GridSupportPortlet<AgreementSu
 
 		TableData td = new TableData();
 		td.setColspan(2);
+		
+		cardToolBar = toolBar;
 		displayCard.add(toolBar, td);
 	}
 	
