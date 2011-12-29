@@ -59,51 +59,51 @@ public class SnapshotAgreementTermSql {
 		sb.append(dbSnapshot.getSnapshotId());
 		sb.append(" as SNAPSHOT_ID");
 		sb.append(",");
-		sb.append("AGREEMENT_TERM.AGREEMENT_ID as AGREEMENT_ID");
+		sb.append("agreement_term.AGREEMENT_ID as AGREEMENT_ID");
 		sb.append(",");
-		sb.append("AGREEMENT_TERM.TERM_ID as TERM_ID");
+		sb.append("agreement_term.TERM_ID as TERM_ID");
 		sb.append(",");
-		sb.append("AGREEMENT_TERM.PRODUCT_CODE as PRODUCT_CODE");
+		sb.append("agreement_term.PRODUCT_CODE as PRODUCT_CODE");
 		sb.append(",");
 		if (dbSnapshot.getProductServiceType() == SnapshotInstance.SERVICE_TYPE) {
-			sb.append("PRODUCT_SERVICE.SERVICE_CODE as SERVICE_CODE");
+			sb.append("product_service.SERVICE_CODE as SERVICE_CODE");
 		} else {
 			sb.append("'' as SERVICE_CODE");
 		}
 		sb.append(",");
-		sb.append("AGREEMENT_TERM.START_DATE as START_DATE");
+		sb.append("agreement_term.START_DATE as START_DATE");
 		sb.append(",");
-		sb.append("AGREEMENT_TERM.END_DATE as END_DATE");
+		sb.append("agreement_term.END_DATE as END_DATE");
 		sb.append(",");
-		sb.append("AGREEMENT_TERM.TERMINATE_DATE as TERMINATE_DATE");
+		sb.append("agreement_term.TERMINATE_DATE as TERMINATE_DATE");
 		sb.append(",");
-		sb.append("AGREEMENT_TERM.TERM_TYPE as TERM_TYPE");
+		sb.append("agreement_term.TERM_TYPE as TERM_TYPE");
 		sb.append(",");
-		sb.append("AGREEMENT_TERM.CANCEL_REASON_CODE as CANCEL_REASON_CODE");
+		sb.append("agreement_term.CANCEL_REASON_CODE as CANCEL_REASON_CODE");
 		sb.append(",");
-		sb.append("AGREEMENT_TERM.CANCEL_DATE as CANCEL_DATE");
+		sb.append("agreement_term.CANCEL_DATE as CANCEL_DATE");
 		sb.append(",");
-		sb.append("AGREEMENT_TERM.DOLLAR_VALUE as DOLLAR_VALUE");
+		sb.append("agreement_term.DOLLAR_VALUE as DOLLAR_VALUE");
 		sb.append(",");
-		sb.append("AGREEMENT_TERM.WORKSTATIONS as WORKSTATIONS");
+		sb.append("agreement_term.WORKSTATIONS as WORKSTATIONS");
 		sb.append(",");
-		sb.append("AGREEMENT_TERM.BUILDINGS as BUILDINGS");
+		sb.append("agreement_term.BUILDINGS as BUILDINGS");
 		sb.append(",");
-		sb.append("AGREEMENT_TERM.POPULATION as POPULATION");
+		sb.append("agreement_term.POPULATION as POPULATION");
 		sb.append(",");
-		sb.append("AGREEMENT_TERM.ENROLLMENT as ENROLLMENT");
+		sb.append("agreement_term.ENROLLMENT as ENROLLMENT");
 		sb.append(",");
-		sb.append("AGREEMENT_TERM.COMMISSION_CODE as COMMISSION_CODE");
+		sb.append("agreement_term.COMMISSION_CODE as COMMISSION_CODE");
 		sb.append(",");
-		sb.append("AGREEMENT_TERM.PRIMARY_TERM as PRIMARY_TERM");	
+		sb.append("agreement_term.PRIMARY_TERM as PRIMARY_TERM");	
 	}
 	
 	protected void appendFrom() {
 		sb.append("FROM");
 		sb.append(" ");
-		sb.append("AGREEMENT, AGREEMENT_TERM, PRODUCT");
+		sb.append("agreement, agreement_term, product");
 		if (dbSnapshot.getProductServiceType() == SnapshotInstance.SERVICE_TYPE) {
-			sb.append(",PRODUCT_SERVICE,SERVICE");
+			sb.append(",product_service,service");
 		}
 	}
 	
@@ -111,12 +111,12 @@ public class SnapshotAgreementTermSql {
 		sb.append("WHERE");
 		
 		sb.append(" ");
-		sb.append("AGREEMENT.ID = AGREEMENT_TERM.AGREEMENT_ID");
+		sb.append("agreement.ID = agreement_term.AGREEMENT_ID");
 		
 		sb.append(" ");
 		sb.append("AND");
 		sb.append(" ");
-		sb.append("AGREEMENT.STATUS <> ");
+		sb.append("agreement.STATUS <> ");
 		sb.append("'");
 		sb.append(AppConstants.STATUS_DELETED);
 		sb.append("'");
@@ -124,12 +124,12 @@ public class SnapshotAgreementTermSql {
 		sb.append(" ");
 		sb.append("AND");
 		sb.append(" ");
-		sb.append("AGREEMENT_TERM.PRODUCT_CODE = PRODUCT.PRODUCT_CODE");
+		sb.append("agreement_term.PRODUCT_CODE = product.PRODUCT_CODE");
 		
 		sb.append(" ");
 		sb.append("AND");
 		sb.append(" ");
-		sb.append("PRODUCT.STATUS = ");
+		sb.append("product.STATUS = ");
 		sb.append("'");
 		sb.append(AppConstants.STATUS_ACTIVE);
 		sb.append("'");
@@ -139,17 +139,17 @@ public class SnapshotAgreementTermSql {
 			sb.append(" ");
 			sb.append("AND");
 			sb.append(" ");
-			sb.append("AGREEMENT_TERM.PRODUCT_CODE = PRODUCT_SERVICE.PRODUCT_CODE");
+			sb.append("agreement_term.PRODUCT_CODE = product_service.PRODUCT_CODE");
 			
 			sb.append(" ");
 			sb.append("AND");
 			sb.append(" ");
-			sb.append("PRODUCT_SERVICE.SERVICE_CODE = SERVICE.SERVICE_CODE");
+			sb.append("product_service.SERVICE_CODE = service.SERVICE_CODE");
 			
 			sb.append(" ");
 			sb.append("AND");
 			sb.append(" ");
-			sb.append("PRODUCT_SERVICE.STATUS = ");
+			sb.append("product_service.STATUS = ");
 			sb.append("'");
 			sb.append(AppConstants.STATUS_ACTIVE);
 			sb.append("'");
@@ -157,7 +157,7 @@ public class SnapshotAgreementTermSql {
 			sb.append(" ");
 			sb.append("AND");
 			sb.append(" ");
-			sb.append("SERVICE.STATUS = ");
+			sb.append("service.STATUS = ");
 			sb.append("'");
 			sb.append(AppConstants.STATUS_ACTIVE);
 			sb.append("'");
@@ -210,15 +210,15 @@ public class SnapshotAgreementTermSql {
 		if (dbSnapshot.getProductServiceType() == productServiceType || productServiceType == SnapshotInstance.PRODUCT_TYPE) {
 			//	By product, or if both report and select by service, then just add an in clause
 			if (productServiceType == SnapshotInstance.PRODUCT_TYPE) {
-				sb.append("PRODUCT.PRODUCT_CODE");
+				sb.append("product.PRODUCT_CODE");
 			} else if (productServiceType == SnapshotInstance.SERVICE_TYPE) {
-				sb.append("SERVICE.SERVICE_CODE");
+				sb.append("service.SERVICE_CODE");
 			} else
 				throw new IllegalArgumentException("INTERNAL ERROR: Invalid snapshot product/service type " + dbSnapshot.getProductServiceType() + ".");
 			appendProductServiceInClause(snapshotProductServices);
 		} else {
 			//	If reporting by product and constraining by service, build an in-clause of products based on service components
-			sb.append("PRODUCT.PRODUCT_CODE");
+			sb.append("product.PRODUCT_CODE");
 			appendProductInClause(snapshotProductServices);
 		}
 	}
