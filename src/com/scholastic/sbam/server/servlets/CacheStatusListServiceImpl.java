@@ -1,6 +1,7 @@
 package com.scholastic.sbam.server.servlets;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.extjs.gxt.ui.client.data.LoadConfig;
@@ -12,7 +13,6 @@ import com.scholastic.sbam.server.fastSearch.InstitutionCache;
 import com.scholastic.sbam.server.fastSearch.SiteInstitutionCache;
 import com.scholastic.sbam.server.fastSearch.InstitutionCache.InstitutionCacheConflict;
 import com.scholastic.sbam.shared.objects.CacheStatusInstance;
-import com.sun.tools.hat.internal.util.ArraySorter;
 
 /**
  * The server side implementation of the RPC service.
@@ -23,7 +23,7 @@ public class CacheStatusListServiceImpl extends AuthenticatedServiceServlet impl
 	@Override
 	public List<CacheStatusInstance> listCacheStatus(LoadConfig loadConfig) throws IllegalArgumentException {
 		
-		authenticate("list link types");	//	SecurityManager.ROLE_CONFIG);
+		authenticate("list caches");	//	SecurityManager.ROLE_CONFIG);
 		
 		HibernateUtil.openSession();
 		HibernateUtil.startTransaction();
@@ -32,16 +32,24 @@ public class CacheStatusListServiceImpl extends AuthenticatedServiceServlet impl
 		try {
 			
 			String [] keys = (String []) loadConfig.get("cacheKeys");
-			if (keys == null || keys.length == 0) 
+			if (keys == null || keys.length == 0) { 
 				keys = CacheStatusInstance.getAllCacheKeys();
-			ArraySorter.sortArrayOfStrings(keys);
+			}
+
+			Arrays.sort(keys);
 			
 			for (String key : keys) {
 				appendCache(key, list);
 			}
 
-		} catch (Exception exc) {
+		} catch (IllegalArgumentException exc) {
+			System.out.println(exc.getMessage());
 			exc.printStackTrace();
+			throw exc;
+		} catch (Exception exc) {
+			System.out.println(exc.getMessage());
+			exc.printStackTrace();
+			throw new IllegalArgumentException(exc.getMessage());
 		}
 		
 		HibernateUtil.endTransaction();
