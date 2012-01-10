@@ -97,7 +97,10 @@ public class DuplicateSnapshotServiceImpl extends AuthenticatedServiceServlet im
 			HibernateUtil.closeSession();
 		}
 		
-		return new UpdateResponse<SnapshotInstance>(DbSnapshot.getInstance(dbInstance));
+		SnapshotInstance instance = DbSnapshot.getInstance(dbInstance);
+		instance.setCreateDisplayName(auth.getDisplayName());
+		
+		return new UpdateResponse<SnapshotInstance>(instance);
 	}
 	
 	private void silentRollback() {
