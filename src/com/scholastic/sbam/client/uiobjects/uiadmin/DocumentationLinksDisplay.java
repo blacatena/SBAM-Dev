@@ -103,7 +103,7 @@ public class DocumentationLinksDisplay extends Composite implements AppSleeper {
 						html.setWidth(150);
 						docList.add(html);
 						
-						for (String docType : new String [] {"pdf", "docx", "html"}) {
+						for (String docType : new String [] {"pdf", "docx", "htm"}) {
 							contents = "<div class=\"pdocType\">";
 							if (link.getTypes().contains(docType)) {
 								contents += "<a href=\"";
