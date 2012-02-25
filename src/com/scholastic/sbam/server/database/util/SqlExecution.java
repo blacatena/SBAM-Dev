@@ -36,7 +36,7 @@ public class SqlExecution {
 			conn   = HibernateUtil.getConnection();
 		
 		//	Create the new statement
-		Statement sqlStmt = conn.createStatement();
+		sqlStmt = conn.createStatement();
 		
 		//	Execute the query
 		try  {
